@@ -49,6 +49,7 @@
       object-fit: cover;
       object-position: center top;
       display: block;
+      transition: opacity .18s ease;
     }
     #log {
       flex: 1 1 auto;
@@ -194,13 +195,45 @@
     ).trim();
 
     const STILLS = {
-      establish: { src: "stills/establish.jpg", cap: "Lane 7. Her shoe is a building. The grin is not a joke." },
-      look:      { src: "stills/look.jpg", cap: "She leans in. Hair becomes weather. Braces catch the neon." },
-      wave:      { src: "stills/wave.jpg", cap: "A hand like a crane. She found you. That is not safer." },
-      hide:      { src: "stills/hide.jpg", cap: "The crack is dark. The shoe is still hunting." },
-      shoe:      { src: "stills/shoe.jpg", cap: "The sole hangs. One twitch and the world ends." },
-      swallow:   { src: "stills/swallow.jpg", cap: "This is the real threat. She will put you on her tongue." }
+      establish: { src: "stills/establish.jpg" },
+      look:      { src: "stills/look.jpg" },
+      wave:      { src: "stills/wave.jpg" },
+      hide:      { src: "stills/hide.jpg" },
+      shoe:      { src: "stills/shoe.jpg" },
+      swallow:   { src: "stills/swallow.jpg" },
+      pinch:     { src: "stills/pinch.jpg" },
+      palm:      { src: "stills/palm.jpg" },
+      pocket:    { src: "stills/pocket.jpg" },
+      sit:       { src: "stills/sit.jpg" },
+      ball:      { src: "stills/ball.jpg" },
+      tongue:    { src: "stills/tongue.jpg" },
+      whisper:   { src: "stills/whisper.jpg" },
+      gutter:    { src: "stills/gutter.jpg" },
+      lace:      { src: "stills/lace.jpg" },
+      inside:    { src: "stills/inside.jpg" },
+      kneel:     { src: "stills/kneel.jpg" },
     };
+
+    const SHOT_KEYS = Object.keys(STILLS);
+
+    const SHOT_RULES = [
+      { key: "inside",  re: /\b(swallow(ed|ing)?|gulp|down the hatch|throat|stomach|inside her)\b/ },
+      { key: "tongue",  re: /\b(tongue|lick|taste|on her tongue)\b/ },
+      { key: "swallow", re: /\b(mouth|open up|say ahh|snack|eat you|vore)\b/ },
+      { key: "pocket",  re: /\b(pocket|hoodie pouch|in the hoodie)\b/ },
+      { key: "pinch",   re: /\b(pinch|pluck|tweeze|two fingers|picked (you|me) up)\b/ },
+      { key: "palm",    re: /\b(palm|handful|in her hand|on her hand|fingertip)\b/ },
+      { key: "gutter",  re: /\b(gutter|ball return|ball-return|trough)\b/ },
+      { key: "ball",    re: /\b(bowling ball|the ball)\b/ },
+      { key: "lace",    re: /\b(lace|laces|shoelace)\b/ },
+      { key: "shoe",    re: /\b(shoe|sneaker|sole|toe box|foxing)\b/ },
+      { key: "hide",    re: /\b(hid|hiding|crack|groove|under|duck)\b/ },
+      { key: "kneel",   re: /\b(kneel|kneeling|search(ing)? the floor|on her knee)\b/ },
+      { key: "sit",     re: /\b(sit|sits|sitting|cross-legged|plops)\b/ },
+      { key: "whisper", re: /\b(whisper|lean(s|ed|ing) in|too close|breath on)\b/ },
+      { key: "wave",    re: /\b(wave|reach(es|ing)|huge hand|fingers like)\b/ },
+      { key: "look",    re: /\b(look(s|ing)? down|leans over|hair (falls|curtain)|face fills)\b/ },
+    ];
 
     const SYSTEM = `You are the actor playing DAWN MARIE KELLER, 18.
 
@@ -223,6 +256,10 @@ You answer with EXACTLY this shape and nothing else:
 
 MOMENT: <one or two present-tense sentences of the body and the room at speck scale>
 DAWN: <two or three spoken sentences in her voice>
+SHOT: <exactly one of: establish, look, wave, hide, shoe, swallow, pinch, palm, pocket, sit, ball, tongue, whisper, gutter, lace, inside, kneel>
+
+Pick SHOT from what the body is doing right now:
+establish=full shoe looming, look=her face filling the sky, wave=giant hand reaching, hide=crack in the wood, shoe=sole hovering, swallow=open mouth with braces, pinch=two fingers lifting the speck, palm=on her hand, pocket=inside the hoodie pocket, sit=she sits on the lane, ball=bowling ball like a planet, tongue=tongue out, whisper=her face inches away, gutter=inside the ball return, lace=on the laces, inside=after a swallow, dark tunnel, kneel=she is on the floor hunting.
 
 No markdown. No extra labels. Never mention AI, models, prompts, or being an actor. Stay in Comet Lanes unless STATE says you moved. If STATE conflicts with earlier chat, STATE wins.`;
 
@@ -256,7 +293,29 @@ No markdown. No extra labels. Never mention AI, models, prompts, or being an act
     function setStill(key) {
       const shot = STILLS[key] || STILLS.establish;
       game.shot = STILLS[key] ? key : "establish";
-      els.still.src = shot.src;
+      if (els.still.src !== new URL(shot.src, location.href).href) {
+        els.still.style.opacity = "0.35";
+        els.still.src = shot.src;
+        els.still.onload = () => { els.still.style.opacity = "1"; };
+      }
+    }
+
+    function scoreShot(blob) {
+      const t = String(blob || "").toLowerCase();
+      let best = { key: null, n: 0 };
+      for (const rule of SHOT_RULES) {
+        if (rule.re.test(t)) {
+          const n = (t.match(rule.re) || []).length + 1;
+          if (n > best.n) best = { key: rule.key, n };
+        }
+      }
+      return best.key;
+    }
+
+    function pickShot({ userText, moment, line, actorShot }) {
+      const asked = String(actorShot || "").toLowerCase().trim();
+      if (SHOT_KEYS.includes(asked)) return asked;
+      return scoreShot([moment, line, userText].join(" \n ")) || game.shot || "establish";
     }
 
     function addTurn({ you, moment, line }) {
@@ -302,23 +361,24 @@ No markdown. No extra labels. Never mention AI, models, prompts, or being an act
       if (/\b(swallow|eat|tongue|mouth|gulp|snack|tease)\b/.test(t)) {
         game.playerPlace = "close enough to feel the heat of her breath";
         game.mood = "braces bared, treating you as a dare";
-        setStill("swallow");
-      } else if (/\b(hid|duck|crack|groove|under)\b/.test(t)) {
-        game.playerPlace = "tucked in a dark groove of the approach";
+      } else if (/\b(pocket|hoodie)\b/.test(t)) {
+        game.playerPlace = "in the linty dark of her hoodie pocket";
+        game.mood = "smug, carrying you like contraband";
+      } else if (/\b(pinch|pick|finger|palm|hand)\b/.test(t)) {
+        game.playerPlace = "between two fingers over the lane";
+        game.mood = "inspecting her find";
+      } else if (/\b(hid|duck|crack|groove|under|gutter)\b/.test(t)) {
+        game.playerPlace = "tucked where the wood or metal goes dark";
         game.mood = "hunting the floor";
-        setStill("hide");
       } else if (/\b(wave|yell|call|hey|hi|attention)\b/.test(t)) {
         game.noticed = true;
         game.playerPlace = "pinned under her attention";
         game.mood = "delighted, already thinking about her tongue";
-        setStill("wave");
       } else if (/\b(shoe|sneaker|lace|toe|sole)\b/.test(t)) {
         game.playerPlace = "on the rubber edge of her rental sneaker";
         game.mood = "one huge shoe hovering";
-        setStill("shoe");
       } else if (/\b(look|peek|scan|up)\b/.test(t)) {
         game.mood = "leaning over the lane";
-        setStill("look");
       }
     }
 
@@ -333,20 +393,22 @@ No markdown. No extra labels. Never mention AI, models, prompts, or being an act
 
     function parseActor(raw) {
       const text = String(raw || "").trim();
-      const momentMatch = text.match(/MOMENT:\s*([\s\S]*?)(?=\n\s*DAWN:|$)/i);
-      const dawnMatch = text.match(/DAWN:\s*([\s\S]*)$/i);
+      const momentMatch = text.match(/MOMENT:\s*([\s\S]*?)(?=\n\s*(?:DAWN|SHOT):|$)/i);
+      const dawnMatch = text.match(/DAWN:\s*([\s\S]*?)(?=\n\s*SHOT:|$)/i);
+      const shotMatch = text.match(/SHOT:\s*([a-z]+)/i);
       let moment = momentMatch ? momentMatch[1].trim() : "";
       let line = dawnMatch ? dawnMatch[1].trim() : "";
+      const actorShot = shotMatch ? shotMatch[1].toLowerCase() : "";
       if (!moment && !line) {
         const parts = text.split(/\n+/);
         if (parts.length > 1) {
           moment = parts[0].replace(/^MOMENT:\s*/i, "").trim();
-          line = parts.slice(1).join(" ").replace(/^DAWN:\s*/i, "").trim();
+          line = parts.slice(1).join(" ").replace(/^DAWN:\s*/i, "").replace(/\nSHOT:.*$/i, "").trim();
         } else {
-          line = text;
+          line = text.replace(/\nSHOT:.*$/i, "").trim();
         }
       }
-      return { moment, line };
+      return { moment, line, actorShot };
     }
 
     async function askActor(messages) {
@@ -354,7 +416,7 @@ No markdown. No extra labels. Never mention AI, models, prompts, or being an act
         const res = await fetch(CLOUD_ACTOR_URL, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ messages, temperature: 0.85, max_tokens: 180 }),
+          body: JSON.stringify({ messages, temperature: 0.85, max_tokens: 220 }),
         });
         if (!res.ok) throw new Error("Cloud actor failed");
         const data = await res.json();
@@ -381,7 +443,8 @@ No markdown. No extra labels. Never mention AI, models, prompts, or being an act
       els.status.textContent = "Dawn…";
       try {
         const raw = await askActor(buildMessages(userText));
-        const { moment, line } = parseActor(raw);
+        const { moment, line, actorShot } = parseActor(raw);
+        setStill(pickShot({ userText, moment, line, actorShot }));
         wrap.remove();
         addTurn({ you: userText, moment, line });
         history.push({ role: "user", content: userText });
