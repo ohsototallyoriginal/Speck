@@ -30,6 +30,54 @@
       color: var(--ink);
       font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", system-ui, sans-serif;
     }
+
+    html[data-face="dawn"] {
+      --neon: #ff4fd8;
+      --cyan: #5ce1ff;
+      --you: #3a5f86;
+    }
+    html[data-face="rae"] {
+      --neon: #ffb15a;
+      --cyan: #3fd4c4;
+      --you: #3a5a52;
+    }
+    html[data-face="rae"] #world .alley {
+      background:
+        radial-gradient(55% 38% at 20% 15%, rgba(255,177,90,.18), transparent 55%),
+        radial-gradient(50% 35% at 85% 75%, rgba(63,212,196,.12), transparent 52%),
+        #0a1010;
+    }
+    html[data-face="ang"] {
+      --neon: #e8b14a;
+      --cyan: #f3d7a0;
+      --you: #5a4630;
+    }
+    html[data-face="ang"] #world .alley {
+      background:
+        radial-gradient(55% 40% at 30% 18%, rgba(232,177,74,.2), transparent 55%),
+        radial-gradient(45% 30% at 80% 80%, rgba(90,50,20,.22), transparent 50%),
+        #120c08;
+    }
+    html[data-face="rae"].scene-mouth #world .mouth {
+      background:
+        radial-gradient(70% 50% at 50% 0%, rgba(180,70,30,.5), transparent 55%),
+        #220c08;
+    }
+    html[data-face="ang"].scene-mouth #world .mouth {
+      background:
+        radial-gradient(70% 50% at 50% 0%, rgba(160,80,40,.5), transparent 55%),
+        #1c0c08;
+    }
+    html[data-face="rae"].scene-gut #world .gut {
+      background:
+        radial-gradient(90% 45% at 50% 100%, rgba(70,200,90,.26), transparent 42%),
+        linear-gradient(180deg, #120808 0%, #2a100c 55%, #102010 100%);
+    }
+    html[data-face="ang"].scene-gut #world .gut {
+      background:
+        radial-gradient(90% 45% at 50% 100%, rgba(180,160,40,.2), transparent 42%),
+        linear-gradient(180deg, #140808 0%, #3a1810 55%, #1a1408 100%);
+    }
     html {
       background: #08040a;
     }
@@ -1289,6 +1337,25 @@ No markdown. No extra labels. Never mention AI, models, prompts, or being an act
       return CHARACTERS[id] || CHARACTERS.dawn;
     }
 
+    function ownerOfScenario(id) {
+      const key = String(id || "");
+      if (key.startsWith("rae-")) return "rae";
+      if (key.startsWith("ang-")) return "ang";
+      if (CHARACTERS[key]) return key;
+      return null;
+    }
+
+    function speakerName() {
+      return characterOf(game.characterId).name;
+    }
+
+    function applyTheme() {
+      const id = characterOf(game.characterId).id;
+      document.documentElement.setAttribute("data-face", id);
+      const c = characterOf(id);
+      if (els.still) els.still.alt = c.name;
+    }
+
     function scenarioOf(id) {
       return SCENARIOS[id] || SCENARIOS.blank;
     }
@@ -1303,7 +1370,8 @@ No markdown. No extra labels. Never mention AI, models, prompts, or being an act
 
     function freshGame(scenarioId, characterId) {
       const s = scenarioOf(scenarioId);
-      const c = characterOf(characterId || game.characterId || "dawn");
+      const inferred = ownerOfScenario(s.id);
+      const c = characterOf(characterId || inferred || game.characterId || "dawn");
       return {
         characterId: c.id,
         scenarioId: s.id,
@@ -1565,6 +1633,7 @@ No markdown. No extra labels. Never mention AI, models, prompts, or being an act
       const s = scenarioOf(game.scenarioId);
       els.placeTitle.textContent = s.title;
       els.placeSub.textContent = s.sub;
+      applyTheme();
     }
 
     function openingOf() {
@@ -1614,7 +1683,8 @@ No markdown. No extra labels. Never mention AI, models, prompts, or being an act
         const next = readLib();
         next.activeId = id;
         writeLib(next);
-        Object.assign(game, freshGame(data.scenarioId || "lanes"), data.game || {});
+        const face = data.characterId || (data.game && data.game.characterId) || ownerOfScenario(data.scenarioId) || "dawn";
+        Object.assign(game, freshGame(data.scenarioId || "lanes", face), data.game || {}, { characterId: face });
         history = (data.history || []).slice();
         logTurns = [];
         els.log.innerHTML = "";
@@ -1690,7 +1760,7 @@ No markdown. No extra labels. Never mention AI, models, prompts, or being an act
         b.innerHTML = "<b></b><span></span>";
         b.querySelector("b").textContent = s.title;
         b.querySelector("span").textContent = s.blurb;
-        b.addEventListener("click", () => newChat(s.id));
+        b.addEventListener("click", () => newChat(s.id, pack.id));
         els.scenarioList.appendChild(b);
       });
       els.chatList.innerHTML = "";
@@ -1748,7 +1818,7 @@ No markdown. No extra labels. Never mention AI, models, prompts, or being an act
     function addTyping() {
       const wrap = document.createElement("div");
       wrap.className = "turn pending-dawn";
-      wrap.innerHTML = '<div class="typing" aria-label="Dawn is typing"><i></i><i></i><i></i></div>';
+      wrap.innerHTML = '<div class="typing" aria-label="typing"><i></i><i></i><i></i></div>';
       els.log.appendChild(wrap);
       els.log.scrollTop = els.log.scrollHeight;
       return wrap;
@@ -1826,7 +1896,8 @@ No markdown. No extra labels. Never mention AI, models, prompts, or being an act
       return null;
     }
 
-    function addTurn({ you, moment, line, pending }) {
+    function addTurn({ you, moment, line, pending, who }) {
+      who = who || speakerName();
       const wrap = document.createElement("div");
       wrap.className = "turn" + (pending ? " pending" : "");
       if (you) {
@@ -1848,12 +1919,12 @@ No markdown. No extra labels. Never mention AI, models, prompts, or being an act
         const d = document.createElement("div");
         d.className = "line";
         const tag = document.createElement("b");
-        tag.textContent = characterOf(game.characterId).name + " says";
+        tag.textContent = (who || speakerName()) + " says";
         d.appendChild(tag);
         d.appendChild(document.createTextNode(line));
         wrap.appendChild(d);
       }
-      if (!pending) logTurns.push({ you, moment, line });
+      if (!pending) logTurns.push({ you, moment, line, who });
       els.log.appendChild(wrap);
       els.log.scrollTop = els.log.scrollHeight;
       return wrap;
@@ -1914,7 +1985,7 @@ No markdown. No extra labels. Never mention AI, models, prompts, or being an act
     function parseActor(raw) {
       const text = String(raw || "").trim();
       const momentMatch = text.match(/MOMENT:\s*([\s\S]*?)(?=\n\s*(?:DAWN|SAY|RAE|SHOT):|$)/i);
-      const dawnMatch = text.match(/(?:DAWN|SAY|RAE):\s*([\s\S]*?)(?=\n\s*SHOT:|$)/i);
+      const dawnMatch = text.match(/(?:DAWN|SAY|RAE|ANG|ANGELA):\s*([\s\S]*?)(?=\n\s*SHOT:|$)/i);
       const shotMatch = text.match(/SHOT:\s*([a-z]+)/i);
       let moment = momentMatch ? momentMatch[1].trim() : "";
       let line = dawnMatch ? dawnMatch[1].trim() : "";
@@ -2016,7 +2087,8 @@ No markdown. No extra labels. Never mention AI, models, prompts, or being an act
     }
 
     function restoreSave(data) {
-      Object.assign(game, freshGame(), data.game || {});
+      const face = (data.game && data.game.characterId) || data.characterId || "dawn";
+      Object.assign(game, freshGame(data.game && data.game.scenarioId, face), data.game || {}, { characterId: face });
       history = data.history.slice();
       logTurns = [];
       els.log.innerHTML = "";
@@ -2030,7 +2102,7 @@ No markdown. No extra labels. Never mention AI, models, prompts, or being an act
       if (!confirm("Start the night over? This clears the saved chat on this phone.")) return;
       clearSave();
       const sid = game.scenarioId || "lanes";
-      game = freshGame(sid);
+      game = freshGame(sid, game.characterId);
       history = [];
       els.log.innerHTML = "";
       setStill(scenarioOf(sid).shot);
