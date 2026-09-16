@@ -463,6 +463,17 @@
       color: var(--muted); font-size: .68rem; font-weight: 800;
       letter-spacing: .1em; text-transform: uppercase;
     }
+    .you-say, .you-do { display: block; }
+    .you-say + .you-do, .you-do + .you-say, .you-do + .you-do, .you-say + .you-say { margin-top: 6px; }
+    .you-do { font-style: italic; opacity: .85; }
+    .you-do::before { content: "\2192  "; font-style: normal; opacity: .7; }
+    .dock[data-mode="do"] #input { border-color: var(--cyan); }
+    .dock[data-mode="say"] #input:focus { border-color: var(--neon); }
+    .dock[data-mode="do"] #input:focus { border-color: var(--cyan); outline-color: var(--cyan); }
+    .compose-modes button { transition: background .15s ease, color .15s ease; }
+    #modeDo.on { background: var(--cyan); }
+    .dock.nudge #send { animation: nudge .35s ease; }
+    @keyframes nudge { 25% { transform: translateX(-3px); } 75% { transform: translateX(3px); } }
     .compose-modes button.on {
       background: var(--neon); color: #1a0c10; border-color: transparent;
     }
@@ -1060,9 +1071,9 @@
       <button type="button" id="hide" disabled>Hide</button>
       <button type="button" id="tease" disabled>Snack</button>
     </div>
-    <div class="compose-modes" role="tablist">
-      <button type="button" id="modeSay" class="on">Say</button>
-      <button type="button" id="modeDo">Do</button>
+    <div class="compose-modes" role="group" aria-label="Message type">
+      <button type="button" id="modeSay" class="on" aria-pressed="true">Say</button>
+      <button type="button" id="modeDo" aria-pressed="false">Do</button>
     </div>
     <div class="composer">
       <textarea id="input" rows="1" placeholder="Say something…" disabled enterkeyhint="send"></textarea>
@@ -1818,6 +1829,7 @@ This is vore. Swallow is on the table from the first look. Do not fade to fade-t
       goneBanner: document.getElementById("goneBanner"),
       gutList: document.getElementById("gutList"),
       fxToggle: document.getElementById("fxToggle"),
+      dock: document.querySelector(".dock"),
       modeSay: document.getElementById("modeSay"),
       modeDo: document.getElementById("modeDo"),
       stories: document.getElementById("stories"),
@@ -1874,6 +1886,7 @@ This is vore. Swallow is on the table from the first look. Do not fade to fade-t
     let logTurns = [];
     let engine = null;
     let busy = false;
+    let composeReady = false;
 
     const REMOVED_SCENARIOS = new Set(["lanes", "hoodie", "bedroom", "tongue"]);
     function isRemovedChat(c) {
@@ -2048,6 +2061,7 @@ This is vore. Swallow is on the table from the first look. Do not fade to fade-t
       els.placeSub.textContent = s.sub;
       applyTheme();
       paintMeter();
+      if (composeReady) setBusy(busy);
     }
 
     function openingOf() {
@@ -2346,7 +2360,12 @@ This is vore. Swallow is on the table from the first look. Do not fade to fade-t
       if (you) {
         const a = document.createElement("div");
         a.className = "you";
-        a.textContent = you;
+        parsePlayer(you).forEach((part) => {
+          const el = document.createElement(part.kind === "do" ? "em" : "span");
+          el.className = part.kind === "do" ? "you-do" : "you-say";
+          el.textContent = part.kind === "do" ? part.text : "\u201C" + part.text + "\u201D";
+          a.appendChild(el);
+        });
         wrap.appendChild(a);
       }
       if (moment) {
@@ -2375,14 +2394,17 @@ This is vore. Swallow is on the table from the first look. Do not fade to fade-t
 
     function setBusy(on) {
       busy = on;
-      const off = on || (!engine && !CLOUD_ACTOR_URL);
-      els.input.disabled = off;
+      const off = on || (!engine && !CLOUD_ACTOR_URL) || !!game.gone;
+      els.input.disabled = (!engine && !CLOUD_ACTOR_URL) || !!game.gone;
       els.send.disabled = off;
+      els.dock && els.dock.classList.toggle("busy", on);
       els.look.disabled = off;
       els.talk.disabled = off;
       els.hide.disabled = off;
       els.tease.disabled = off;
       els.stage.classList.toggle("busy", on);
+      if (game.gone) els.input.placeholder = "You are gone. Reset for another night.";
+      else if (typeof setCompose === "function" && composeReady) setCompose(composeMode);
       if (on) setLive("Thinking", "busy");
       else if (engine || CLOUD_ACTOR_URL) setLive("Live", "ready");
     }
@@ -2413,6 +2435,12 @@ This is vore. Swallow is on the table from the first look. Do not fade to fade-t
       }
     }
 
+    const PLAYER_FORMAT = `PLAYER TURNS
+The player's message uses these line labels:
+SPEECH: words the speck says out loud. She hears them (if she is close enough) and can answer them.
+ACTION: what the speck physically does. It is NOT spoken. She only reacts to what she can see or feel.
+Never copy SPEECH: or ACTION: into your reply. Reply only with MOMENT, SAY, SHOT.`;
+
     function buildMessages(userText) {
       const s = scenarioOf(game.scenarioId);
       const c = characterOf(game.characterId);
@@ -2422,7 +2450,7 @@ This is vore. Swallow is on the table from the first look. Do not fade to fade-t
         : "";
       const state = `STATE: character=${c.name}; scenario=${s.id}; ${who} location=${game.location}; speck is ${game.playerPlace}; mood=${game.mood}; noticed=${game.noticed}; shot=${game.shot}; depth=${game.depth}.` + snack;
       return [
-        { role: "system", content: SYSTEM + "\n\n" + c.voice + "\nLabel spoken lines SAY:.\n\n" + s.hook + "\n\n" + state },
+        { role: "system", content: SYSTEM + "\n\n" + PLAYER_FORMAT + "\n\n" + c.voice + "\nLabel spoken lines SAY:.\n\n" + s.hook + "\n\n" + state },
         ...history.slice(-24),
         { role: "user", content: userText },
       ];
@@ -2430,9 +2458,9 @@ This is vore. Swallow is on the table from the first look. Do not fade to fade-t
 
     function parseActor(raw) {
       const text = String(raw || "").trim();
-      const momentMatch = text.match(/MOMENT:\s*([\s\S]*?)(?=\n\s*(?:DAWN|SAY|RAE|SHOT):|$)/i);
-      const dawnMatch = text.match(/(?:DAWN|SAY|RAE|ANG|ANGELA):\s*([\s\S]*?)(?=\n\s*SHOT:|$)/i);
-      const shotMatch = text.match(/SHOT:\s*([a-z]+)/i);
+      const momentMatch = text.match(/(?:^|\n)\s*MOMENT:\s*([\s\S]*?)(?=\n\s*(?:DAWN|SAY|RAE|ANG|ANGELA|SHOT):|$)/i);
+      const dawnMatch = text.match(/(?:^|\n)\s*(?:DAWN|SAY|RAE|ANG|ANGELA):\s*([\s\S]*?)(?=\n\s*SHOT:|$)/i);
+      const shotMatch = text.match(/(?:^|\n)\s*SHOT:\s*([a-z]+)/i);
       let moment = momentMatch ? momentMatch[1].trim() : "";
       let line = dawnMatch ? dawnMatch[1].trim() : "";
       const actorShot = shotMatch ? shotMatch[1].toLowerCase() : "";
@@ -2680,33 +2708,113 @@ This is vore. Swallow is on the table from the first look. Do not fade to fade-t
       hideSplash();
     }
 
+    // ----- Say / Do composer -----
+    const MODE_KEY = "speckComposeMode";
     let composeMode = "say";
-    function setCompose(mode) {
-      composeMode = mode;
-      els.modeSay.classList.toggle("on", mode === "say");
-      els.modeDo.classList.toggle("on", mode === "do");
-      els.input.placeholder = mode === "say" ? "Say something…" : "What do you do?";
+    try { if (localStorage.getItem(MODE_KEY) === "do") composeMode = "do"; } catch {}
+
+    function setCompose(mode, keepFocus) {
+      composeMode = mode === "do" ? "do" : "say";
+      try { localStorage.setItem(MODE_KEY, composeMode); } catch {}
+      els.modeSay.classList.toggle("on", composeMode === "say");
+      els.modeDo.classList.toggle("on", composeMode === "do");
+      els.modeSay.setAttribute("aria-pressed", String(composeMode === "say"));
+      els.modeDo.setAttribute("aria-pressed", String(composeMode === "do"));
+      els.dock.dataset.mode = composeMode;
+      if (!game.gone) {
+        els.input.placeholder = composeMode === "say"
+          ? "Say something… *act*"
+          : "What do you do? \"talk\"";
+      }
+      if (keepFocus && !els.input.disabled) els.input.focus({ preventScroll: true });
     }
-    function wrapCompose(text) {
-      if (composeMode === "say") return 'I say: "' + text + '"';
-      return "I do this (not spoken): " + text;
+
+    function cleanQuotes(t) {
+      return t.replace(/^["\u201C\u201D']+|["\u201C\u201D']+$/g, "").trim();
     }
-    els.modeSay.addEventListener("click", () => setCompose("say"));
-    els.modeDo.addEventListener("click", () => setCompose("do"));
-    els.send.addEventListener("click", () => {
-      const t = els.input.value.trim();
-      if (!t) return;
+
+    // Turns what the player typed into labelled SPEECH:/ACTION: lines.
+    // Say mode: plain text is speech, *text* is an action.
+    // Do mode:  plain text is an action, "text" is speech.
+    // "/me" or "/do" at the start forces an action; "/say" forces speech.
+    function composePlayer(raw, mode) {
+      let text = raw.trim();
+      if (!text) return "";
+      const forced = text.match(/^\/(me|do|say)\s+/i);
+      if (forced) {
+        mode = forced[1].toLowerCase() === "say" ? "say" : "do";
+        text = text.slice(forced[0].length);
+      }
+      const parts = [];
+      const push = (kind, t) => {
+        t = t.replace(/\s*\n\s*/g, " ");
+        t = kind === "say" ? cleanQuotes(t) : t.replace(/^\*+|\*+$/g, "").trim();
+        if (t) parts.push({ kind, text: t });
+      };
+      const re = mode === "say" ? /\*([^*]+)\*/g : /["\u201C]([^"\u201D]+)["\u201D]/g;
+      const inner = mode === "say" ? "do" : "say";
+      let last = 0, m;
+      while ((m = re.exec(text))) {
+        push(mode, text.slice(last, m.index));
+        push(inner, m[1]);
+        last = re.lastIndex;
+      }
+      push(mode, text.slice(last));
+      return parts.map((p) => (p.kind === "say" ? "SPEECH: " : "ACTION: ") + p.text).join("\n");
+    }
+
+    // Reads stored player text (new labelled format, or older saves) for display.
+    function parsePlayer(stored) {
+      const t = String(stored || "");
+      if (/^(SPEECH|ACTION):/m.test(t)) {
+        return t.split(/\n/).map((ln) => {
+          const m = ln.match(/^(SPEECH|ACTION):\s*(.*)$/);
+          return m ? { kind: m[1] === "SPEECH" ? "say" : "do", text: m[2] } : null;
+        }).filter((p) => p && p.text);
+      }
+      let m = t.match(/^I say:\s*"([\s\S]*)"$/);
+      if (m) return [{ kind: "say", text: m[1] }];
+      m = t.match(/^I do this \(not spoken\):\s*([\s\S]*)$/);
+      if (m) return [{ kind: "do", text: m[1] }];
+      return [{ kind: "do", text: t }];
+    }
+
+    function canSend() {
+      return !busy && !game.gone && (engine || CLOUD_ACTOR_URL);
+    }
+
+    function submitCompose() {
+      if (!canSend()) {
+        if (busy) els.dock.classList.add("nudge"), setTimeout(() => els.dock.classList.remove("nudge"), 400);
+        return;
+      }
+      const composed = composePlayer(els.input.value, composeMode);
+      if (!composed) { els.input.focus(); return; }
       els.input.value = "";
       growInput();
-      speak(wrapCompose(t));
-    });
+      speak(composed);
+    }
+
+    els.modeSay.addEventListener("click", () => setCompose("say", true));
+    els.modeDo.addEventListener("click", () => setCompose("do", true));
+    // Keep the keyboard open when tapping the mode toggles or Send on iPhone
+    [els.modeSay, els.modeDo, els.send].forEach((b) =>
+      b.addEventListener("pointerdown", (e) => { if (document.activeElement === els.input) e.preventDefault(); })
+    );
+    els.send.addEventListener("click", submitCompose);
     els.input.addEventListener("input", growInput);
     els.input.addEventListener("keydown", (e) => {
-      if (e.key === "Enter" && !e.shiftKey) {
+      if (e.key === "Enter" && !e.shiftKey && !e.isComposing && e.keyCode !== 229) {
         e.preventDefault();
-        els.send.click();
+        submitCompose();
+      } else if (e.key === "Tab" && e.altKey) {
+        e.preventDefault();
+        setCompose(composeMode === "say" ? "do" : "say", true);
       }
     });
+    composeReady = true;
+    setCompose(composeMode);
+    setBusy(busy);
     els.reset.addEventListener("click", resetNight);
     function openAuth() {
       els.authErr.textContent = "";
@@ -2811,8 +2919,7 @@ This is vore. Swallow is on the table from the first look. Do not fade to fade-t
       });
       paintMeter();
       persist();
-      setBusy(true);
-      els.input.placeholder = "You are gone.";
+      setBusy(false);
     });
     els.homeContinue.addEventListener("click", () => {
       hideHome();
@@ -2837,10 +2944,10 @@ This is vore. Swallow is on the table from the first look. Do not fade to fade-t
     });
     els.gulpOk.addEventListener("click", () => els.gulp.classList.remove("show"));
     els.digestOk.addEventListener("click", resetNight);
-    els.look.addEventListener("click", () => speak("I look up at " + speakerName() + "."));
-    els.talk.addEventListener("click", () => speak("I wave both arms and try to get her attention."));
-    els.hide.addEventListener("click", () => speak("I hide in a crack in the approach."));
-    els.tease.addEventListener("click", () => speak("I don't hide. Snack. Put me on your tongue or swallow if that is what this is."));
+    els.look.addEventListener("click", () => speak("ACTION: I look up at " + speakerName() + "."));
+    els.talk.addEventListener("click", () => speak("ACTION: I wave both arms and try to get her attention."));
+    els.hide.addEventListener("click", () => speak("ACTION: I look for somewhere to hide."));
+    els.tease.addEventListener("click", () => speak("ACTION: I stop hiding and step into the open.\nSPEECH: Go on. Snack. Put me on your tongue or swallow, if that is what this is."));
 
     els.stage.addEventListener("click", () => {
       els.stage.classList.toggle("big");
