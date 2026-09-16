@@ -53,6 +53,8 @@
       --glass: rgba(18,8,20,.78);
     }
     html[data-face="rae"] {
+      --skin-hi: #e2b089;
+      --skin: #b97b52;
       --neon: #ffb15a;
       --cyan: #3fd4c4;
       --you: #3a5a52;
@@ -71,6 +73,8 @@
         #0a1010;
     }
     html[data-face="ang"] {
+      --skin-hi: #b07a55;
+      --skin: #7a4a2e;
       --neon: #e8b14a;
       --cyan: #f3d7a0;
       --you: #5a4630;
@@ -959,10 +963,56 @@
       height: 100%;
       width: 25%;
       border-radius: 99px;
-      background: linear-gradient(90deg, var(--neon), var(--cyan));
-      box-shadow: 0 0 16px var(--neon);
-      transition: width .55s cubic-bezier(.2,.8,.2,1);
+      position: relative;
+      overflow: hidden;
+      /* Palm: her skin tone */
+      background: linear-gradient(90deg, var(--skin-hi, #e6b894), var(--skin, #c08a64));
+      box-shadow: 0 0 10px color-mix(in srgb, var(--skin, #c08a64) 70%, transparent);
+      transition: width .55s cubic-bezier(.2,.8,.2,1), box-shadow .5s ease;
     }
+    #meterFill::after {
+      content: "";
+      position: absolute; inset: 0;
+      border-radius: inherit;
+      opacity: 0;
+      transition: opacity .4s ease;
+    }
+    /* Tongue: wet red */
+    #meter[data-step="tongue"] #meterFill {
+      background: linear-gradient(90deg, #ff8a9c, #e23450 60%, #b3122f);
+      box-shadow: 0 0 12px rgba(226,52,80,.75);
+    }
+    /* Gulp: deep throat red */
+    #meter[data-step="gulp"] #meterFill {
+      background: linear-gradient(90deg, #e23450, #a90f2a 55%, #6a0616);
+      box-shadow: 0 0 14px rgba(169,15,42,.85);
+    }
+    #meter[data-step="tongue"] #meterFill::after,
+    #meter[data-step="gulp"] #meterFill::after {
+      opacity: .45;
+      background: linear-gradient(180deg, rgba(255,255,255,.45), transparent 55%);
+    }
+    /* Gut: red flesh giving way to bubbling acid */
+    #meter[data-step="gut"] #meterFill {
+      background: linear-gradient(90deg, #7a0818 0%, #b8162f 30%, #6f8a12 62%, #a6e22a 82%, #d8ff5a 100%);
+      box-shadow: 0 0 16px rgba(166,226,42,.7), 0 0 6px rgba(184,22,47,.8);
+    }
+    #meter[data-step="gut"] #meterFill::after {
+      opacity: .6;
+      background:
+        radial-gradient(circle at 20% 50%, rgba(230,255,140,.9) 0 1.5px, transparent 2px),
+        radial-gradient(circle at 60% 40%, rgba(230,255,140,.8) 0 1px, transparent 1.5px),
+        repeating-linear-gradient(115deg, transparent 0 8px, rgba(210,255,90,.35) 8px 11px);
+      background-size: 24px 8px, 17px 8px, 22px 8px;
+      animation: acidFlow 1.4s linear infinite;
+    }
+    @keyframes acidFlow { to { background-position: 24px 0, -17px 0, 22px 0; } }
+    /* Active label takes the step's color too */
+    #meter[data-step="palm"] .meter-labels span:nth-child(1) { color: color-mix(in srgb, var(--skin-hi, #e6b894) 65%, #fff); }
+    #meter[data-step="tongue"] .meter-labels span:nth-child(2) { color: #ff6f86; }
+    #meter[data-step="gulp"] .meter-labels span:nth-child(3) { color: #ff4a64; }
+    #meter[data-step="gut"] .meter-labels span:nth-child(4) { color: #b8f03a; text-shadow: 0 0 8px rgba(166,226,42,.6); }
+    @media (prefers-reduced-motion: reduce) { #meterFill::after { animation: none !important; } }
     #goneBanner {
       display: none;
       margin: 8px 12px 0;
