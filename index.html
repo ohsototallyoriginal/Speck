@@ -495,6 +495,9 @@
       text-transform: uppercase;
       color: var(--cyan);
     }
+    .card, .iconbtn {
+      transition: transform .18s ease, border-color .18s ease, box-shadow .18s ease, background .18s ease;
+    }
     .card {
       width: 100%; text-align: left;
       border: 1px solid #4a2a4c;
@@ -503,6 +506,22 @@
       border-radius: 12px;
       padding: 10px 12px;
       margin: 0 0 8px;
+    }
+    @media (hover: hover) {
+      .card:hover:not(:disabled) {
+        transform: translateY(-2px);
+        border-color: var(--cyan);
+        box-shadow: 0 8px 20px rgba(0,0,0,.28), 0 0 16px rgba(92,225,255,.12);
+      }
+      .iconbtn:hover {
+        transform: translateY(-2px);
+        border-color: var(--neon);
+        color: var(--ink);
+      }
+      .iconbtn.danger:hover {
+        border-color: #ff9aa6;
+        background: #3a1824;
+      }
     }
     .card b { display: block; font-size: 0.92rem; margin-bottom: 3px; }
     .card span { color: var(--muted); font-size: 0.8rem; line-height: 1.35; }
@@ -846,6 +865,7 @@ No markdown. No extra labels. Never mention AI, models, prompts, or being an act
     }
 
     function persist() {
+      if (!history.length) return;
       const lib = readLib();
       if (!activeChatId) {
         activeChatId = "chat-" + Date.now();
@@ -920,7 +940,6 @@ No markdown. No extra labels. Never mention AI, models, prompts, or being an act
         addTurn(s.opening);
         els.gulp.classList.remove("show");
         els.digest.classList.remove("show");
-        persist();
       });
     }
 
@@ -1350,7 +1369,6 @@ No markdown. No extra labels. Never mention AI, models, prompts, or being an act
       paintOpening();
       els.gulp.classList.remove("show");
       els.digest.classList.remove("show");
-      persist();
     }
 
     async function boot() {
