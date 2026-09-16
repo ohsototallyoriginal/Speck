@@ -1,0 +1,475 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <meta name="theme-color" content="#1a1020" />
+  <meta name="format-detection" content="telephone=no" />
+  <title>Dawn</title>
+  <style>
+    :root {
+      --bg: #160e1c;
+      --panel: #24182c;
+      --ink: #f4eef8;
+      --muted: #b9a8c9;
+      --you: #5d7ea8;
+      --btn: #8b4aa8;
+      --danger: #a83b4a;
+      --safe-top: env(safe-area-inset-top, 0px);
+      --safe-bot: env(safe-area-inset-bottom, 0px);
+      --kb: 0px;
+    }
+    * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+    html, body {
+      margin: 0; height: 100%;
+      background: var(--bg); color: var(--ink);
+      font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", system-ui, sans-serif;
+    }
+    body {
+      display: flex;
+      flex-direction: column;
+      min-height: 100dvh;
+      padding-top: var(--safe-top);
+      padding-bottom: calc(var(--safe-bot) + var(--kb));
+    }
+    #stage {
+      flex: 0 0 auto;
+      margin: 8px 12px 0;
+      position: relative;
+      border-radius: 14px;
+      overflow: hidden;
+      background: #0c0810;
+      aspect-ratio: 3 / 2.05;
+      max-height: 36vh;
+    }
+    #stage img {
+      width: 100%; height: 100%;
+      object-fit: cover;
+      object-position: center top;
+      display: block;
+    }
+    #log {
+      flex: 1 1 auto;
+      overflow-y: auto;
+      -webkit-overflow-scrolling: touch;
+      padding: 10px 12px 12px;
+      overscroll-behavior: contain;
+    }
+    .turn { margin: 0 0 14px; }
+    .you {
+      margin-left: 18%;
+      background: var(--you);
+      border-radius: 14px 14px 4px 14px;
+      padding: 10px 12px;
+      font-size: 0.95rem;
+      line-height: 1.4;
+    }
+    .moment {
+      margin: 8px 0 6px;
+      color: var(--muted);
+      font-size: 0.88rem;
+      line-height: 1.45;
+      font-style: italic;
+    }
+    .line {
+      background: #3a243f;
+      border-radius: 14px 14px 14px 4px;
+      padding: 10px 12px;
+      font-size: 0.95rem;
+      line-height: 1.45;
+    }
+    .line b {
+      display: block;
+      font-size: 0.7rem;
+      letter-spacing: .04em;
+      text-transform: uppercase;
+      opacity: .7;
+      margin-bottom: 4px;
+      font-weight: 700;
+    }
+    .hint {
+      color: var(--muted);
+      font-size: 0.8rem;
+      line-height: 1.4;
+    }
+    .actions {
+      display: grid;
+      grid-template-columns: 1fr 1fr 1fr 1fr;
+      gap: 6px;
+      padding: 0 12px 8px;
+    }
+    .actions button, #send {
+      min-height: 44px;
+      border: 0;
+      border-radius: 12px;
+      background: #3a2a48;
+      color: var(--ink);
+      font-size: 0.82rem;
+      font-weight: 600;
+    }
+    #tease { background: var(--danger); }
+    .actions button:disabled, #send:disabled, #input:disabled { opacity: .4; }
+    .composer {
+      display: flex;
+      gap: 8px;
+      padding: 0 12px calc(10px + var(--safe-bot));
+    }
+    #input {
+      flex: 1;
+      min-height: 44px;
+      max-height: 96px;
+      resize: none;
+      border: 1px solid #4a3558;
+      border-radius: 12px;
+      background: #1e1526;
+      color: var(--ink);
+      font-size: 16px;
+      padding: 10px 12px;
+      font-family: inherit;
+    }
+    #send { flex: 0 0 72px; background: var(--btn); }
+    #status {
+      padding: 6px 14px 0;
+      font-size: 0.78rem;
+      color: var(--muted);
+    }
+    #gate {
+      margin: 8px 12px;
+      padding: 12px;
+      background: #3a2030;
+      border-radius: 12px;
+      font-size: 0.88rem;
+      line-height: 1.45;
+      display: none;
+    }
+    #gate.show { display: block; }
+    #progress {
+      height: 3px;
+      background: #2a1c32;
+      margin: 6px 12px 0;
+      border-radius: 4px;
+      overflow: hidden;
+    }
+    #progress > span {
+      display: block; height: 100%; width: 0%;
+      background: #c97bb8;
+    }
+  </style>
+</head>
+<body>
+  <div id="status">Checking WebGPU…</div>
+  <div id="progress" hidden><span></span></div>
+  <figure id="stage">
+    <img id="still" alt="Dawn" />
+  </figure>
+  <div id="gate"></div>
+  <div id="log"></div>
+  <div class="actions">
+    <button type="button" id="look" disabled>Look</button>
+    <button type="button" id="talk" disabled>Wave</button>
+    <button type="button" id="hide" disabled>Hide</button>
+    <button type="button" id="tease" disabled>Tease</button>
+  </div>
+  <div class="composer">
+    <textarea id="input" rows="1" placeholder="What do you do?" disabled enterkeyhint="send"></textarea>
+    <button type="button" id="send" disabled>Send</button>
+  </div>
+
+  <script type="module">
+    import { CreateMLCEngine } from "https://esm.run/@mlc-ai/web-llm";
+
+    const MODEL = "SmolLM2-360M-Instruct-q4f16_1-MLC";
+    const FALLBACK_MODEL = "Llama-3.2-1B-Instruct-q4f16_1-MLC";
+
+    // Cloud actor: set one of these, then reload.
+    // 1) Paste the Cloud Run URL below
+    // 2) Or open the page as dawn-giantess-rpg.html?actor=https://YOUR-URL/actor
+    // 3) Or localStorage.setItem("dawnActor", "https://YOUR-URL/actor")
+    const CLOUD_ACTOR_URL = (
+      new URLSearchParams(location.search).get("actor")
+      || localStorage.getItem("dawnActor")
+      || ""
+    ).trim();
+
+    const STILLS = {
+      establish: { src: "stills/establish.jpg", cap: "Lane 7. Her shoe is a building. The grin is not a joke." },
+      look:      { src: "stills/look.jpg", cap: "She leans in. Hair becomes weather. Braces catch the neon." },
+      wave:      { src: "stills/wave.jpg", cap: "A hand like a crane. She found you. That is not safer." },
+      hide:      { src: "stills/hide.jpg", cap: "The crack is dark. The shoe is still hunting." },
+      shoe:      { src: "stills/shoe.jpg", cap: "The sole hangs. One twitch and the world ends." },
+      swallow:   { src: "stills/swallow.jpg", cap: "This is the real threat. She will put you on her tongue." }
+    };
+
+    const SYSTEM = `You are the actor playing DAWN KELLER, 18, from the Yonkers / Bronx line in New York. Pale, freckled, metal braces, brown hair in a messy claw clip, oversized thrift hoodie, half-tied rental bowling shoes. Dorky honor-roll energy mixed with valley-girl talk: like, totally, wait wait wait, oh my god, no cap.
+
+SCALE: the player is sesame-seed sized. Dawn is a giantess to them. A shoe is a building.
+
+SETTING: cheap weekday bowling alley, lane 7.
+
+MENACE: Dawn will swallow the player if they stay interesting, get near her mouth, or dare her. Soft vore is allowed. She does not moralize.
+
+You make ONE reply per turn with EXACTLY this shape and nothing else:
+
+MOMENT: <one or two present-tense sentences describing what the body and the room do at speck scale>
+DAWN: <two or three sentences of spoken dialogue in first person, in her voice>
+
+Do not add labels, markdown, or extra sections. Never mention AI, models, or prompts. Stay in this alley unless STATE says otherwise. Follow STATE if it conflicts with earlier chat.`;
+
+    const game = {
+      location: "lane 7, cheap bowling alley, NYC",
+      playerPlace: "on the oiled wood near Dawn's rental sneaker",
+      mood: "grinning at a snack she has already claimed",
+      noticed: true,
+      shot: "establish",
+    };
+
+    const els = {
+      status: document.getElementById("status"),
+      log: document.getElementById("log"),
+      input: document.getElementById("input"),
+      send: document.getElementById("send"),
+      look: document.getElementById("look"),
+      talk: document.getElementById("talk"),
+      hide: document.getElementById("hide"),
+      tease: document.getElementById("tease"),
+      gate: document.getElementById("gate"),
+      bar: document.querySelector("#progress span"),
+      progress: document.getElementById("progress"),
+      still: document.getElementById("still"),
+    };
+
+    const history = [];
+    let engine = null;
+    let busy = false;
+
+    function setStill(key) {
+      const shot = STILLS[key] || STILLS.establish;
+      game.shot = STILLS[key] ? key : "establish";
+      els.still.src = shot.src;
+    }
+
+    function addTurn({ you, moment, line }) {
+      const wrap = document.createElement("div");
+      wrap.className = "turn";
+      if (you) {
+        const a = document.createElement("div");
+        a.className = "you";
+        a.textContent = you;
+        wrap.appendChild(a);
+      }
+      if (moment) {
+        const m = document.createElement("div");
+        m.className = "moment";
+        m.textContent = moment;
+        wrap.appendChild(m);
+      }
+      if (line) {
+        const d = document.createElement("div");
+        d.className = "line";
+        d.innerHTML = "<b>Dawn</b>";
+        d.appendChild(document.createTextNode(line));
+        wrap.appendChild(d);
+      }
+      els.log.appendChild(wrap);
+      els.log.scrollTop = els.log.scrollHeight;
+      return wrap;
+    }
+
+    function setBusy(on) {
+      busy = on;
+      const off = on || (!engine && !CLOUD_ACTOR_URL);
+      els.input.disabled = off;
+      els.send.disabled = off;
+      els.look.disabled = off;
+      els.talk.disabled = off;
+      els.hide.disabled = off;
+      els.tease.disabled = off;
+    }
+
+    function applyActionHints(text) {
+      const t = text.toLowerCase();
+      if (/\b(swallow|eat|tongue|mouth|gulp|snack|tease)\b/.test(t)) {
+        game.playerPlace = "close enough to feel the heat of her breath";
+        game.mood = "braces bared, treating you as a dare";
+        setStill("swallow");
+      } else if (/\b(hid|duck|crack|groove|under)\b/.test(t)) {
+        game.playerPlace = "tucked in a dark groove of the approach";
+        game.mood = "hunting the floor";
+        setStill("hide");
+      } else if (/\b(wave|yell|call|hey|hi|attention)\b/.test(t)) {
+        game.noticed = true;
+        game.playerPlace = "pinned under her attention";
+        game.mood = "delighted, already thinking about her tongue";
+        setStill("wave");
+      } else if (/\b(shoe|sneaker|lace|toe|sole)\b/.test(t)) {
+        game.playerPlace = "on the rubber edge of her rental sneaker";
+        game.mood = "one huge shoe hovering";
+        setStill("shoe");
+      } else if (/\b(look|peek|scan|up)\b/.test(t)) {
+        game.mood = "leaning over the lane";
+        setStill("look");
+      }
+    }
+
+    function buildMessages(userText) {
+      const state = `STATE: location=${game.location}; speck is ${game.playerPlace}; mood=${game.mood}; noticed=${game.noticed}; shot=${game.shot}.`;
+      return [
+        { role: "system", content: SYSTEM + "\n\n" + state },
+        ...history.slice(-8),
+        { role: "user", content: userText },
+      ];
+    }
+
+    function parseActor(raw) {
+      const text = String(raw || "").trim();
+      const momentMatch = text.match(/MOMENT:\s*([\s\S]*?)(?=\n\s*DAWN:|$)/i);
+      const dawnMatch = text.match(/DAWN:\s*([\s\S]*)$/i);
+      let moment = momentMatch ? momentMatch[1].trim() : "";
+      let line = dawnMatch ? dawnMatch[1].trim() : "";
+      if (!moment && !line) {
+        const parts = text.split(/\n+/);
+        if (parts.length > 1) {
+          moment = parts[0].replace(/^MOMENT:\s*/i, "").trim();
+          line = parts.slice(1).join(" ").replace(/^DAWN:\s*/i, "").trim();
+        } else {
+          line = text;
+        }
+      }
+      return { moment, line };
+    }
+
+    async function askActor(messages) {
+      if (CLOUD_ACTOR_URL) {
+        const res = await fetch(CLOUD_ACTOR_URL, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ messages, temperature: 0.85, max_tokens: 180 }),
+        });
+        if (!res.ok) throw new Error("Cloud actor failed");
+        const data = await res.json();
+        return data.text || data.content || data.choices?.[0]?.message?.content || "";
+      }
+      const stream = await engine.chat.completions.create({
+        messages,
+        temperature: 0.85,
+        max_tokens: 180,
+        stream: true,
+      });
+      let full = "";
+      for await (const chunk of stream) {
+        full += chunk.choices[0]?.delta?.content || "";
+      }
+      return full;
+    }
+
+    async function speak(userText) {
+      if (busy || (!engine && !CLOUD_ACTOR_URL)) return;
+      applyActionHints(userText);
+      const wrap = addTurn({ you: userText });
+      setBusy(true);
+      els.status.textContent = "Dawn…";
+      try {
+        const raw = await askActor(buildMessages(userText));
+        const { moment, line } = parseActor(raw);
+        wrap.remove();
+        addTurn({ you: userText, moment, line });
+        history.push({ role: "user", content: userText });
+        history.push({ role: "assistant", content: raw });
+      } catch (err) {
+        wrap.remove();
+        addTurn({ you: userText, moment: "The moment stalls.", line: "…wait, no, that glitched. Say that again." });
+        console.error(err);
+      }
+      els.status.textContent = "";
+      setBusy(false);
+      els.input.focus();
+    }
+
+    function iosHint() {
+      const ua = navigator.userAgent || "";
+      const ios = /iPhone|iPad|iPod/.test(ua);
+      const m = ua.match(/OS (\d+)/);
+      return { ios, ver: m ? Number(m[1]) : 0 };
+    }
+
+    async function boot() {
+      setStill("establish");
+      addTurn({
+        moment: "A rental sneaker the size of a townhouse takes the left side of the world. Neon crawls over her braces when she looks down.",
+        line: "Oh my god. Hi? Like—don't run. I already saw you.",
+      });
+      const { ios, ver } = iosHint();
+
+      if (CLOUD_ACTOR_URL) {
+        els.status.textContent = "Using the cloud actor.";
+        setBusy(false);
+        return;
+      }
+
+      if (!navigator.gpu) {
+        els.gate.classList.add("show");
+        els.gate.textContent = ios
+          ? `No WebGPU on this iPhone (iOS ${ver || "?"}). Dawn's local voice needs iOS 26+ Safari, or set CLOUD_ACTOR_URL to your Google Cloud endpoint.`
+          : "No WebGPU. Use Chrome, Edge, Safari 26+, or a cloud actor URL.";
+        els.status.textContent = "Voice offline.";
+        return;
+      }
+
+      els.progress.hidden = false;
+      els.status.textContent = "Loading a tiny on-device model…";
+      const initProgressCallback = (p) => {
+        els.status.textContent = p.text || "Loading…";
+        if (typeof p.progress === "number") els.bar.style.width = Math.round(p.progress * 100) + "%";
+      };
+      try {
+        engine = await CreateMLCEngine(MODEL, { initProgressCallback });
+      } catch (e1) {
+        try {
+          engine = await CreateMLCEngine(FALLBACK_MODEL, { initProgressCallback });
+        } catch (e2) {
+          els.gate.classList.add("show");
+          els.gate.textContent = "The on-device model failed. On iPhone this is usually memory. You can keep the stills, or later point CLOUD_ACTOR_URL at Google Cloud.";
+          els.status.textContent = "Load failed.";
+          console.error(e2);
+          return;
+        }
+      }
+      els.progress.hidden = true;
+      els.status.textContent = "";
+      setBusy(false);
+    }
+
+    els.send.addEventListener("click", () => {
+      const t = els.input.value.trim();
+      if (!t) return;
+      els.input.value = "";
+      speak(t);
+    });
+    els.input.addEventListener("keydown", (e) => {
+      if (e.key === "Enter" && !e.shiftKey) {
+        e.preventDefault();
+        els.send.click();
+      }
+    });
+    els.look.addEventListener("click", () => speak("I look up at Dawn from the lane."));
+    els.talk.addEventListener("click", () => speak("I wave both arms and try to get her attention."));
+    els.hide.addEventListener("click", () => speak("I hide in a crack in the approach."));
+    els.tease.addEventListener("click", () => speak("I stay where she can see me and dare her to put me near her mouth."));
+
+    if (window.visualViewport) {
+      const vv = window.visualViewport;
+      const sync = () => {
+        const hidden = window.innerHeight - vv.height - vv.offsetTop;
+        document.documentElement.style.setProperty("--kb", Math.max(0, hidden) + "px");
+        els.log.scrollTop = els.log.scrollHeight;
+      };
+      vv.addEventListener("resize", sync);
+      vv.addEventListener("scroll", sync);
+    }
+
+    boot();
+  </script>
+</body>
+</html>
