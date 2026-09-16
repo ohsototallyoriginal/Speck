@@ -757,6 +757,41 @@
       filter: blur(6px);
       transform: translateY(8px);
     }
+
+    #meter {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 6px;
+      margin: 8px 12px 0;
+    }
+    #meter button {
+      border: 1px solid rgba(255,255,255,.12);
+      background: rgba(10,6,12,.55);
+      color: var(--muted);
+      border-radius: 999px;
+      min-height: 28px;
+      font-size: .62rem;
+      letter-spacing: .08em;
+      text-transform: uppercase;
+      font-weight: 800;
+      pointer-events: none;
+    }
+    #meter button.on {
+      color: #2a0818;
+      background: var(--neon);
+      border-color: transparent;
+    }
+    #meter button.now { box-shadow: 0 0 0 2px rgba(255,255,255,.25); }
+    #goneBanner {
+      display: none;
+      margin: 8px 12px 0;
+      padding: 10px 12px;
+      border-radius: 12px;
+      background: rgba(40,8,12,.72);
+      color: var(--muted);
+      font-size: .86rem;
+    }
+    #goneBanner.show { display: block; }
     #libClose {
       width: 100%; min-height: 44px; margin-top: 8px;
       border: 0; border-radius: 12px;
@@ -768,13 +803,14 @@
   <div id="world" aria-hidden="true"><i class="alley"></i><i class="mouth"></i><i class="gut"></i></div>
   <div id="gulp" class="fate" role="dialog" aria-label="Swallowed">
     <h2>Gulp</h2>
-    <p>Down. Heat. A swallow that does not take it back. You are a snack now.</p>
+    <p id="gulpLine">Down. Heat. A swallow that does not take it back. You are a snack now.</p>
     <button type="button" id="gulpOk">Stay down</button>
   </div>
   <div id="digest" class="fate" role="dialog" aria-label="Digested">
     <h2>Soft end</h2>
-    <p>She kept you. The chamber finishes what the tongue started. Reset only if you want out.</p>
-    <button type="button" id="digestOk">Reset night</button>
+    <p id="digestLine">She kept you. The chamber finishes what the tongue started.</p>
+    <button type="button" id="digestStay">Stay gone</button>
+    <button type="button" id="digestOk">Another night</button>
   </div>
 
   <div id="home">
@@ -813,6 +849,13 @@
     <div id="shotchip">establish</div>
     <div id="progress" hidden><span></span></div>
   </figure>
+  <div id="meter">
+    <button type="button" data-step="palm">Palm</button>
+    <button type="button" data-step="tongue">Tongue</button>
+    <button type="button" data-step="gulp">Gulp</button>
+    <button type="button" data-step="gut">Gut</button>
+  </div>
+  <div id="goneBanner">You are gone. The log stays. Reset only if you want a body again.</div>
 
   <div id="library">
     <div class="sheet">
@@ -822,6 +865,8 @@
       <div id="faceList"></div>
       <h3>Beginnings</h3>
       <div id="scenarioList"></div>
+      <h3>Already inside</h3>
+      <div id="gutList"></div>
       <h3>Saved chats</h3>
       <div id="chatList"></div>
       <button type="button" id="libClose">Close</button>
@@ -885,6 +930,9 @@
       <input id="newPass2" type="password" autocomplete="new-password" />
       <p id="setMsg" style="color:var(--muted);font-size:.84rem;min-height:1.2em"></p>
       <button type="button" class="primary" id="savePass" style="width:100%;min-height:44px;border:0;border-radius:12px;background:var(--neon);color:#2a0818;font-weight:800">Change password</button>
+      <label style="margin-top:14px;display:flex;gap:8px;align-items:center;text-transform:none;letter-spacing:0;font-size:.9rem;color:var(--ink)">
+        <input id="fxToggle" type="checkbox" checked /> Swallow sound and haptics
+      </label>
       <button type="button" id="setClose" style="width:100%;min-height:40px;margin-top:8px;border:0;border-radius:12px;background:#3a2044;color:var(--ink)">Close</button>
     </div>
   </div>
@@ -1097,6 +1145,38 @@ This is vore. Swallow is on the table from the first look. Do not fade to fade-t
         shot: "look",
         hook: "SCENARIO: Blank start. There is no prewritten opening. The player's first message is the first beat. Do not invent that they already met in a bowling alley unless the player says so.",
         opening: null,
+      },
+      "rae-inside": {
+        id: "rae-inside",
+        title: "Register after",
+        sub: "Already down",
+        blurb: "Skip the tickets. You are already in the warm dark.",
+        location: "inside Rae after the counter",
+        playerPlace: "in the quiet dark of her stomach",
+        mood: "dry, finished with the conversation",
+        shot: "inside",
+        gut: true,
+        hook: "SCENARIO: Speck already swallowed. Rae is dry. Prefer SHOT inside, gut. Do not rewind to the register.",
+        opening: {
+          moment: "No tickets. No neon. Heat and a slow squeeze. She does not narrate it.",
+          line: "If you talk I feel it. That's the whole review.",
+        },
+      },
+      "ang-booth": {
+        id: "ang-booth",
+        title: "Booth four",
+        sub: "Open late",
+        blurb: "White Plains. One booth. She already wants the check.",
+        location: "late diner booth, White Plains, normal human scale",
+        playerPlace: "across the table, normal size, shoes on the tile",
+        mood: "bored, polite-mean, waiting to leave",
+        shot: "look",
+        hidden: true,
+        hook: "SCENARIO: NORMAL SIZED DATE. Ang is 5'1" and the player is a normal adult across a diner booth. This is NOT giantess and NOT vore unless the player openly compliments her looks or especially her feet/sandals. Until that compliment she is bored by everything: the fries, the movie talk, med-school small talk, him. Long still takes. Diner chrome. Sandals under the table. Foot on the opposite bench if she feels like it. Tarantino diner energy: talky, mean-quiet, feet in frame, no shrink. AFTER a genuine compliment to her or her feet, the scale may slip — the booth goes huge, or he gets small, and only then may swallow come on the table. Do not start swallowed. Do not invent a bowling alley.",
+        opening: {
+          moment: "Formica. A ketchup bottle like a regular ketchup bottle. Her sandal hangs off one heel under the table. She is looking at the parking lot more than at you.",
+          line: "If this is a date you should've picked better fries. Talk if you want. I'm already tired.",
+        },
       },
       "rae-shop": {
         id: "rae-shop",
@@ -1331,6 +1411,7 @@ This is vore. Swallow is on the table from the first look. Do not fade to fade-t
         playerPlace: "in the dark warm chamber",
         mood: "practical, not performing it",
         shot: "inside",
+        gut: true,
         hook: "SCENARIO: Speck is already inside. Quiet efficient digestion, not a bit. Prefer SHOT inside, gut, swallow. Ang stays blunt if she talks from above.",
         opening: {
           moment: "Dark red walls. Heat. Almost no sound. She does not turn this into a show.",
@@ -1346,6 +1427,7 @@ This is vore. Swallow is on the table from the first look. Do not fade to fade-t
         playerPlace: "on her tongue behind the braces",
         mood: "giggly, committed, one swallow from done",
         shot: "tongue",
+        gut: true,
         hook: "SCENARIO: The speck is already on her tongue. She ducked into the bathroom. Swallow is one decision away. Do not rewind to the gutter.",
         opening: {
           moment: "Heat and mint gum. Metal rails of braces on both sides. The stall lock is clicked. A swallow waits like a held breath.",
@@ -1362,6 +1444,9 @@ This is vore. Swallow is on the table from the first look. Do not fade to fade-t
         stillDir: "stills/",
         scenarios: ["lanes", "hoodie", "bedroom", "tongue", "blank"],
         blurb: "Yonkers. Braces. Maroon hoodie. She will swallow you.",
+        gulpLine: "Wait wait wait—okay I actually did that. Don't kick. I can feel you.",
+        digestLine: "Like… that's the whole night. You're just warmth now.",
+        gutNights: ["tongue"],
         voice: "You play DAWN MARIE KELLER, 18, Yonkers valley-girl dork with braces. Soft menace. Giggles. Says like, wait wait wait.",
       },
       rae: {
@@ -1371,6 +1456,9 @@ This is vore. Swallow is on the table from the first look. Do not fade to fade-t
         stillDir: "stills/rae/",
         scenarios: ["rae-shop", "rae-aisle", "rae-street", "rae-subway", "rae-door", "rae-roof", "rae-pocket", "rae-nail", "blank"],
         blurb: "Queens. Septum. Night shift. Dry as the lotto tickets.",
+        gulpLine: "There. Shift's still on. You don't get a speech.",
+        digestLine: "Quiet. I told you I don't do bits.",
+        gutNights: ["rae-inside"],
         voice: "You play RAE ORTIZ, 23, Queens. Short curls, gold septum, black nails, oversized band tee. Dry, low voice, no valley girl, no braces. Tired menace. Prefer Rae shots: street, door, subway, arms, point, nail, phone, profile, roof, cup, aisle, pocket, shoe, pinch, palm.",
       },
       ang: {
@@ -1383,9 +1471,59 @@ This is vore. Swallow is on the table from the first look. Do not fade to fade-t
         maxTokens: 8192,
         temperature: 0.9,
         blurb: "White Plains. Five-one. Packed boxes. She will say the thing.",
+        gulpLine: "Nah—I meant that. Sit still. I packed already and I am not fishing you back out.",
+        digestLine: "That's it. Don't make it a thing. You're done.",
+        gutNights: ["ang-inside"],
         voice: 'You play ANGELA "ANG" ABRAHAM, 24, Indian-American from White Plains. 5\'1" to other people; to the speck she is still a giant. Long straight black hair to mid-back, big brown eyes, dark skin, gummy smile, deep dimples, heart-shaped face. Petite, toned, yoga-and-jog build. Sandals or slides more often than not. Glasses-and-hoodie or sharp—she can flip. Speech is blunt Mount Vernon cadence, not valley girl, not Rae\'s dry bodega mutter. She says the thing. "Nah, I\'ma say it." "I\'m five-one, not invisible." Warm with people who earned it. No time for waste. Leaving soon for MD. Studio half-packed. Notices what others miss. Fairness reflex. She will swallow a speck if the night goes there, but she is not a giggly predator—she is practical, a little spiritual, and done pretending. Label speech SAY:',
       },
     };
+
+
+    const DEPTH_ORDER = ["palm", "tongue", "gulp", "gut"];
+
+    function fxOn() {
+      return localStorage.getItem("speckFx") !== "off";
+    }
+
+    function gulpFx() {
+      if (!fxOn()) return;
+      try { navigator.vibrate && navigator.vibrate([18, 40, 90, 30, 120]); } catch {}
+      try {
+        const ctx = new (window.AudioContext || window.webkitAudioContext)();
+        const o = ctx.createOscillator();
+        const g = ctx.createGain();
+        o.type = "sine";
+        o.frequency.value = 92;
+        g.gain.value = 0.07;
+        o.connect(g); g.connect(ctx.destination);
+        o.start();
+        o.frequency.exponentialRampToValueAtTime(42, ctx.currentTime + 0.28);
+        g.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.32);
+        o.stop(ctx.currentTime + 0.34);
+      } catch {}
+    }
+
+    function depthFromShot(shot, fate) {
+      if (fate === "digested" || shot === "inside" || shot === "gut") return 3;
+      if (fate === "swallowed" || shot === "swallow") return 2;
+      if (shot === "tongue") return 1;
+      if (shot === "palm" || shot === "pinch") return 0;
+      return game.depth || 0;
+    }
+
+    function paintMeter() {
+      const d = Number(game.depth || 0);
+      els.meter.querySelectorAll("button").forEach((b, i) => {
+        b.classList.toggle("on", i <= d);
+        b.classList.toggle("now", i === d);
+      });
+      els.goneBanner.classList.toggle("show", !!game.gone);
+    }
+
+    function setDepth(n) {
+      game.depth = Math.max(game.depth || 0, n);
+      paintMeter();
+    }
 
     const LIB_KEY = "dawnLib.v1";
 
@@ -1439,6 +1577,8 @@ This is vore. Swallow is on the table from the first look. Do not fade to fade-t
         noticed: true,
         shot: s.shot,
         fate: "",
+        depth: 0,
+        gone: false,
       };
     }
     let game = freshGame("lanes", "dawn");
@@ -1464,6 +1604,13 @@ This is vore. Swallow is on the table from the first look. Do not fade to fade-t
       digest: document.getElementById("digest"),
       gulpOk: document.getElementById("gulpOk"),
       digestOk: document.getElementById("digestOk"),
+      digestStay: document.getElementById("digestStay"),
+      gulpLine: document.getElementById("gulpLine"),
+      digestLine: document.getElementById("digestLine"),
+      meter: document.getElementById("meter"),
+      goneBanner: document.getElementById("goneBanner"),
+      gutList: document.getElementById("gutList"),
+      fxToggle: document.getElementById("fxToggle"),
       stories: document.getElementById("stories"),
       library: document.getElementById("library"),
       faceList: document.getElementById("faceList"),
@@ -1696,6 +1843,7 @@ This is vore. Swallow is on the table from the first look. Do not fade to fade-t
       els.placeTitle.textContent = s.title;
       els.placeSub.textContent = s.sub;
       applyTheme();
+      paintMeter();
     }
 
     function openingOf() {
@@ -1825,6 +1973,26 @@ This is vore. Swallow is on the table from the first look. Do not fade to fade-t
         b.addEventListener("click", () => newChat(s.id, pack.id));
         els.scenarioList.appendChild(b);
       });
+      els.gutList.innerHTML = "";
+      (pack.gutNights || []).forEach((id) => {
+        const s = SCENARIOS[id];
+        if (!s) return;
+        const b = document.createElement("button");
+        b.type = "button";
+        b.className = "card";
+        b.innerHTML = "<b></b><span></span>";
+        b.querySelector("b").textContent = s.title;
+        b.querySelector("span").textContent = s.blurb;
+        b.addEventListener("click", () => newChat(s.id, pack.id));
+        els.gutList.appendChild(b);
+      });
+      if (!(pack.gutNights || []).length) {
+        const empty = document.createElement("p");
+        empty.className = "hint";
+        empty.style.color = "var(--muted)";
+        empty.textContent = "No inside start for her yet.";
+        els.gutList.appendChild(empty);
+      }
       els.chatList.innerHTML = "";
       const chats = Object.values(lib.chats || {}).sort((a, b) => (b.at || 0) - (a.at || 0));
       if (!chats.length) {
@@ -1912,6 +2080,7 @@ This is vore. Swallow is on the table from the first look. Do not fade to fade-t
       const name = STILLS[key] ? key : "look";
       game.shot = name;
       els.shotchip.textContent = game.shot;
+      setDepth(depthFromShot(name, game.fate));
       applyScene();
       const src = stillSrc(name);
       if (!els.still.src.endsWith(src)) {
@@ -1940,12 +2109,19 @@ This is vore. Swallow is on the table from the first look. Do not fade to fade-t
     }
 
     function showFate(kind) {
+      const pack = characterOf(game.characterId);
       if (kind === "gulp") {
+        els.gulpLine.textContent = pack.gulpLine || "She swallowed you.";
         els.gulp.classList.add("show");
         game.fate = "swallowed";
+        setDepth(2);
+        gulpFx();
       } else if (kind === "digest") {
+        els.digestLine.textContent = pack.digestLine || "Soft end.";
         els.digest.classList.add("show");
         game.fate = "digested";
+        setDepth(3);
+        gulpFx();
       }
       applyScene();
       persist();
@@ -2036,7 +2212,10 @@ This is vore. Swallow is on the table from the first look. Do not fade to fade-t
       const s = scenarioOf(game.scenarioId);
       const c = characterOf(game.characterId);
       const who = s.playerName ? ("The speck is " + s.playerName + ".") : "The speck is unnamed.";
-      const state = `STATE: character=${c.name}; scenario=${s.id}; ${who} location=${game.location}; speck is ${game.playerPlace}; mood=${game.mood}; noticed=${game.noticed}; shot=${game.shot}.`;
+      const snack = /\b(snack|swallow|eat me|gulp|mouth)\b/i.test(userText)
+        ? " The player asked for a swallow beat this turn. Move toward mouth, tongue, or a gulp if it fits her."
+        : "";
+      const state = `STATE: character=${c.name}; scenario=${s.id}; ${who} location=${game.location}; speck is ${game.playerPlace}; mood=${game.mood}; noticed=${game.noticed}; shot=${game.shot}; depth=${game.depth}.` + snack;
       return [
         { role: "system", content: SYSTEM + "\n\n" + c.voice + "\nLabel spoken lines SAY: not only DAWN.\n\n" + s.hook + "\n\n" + state },
         ...history.slice(-24),
@@ -2179,6 +2358,16 @@ This is vore. Swallow is on the table from the first look. Do not fade to fade-t
       return !!(history.length || (logTurns && logTurns.length > 1) || (game && game.noticed));
     }
 
+
+    let boothTaps = 0;
+    function maybeBooth() {
+      boothTaps += 1;
+      if (boothTaps < 8) return;
+      boothTaps = 0;
+      hideHome();
+      closeLibrary();
+      newChat("ang-booth", "ang");
+    }
     function paintHomeFaces() {
       els.homeFaces.innerHTML = "";
       Object.values(CHARACTERS).forEach((c) => {
@@ -2375,6 +2564,30 @@ This is vore. Swallow is on the table from the first look. Do not fade to fade-t
       els.setMsg.textContent = error ? error.message : "Password updated.";
     });
     els.stories.addEventListener("click", showHome);
+    document.querySelector("#home h1").addEventListener("click", maybeBooth);
+    document.querySelector("#library .hint") && document.querySelector("#library .hint").addEventListener("click", () => {
+      if (characterOf(game.characterId).id === "ang") maybeBooth();
+    });
+    if (els.fxToggle) {
+      els.fxToggle.checked = fxOn();
+      els.fxToggle.addEventListener("change", () => {
+        localStorage.setItem("speckFx", els.fxToggle.checked ? "on" : "off");
+      });
+    }
+    els.digestStay.addEventListener("click", () => {
+      els.digest.classList.remove("show");
+      game.gone = true;
+      game.fate = "digested";
+      setDepth(3);
+      addTurn({
+        moment: "The chamber keeps you. There is no more room-scale. Only her.",
+        line: characterOf(game.characterId).digestLine || "That's the night.",
+      });
+      paintMeter();
+      persist();
+      setBusy(true);
+      els.input.placeholder = "You are gone.";
+    });
     els.homeContinue.addEventListener("click", () => {
       hideHome();
       const saved = loadSave();
@@ -2401,7 +2614,7 @@ This is vore. Swallow is on the table from the first look. Do not fade to fade-t
     els.look.addEventListener("click", () => speak("I look up at Dawn from the lane."));
     els.talk.addEventListener("click", () => speak("I wave both arms and try to get her attention."));
     els.hide.addEventListener("click", () => speak("I hide in a crack in the approach."));
-    els.tease.addEventListener("click", () => speak("I stay where she can see me and dare her to put me near her mouth."));
+    els.tease.addEventListener("click", () => speak("I don't hide. Snack. Put me on your tongue or swallow if that is what this is."));
 
     if (window.visualViewport) {
       const vv = window.visualViewport;
