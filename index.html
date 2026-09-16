@@ -24,7 +24,7 @@
       --safe-top: env(safe-area-inset-top, 0px);
       --safe-bot: env(safe-area-inset-bottom, 0px);
       --kb: 0px;
-      --dock: 148px;
+      --dock: 220px;
       --hair: rgba(255,79,216,.35);
       --glass: rgba(18,8,20,.78);
     }
@@ -396,7 +396,7 @@
         padding: 12px 28px 16px;
       }
       .dock .actions,
-      .dock .composer {
+      .dock .compose-wrap {
         max-width: 980px;
         margin-left: auto;
         margin-right: auto;
@@ -450,7 +450,7 @@
       border-color: var(--cyan);
       box-shadow: 0 0 16px rgba(92,225,255,.18);
     }
-    .actions button:disabled, #send:disabled, #input:disabled { opacity: .38; }
+    .actions button:disabled, #send:disabled, #say:disabled, #do:disabled { opacity: .38; }
     .composer { display: flex; gap: 8px; align-items: flex-end; }
     .compose-modes {
       display: flex; gap: 6px; margin: 0 0 8px;
@@ -677,7 +677,7 @@
       background: rgba(8,4,10,.72);
     }
     #library .sheet {
-      max-width: 430px; margin: 0 auto;
+      max-width: 860px; margin: 0 auto;
       background: var(--panel2);
       border: 1px solid var(--hair);
       border-radius: 18px;
@@ -719,6 +719,15 @@
       letter-spacing: .14em;
       text-transform: uppercase;
       color: var(--cyan);
+    }
+    .lib-split {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+      align-items: start;
+    }
+    @media (max-width: 520px) {
+      .lib-split .card span { display: none; }
     }
     .card, .iconbtn {
       transition: transform .18s ease, border-color .18s ease, box-shadow .18s ease, background .18s ease;
@@ -887,12 +896,18 @@
       <p class="hint" style="margin:0 0 8px;color:var(--muted);font-size:.84rem">Each story keeps its own chat on this phone.</p>
       <h3>Faces</h3>
       <div id="faceList"></div>
-      <h3>Beginnings</h3>
-      <div id="scenarioList"></div>
-      <h3>Already inside</h3>
-      <div id="gutList"></div>
-      <h3>Saved chats</h3>
-      <div id="chatList"></div>
+      <div class="lib-split">
+        <div>
+          <h3>Stories</h3>
+          <div id="scenarioList"></div>
+          <h3>Already inside</h3>
+          <div id="gutList"></div>
+        </div>
+        <div>
+          <h3>Saved chats</h3>
+          <div id="chatList"></div>
+        </div>
+      </div>
       <button type="button" id="libClose">Close</button>
     </div>
   </div>
@@ -970,12 +985,17 @@
       <button type="button" id="hide" disabled>Hide</button>
       <button type="button" id="tease" disabled>Snack</button>
     </div>
-    <div class="compose-modes" role="tablist">
-      <button type="button" id="modeSay" class="on">Say</button>
-      <button type="button" id="modeDo">Do</button>
-    </div>
-    <div class="composer">
-      <textarea id="input" rows="1" placeholder="Say something…" disabled enterkeyhint="send"></textarea>
+    <div class="compose-wrap">
+      <div class="compose-fields">
+        <div>
+          <label for="say">Say</label>
+          <textarea id="say" rows="1" placeholder="Speech…" disabled enterkeyhint="send"></textarea>
+        </div>
+        <div>
+          <label for="do">Do</label>
+          <textarea id="do" rows="1" placeholder="Action…" disabled></textarea>
+        </div>
+      </div>
       <button type="button" id="send" disabled>Send</button>
     </div>
   </div>
@@ -1372,7 +1392,7 @@ This is vore. Swallow is on the table from the first look. Do not fade to fade-t
         id: "ang-after",
         title: "After",
         sub: "Hand on it",
-        blurb: "Skip the swallow. She already has you. She is rubbing her stomach.",
+        blurb: "After. Her hand stays on it.",
         location: "Ang's packed studio after a swallow",
         playerPlace: "inside her, a warm settled weight",
         mood: "blunt, finished, a little full",
@@ -1388,7 +1408,7 @@ This is vore. Swallow is on the table from the first look. Do not fade to fade-t
         id: "ang-uvula",
         title: "Say ahh",
         sub: "Last look up",
-        blurb: "You are on the way down. Her mouth is open. You can see the back of her throat.",
+        blurb: "On her tongue. Uvula. One swallow left.",
         location: "inside Ang's open mouth over her studio",
         playerPlace: "on her tongue looking at her uvula",
         mood: "practical, mid-swallow",
@@ -1405,7 +1425,7 @@ This is vore. Swallow is on the table from the first look. Do not fade to fade-t
         id: "ang-call",
         title: "On with Alex",
         sub: "She does not know",
-        blurb: "Phone on speaker. She thinks the flutter is nerves.",
+        blurb: "Speakerphone. She thinks it's nerves.",
         location: "Ang's studio, phone on speaker with Alex",
         playerPlace: "inside her, unnoticed",
         mood: "unaware, chatting, rubbing her stomach absently",
@@ -1421,7 +1441,7 @@ This is vore. Swallow is on the table from the first look. Do not fade to fade-t
         id: "ang-asleep",
         title: "Lights out",
         sub: "She is out",
-        blurb: "Breathing slow. You can move. She will not answer.",
+        blurb: "She's out. You can move.",
         location: "Ang asleep in the studio bed",
         playerPlace: "inside her while she sleeps",
         mood: "asleep, unaware",
@@ -1437,7 +1457,7 @@ This is vore. Swallow is on the table from the first look. Do not fade to fade-t
         id: "ang-cards",
         title: "Flashcards",
         sub: "She knows",
-        blurb: "Anatomy deck. She is trying to study you out of existence.",
+        blurb: "Flashcards. She knows you're there.",
         location: "desk lamp, flashcards, speck inside",
         playerPlace: "inside her while she studies",
         mood: "aware, annoyed, focused",
@@ -1453,7 +1473,7 @@ This is vore. Swallow is on the table from the first look. Do not fade to fade-t
         id: "ang-walk",
         title: "To the platform",
         sub: "She knows",
-        blurb: "White Plains sidewalk. Hand in her hoodie. You are the errand.",
+        blurb: "Walk to the platform. She knows.",
         location: "night sidewalk toward Metro-North",
         playerPlace: "inside her on the walk",
         mood: "aware, moving, low voice",
@@ -1469,7 +1489,7 @@ This is vore. Swallow is on the table from the first look. Do not fade to fade-t
         id: "ang-mat",
         title: "Indigestion",
         sub: "She does not know",
-        blurb: "Yoga. She blames the leftover rice.",
+        blurb: "Yoga. She blames the rice.",
         location: "yoga mat in the studio",
         playerPlace: "inside her during a stretch",
         mood: "unaware, breathing, mildly irritated at her own gut",
@@ -1485,7 +1505,7 @@ This is vore. Swallow is on the table from the first look. Do not fade to fade-t
         id: "ang-paint-in",
         title: "Palette night",
         sub: "She does not know",
-        blurb: "Brush, gold cross, humming. You are just a cramp.",
+        blurb: "Painting. You're a cramp.",
         location: "painting corner of the studio",
         playerPlace: "inside her while she paints",
         mood: "unaware, humming, focused on color",
@@ -1604,7 +1624,7 @@ This is vore. Swallow is on the table from the first look. Do not fade to fade-t
         id: "ang-inside",
         title: "Already in",
         sub: "Quiet stomach",
-        blurb: "Skip the talk. You are already where she put you.",
+        blurb: "Already down. Quiet.",
         location: "inside Ang's stomach",
         playerPlace: "in the dark warm chamber",
         mood: "practical, not performing it",
@@ -1783,7 +1803,8 @@ This is vore. Swallow is on the table from the first look. Do not fade to fade-t
     const els = {
       live: document.getElementById("live"),
       log: document.getElementById("log"),
-      input: document.getElementById("input"),
+      say: document.getElementById("say"),
+      doBox: document.getElementById("do"),
       send: document.getElementById("send"),
       look: document.getElementById("look"),
       talk: document.getElementById("talk"),
@@ -2372,7 +2393,8 @@ This is vore. Swallow is on the table from the first look. Do not fade to fade-t
     function setBusy(on) {
       busy = on;
       const off = on || (!engine && !CLOUD_ACTOR_URL);
-      els.input.disabled = off;
+      if (els.say) els.say.disabled = off;
+      if (els.doBox) els.doBox.disabled = off;
       els.send.disabled = off;
       els.look.disabled = off;
       els.talk.disabled = off;
@@ -2508,12 +2530,13 @@ This is vore. Swallow is on the table from the first look. Do not fade to fade-t
         console.error(err);
       }
       setBusy(false);
-      els.input.focus();
+      if (els.say) els.say.focus();
     }
 
-    function growInput() {
-      els.input.style.height = "auto";
-      els.input.style.height = Math.min(els.input.scrollHeight, 96) + "px";
+    function growBox(el) {
+      if (!el) return;
+      el.style.height = "auto";
+      el.style.height = Math.min(el.scrollHeight, 72) + "px";
     }
 
     function iosHint() {
@@ -2676,33 +2699,35 @@ This is vore. Swallow is on the table from the first look. Do not fade to fade-t
       hideSplash();
     }
 
-    let composeMode = "say";
-    function setCompose(mode) {
-      composeMode = mode;
-      els.modeSay.classList.toggle("on", mode === "say");
-      els.modeDo.classList.toggle("on", mode === "do");
-      els.input.placeholder = mode === "say" ? "Say something…" : "What do you do?";
+    function packCompose() {
+      const said = (els.say && els.say.value || "").trim();
+      const did = (els.doBox && els.doBox.value || "").trim();
+      const parts = [];
+      if (said) parts.push('I say: "' + said + '"');
+      if (did) parts.push("I do this (not spoken): " + did);
+      return parts.join("\n");
     }
-    function wrapCompose(text) {
-      if (composeMode === "say") return 'I say: "' + text + '"';
-      return "I do this (not spoken): " + text;
-    }
-    els.modeSay.addEventListener("click", () => setCompose("say"));
-    els.modeDo.addEventListener("click", () => setCompose("do"));
     els.send.addEventListener("click", () => {
-      const t = els.input.value.trim();
-      if (!t) return;
-      els.input.value = "";
-      growInput();
-      speak(wrapCompose(t));
+      const packed = packCompose();
+      if (!packed) return;
+      if (els.say) els.say.value = "";
+      if (els.doBox) els.doBox.value = "";
+      growBox(els.say);
+      growBox(els.doBox);
+      speak(packed);
     });
-    els.input.addEventListener("input", growInput);
-    els.input.addEventListener("keydown", (e) => {
-      if (e.key === "Enter" && !e.shiftKey) {
-        e.preventDefault();
-        els.send.click();
-      }
-    });
+    if (els.say) {
+      els.say.addEventListener("input", () => growBox(els.say));
+      els.say.addEventListener("keydown", (e) => {
+        if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); els.send.click(); }
+      });
+    }
+    if (els.doBox) {
+      els.doBox.addEventListener("input", () => growBox(els.doBox));
+      els.doBox.addEventListener("keydown", (e) => {
+        if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); els.send.click(); }
+      });
+    }
     els.reset.addEventListener("click", resetNight);
     function openAuth() {
       els.authErr.textContent = "";
@@ -2808,7 +2833,7 @@ This is vore. Swallow is on the table from the first look. Do not fade to fade-t
       paintMeter();
       persist();
       setBusy(true);
-      els.input.placeholder = "You are gone.";
+      if (els.say) els.say.placeholder = "Gone."; if (els.doBox) els.doBox.placeholder = "Gone.";
     });
     els.homeContinue.addEventListener("click", () => {
       hideHome();
