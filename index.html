@@ -857,6 +857,12 @@
       cup:       { src: "stills/rae/cup.jpg" },
       portrait:  { src: "stills/rae/portrait.jpg" },
       aisle:     { src: "stills/rae/aisle.jpg" },
+      paint:     { src: "stills/ang/paint.jpg" },
+      desk:      { src: "stills/ang/desk.jpg" },
+      hoodie:    { src: "stills/ang/hoodie.jpg" },
+      yoga:      { src: "stills/ang/yoga.jpg" },
+      door:      { src: "stills/ang/door.jpg" },
+      gut:       { src: "stills/ang/gut.jpg" },
     };
     const RAE_ONLY = new Set(["street","door","subway","arms","point","nail","phone","profile","roof","cup","portrait","aisle"]);
 
@@ -890,6 +896,11 @@
       { key: "cup",     re: /\b(coffee|cup|iced coffee)\b/ },
       { key: "profile", re: /\b(profile|freezer light|side of her face)\b/ },
       { key: "aisle",   re: /\b(aisle|chip rack|between shelves)\b/ },
+      { key: "paint",   re: /\b(palette|paint|canvas|brush)\b/ },
+      { key: "desk",    re: /\b(desk lamp|highlighter|notes|anatomy)\b/ },
+      { key: "hoodie",  re: /\b(hoodie|glasses|bun)\b/ },
+      { key: "yoga",    re: /\b(yoga|plank|mat)\b/ },
+      { key: "gut",     re: /\b(stomach chamber|inside her stomach|acids?)\b/ },
     ];
 
     const SYSTEM = `You are the actor playing DAWN MARIE KELLER, 18.
@@ -1144,6 +1155,82 @@ No markdown. No extra labels. Never mention AI, models, prompts, or being an act
         hook: "SCENARIO: Blank start with Ang. Player speaks first. Do not invent Comet Lanes or the bodega.",
         opening: null,
       },
+      "ang-paint": {
+        id: "ang-paint",
+        title: "Palette night",
+        sub: "Studio wall",
+        blurb: "She was painting. Then she saw you on the floorboards.",
+        location: "Ang's painting corner, wood panel wall, palette in hand",
+        playerPlace: "on the stained floorboards under the palette",
+        mood: "interrupted, blunt, a little amused",
+        shot: "paint",
+        hook: "SCENARIO: Ang painting. Speck on the floor. Prefer SHOT paint, look, pinch, palm. Not Dawn. Not Rae.",
+        opening: {
+          moment: "Wet color on wood. A palette the size of a door hangs in her left hand. Sneakers frame the stain.",
+          line: "If you track paint I swear. I was in the middle of something. Talk.",
+        },
+      },
+      "ang-street": {
+        id: "ang-street",
+        title: "Walk home",
+        sub: "White Plains night",
+        blurb: "Streetlight. She is not taking you back to Maddy's.",
+        location: "suburban White Plains sidewalk at night",
+        playerPlace: "on the concrete near her sneaker",
+        mood: "done with the night, still fair",
+        shot: "street",
+        hook: "SCENARIO: Night sidewalk after she already has the speck. Prefer SHOT street, shoe, pocket, hoodie.",
+        opening: {
+          moment: "One streetlamp. Lawn sprinklers somewhere. Her shadow is a building.",
+          line: "I packed already. You coming in a pocket or you staying on this block. Pick.",
+        },
+      },
+      "ang-yoga": {
+        id: "ang-yoga",
+        title: "Mat",
+        sub: "Before the boxes",
+        blurb: "Plank. Hair in her face. You are under the mat edge.",
+        location: "Ang's studio yoga mat",
+        playerPlace: "under the front edge of the mat",
+        mood: "focused, annoyed at the interruption",
+        shot: "yoga",
+        hook: "SCENARIO: Yoga. Speck under the mat. Prefer SHOT yoga, kneel, look.",
+        opening: {
+          moment: "The mat is a field. Hair hangs like a curtain. She holds the plank like the speck is a problem for after.",
+          line: "I got eight more breaths. Then we talk. Don't make me drop.",
+        },
+      },
+      "ang-conor": {
+        id: "ang-conor",
+        title: "Conor",
+        sub: "You are her friend",
+        blurb: "You are Conor. Shrunken. She already knows it's you.",
+        location: "Ang's packed White Plains studio",
+        playerPlace: "on the hardwood where Conor used to stand",
+        mood: "roast first, panic second, still Ang",
+        shot: "look",
+        playerName: "Conor",
+        hook: "SCENARIO: The speck IS CONOR, her friend. Call him Conor. Little-brother roast energy. Do not treat him as a stranger. She is leaving for med school. Boxes everywhere. She will still swallow him if the night goes there, but she knows his name.",
+        opening: {
+          moment: "Tape gun. Boxes. The spot on the floor where Conor was standing is empty except for a voice that is too small.",
+          line: "Conor. I know that voice. Nah—what did you do. Don't lie. Sit still before I put you in a Tupperware.",
+        },
+      },
+      "ang-inside": {
+        id: "ang-inside",
+        title: "Already in",
+        sub: "Quiet stomach",
+        blurb: "Skip the talk. You are already where she put you.",
+        location: "inside Ang's stomach",
+        playerPlace: "in the dark warm chamber",
+        mood: "practical, not performing it",
+        shot: "inside",
+        hook: "SCENARIO: Speck is already inside. Quiet efficient digestion, not a bit. Prefer SHOT inside, gut, swallow. Ang stays blunt if she talks from above.",
+        opening: {
+          moment: "Dark red walls. Heat. Almost no sound. She does not turn this into a show.",
+          line: "Don't yell. I can feel it. You wanted in, you in.",
+        },
+      },
       tongue: {
         id: "tongue",
         title: "Already close",
@@ -1185,7 +1272,7 @@ No markdown. No extra labels. Never mention AI, models, prompts, or being an act
         name: "Ang",
         ready: true,
         stillDir: "stills/ang/",
-        scenarios: ["ang-studio", "ang-desk", "ang-blank", "blank"],
+        scenarios: ["ang-studio", "ang-desk", "ang-paint", "ang-street", "ang-yoga", "ang-conor", "ang-inside", "ang-blank", "blank"],
         thinkBudget: 2048,
         maxTokens: 8192,
         temperature: 0.9,
@@ -1210,7 +1297,7 @@ No markdown. No extra labels. Never mention AI, models, prompts, or being an act
       const c = characterOf(game.characterId);
       const dir = c.stillDir || "stills/";
       let name = STILLS[key] ? key : "look";
-      if (c.id !== "rae" && RAE_ONLY.has(name)) name = "look";
+      if (c.id === "dawn" && (RAE_ONLY.has(name) || name.startsWith("gut") || name === "paint" || name === "yoga" || name === "hoodie" || name === "desk")) name = "look";
       return dir + name + ".jpg";
     }
 
@@ -1815,7 +1902,8 @@ No markdown. No extra labels. Never mention AI, models, prompts, or being an act
     function buildMessages(userText) {
       const s = scenarioOf(game.scenarioId);
       const c = characterOf(game.characterId);
-      const state = `STATE: character=${c.name}; scenario=${s.id}; location=${game.location}; speck is ${game.playerPlace}; mood=${game.mood}; noticed=${game.noticed}; shot=${game.shot}.`;
+      const who = s.playerName ? ("The speck is " + s.playerName + ".") : "The speck is unnamed.";
+      const state = `STATE: character=${c.name}; scenario=${s.id}; ${who} location=${game.location}; speck is ${game.playerPlace}; mood=${game.mood}; noticed=${game.noticed}; shot=${game.shot}.`;
       return [
         { role: "system", content: SYSTEM + "\n\n" + c.voice + "\nLabel spoken lines SAY: not only DAWN.\n\n" + s.hook + "\n\n" + state },
         ...history.slice(-24),
