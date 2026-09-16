@@ -1,26 +1,52 @@
 import http from "node:http";
-import { GoogleGenAI } from "@google/genai";
 
 const PORT = Number(process.env.PORT || 8080);
-const API_KEY = process.env.GEMINI_API_KEY || process.env.GOOGLE_API_KEY || "";
-const MODEL = process.env.GEMINI_MODEL || "gemini-2.5-flash";
+const LOCATION = process.env.GOOGLE_CLOUD_LOCATION || "global";
+const MODEL = process.env.GEMINI_MODEL || "gemini-3.6-flash";
 const ALLOW_ORIGIN = process.env.ALLOW_ORIGIN || "*";
+const META = "http://metadata.google.internal/computeMetadata/v1";
 
-const ai = API_KEY ? new GoogleGenAI({ apiKey: API_KEY }) : null;
-
-function send(res, status, body, extra = {}) {
-  const headers = {
+function send(res, status, body) {
+  res.writeHead(status, {
     "Content-Type": "application/json; charset=utf-8",
     "Access-Control-Allow-Origin": ALLOW_ORIGIN,
     "Access-Control-Allow-Methods": "POST, OPTIONS",
     "Access-Control-Allow-Headers": "Content-Type",
-    ...extra,
-  };
-  res.writeHead(status, headers);
+  });
   res.end(typeof body === "string" ? body : JSON.stringify(body));
 }
 
-function toGeminiContents(messages) {
+async function meta(path) {
+  const r = await fetch(`${META}/${path}`, {
+    headers: { "Metadata-Flavor": "Google" },
+  });
+  if (!r.ok) throw new Error(`metadata ${path} ${r.status}`);
+  return r.text();
+}
+
+async function projectId() {
+  return (
+    process.env.GOOGLE_CLOUD_PROJECT ||
+    process.env.GCLOUD_PROJECT ||
+    process.env.PROJECT_ID ||
+    (await meta("project/project-id"))
+  );
+}
+
+let tokenCache = { token: "", exp: 0 };
+async function accessToken() {
+  const now = Date.now();
+  if (tokenCache.token && now < tokenCache.exp) return tokenCache.token;
+  const raw = await meta("instance/service-accounts/default/token");
+  const data = JSON.parse(raw);
+  tokenCache = {
+    token: data.access_token,
+    exp: now + Math.max(30, (data.expires_in || 300) - 60) * 1000,
+  };
+  return tokenCache.token;
+}
+
+function toVertexBody(messages) {
   const systemParts = [];
   const contents = [];
   for (const m of messages || []) {
@@ -34,76 +60,91 @@ function toGeminiContents(messages) {
       parts: [{ text: String(m.content) }],
     });
   }
-  return {
-    systemInstruction: systemParts.length
-      ? { parts: [{ text: systemParts.join("\n\n") }] }
-      : undefined,
+  const body = {
     contents,
+    generationConfig: {
+      temperature: 0.85,
+      maxOutputTokens: 4096,
+      thinkingConfig: { thinkingBudget: 0 },
+    },
   };
+  if (systemParts.length) {
+    body.systemInstruction = { parts: [{ text: systemParts.join("\n\n") }] };
+  }
+  return body;
 }
 
-const server = http.createServer(async (req, res) => {
-  if (req.method === "OPTIONS") {
-    send(res, 204, "");
-    return;
-  }
+function extractText(data) {
+  const parts = data?.candidates?.[0]?.content?.parts || [];
+  return parts.map((p) => p.text || "").join("").trim();
+}
 
-  if (req.method === "GET" && (req.url === "/" || req.url === "/health")) {
-    send(res, 200, { ok: true, model: MODEL });
-    return;
-  }
+http
+  .createServer(async (req, res) => {
+    try {
+      if (req.method === "OPTIONS") {
+        send(res, 204, "");
+        return;
+      }
+      if (req.method === "GET" && (req.url === "/" || req.url === "/health")) {
+        send(res, 200, {
+          ok: true,
+          mode: "vertex-rest",
+          location: LOCATION,
+          model: MODEL,
+        });
+        return;
+      }
+      if (req.method !== "POST" || req.url !== "/actor") {
+        send(res, 404, { error: "not found" });
+        return;
+      }
+      let raw = "";
+      for await (const chunk of req) raw += chunk;
+      let payload;
+      try {
+        payload = JSON.parse(raw || "{}");
+      } catch {
+        send(res, 400, { error: "invalid json" });
+        return;
+      }
+      const body = toVertexBody(payload.messages);
+      if (!body.contents.length) {
+        send(res, 400, { error: "messages required" });
+        return;
+      }
+      if (payload.temperature != null) body.generationConfig.temperature = payload.temperature;
+      if (payload.max_tokens != null) body.generationConfig.maxOutputTokens = payload.max_tokens;
+      if (payload.think_budget != null) {
+        body.generationConfig.thinkingConfig = { thinkingBudget: Number(payload.think_budget) || 0 };
+      }
 
-  if (req.method !== "POST" || req.url !== "/actor") {
-    send(res, 404, { error: "not found" });
-    return;
-  }
-
-  if (!ai) {
-    send(res, 500, { error: "GEMINI_API_KEY is not set on the server" });
-    return;
-  }
-
-  let raw = "";
-  for await (const chunk of req) raw += chunk;
-  let payload;
-  try {
-    payload = JSON.parse(raw || "{}");
-  } catch {
-    send(res, 400, { error: "invalid json" });
-    return;
-  }
-
-  const { systemInstruction, contents } = toGeminiContents(payload.messages);
-  if (!contents.length) {
-    send(res, 400, { error: "messages required" });
-    return;
-  }
-
-  try {
-    const response = await ai.models.generateContent({
-      model: MODEL,
-      contents,
-      config: {
-        systemInstruction,
-        temperature: payload.temperature ?? 0.85,
-        maxOutputTokens: payload.max_tokens ?? 180,
-        // Adult giantess RP will otherwise trip default filters.
-        safetySettings: [
-          { category: "HARM_CATEGORY_HARASSMENT", threshold: "BLOCK_ONLY_HIGH" },
-          { category: "HARM_CATEGORY_HATE_SPEECH", threshold: "BLOCK_ONLY_HIGH" },
-          { category: "HARM_CATEGORY_SEXUALLY_EXPLICIT", threshold: "BLOCK_ONLY_HIGH" },
-          { category: "HARM_CATEGORY_DANGEROUS_CONTENT", threshold: "BLOCK_ONLY_HIGH" },
-        ],
-      },
-    });
-    const text = response.text || "";
-    send(res, 200, { text });
-  } catch (err) {
-    console.error(err);
-    send(res, 502, { error: String(err.message || err) });
-  }
-});
-
-server.listen(PORT, () => {
-  console.log(`dawn-actor listening on ${PORT} model=${MODEL}`);
-});
+      const project = await projectId();
+      const token = await accessToken();
+      const host =
+        LOCATION === "global"
+          ? "https://aiplatform.googleapis.com"
+          : `https://${LOCATION}-aiplatform.googleapis.com`;
+      const url = `${host}/v1/projects/${project}/locations/${LOCATION}/publishers/google/models/${MODEL}:generateContent`;
+      const vr = await fetch(url, {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(body),
+      });
+      const data = await vr.json().catch(() => ({}));
+      if (!vr.ok) {
+        send(res, 502, { error: data.error?.message || JSON.stringify(data) });
+        return;
+      }
+      send(res, 200, { text: extractText(data) });
+    } catch (err) {
+      console.error(err);
+      send(res, 502, { error: String(err.message || err) });
+    }
+  })
+  .listen(PORT, "0.0.0.0", () => {
+    console.log("dawn-actor listening", PORT);
+  });
