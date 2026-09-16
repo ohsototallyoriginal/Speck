@@ -210,7 +210,53 @@
     }
     .brand {
       min-width: 0;
+      flex: 1 1 auto;
     }
+    .brand-row {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      min-width: 0;
+      flex: 1 1 auto;
+    }
+    .ornament { flex: 0 0 auto; width: 120px; height: 44px; line-height: 0; }
+    .ornament svg { overflow: hidden; display: block; }
+    .orn-giant { fill: url(#ornGiant); }
+    .orn-looming { animation: ornBreathe 6s ease-in-out infinite; transform-origin: 84px -34px; }
+    .orn-rim { fill: none; stroke: var(--neon); stroke-width: 1.2; opacity: .9; stroke-dasharray: 2 4; animation: ornDash 12s linear infinite; }
+    .orn-floor { stroke: var(--hair); stroke-width: 1; stroke-linecap: round; }
+    .orn-mote { fill: var(--cyan); opacity: 0; animation: ornTwinkle 4.2s ease-in-out infinite; }
+    .orn-mote.m2 { animation-delay: 1.4s; }
+    .orn-mote.m3 { animation-delay: 2.8s; }
+    .orn-speck { animation: ornWander 7s ease-in-out infinite; }
+    .orn-halo { fill: var(--cyan); opacity: .22; animation: ornPulse 2.2s ease-in-out infinite; transform-box: fill-box; transform-origin: center; }
+    .orn-dot { fill: #eafcff; stroke: var(--cyan); stroke-width: .8; }
+    @keyframes ornBreathe { 0%,100% { transform: translateY(0) scale(1); } 50% { transform: translateY(3px) scale(1.05); } }
+    @keyframes ornDash { to { stroke-dashoffset: -64; } }
+    @keyframes ornTwinkle { 0%,100% { opacity: 0; } 50% { opacity: .9; } }
+    @keyframes ornPulse { 0%,100% { transform: scale(.8); opacity: .15; } 50% { transform: scale(1.3); opacity: .35; } }
+    @keyframes ornWander {
+      0%   { transform: translate(14px, 0); }
+      30%  { transform: translate(40px, -3px); }
+      45%  { transform: translate(52px, 0); }
+      60%  { transform: translate(52px, 0); }
+      100% { transform: translate(14px, 0); }
+    }
+    @media (prefers-reduced-motion: reduce) {
+      .ornament *, .ornament { animation: none !important; }
+      .orn-mote { opacity: .6; }
+    }
+    #settings .sheet { max-height: calc(100dvh - 24px - var(--safe-top)); overflow-y: auto; }
+    #settings input[type="checkbox"] { width: 22px; height: 22px; min-height: 0; padding: 0; flex: 0 0 auto; accent-color: var(--neon); }
+    #settings .set-label { margin: 16px 0 6px; font-size: .72rem; letter-spacing: .08em; text-transform: uppercase; color: var(--muted); }
+    #settings .set-reset {
+      width: 100%; min-height: 44px; border-radius: 12px;
+      border: 1px solid #7a3044; background: #3a1824; color: #ffc4cc; font-weight: 800;
+    }
+    #settings .set-note { margin: 6px 0 0; font-size: .78rem; color: var(--muted); }
+    #home .home-dismiss { margin: 18px 0 0; font-size: .78rem; color: var(--muted); opacity: .8; }
+    #home { cursor: pointer; }
+    #home button { cursor: pointer; }
     .brand h1 {
       margin: 0;
       font-size: 0.72rem;
@@ -241,7 +287,7 @@
     #live.busy { color: #ffd36a; border-color: #8a6a20; }
     #live.bad { color: #ff9aa6; border-color: var(--danger); }
     .tools { display: flex; gap: 6px; align-items: center; flex-wrap: wrap; justify-content: flex-end; }
-    .tools button, #homeBtn, #stories, #reset, #account, #gear {
+    .tools button, #homeBtn, #stories, #account, #gear {
       min-height: 32px;
       border: 1px solid var(--hair);
       background: var(--panel2);
@@ -400,6 +446,8 @@
         padding: 12px 28px 16px;
       }
       .dock .actions,
+      .dock .compose-modes,
+      .dock #composeHint,
       .dock .composer {
         max-width: 980px;
         margin-left: auto;
@@ -864,6 +912,8 @@
         text-overflow: ellipsis;
       }
       .brand p { font-size: 1rem; }
+      .ornament { width: 96px; height: 36px; margin-right: -2px; }
+      .ornament svg { width: 96px; height: 36px; }
       .tools {
         flex-wrap: nowrap;
         justify-content: flex-start;
@@ -978,6 +1028,7 @@
     }
     @media (min-width: 900px) {
       #sceneBar { display: contents; }
+      #stage { cursor: default; }
       #zoomIcon, #thumbHint { display: none; }
     }
   </style>
@@ -1005,6 +1056,7 @@
       <button type="button" id="homeContinue">Continue last night</button>
       <button type="button" id="homeStories">All nights</button>
     </div>
+    <p class="home-dismiss">Tap anywhere else to close</p>
   </div>
   <div id="splash">
     <div class="mark">Speck</div>
@@ -1013,14 +1065,40 @@
     <div class="bar"><i></i></div>
   </div>
   <header class="top">
-    <div class="brand">
-      <h1 id="placeTitle">Night counter</h1>
-      <p id="placeSub">Bodega · 2am</p>
+    <div class="brand-row">
+      <div class="brand">
+        <h1 id="placeTitle">Night counter</h1>
+        <p id="placeSub">Bodega · 2am</p>
+      </div>
+      <div class="ornament" aria-hidden="true">
+        <svg viewBox="0 0 120 44" width="120" height="44">
+          <defs>
+            <clipPath id="ornClip"><rect x="0" y="0" width="120" height="44" rx="10"/></clipPath>
+            <radialGradient id="ornGiant" cx="50%" cy="90%" r="70%">
+              <stop offset="0" stop-color="var(--neon)" stop-opacity=".75"/>
+              <stop offset="1" stop-color="var(--neon)" stop-opacity=".12"/>
+            </radialGradient>
+          </defs>
+          <g clip-path="url(#ornClip)">
+            <g class="orn-looming">
+              <circle class="orn-giant" cx="84" cy="-34" r="56"/>
+              <circle class="orn-rim" cx="84" cy="-34" r="56"/>
+            </g>
+          </g>
+          <line class="orn-floor" x1="4" y1="38" x2="116" y2="38"/>
+          <circle class="orn-mote m1" cx="30" cy="14" r="1.2"/>
+          <circle class="orn-mote m2" cx="48" cy="24" r="1"/>
+          <circle class="orn-mote m3" cx="16" cy="28" r="1.1"/>
+          <g class="orn-speck">
+            <circle class="orn-halo" cx="0" cy="35" r="6"/>
+            <circle class="orn-dot" cx="0" cy="35" r="2.2"/>
+          </g>
+        </svg>
+      </div>
     </div>
     <div class="tools">
       <button type="button" id="homeBtn">Home</button>
       <button type="button" id="stories">Stories</button>
-      <button type="button" id="reset">Reset</button>
       <button type="button" id="account">Log in</button>
       <div id="live">Boot</div>
       <button type="button" id="gear" aria-label="Settings">⚙</button>
@@ -1119,6 +1197,9 @@
       <label style="margin-top:14px;display:flex;gap:8px;align-items:center;text-transform:none;letter-spacing:0;font-size:.9rem;color:var(--ink)">
         <input id="fxToggle" type="checkbox" checked /> Swallow sound and haptics
       </label>
+      <p class="set-label">This night</p>
+      <button type="button" id="reset" class="set-reset">Restart this night</button>
+      <p class="set-note">Clears this chat on this phone and starts the scene over.</p>
       <button type="button" id="setClose" style="width:100%;min-height:40px;margin-top:8px;border:0;border-radius:12px;background:var(--panel);color:var(--ink)">Close</button>
     </div>
   </div>
@@ -2889,7 +2970,10 @@ Never copy SPEECH: or ACTION: into your reply. Reply only with MOMENT, SAY, SHOT
     composeReady = true;
     setCompose(composeMode);
     setBusy(busy);
-    els.reset.addEventListener("click", resetNight);
+    els.reset.addEventListener("click", () => {
+      els.settings.classList.remove("show");
+      setTimeout(resetNight, 50);
+    });
     function openAuth() {
       els.authErr.textContent = "";
       authView = sessionUser ? "signed" : (cloudReady ? "welcome" : "setup");
@@ -3004,6 +3088,22 @@ Never copy SPEECH: or ACTION: into your reply. Reply only with MOMENT, SAY, SHOT
       } else if (!els.log.children.length) {
         paintOpening();
       }
+    });
+    function leaveHome() {
+      hideHome();
+      if (!els.log.children.length) paintOpening();
+    }
+    els.home.addEventListener("click", (e) => {
+      // Buttons (and the title, which has its own tap handler) keep their behaviour
+      if (e.target.closest("button, a, input, h1")) return;
+      leaveHome();
+    });
+    document.addEventListener("keydown", (e) => {
+      if (e.key !== "Escape") return;
+      if (els.settings.classList.contains("show")) els.settings.classList.remove("show");
+      else if (els.library.classList.contains("show")) closeLibrary();
+      else if (els.auth.classList.contains("show")) closeAuth();
+      else if (els.home.classList.contains("show")) leaveHome();
     });
     els.homeStories.addEventListener("click", () => {
       hideHome();
