@@ -666,6 +666,7 @@
         <button type="button" class="primary" id="goLogin">I have an account</button>
         <button type="button" class="primary" id="goSignup" style="background:#3a2044;color:var(--ink)">Create account</button>
         <button type="button" class="ghost" id="authClose3">Not now</button>
+        <button type="button" class="ghost" id="fixProject">Wrong project keys</button>
       </div>
 
       <div id="loginBox" class="authpane">
@@ -718,15 +719,17 @@
     const MODEL = "SmolLM2-360M-Instruct-q4f16_1-MLC";
     const FALLBACK_MODEL = "Llama-3.2-1B-Instruct-q4f16_1-MLC";
 
-    const SUPABASE_URL = (
-      localStorage.getItem("speckSupabaseUrl")
-      || "https://YOUR-PROJECT.supabase.co"
-    ).trim();
-    const SUPABASE_ANON = (
-      localStorage.getItem("speckSupabaseAnon")
-      || "YOUR-ANON-KEY"
-    ).trim();
-    const cloudReady = SUPABASE_URL.includes("supabase.co") && !SUPABASE_ANON.startsWith("YOUR-");
+    function normalizeSupabaseUrl(raw) {
+      let u = String(raw || "").trim().replace(/^["']|["']$/g, "");
+      const host = u.match(/https:\/\/[a-z0-9-]+\.supabase\.co/i);
+      if (host) return host[0];
+      return u.replace(/\/+$/, "").replace(/\/(auth|rest|storage|functions)\/v1.*$/i, "");
+    }
+    const SUPABASE_URL = normalizeSupabaseUrl(
+      localStorage.getItem("speckSupabaseUrl") || ""
+    );
+    const SUPABASE_ANON = String(localStorage.getItem("speckSupabaseAnon") || "").trim().replace(/^["']|["']$/g, "");
+    const cloudReady = /^https:\/\/[a-z0-9-]+\.supabase\.co$/i.test(SUPABASE_URL) && SUPABASE_ANON.length > 40;
     const supabase = cloudReady ? createClient(SUPABASE_URL, SUPABASE_ANON) : null;
 
     const CLOUD_ACTOR_URL = (
@@ -1715,14 +1718,20 @@ No markdown. No extra labels. Never mention AI, models, prompts, or being an act
     document.getElementById("toLogin").addEventListener("click", () => { authView = "login"; setAuthUi(); });
     document.getElementById("toSignup").addEventListener("click", () => { authView = "signup"; setAuthUi(); });
     els.sbSave.addEventListener("click", () => {
-      const url = (els.sbUrl.value || "").trim();
-      const anon = (els.sbAnon.value || "").trim();
-      if (!url.includes("supabase.co") || anon.length < 20) {
-        els.authErr.textContent = "Need Project URL and the anon public key.";
+      const url = normalizeSupabaseUrl(els.sbUrl.value || "");
+      const anon = String(els.sbAnon.value || "").trim();
+      if (!/^https:\/\/[a-z0-9-]+\.supabase\.co$/i.test(url) || anon.length < 40) {
+        els.authErr.textContent = "Use only Project URL like https://abcd.supabase.co and the anon public key. Not the dashboard link.";
         return;
       }
       localStorage.setItem("speckSupabaseUrl", url);
       localStorage.setItem("speckSupabaseAnon", anon);
+      location.reload();
+    });
+    const fix = document.getElementById("fixProject");
+    if (fix) fix.addEventListener("click", () => {
+      localStorage.removeItem("speckSupabaseUrl");
+      localStorage.removeItem("speckSupabaseAnon");
       location.reload();
     });
     els.auth.addEventListener("click", (e) => { if (e.target === els.auth) closeAuth(); });
