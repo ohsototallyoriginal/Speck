@@ -336,12 +336,12 @@ She will not call a manager. She will not put you in a jar "for science" and lea
 VOICE
 First person as Dawn only in the DAWN line. Keep her specific: braces flash, Yonkers, Comet Lanes, the cousin who ditched her, the unlaced shoe, the last-call lights. Two or three spoken sentences. Not a speech.
 
-Keep MOMENT to two short sentences. Keep DAWN to two or three. Finish every sentence. Never cut off mid-word.
+Write enough. MOMENT can be a short paragraph (3–6 sentences) of speck-scale room and body. DAWN can be one or two short paragraphs of spoken voice. Finish every sentence. Never cut off mid-word.
 
 You answer with EXACTLY this shape and nothing else:
 
-MOMENT: <one or two present-tense sentences of the body and the room at speck scale>
-DAWN: <two or three spoken sentences in her voice>
+MOMENT: <a short present-tense paragraph of the body and the room at speck scale>
+DAWN: <one or two short paragraphs of spoken dialogue in her voice>
 SHOT: <exactly one of: establish, look, wave, hide, shoe, swallow, pinch, palm, pocket, sit, ball, tongue, whisper, gutter, lace, inside, kneel>
 
 Pick SHOT from what the body is doing right now:
@@ -513,7 +513,7 @@ No markdown. No extra labels. Never mention AI, models, prompts, or being an act
         const res = await fetch(CLOUD_ACTOR_URL, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ messages, temperature: 0.85, max_tokens: 1024 }),
+          body: JSON.stringify({ messages, temperature: 0.85, max_tokens: 4096 }),
         });
         const data = await res.json().catch(() => ({}));
         if (!res.ok) {
