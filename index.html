@@ -79,6 +79,19 @@
     #live.ready { color: #9ff0c0; border-color: #2f6a4a; }
     #live.busy { color: #ffd36a; border-color: #8a6a20; }
     #live.bad { color: #ff9aa6; border-color: var(--danger); }
+    .tools { display: flex; gap: 6px; align-items: center; }
+    #reset {
+      min-height: 32px;
+      border: 1px solid #5a2a55;
+      background: #24101f;
+      color: var(--muted);
+      border-radius: 999px;
+      font-size: 0.68rem;
+      font-weight: 700;
+      letter-spacing: .08em;
+      text-transform: uppercase;
+      padding: 6px 9px;
+    }
 
     #stage {
       position: relative;
@@ -240,7 +253,10 @@
       <h1>Comet Lanes</h1>
       <p>Lane 7 · last call</p>
     </div>
-    <div id="live">Boot</div>
+    <div class="tools">
+      <button type="button" id="reset">Reset</button>
+      <div id="live">Boot</div>
+    </div>
   </header>
 
   <figure id="stage">
@@ -349,13 +365,22 @@ establish=full shoe looming, look=her face filling the sky, wave=giant hand reac
 
 No markdown. No extra labels. Never mention AI, models, prompts, or being an actor. Stay in Comet Lanes unless STATE says you moved. If STATE conflicts with earlier chat, STATE wins.`;
 
-    const game = {
-      location: "Comet Lanes, Yonkers, last-call, lane 7 approach",
-      playerPlace: "on the oiled wood a few inches from her unlaced rental sneaker",
-      mood: "delighted, territorial, already tasting the idea of you",
-      noticed: true,
-      shot: "establish",
+    const SAVE_KEY = "dawnSave.v1";
+    const OPENING = {
+      moment: "Last-call neon crawls over an unlaced rental sneaker the size of a walk-up. The alley is empty. Somewhere a mile up, metal catches the light when she grins down the lane.",
+      line: "Okay so like—don't scream, the manager's in the back and I am not explaining this. I found you in the gutter. You're tiny. And I already decided you're coming home in my hoodie or, wait, worse. Hi.",
     };
+
+    function freshGame() {
+      return {
+        location: "Comet Lanes, Yonkers, last-call, lane 7 approach",
+        playerPlace: "on the oiled wood a few inches from her unlaced rental sneaker",
+        mood: "delighted, territorial, already tasting the idea of you",
+        noticed: true,
+        shot: "establish",
+      };
+    }
+    let game = freshGame();
 
     const els = {
       live: document.getElementById("live"),
@@ -372,11 +397,35 @@ No markdown. No extra labels. Never mention AI, models, prompts, or being an act
       still: document.getElementById("still"),
       stage: document.getElementById("stage"),
       shotchip: document.getElementById("shotchip"),
+      reset: document.getElementById("reset"),
     };
 
-    const history = [];
+    let history = [];
+    let logTurns = [];
     let engine = null;
     let busy = false;
+
+    function persist() {
+      try {
+        localStorage.setItem(SAVE_KEY, JSON.stringify({
+          game, history, logTurns, at: Date.now(),
+        }));
+      } catch (e) { console.warn(e); }
+    }
+
+    function loadSave() {
+      try {
+        const raw = localStorage.getItem(SAVE_KEY);
+        if (!raw) return null;
+        const data = JSON.parse(raw);
+        if (!data || !Array.isArray(data.history) || !Array.isArray(data.logTurns)) return null;
+        return data;
+      } catch { return null; }
+    }
+
+    function clearSave() {
+      try { localStorage.removeItem(SAVE_KEY); } catch {}
+    }
 
     function setLive(text, kind) {
       els.live.textContent = text;
@@ -434,6 +483,7 @@ No markdown. No extra labels. Never mention AI, models, prompts, or being an act
         d.appendChild(document.createTextNode(line));
         wrap.appendChild(d);
       }
+      if (!pending) logTurns.push({ you, moment, line });
       els.log.appendChild(wrap);
       els.log.scrollTop = els.log.scrollHeight;
       return wrap;
@@ -483,7 +533,7 @@ No markdown. No extra labels. Never mention AI, models, prompts, or being an act
       const state = `STATE: location=${game.location}; speck is ${game.playerPlace}; mood=${game.mood}; noticed=${game.noticed}; shot=${game.shot}.`;
       return [
         { role: "system", content: SYSTEM + "\n\n" + state },
-        ...history.slice(-8),
+        ...history.slice(-24),
         { role: "user", content: userText },
       ];
     }
@@ -547,6 +597,7 @@ No markdown. No extra labels. Never mention AI, models, prompts, or being an act
         addTurn({ you: userText, moment, line });
         history.push({ role: "user", content: userText });
         history.push({ role: "assistant", content: raw });
+        persist();
       } catch (err) {
         wrap.remove();
         addTurn({
@@ -573,12 +624,41 @@ No markdown. No extra labels. Never mention AI, models, prompts, or being an act
       return { ios, ver: m ? Number(m[1]) : 0 };
     }
 
-    async function boot() {
+    function paintOpening() {
+      logTurns = [];
+      addTurn(OPENING);
+    }
+
+    function restoreSave(data) {
+      Object.assign(game, freshGame(), data.game || {});
+      history = data.history.slice();
+      logTurns = [];
+      els.log.innerHTML = "";
+      setStill(game.shot || "establish");
+      const turns = data.logTurns.length ? data.logTurns : [OPENING];
+      turns.forEach((turn) => addTurn(turn));
+    }
+
+    function resetNight() {
+      if (busy) return;
+      if (!confirm("Start the night over? This clears the saved chat on this phone.")) return;
+      clearSave();
+      game = freshGame();
+      history = [];
+      els.log.innerHTML = "";
       setStill("establish");
-      addTurn({
-        moment: "Last-call neon crawls over an unlaced rental sneaker the size of a walk-up. The alley is empty. Somewhere a mile up, metal catches the light when she grins down the lane.",
-        line: "Okay so like—don't scream, the manager's in the back and I am not explaining this. I found you in the gutter. You're tiny. And I already decided you're coming home in my hoodie or, wait, worse. Hi.",
-      });
+      paintOpening();
+      persist();
+    }
+
+    async function boot() {
+      const saved = loadSave();
+      if (saved && (saved.history.length || saved.logTurns.length > 1)) {
+        restoreSave(saved);
+      } else {
+        setStill("establish");
+        paintOpening();
+      }
       const { ios, ver } = iosHint();
 
       if (CLOUD_ACTOR_URL) {
@@ -633,6 +713,7 @@ No markdown. No extra labels. Never mention AI, models, prompts, or being an act
         els.send.click();
       }
     });
+    els.reset.addEventListener("click", resetNight);
     els.look.addEventListener("click", () => speak("I look up at Dawn from the lane."));
     els.talk.addEventListener("click", () => speak("I wave both arms and try to get her attention."));
     els.hide.addEventListener("click", () => speak("I hide in a crack in the approach."));
