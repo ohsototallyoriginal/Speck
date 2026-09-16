@@ -27,10 +27,32 @@
     html, body {
       margin: 0;
       height: 100%;
-      background: radial-gradient(120% 80% at 50% -10%, #3a1438 0%, var(--bg) 55%);
       color: var(--ink);
       font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", system-ui, sans-serif;
     }
+    html {
+      background: #08040a;
+    }
+    html::before {
+      content: "";
+      position: fixed; inset: 0; z-index: -2;
+      background:
+        radial-gradient(80% 50% at 50% -10%, rgba(255,79,216,.28), transparent 55%),
+        radial-gradient(40% 30% at 90% 80%, rgba(92,225,255,.12), transparent 50%),
+        repeating-linear-gradient(90deg, transparent 0 42px, rgba(255,79,216,.05) 42px 44px),
+        #100812;
+      animation: lanes 18s linear infinite;
+    }
+    html::after {
+      content: "";
+      position: fixed; inset: 0; z-index: -1;
+      background: radial-gradient(circle at 20% 30%, rgba(255,79,216,.08), transparent 35%),
+                  radial-gradient(circle at 80% 70%, rgba(92,225,255,.06), transparent 40%);
+      animation: glow 8s ease-in-out infinite alternate;
+      pointer-events: none;
+    }
+    @keyframes lanes { to { background-position: 88px 0, 0 0, 88px 0, 0 0; } }
+    @keyframes glow { to { opacity: .55; } }
     body {
       display: flex;
       flex-direction: column;
@@ -39,7 +61,21 @@
       margin: 0 auto;
       padding-top: var(--safe-top);
       padding-bottom: calc(var(--safe-bot) + var(--kb));
+      background: transparent;
+      position: relative;
     }
+    #log, body {
+      scrollbar-width: thin;
+      scrollbar-color: #ff4fd8 #1a0c18;
+    }
+    #log::-webkit-scrollbar { width: 8px; height: 8px; }
+    #log::-webkit-scrollbar-track { background: #140a16; border-radius: 99px; }
+    #log::-webkit-scrollbar-thumb {
+      background: linear-gradient(180deg, #ff4fd8, #7a2a80);
+      border-radius: 99px;
+      border: 2px solid #140a16;
+    }
+    #log::-webkit-scrollbar-thumb:hover { background: #ff79e6; }
     header.top {
       display: flex;
       align-items: center;
@@ -204,21 +240,41 @@
     .actions {
       display: grid;
       grid-template-columns: repeat(4, 1fr);
-      gap: 6px;
-      margin-bottom: 8px;
+      gap: 8px;
+      margin-bottom: 10px;
     }
-    .actions button, #send {
+    .actions button {
+      min-height: 52px;
+      border: 1px solid rgba(255,79,216,.22);
+      border-radius: 16px;
+      background: linear-gradient(180deg, #3a2044, #241428);
+      color: var(--ink);
+      font-size: 0.72rem;
+      font-weight: 800;
+      letter-spacing: .04em;
+      text-transform: uppercase;
+      box-shadow: 0 6px 16px rgba(0,0,0,.28);
+      transition: transform .15s ease, border-color .15s ease, box-shadow .15s ease;
+    }
+    .actions button:hover {
+      border-color: var(--cyan);
+      box-shadow: 0 0 16px rgba(92,225,255,.18);
+    }
+    .actions button:active, #send:active { transform: scale(.96); }
+    #look { border-color: rgba(92,225,255,.35); }
+    #talk { border-color: rgba(255,79,216,.4); }
+    #hide { border-color: rgba(160,140,180,.35); }
+    #tease {
+      background: linear-gradient(180deg, #8a2a3a, #5a1824);
+      border-color: rgba(255,120,140,.45);
+    }
+    #send {
       min-height: 44px;
       border: 0;
       border-radius: 12px;
-      background: #2a162c;
-      color: var(--ink);
       font-size: 0.78rem;
       font-weight: 700;
-      letter-spacing: .02em;
     }
-    .actions button:active, #send:active { transform: scale(.97); }
-    #tease { background: var(--danger); }
     .actions button:disabled, #send:disabled, #input:disabled { opacity: .38; }
     .composer { display: flex; gap: 8px; align-items: flex-end; }
     #input {
@@ -242,6 +298,44 @@
       color: #2a0818;
     }
 
+    .fate {
+      position: fixed; inset: 0; z-index: 50;
+      display: none;
+      align-items: center; justify-content: center;
+      flex-direction: column;
+      gap: 12px;
+      text-align: center;
+      padding: 24px;
+    }
+    .fate.show { display: flex; }
+    #gulp {
+      background: radial-gradient(circle at 50% 30%, #6a2048, #12040c 70%);
+      animation: gulpflash .7s ease;
+    }
+    #digest {
+      background: radial-gradient(circle at 50% 80%, #3a2010, #070308 65%);
+    }
+    .fate h2 {
+      margin: 0;
+      font-size: clamp(2.4rem, 12vw, 4rem);
+      letter-spacing: .18em;
+      text-transform: uppercase;
+    }
+    .fate p { margin: 0; color: var(--muted); max-width: 22rem; line-height: 1.45; }
+    .fate button {
+      margin-top: 8px;
+      min-height: 44px;
+      padding: 0 18px;
+      border: 0;
+      border-radius: 999px;
+      background: var(--neon);
+      color: #2a0818;
+      font-weight: 800;
+    }
+    @keyframes gulpflash {
+      0% { transform: scale(1.08); filter: brightness(1.4); }
+      100% { transform: none; filter: none; }
+    }
     #splash {
       position: fixed; inset: 0; z-index: 40;
       background: #0c0610;
@@ -295,6 +389,16 @@
   </style>
 </head>
 <body>
+  <div id="gulp" class="fate" role="dialog" aria-label="Swallowed">
+    <h2>Gulp</h2>
+    <p>The alley folds. Heat, spit, and neon collapse to a wet dark. She swallowed you.</p>
+    <button type="button" id="gulpOk">Keep going</button>
+  </div>
+  <div id="digest" class="fate" role="dialog" aria-label="Digested">
+    <h2>Digested</h2>
+    <p>The night ends the way she said it would. Soft. Final. Reset when you want another last call.</p>
+    <button type="button" id="digestOk">Reset night</button>
+  </div>
   <div id="splash">
     <div class="mark">Comet Lanes</div>
     <h2>Dawn</h2>
@@ -431,6 +535,7 @@ No markdown. No extra labels. Never mention AI, models, prompts, or being an act
         mood: "delighted, territorial, already tasting the idea of you",
         noticed: true,
         shot: "establish",
+        fate: "",
       };
     }
     let game = freshGame();
@@ -451,6 +556,10 @@ No markdown. No extra labels. Never mention AI, models, prompts, or being an act
       stage: document.getElementById("stage"),
       shotchip: document.getElementById("shotchip"),
       reset: document.getElementById("reset"),
+      gulp: document.getElementById("gulp"),
+      digest: document.getElementById("digest"),
+      gulpOk: document.getElementById("gulpOk"),
+      digestOk: document.getElementById("digestOk"),
     };
 
     let history = [];
@@ -542,6 +651,24 @@ No markdown. No extra labels. Never mention AI, models, prompts, or being an act
       const asked = String(actorShot || "").toLowerCase().trim();
       if (SHOT_KEYS.includes(asked)) return asked;
       return scoreShot([moment, line, userText].join(" \n ")) || game.shot || "establish";
+    }
+
+    function showFate(kind) {
+      if (kind === "gulp") {
+        els.gulp.classList.add("show");
+        game.fate = "swallowed";
+      } else if (kind === "digest") {
+        els.digest.classList.add("show");
+        game.fate = "digested";
+      }
+      persist();
+    }
+
+    function readFate(shot, moment, line) {
+      const blob = [shot, moment, line].join(" ").toLowerCase();
+      if (/\b(digest(ed|ing)?|churn(ed|ing)?|stomach acids?|soft end)\b/.test(blob)) return "digest";
+      if (shot === "inside" || /\b(gulp(ed|s)?|swallowed you|down her throat|you slide down)\b/.test(blob)) return "gulp";
+      return null;
     }
 
     function addTurn({ you, moment, line, pending }) {
@@ -676,13 +803,17 @@ No markdown. No extra labels. Never mention AI, models, prompts, or being an act
       try {
         const raw = await askActor(buildMessages(userText));
         const { moment, line, actorShot } = parseActor(raw);
-        setStill(pickShot({ userText, moment, line, actorShot }));
+        const shot = pickShot({ userText, moment, line, actorShot });
+        setStill(shot);
         wrap.remove();
         typing.remove();
         addTurn({ you: userText, moment, line });
         history.push({ role: "user", content: userText });
         history.push({ role: "assistant", content: raw });
         persist();
+        const fate = readFate(shot, moment, line);
+        if (fate === "digest") showFate("digest");
+        else if (fate === "gulp" && game.fate !== "swallowed" && game.fate !== "digested") showFate("gulp");
       } catch (err) {
         wrap.remove();
         typing.remove();
@@ -734,6 +865,8 @@ No markdown. No extra labels. Never mention AI, models, prompts, or being an act
       els.log.innerHTML = "";
       setStill("establish");
       paintOpening();
+      els.gulp.classList.remove("show");
+      els.digest.classList.remove("show");
       persist();
     }
 
@@ -809,6 +942,8 @@ No markdown. No extra labels. Never mention AI, models, prompts, or being an act
       }
     });
     els.reset.addEventListener("click", resetNight);
+    els.gulpOk.addEventListener("click", () => els.gulp.classList.remove("show"));
+    els.digestOk.addEventListener("click", resetNight);
     els.look.addEventListener("click", () => speak("I look up at Dawn from the lane."));
     els.talk.addEventListener("click", () => speak("I wave both arms and try to get her attention."));
     els.hide.addEventListener("click", () => speak("I hide in a crack in the approach."));
