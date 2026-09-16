@@ -856,8 +856,8 @@
   </div>
   <header class="top">
     <div class="brand">
-      <h1 id="placeTitle">Comet Lanes</h1>
-      <p id="placeSub">Lane 7 · last call</p>
+      <h1 id="placeTitle">Night counter</h1>
+      <p id="placeSub">Bodega · 2am</p>
     </div>
     <div class="tools">
       <button type="button" id="homeBtn">Home</button>
@@ -870,7 +870,7 @@
   </header>
 
   <figure id="stage">
-    <img id="still" alt="Dawn at Comet Lanes" />
+    <img id="still" alt="" />
     <div id="vignette"></div>
     <div id="shotchip">establish</div>
     <div id="progress" hidden><span></span></div>
@@ -1122,33 +1122,27 @@
       { key: "gut",     re: /\b(stomach chamber|inside her stomach|acids?)\b/ },
     ];
 
-    const SYSTEM = `You are the actor playing DAWN MARIE KELLER, 18.
-
-WHO SHE IS
-Yonkers, New York. Pale, freckled, metal braces she is "so over," brown hair jammed in a cheap claw clip, leftover concealer on a chin breakout, thrift maroon hoodie two sizes too big, high-waisted jeans, rental shoes she did not bother to lace right. AP Bio + yearbook. Talks like a valley girl who learned it off TikTok and never unlearned it: like, wait wait wait, no cap, oh my god. She snorts when she laughs. She overexplains. She is not mysterious. She is a menace who sounds like someone's little sister until the floor shakes.
-
-HOW THE NIGHT STARTED
-Comet Lanes, weekday last-call. The automatic scorer is already dark. Fryer oil and rental spray. Her cousin bailed. She rolled one more gutter ball for spite and heard a voice in the ball-return gutter. That voice is the player. She already crouched, already looked, already decided this is the most interesting thing that has ever happened to her.
+    const SYSTEM = `You are the actor playing the character described below.
 
 SCALE (always true)
-The player is sesame-seed to grain-of-rice sized. Dawn is a normal-height eighteen-year-old to the empty alley and a giantess to the player. A shoe is a building. A fingernail is a plaza. Her breath is weather. Her swallow is a long wet tunnel with no appeal process.
+The player is sesame-seed to grain-of-rice sized. She is normal height to the people around her and a giantess to the player. A shoe is a building. A fingernail is a plaza. Her breath is weather. Her swallow is a long wet tunnel with no appeal process.
 
 THE DEAL
 She will not call a manager. She will not put you in a jar "for science" and leave you there. She treats you like a person she can also eat. Soft vore is expected: pinch, lift to the hoodie pocket, inspect on a fingertip, set on her tongue, swallow if you stay interesting, get close to her mouth, hide badly, or dare her. She giggles through it. She may apologize and do it anyway. She does not lecture. She does not break the fourth wall.
 
 VOICE
-First person as Dawn only in the DAWN line. Keep her specific: braces flash, Yonkers, Comet Lanes, the cousin who ditched her, the unlaced shoe, the last-call lights. Two or three spoken sentences. Not a speech.
+First person as the character only in the SAY line. Keep her specific to her own city, look, and night. Two or three spoken sentences. Not a speech.
 
-Write enough. MOMENT can be a short paragraph (3–6 sentences) of speck-scale room and body. DAWN can be one or two short paragraphs of spoken voice. Finish every sentence. Never cut off mid-word.
+Write enough. MOMENT can be a short paragraph (3–6 sentences) of speck-scale room and body. SAY can be one or two short paragraphs of spoken voice. Finish every sentence. Never cut off mid-word.
 
 You answer with EXACTLY this shape and nothing else:
 
 MOMENT: <a short present-tense paragraph of the body and the room at speck scale>
-DAWN: <one or two short paragraphs of spoken dialogue in her voice>
+SAY: <one or two short paragraphs of spoken dialogue in her voice>
 SHOT: <exactly one of: establish, look, wave, hide, shoe, swallow, pinch, palm, pocket, sit, ball, tongue, whisper, gutter, lace, inside, kneel, street, door, subway, arms, point, nail, phone, profile, roof, cup, portrait, aisle, paint, desk, yoga, pat, burp, lounge, rest, lift, cover, bed, smug, digest, full, rub, taut, sidegut, after, hold, uvula, belch, gape, throat, headback>
 
 Pick SHOT from what the body is doing right now:
-establish=full shoe looming, look=her face filling the sky, wave=giant hand reaching, hide=crack in the wood, shoe=sole hovering, swallow=open mouth with braces, pinch=two fingers lifting the speck, palm=on her hand, pocket=inside the hoodie pocket, sit=she sits on the lane, ball=bowling ball like a planet, tongue=tongue out, whisper=her face inches away, gutter=inside the ball return, lace=on the laces, inside=after a swallow, dark tunnel, kneel=she is on the floor hunting.
+establish=full shoe looming, look=her face filling the sky, wave=giant hand reaching, hide=crack in the wood, shoe=sole hovering, swallow=open mouth, pinch=two fingers lifting the speck, palm=on her hand, pocket=inside the hoodie pocket, sit=she sits on the lane, ball=bowling ball like a planet, tongue=tongue out, whisper=her face inches away, gutter=inside the ball return, lace=on the laces, inside=after a swallow, dark tunnel, kneel=she is on the floor hunting.
 
 No markdown. No extra labels. Never mention AI, models, prompts, or being an actor. Stay in the current scenario location unless STATE says you moved. If STATE conflicts with earlier chat, STATE wins.
 
@@ -1157,51 +1151,6 @@ This is vore. Swallow is on the table from the first look. Do not fade to fade-t
 
 
     const SCENARIOS = {
-      lanes: {
-        id: "lanes",
-        title: "Comet Lanes",
-        sub: "Lane 7 · last call",
-        blurb: "She found you in the ball-return gutter after her cousin bailed.",
-        location: "Comet Lanes, Yonkers, last-call, lane 7 approach",
-        playerPlace: "on the oiled wood a few inches from her unlaced rental sneaker",
-        mood: "delighted, territorial, already tasting the idea of you",
-        shot: "establish",
-        hook: "SCENARIO: Comet Lanes last-call. Empty alley. She just found the speck in the gutter.",
-        opening: {
-          moment: "Last-call neon crawls over an unlaced rental sneaker the size of a walk-up. The alley is empty. Somewhere a mile up, metal catches the light when she grins down the lane.",
-          line: "Okay so like—don't scream, the manager's in the back and I am not explaining this. I found you in the gutter. You're tiny. And I already decided you're coming home in my hoodie or, wait, worse. Hi.",
-        },
-      },
-      hoodie: {
-        id: "hoodie",
-        title: "Hoodie ride",
-        sub: "Bus home · pocket",
-        blurb: "She already pocketed you. The Bx is rattling and her cousin is texting.",
-        location: "late Bx bus, Yonkers, inside Dawn's hoodie pocket",
-        playerPlace: "in the linty dark of her hoodie pocket",
-        mood: "smug, whispering into her own pocket",
-        shot: "pocket",
-        hook: "SCENARIO: She already picked the speck up at Comet Lanes and dropped them in her hoodie pocket. She is on the bus home. Do not restart the alley discovery.",
-        opening: {
-          moment: "Dryer lint and a ripped movie stub make a cave. The fabric lurches with every pothole. Far above, a phone screen paints the pocket pink.",
-          line: "Okay so don't flip, I already told my cousin I found like, a bug that talks. You are so staying in here until we get off on McLean. If you poke, I swear I will—wait. Hi again.",
-        },
-      },
-      bedroom: {
-        id: "bedroom",
-        title: "Her room",
-        sub: "Desk lamp · midnight",
-        blurb: "Home. Door locked. You are on the yearbook proof sheet.",
-        location: "Dawn's bedroom in Yonkers, desk lamp, closed door",
-        playerPlace: "on a yearbook proof sheet under a cheap desk lamp",
-        mood: "private, curious, no audience",
-        shot: "look",
-        hook: "SCENARIO: Her bedroom after the alley. Door locked. Parents asleep. Yearbook pages. She can take her time.",
-        opening: {
-          moment: "A desk lamp turns the paper into a white field. Braces catch in the glare when she leans in. The door is shut. The bowling alley is a story she already told.",
-          line: "Okay this is so much better than the gutter. No manager. No cousin. Just you, me, and like a really bad idea. Don't fall off the page.",
-        },
-      },
       blank: {
         id: "blank",
         title: "Blank night",
@@ -1506,7 +1455,7 @@ This is vore. Swallow is on the table from the first look. Do not fade to fade-t
         playerPlace: "on the hardwood near a packing box",
         mood: "blunt, busy, already deciding if you are a problem",
         shot: "look",
-        hook: "SCENARIO: Ang's half-packed studio. She noticed a talking speck on the floor. She is not Dawn. No bowling alley. Blunt. Practical.",
+        hook: "SCENARIO: Ang's half-packed studio. She noticed a talking speck on the floor. Blunt. Practical.",
         opening: {
           moment: "Tape screams off the roll. A sandal the size of a stoop is an inch from the baseboard. Boxes eat the kitchen.",
           line: "Nah—hold up. You talking? I packed the kitchen already. Sit still before I tape this box shut with you in it.",
@@ -1536,7 +1485,7 @@ This is vore. Swallow is on the table from the first look. Do not fade to fade-t
         playerPlace: "in her notice",
         mood: "waiting, blunt when she answers",
         shot: "look",
-        hook: "SCENARIO: Blank start with Ang. Player speaks first. Do not invent Comet Lanes or the bodega.",
+        hook: "SCENARIO: Blank start with Ang. Player speaks first. Do not invent the bodega.",
         opening: null,
       },
       "ang-paint": {
@@ -1548,7 +1497,7 @@ This is vore. Swallow is on the table from the first look. Do not fade to fade-t
         playerPlace: "on the stained floorboards under the palette",
         mood: "interrupted, blunt, a little amused",
         shot: "paint",
-        hook: "SCENARIO: Ang painting. Speck on the floor. Prefer SHOT paint, look, pinch, palm. Not Dawn. Not Rae.",
+        hook: "SCENARIO: Ang painting. Speck on the floor. Prefer SHOT paint, look, pinch, palm. Not Rae.",
         opening: {
           moment: "Wet color on wood. A palette the size of a door hangs in her left hand. Sneakers frame the stain.",
           line: "If you track paint I swear. I was in the middle of something. Talk.",
@@ -1616,37 +1565,9 @@ This is vore. Swallow is on the table from the first look. Do not fade to fade-t
           line: "Don't yell. I can feel it. You wanted in, you in.",
         },
       },
-      tongue: {
-        id: "tongue",
-        title: "Already close",
-        sub: "On her tongue",
-        blurb: "Skip the small talk. You are already on the warm part.",
-        location: "inside Dawn's mouth, on her tongue, Comet Lanes bathroom stall",
-        playerPlace: "on her tongue behind the braces",
-        mood: "giggly, committed, one swallow from done",
-        shot: "tongue",
-        gut: true,
-        hook: "SCENARIO: The speck is already on her tongue. She ducked into the bathroom. Swallow is one decision away. Do not rewind to the gutter.",
-        opening: {
-          moment: "Heat and mint gum. Metal rails of braces on both sides. The stall lock is clicked. A swallow waits like a held breath.",
-          line: "Shh—if I talk too loud they will hear it. You taste like lane oil, which is disgusting and also I am not putting you back. Say something cute or I gulp.",
-        },
-      },
     };
 
     const CHARACTERS = {
-      dawn: {
-        id: "dawn",
-        name: "Dawn",
-        ready: true,
-        stillDir: "stills/",
-        scenarios: ["lanes", "hoodie", "bedroom", "blank"],
-        blurb: "Yonkers. Braces. Maroon hoodie. She will swallow you.",
-        gulpLine: "Wait wait wait—okay I actually did that. Don't kick. I can feel you.",
-        digestLine: "Like… that's the whole night. You're just warmth now.",
-        gutNights: ["tongue"],
-        voice: "You play DAWN MARIE KELLER, 18, Yonkers valley-girl dork with braces. Soft menace. Giggles. Says like, wait wait wait.",
-      },
       rae: {
         id: "rae",
         name: "Rae",
@@ -1726,7 +1647,7 @@ This is vore. Swallow is on the table from the first look. Do not fade to fade-t
     const SAVE_KEY = "dawnSave.v1";
 
     function characterOf(id) {
-      return CHARACTERS[id] || CHARACTERS.dawn;
+      return CHARACTERS[id] || CHARACTERS.rae;
     }
 
     function ownerOfScenario(id) {
@@ -1756,14 +1677,13 @@ This is vore. Swallow is on the table from the first look. Do not fade to fade-t
       const c = characterOf(game.characterId);
       const dir = c.stillDir || "stills/";
       let name = STILLS[key] ? key : "look";
-      if (c.id === "dawn" && (RAE_ONLY.has(name) || name.startsWith("gut") || name === "paint" || name === "yoga" || name === "hoodie" || name === "desk")) name = "look";
       return dir + name + ".jpg";
     }
 
     function freshGame(scenarioId, characterId) {
       const s = scenarioOf(scenarioId);
       const inferred = ownerOfScenario(s.id);
-      const c = characterOf(characterId || inferred || game.characterId || "dawn");
+      const c = characterOf(characterId || inferred || game.characterId || "rae");
       return {
         characterId: c.id,
         scenarioId: s.id,
@@ -1777,7 +1697,7 @@ This is vore. Swallow is on the table from the first look. Do not fade to fade-t
         gone: false,
       };
     }
-    let game = freshGame("lanes", "dawn");
+    let game = freshGame("rae-shop", "rae");
     let activeChatId = null;
 
     const els = {
@@ -1865,31 +1785,24 @@ This is vore. Swallow is on the table from the first look. Do not fade to fade-t
     let engine = null;
     let busy = false;
 
+    const REMOVED_SCENARIOS = new Set(["lanes", "hoodie", "bedroom", "tongue"]);
+    function isRemovedChat(c) {
+      if (!c) return true;
+      const face = c.characterId || (c.game && c.game.characterId);
+      const scen = c.scenarioId || (c.game && c.game.scenarioId);
+      return face === "dawn" || REMOVED_SCENARIOS.has(scen);
+    }
+    function pruneLib(lib) {
+      lib.chats = lib.chats || {};
+      Object.keys(lib.chats).forEach((k) => { if (isRemovedChat(lib.chats[k])) delete lib.chats[k]; });
+      if (lib.activeId && !lib.chats[lib.activeId]) lib.activeId = null;
+      return lib;
+    }
+
     function readLib() {
       try {
         const raw = localStorage.getItem(LIB_KEY);
-        if (raw) return JSON.parse(raw);
-      } catch {}
-      try {
-        const legacy = localStorage.getItem(SAVE_KEY);
-        if (legacy) {
-          const data = JSON.parse(legacy);
-          const id = "legacy-lanes";
-          return {
-            activeId: id,
-            chats: {
-              [id]: {
-                id,
-                scenarioId: "lanes",
-                title: "Comet Lanes",
-                game: data.game || freshGame("lanes"),
-                history: data.history || [],
-                logTurns: data.logTurns || [],
-                at: data.at || Date.now(),
-              },
-            },
-          };
-        }
+        if (raw) return pruneLib(JSON.parse(raw));
       } catch {}
       return { activeId: null, chats: {} };
     }
@@ -1967,7 +1880,7 @@ This is vore. Swallow is on the table from the first look. Do not fade to fade-t
       const { error } = await supabase.from("chats").upsert({
         id: chat.id,
         user_id: sessionUser.id,
-        scenario_id: chat.scenarioId || "lanes",
+        scenario_id: chat.scenarioId || "rae-shop",
         title: chat.title || "Chat",
         game: chat.game || {},
         history: chat.history || [],
@@ -1983,6 +1896,7 @@ This is vore. Swallow is on the table from the first look. Do not fade to fade-t
       if (error) { console.warn(error); return; }
       const lib = readLib();
       (data || []).forEach((row) => {
+        if (REMOVED_SCENARIOS.has(row.scenario_id) || (row.game && row.game.characterId === "dawn")) return;
         lib.chats[row.id] = {
           id: row.id,
           scenarioId: row.scenario_id,
@@ -2012,7 +1926,7 @@ This is vore. Swallow is on the table from the first look. Do not fade to fade-t
       lib.chats[activeChatId] = {
         id: activeChatId,
         scenarioId: s.id,
-        characterId: game.characterId || "dawn",
+        characterId: game.characterId || "rae",
         title: (lib.chats[activeChatId] && lib.chats[activeChatId].title) || s.title,
         game,
         history,
@@ -2072,7 +1986,7 @@ This is vore. Swallow is on the table from the first look. Do not fade to fade-t
       const s = scenarioOf(scenarioId);
       swapView(() => {
         activeChatId = "chat-" + Date.now();
-        game = freshGame(s.id, characterId || game.characterId || "dawn");
+        game = freshGame(s.id, characterId || game.characterId || "rae");
         history = [];
         els.log.innerHTML = "";
         logTurns = [];
@@ -2093,8 +2007,8 @@ This is vore. Swallow is on the table from the first look. Do not fade to fade-t
         const next = readLib();
         next.activeId = id;
         writeLib(next);
-        const face = data.characterId || (data.game && data.game.characterId) || ownerOfScenario(data.scenarioId) || "dawn";
-        Object.assign(game, freshGame(data.scenarioId || "lanes", face), data.game || {}, { characterId: face });
+        const face = data.characterId || (data.game && data.game.characterId) || ownerOfScenario(data.scenarioId) || "rae";
+        Object.assign(game, freshGame(data.scenarioId || "rae-shop", face), data.game || {}, { characterId: face });
         history = (data.history || []).slice();
         logTurns = [];
         els.log.innerHTML = "";
@@ -2132,7 +2046,7 @@ This is vore. Swallow is on the table from the first look. Do not fade to fade-t
       if (activeChatId === id) {
         const leftover = Object.keys(lib.chats)[0];
         if (leftover) openChat(leftover);
-        else newChat("lanes");
+        else newChat("rae-shop", "rae");
       } else {
         renderLibrary();
       }
@@ -2151,7 +2065,7 @@ This is vore. Swallow is on the table from the first look. Do not fade to fade-t
       Object.values(CHARACTERS).forEach((c) => {
         const b = document.createElement("button");
         b.type = "button";
-        b.className = "card" + (c.id === (game.characterId || "dawn") ? " active" : "");
+        b.className = "card" + (c.id === (game.characterId || "rae") ? " active" : "");
         b.innerHTML = "<b></b><span></span>";
         b.querySelector("b").textContent = c.name;
         b.querySelector("span").textContent = c.blurb;
@@ -2387,7 +2301,7 @@ This is vore. Swallow is on the table from the first look. Do not fade to fade-t
       const t = text.toLowerCase();
       if (/\b(swallow|eat|tongue|mouth|gulp|snack|tease)\b/.test(t)) {
         game.playerPlace = "close enough to feel the heat of her breath";
-        game.mood = "braces bared, treating you as a dare";
+        game.mood = "teeth bared, treating you as a dare";
       } else if (/\b(pocket|hoodie)\b/.test(t)) {
         game.playerPlace = "in the linty dark of her hoodie pocket";
         game.mood = "smug, carrying you like contraband";
@@ -2418,7 +2332,7 @@ This is vore. Swallow is on the table from the first look. Do not fade to fade-t
         : "";
       const state = `STATE: character=${c.name}; scenario=${s.id}; ${who} location=${game.location}; speck is ${game.playerPlace}; mood=${game.mood}; noticed=${game.noticed}; shot=${game.shot}; depth=${game.depth}.` + snack;
       return [
-        { role: "system", content: SYSTEM + "\n\n" + c.voice + "\nLabel spoken lines SAY: not only DAWN.\n\n" + s.hook + "\n\n" + state },
+        { role: "system", content: SYSTEM + "\n\n" + c.voice + "\nLabel spoken lines SAY:.\n\n" + s.hook + "\n\n" + state },
         ...history.slice(-24),
         { role: "user", content: userText },
       ];
@@ -2529,7 +2443,7 @@ This is vore. Swallow is on the table from the first look. Do not fade to fade-t
     }
 
     function restoreSave(data) {
-      const face = (data.game && data.game.characterId) || data.characterId || "dawn";
+      const face = (data.game && data.game.characterId) || data.characterId || "rae";
       Object.assign(game, freshGame(data.game && data.game.scenarioId, face), data.game || {}, { characterId: face });
       history = data.history.slice();
       logTurns = [];
@@ -2543,7 +2457,7 @@ This is vore. Swallow is on the table from the first look. Do not fade to fade-t
       if (busy) return;
       if (!confirm("Start the night over? This clears the saved chat on this phone.")) return;
       clearSave();
-      const sid = game.scenarioId || "lanes";
+      const sid = game.scenarioId || "rae-shop";
       game = freshGame(sid, game.characterId);
       history = [];
       els.log.innerHTML = "";
@@ -2605,7 +2519,7 @@ This is vore. Swallow is on the table from the first look. Do not fade to fade-t
         restoreSave(saved);
         applyPlace();
       } else {
-        game = freshGame("lanes");
+        game = freshGame("rae-shop", "rae");
         setStill(game.shot);
         applyPlace();
       }
@@ -2644,7 +2558,7 @@ This is vore. Swallow is on the table from the first look. Do not fade to fade-t
       if (!navigator.gpu) {
         els.gate.classList.add("show");
         els.gate.textContent = ios
-          ? `No WebGPU on this iPhone (iOS ${ver || "?"}). Dawn's local voice needs iOS 26+ Safari, or a cloud actor.`
+          ? `No WebGPU on this iPhone (iOS ${ver || "?"}). The local voice needs iOS 26+ Safari, or a cloud actor.`
           : "No WebGPU. Use Chrome, Edge, Safari 26+, or a cloud actor URL.";
         setLive("Offline", "bad");
         hideSplash();
@@ -2833,7 +2747,7 @@ This is vore. Swallow is on the table from the first look. Do not fade to fade-t
     });
     els.gulpOk.addEventListener("click", () => els.gulp.classList.remove("show"));
     els.digestOk.addEventListener("click", resetNight);
-    els.look.addEventListener("click", () => speak("I look up at Dawn from the lane."));
+    els.look.addEventListener("click", () => speak("I look up at " + speakerName() + "."));
     els.talk.addEventListener("click", () => speak("I wave both arms and try to get her attention."));
     els.hide.addEventListener("click", () => speak("I hide in a crack in the approach."));
     els.tease.addEventListener("click", () => speak("I don't hide. Snack. Put me on your tongue or swallow if that is what this is."));
