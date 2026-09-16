@@ -25,6 +25,8 @@
       --safe-bot: env(safe-area-inset-bottom, 0px);
       --kb: 0px;
       --dock: 148px;
+      --hair: rgba(255,79,216,.35);
+      --glass: rgba(18,8,20,.78);
     }
     * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
     html, body {
@@ -42,6 +44,9 @@
       --panel2: #241428;
       --linebg: #5a2a58;
       --dawn: #4a2048;
+      --muted: #d7c2e0;
+      --hair: rgba(255,79,216,.35);
+      --glass: rgba(18,8,20,.78);
     }
     html[data-face="rae"] {
       --neon: #ffb15a;
@@ -51,6 +56,9 @@
       --panel2: #10201e;
       --linebg: #2a4a44;
       --dawn: #1a3330;
+      --muted: #b9d8d3;
+      --hair: rgba(63,212,196,.35);
+      --glass: rgba(8,16,16,.8);
     }
     html[data-face="rae"] #world .alley {
       background:
@@ -66,6 +74,9 @@
       --panel2: #24180e;
       --linebg: #5a3e22;
       --dawn: #3a2814;
+      --muted: #e8d7b4;
+      --hair: rgba(232,177,74,.4);
+      --glass: rgba(16,10,6,.82);
     }
     html[data-face="ang"] #world .alley {
       background:
@@ -191,7 +202,7 @@
       gap: 10px;
       position: relative;
       z-index: 8;
-      background: linear-gradient(180deg, rgba(8,4,10,.92) 0%, rgba(8,4,10,.55) 62%, rgba(8,4,10,0) 100%);
+      background: linear-gradient(180deg, var(--glass) 0%, color-mix(in srgb, var(--panel2) 55%, transparent) 70%, transparent 100%);
     }
     .brand {
       min-width: 0;
@@ -218,35 +229,28 @@
       text-transform: uppercase;
       padding: 6px 9px;
       border-radius: 999px;
-      background: #24101f;
+      background: var(--panel2);
       color: var(--muted);
-      border: 1px solid #5a2a55;
+      border: 1px solid var(--hair);
     }
     #live.ready { color: #9ff0c0; border-color: #2f6a4a; }
     #live.busy { color: #ffd36a; border-color: #8a6a20; }
     #live.bad { color: #ff9aa6; border-color: var(--danger); }
     .tools { display: flex; gap: 6px; align-items: center; flex-wrap: wrap; justify-content: flex-end; }
-    #gear {
-      min-height: 32px; min-width: 32px;
-      border: 1px solid #5a2a55;
-      background: #24101f;
-      color: var(--muted);
-      border-radius: 999px;
-      font-size: 0.95rem;
-      padding: 4px 8px;
-    }
-    #reset {
+    .tools button, #homeBtn, #stories, #reset, #account, #gear {
       min-height: 32px;
-      border: 1px solid #5a2a55;
-      background: #24101f;
-      color: var(--muted);
+      border: 1px solid var(--hair);
+      background: var(--panel2);
+      color: var(--ink);
       border-radius: 999px;
       font-size: 0.68rem;
       font-weight: 700;
       letter-spacing: .08em;
       text-transform: uppercase;
-      padding: 6px 9px;
+      padding: 6px 10px;
     }
+    #gear { min-width: 32px; font-size: 0.95rem; padding: 4px 8px; letter-spacing: 0; text-transform: none; }
+    .tools button:hover, #homeBtn:hover, #stories:hover { border-color: var(--neon); color: var(--neon); }
 
     #stage {
       position: relative;
@@ -256,7 +260,7 @@
       background: #07040a;
       aspect-ratio: 3 / 4;
       max-height: min(46vh, 420px);
-      box-shadow: 0 12px 40px rgba(0,0,0,.45), inset 0 0 0 1px rgba(255,79,216,.18);
+      box-shadow: 0 12px 40px rgba(0,0,0,.45), inset 0 0 0 1px var(--hair);
     }
     #stage img {
       width: 100%; height: 100%;
@@ -322,13 +326,13 @@
     }
     .moment {
       align-self: stretch;
-      color: #cbb8d4;
+      color: var(--ink);
       font-size: 0.86rem;
       line-height: 1.5;
       font-style: italic;
       padding: 10px 12px 10px 14px;
-      background: rgba(255,255,255,.03);
-      border-left: 3px solid var(--cyan);
+      background: color-mix(in srgb, var(--panel2) 70%, transparent);
+      border-left: 3px solid var(--neon);
       border-radius: 0 12px 12px 0;
       white-space: pre-wrap;
     }
@@ -338,7 +342,7 @@
       font-size: 0.64rem;
       letter-spacing: .16em;
       text-transform: uppercase;
-      color: var(--cyan);
+      color: var(--neon);
       margin-bottom: 6px;
       font-weight: 800;
     }
@@ -346,7 +350,7 @@
       align-self: flex-start;
       max-width: 92%;
       background: linear-gradient(180deg, var(--linebg), var(--dawn));
-      border: 1px solid rgba(255,79,216,.28);
+      border: 1px solid var(--hair);
       border-radius: 4px 16px 16px 16px;
       padding: 10px 12px;
       font-size: 0.95rem;
@@ -376,11 +380,11 @@
       bottom: calc(var(--kb) + var(--safe-bot));
       padding: 8px 12px 10px;
       z-index: 20;
-      background: linear-gradient(180deg, rgba(10,4,12,0) 0%, rgba(10,4,12,.82) 28%, #120814 72%);
+      background: linear-gradient(180deg, transparent 0%, var(--glass) 36%, var(--panel2) 100%);
     }
     html.scene-gut .dock,
     html.scene-mouth .dock {
-      background: linear-gradient(180deg, rgba(8,2,6,0) 0%, rgba(8,2,6,.88) 22%, #0c060c 70%);
+      background: linear-gradient(180deg, transparent 0%, var(--glass) 30%, var(--panel2) 100%);
     }
     @media (min-width: 900px) {
       .dock {
@@ -406,7 +410,7 @@
     }
     .actions button {
       min-height: 52px;
-      border: 1px solid rgba(255,79,216,.22);
+      border: 1px solid var(--hair);
       border-radius: 16px;
       background: linear-gradient(180deg, var(--panel), var(--panel2));
       color: var(--ink);
@@ -432,7 +436,7 @@
     #send {
       flex: 0 0 72px;
       min-height: 52px;
-      border: 1px solid rgba(255,79,216,.4);
+      border: 1px solid var(--hair);
       border-radius: 16px;
       background: linear-gradient(180deg, var(--panel), var(--panel2));
       color: var(--ink);
@@ -453,16 +457,16 @@
       min-height: 44px;
       max-height: 96px;
       resize: none;
-      border: 1px solid #5a365c;
+      border: 1px solid var(--hair);
       border-radius: 14px;
-      background: #1a0e1c;
+      background: var(--panel2);
       color: var(--ink);
       font-size: 16px;
       padding: 11px 12px;
       font-family: inherit;
       line-height: 1.3;
     }
-    #input:focus { outline: 2px solid rgba(255,79,216,.45); border-color: var(--neon); }
+    #input:focus { outline: 2px solid var(--hair); border-color: var(--neon); }
 
     .fate {
       position: fixed; inset: 0; z-index: 50;
@@ -499,8 +503,8 @@
     #home .lede { color: var(--muted); max-width: 22rem; line-height: 1.45; margin: 0 0 22px; }
     #home .faces { display: grid; gap: 10px; margin-bottom: 14px; }
     #home .faces button {
-      text-align: left; border: 1px solid rgba(255,79,216,.25);
-      background: rgba(20,10,22,.72); color: var(--ink);
+      text-align: left; border: 1px solid var(--hair);
+      background: var(--glass); color: var(--ink);
       border-radius: 14px; padding: 14px 16px; min-height: 64px;
     }
     #home .faces button b { display:block; font-size: 1.05rem; }
@@ -606,18 +610,6 @@
     .typing i:nth-child(2) { animation-delay: .15s; }
     .typing i:nth-child(3) { animation-delay: .3s; }
 
-    #account {
-      min-height: 32px;
-      border: 1px solid #5a2a55;
-      background: #24101f;
-      color: var(--muted);
-      border-radius: 999px;
-      font-size: 0.68rem;
-      font-weight: 700;
-      letter-spacing: .08em;
-      text-transform: uppercase;
-      padding: 6px 9px;
-    }
     #auth {
       position: fixed; inset: 0; z-index: 36;
       display: flex; align-items: center; justify-content: center;
@@ -651,18 +643,6 @@
     #authErr { color: #ff9aa6; font-size: .8rem; min-height: 1.1em; margin-top: 8px; }
     .authpane { display: none; }
     .authpane.on { display: block; }
-    #stories {
-      min-height: 32px;
-      border: 1px solid #5a2a55;
-      background: #24101f;
-      color: var(--muted);
-      border-radius: 999px;
-      font-size: 0.68rem;
-      font-weight: 700;
-      letter-spacing: .08em;
-      text-transform: uppercase;
-      padding: 6px 9px;
-    }
     #library {
       position: fixed; inset: 0; z-index: 35;
       background: rgba(8,4,10,.0);
@@ -774,29 +754,42 @@
     }
 
     #meter {
+      margin: 10px 12px 0;
+    }
+    .meter-labels {
       display: grid;
       grid-template-columns: repeat(4, 1fr);
-      gap: 6px;
-      margin: 8px 12px 0;
-    }
-    #meter button {
-      border: 1px solid rgba(255,255,255,.12);
-      background: rgba(10,6,12,.55);
-      color: var(--muted);
-      border-radius: 999px;
-      min-height: 28px;
+      margin-bottom: 6px;
       font-size: .62rem;
-      letter-spacing: .08em;
+      letter-spacing: .1em;
       text-transform: uppercase;
       font-weight: 800;
-      pointer-events: none;
+      color: var(--muted);
     }
-    #meter button.on {
-      color: #2a0818;
-      background: var(--neon);
-      border-color: transparent;
+    .meter-labels span { text-align: center; }
+    #meter[data-step="palm"] .meter-labels span:nth-child(1),
+    #meter[data-step="tongue"] .meter-labels span:nth-child(2),
+    #meter[data-step="gulp"] .meter-labels span:nth-child(3),
+    #meter[data-step="gut"] .meter-labels span:nth-child(4) {
+      color: var(--neon);
     }
-    #meter button.now { box-shadow: 0 0 0 2px rgba(255,255,255,.25); }
+    .meter-track {
+      height: 8px;
+      border-radius: 99px;
+      background: color-mix(in srgb, var(--panel2) 80%, #000);
+      border: 1px solid var(--hair);
+      overflow: hidden;
+      position: relative;
+    }
+    #meterFill {
+      display: block;
+      height: 100%;
+      width: 25%;
+      border-radius: 99px;
+      background: linear-gradient(90deg, var(--neon), var(--cyan));
+      box-shadow: 0 0 16px var(--neon);
+      transition: width .55s cubic-bezier(.2,.8,.2,1);
+    }
     #goneBanner {
       display: none;
       margin: 8px 12px 0;
@@ -865,11 +858,9 @@
     <div id="shotchip">establish</div>
     <div id="progress" hidden><span></span></div>
   </figure>
-  <div id="meter">
-    <button type="button" data-step="palm">Palm</button>
-    <button type="button" data-step="tongue">Tongue</button>
-    <button type="button" data-step="gulp">Gulp</button>
-    <button type="button" data-step="gut">Gut</button>
+  <div id="meter" data-step="palm">
+    <div class="meter-labels"><span>Palm</span><span>Tongue</span><span>Gulp</span><span>Gut</span></div>
+    <div class="meter-track"><i id="meterFill"></i></div>
   </div>
   <div id="goneBanner">You are gone. The log stays. Reset only if you want a body again.</div>
 
@@ -1030,12 +1021,32 @@
       yoga:      { src: "stills/ang/yoga.jpg" },
       door:      { src: "stills/ang/door.jpg" },
       gut:       { src: "stills/ang/gut.jpg" },
+      pat:       { src: "stills/ang/pat.jpg" },
+      burp:      { src: "stills/ang/burp.jpg" },
+      lounge:    { src: "stills/ang/lounge.jpg" },
+      rest:      { src: "stills/ang/rest.jpg" },
+      lift:      { src: "stills/ang/lift.jpg" },
+      cover:     { src: "stills/ang/cover.jpg" },
+      bed:       { src: "stills/ang/bed.jpg" },
+      smug:      { src: "stills/ang/smug.jpg" },
+      digest:    { src: "stills/ang/digest.jpg" },
+      full:      { src: "stills/ang/full.jpg" },
     };
     const RAE_ONLY = new Set(["street","door","subway","arms","point","nail","phone","profile","roof","cup","portrait","aisle"]);
 
     const SHOT_KEYS = Object.keys(STILLS);
 
     const SHOT_RULES = [
+      { key: "burp",    re: /\b(burp(s|ed|ing)?|belch|open mouth after|tongue out after)\b/ },
+      { key: "pat",     re: /\b(pat(s|ted|ting)? (her )?(gut|stomach|belly)|hand on her (gut|stomach|belly))\b/ },
+      { key: "lounge",  re: /\b(lounge|on the couch|reclined|kicked back)\b/ },
+      { key: "bed",     re: /\b(on the bed|lying back|stares at the ceiling)\b/ },
+      { key: "digest",  re: /\b(digest(ing|ed)|eyes closed|done talking|soft end)\b/ },
+      { key: "lift",    re: /\b(lifts? her shirt|midriff|shows her stomach)\b/ },
+      { key: "cover",   re: /\b(covers? her mouth|hand over her mouth)\b/ },
+      { key: "smug",    re: /\b(smug|looks down at you inside|pats you from outside)\b/ },
+      { key: "rest",    re: /\b(on the floor among boxes|leaning on one arm)\b/ },
+      { key: "full",    re: /\b(full|after yoga|rounded stomach)\b/ },
       { key: "inside",  re: /\b(swallow(ed|ing)?|gulp|down the hatch|throat|stomach|inside her)\b/ },
       { key: "tongue",  re: /\b(tongue|lick|taste|on her tongue)\b/ },
       { key: "swallow", re: /\b(mouth|open up|say ahh|snack|eat you|vore)\b/ },
@@ -1093,7 +1104,7 @@ You answer with EXACTLY this shape and nothing else:
 
 MOMENT: <a short present-tense paragraph of the body and the room at speck scale>
 DAWN: <one or two short paragraphs of spoken dialogue in her voice>
-SHOT: <exactly one of: establish, look, wave, hide, shoe, swallow, pinch, palm, pocket, sit, ball, tongue, whisper, gutter, lace, inside, kneel, street, door, subway, arms, point, nail, phone, profile, roof, cup, portrait, aisle>
+SHOT: <exactly one of: establish, look, wave, hide, shoe, swallow, pinch, palm, pocket, sit, ball, tongue, whisper, gutter, lace, inside, kneel, street, door, subway, arms, point, nail, phone, profile, roof, cup, portrait, aisle, paint, desk, yoga, pat, burp, lounge, rest, lift, cover, bed, smug, digest, full>
 
 Pick SHOT from what the body is doing right now:
 establish=full shoe looming, look=her face filling the sky, wave=giant hand reaching, hide=crack in the wood, shoe=sole hovering, swallow=open mouth with braces, pinch=two fingers lifting the speck, palm=on her hand, pocket=inside the hoodie pocket, sit=she sits on the lane, ball=bowling ball like a planet, tongue=tongue out, whisper=her face inches away, gutter=inside the ball return, lace=on the laces, inside=after a swallow, dark tunnel, kneel=she is on the floor hunting.
@@ -1490,7 +1501,7 @@ This is vore. Swallow is on the table from the first look. Do not fade to fade-t
         gulpLine: "Nah—I meant that. Sit still. I packed already and I am not fishing you back out.",
         digestLine: "That's it. Don't make it a thing. You're done.",
         gutNights: ["ang-inside"],
-        voice: 'You play ANGELA "ANG" ABRAHAM, 24, Indian-American from White Plains. 5\'1" to other people; to the speck she is still a giant. Long straight black hair to mid-back, big brown eyes, dark skin, gummy smile, deep dimples, heart-shaped face. Petite, toned, yoga-and-jog build. Sandals or slides more often than not. Glasses-and-hoodie or sharp—she can flip. Speech is blunt Mount Vernon cadence, not valley girl, not Rae\'s dry bodega mutter. She says the thing. "Nah, I\'ma say it." "I\'m five-one, not invisible." Warm with people who earned it. No time for waste. Leaving soon for MD. Studio half-packed. Notices what others miss. Fairness reflex. She will swallow a speck if the night goes there, but she is not a giggly predator—she is practical, a little spiritual, and done pretending. Label speech SAY:',
+        voice: 'You play ANGELA "ANG" ABRAHAM, 24, Indian-American from White Plains. 5\'1" to other people; to the speck she is still a giant. Long straight black hair to mid-back, big brown eyes, dark skin, gummy smile, deep dimples, heart-shaped face. Petite, toned, yoga-and-jog build. Sandals or slides more often than not. Glasses-and-hoodie or sharp—she can flip. Speech is blunt Mount Vernon cadence, not valley girl, not Rae\'s dry bodega mutter. She says the thing. "Nah, I\'ma say it." "I\'m five-one, not invisible." Warm with people who earned it. No time for waste. Leaving soon for MD. Studio half-packed. Notices what others miss. Fairness reflex. She will swallow a speck if the night goes there, but she is not a giggly predator—she is practical, a little spiritual, and done pretending. After a swallow prefer SHOT pat, burp, lounge, rest, lift, cover, bed, smug, digest, full, inside. Label speech SAY:',
       },
     };
 
@@ -1520,7 +1531,7 @@ This is vore. Swallow is on the table from the first look. Do not fade to fade-t
     }
 
     function depthFromShot(shot, fate) {
-      if (fate === "digested" || shot === "inside" || shot === "gut") return 3;
+      if (fate === "digested" || /^(inside|gut|pat|burp|lounge|rest|lift|cover|bed|smug|digest|full)$/.test(shot)) return 3;
       if (fate === "swallowed" || shot === "swallow") return 2;
       if (shot === "tongue") return 1;
       if (shot === "palm" || shot === "pinch") return 0;
@@ -1528,11 +1539,9 @@ This is vore. Swallow is on the table from the first look. Do not fade to fade-t
     }
 
     function paintMeter() {
-      const d = Number(game.depth || 0);
-      els.meter.querySelectorAll("button").forEach((b, i) => {
-        b.classList.toggle("on", i <= d);
-        b.classList.toggle("now", i === d);
-      });
+      const d = Math.max(0, Math.min(3, Number(game.depth || 0)));
+      if (els.meterFill) els.meterFill.style.width = ((d + 1) / 4 * 100) + "%";
+      if (els.meter) els.meter.dataset.step = DEPTH_ORDER[d] || "palm";
       els.goneBanner.classList.toggle("show", !!game.gone);
     }
 
@@ -1624,6 +1633,7 @@ This is vore. Swallow is on the table from the first look. Do not fade to fade-t
       gulpLine: document.getElementById("gulpLine"),
       digestLine: document.getElementById("digestLine"),
       meter: document.getElementById("meter"),
+      meterFill: document.getElementById("meterFill"),
       goneBanner: document.getElementById("goneBanner"),
       gutList: document.getElementById("gutList"),
       fxToggle: document.getElementById("fxToggle"),
