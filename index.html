@@ -465,6 +465,10 @@
       color: var(--muted); font-size: .68rem; font-weight: 800;
       letter-spacing: .1em; text-transform: uppercase;
     }
+    #composeHint { margin: 5px 4px 0; font-size: .72rem; line-height: 1.3; color: var(--muted); }
+    #composeHint b { color: var(--ink); font-weight: 700; }
+    .dock[data-mode="say"] #composeHint b { color: var(--neon); }
+    .dock[data-mode="do"] #composeHint b { color: var(--cyan); }
     .you-say, .you-do { display: block; }
     .you-say + .you-do, .you-do + .you-say, .you-do + .you-do, .you-say + .you-say { margin-top: 6px; }
     .you-do { font-style: italic; opacity: .85; }
@@ -1133,9 +1137,10 @@
       <button type="button" id="modeDo" aria-pressed="false">Do</button>
     </div>
     <div class="composer">
-      <textarea id="input" rows="1" placeholder="Say something…" disabled enterkeyhint="send"></textarea>
+      <textarea id="input" rows="1" aria-describedby="composeHint" placeholder="Say something out loud…" disabled enterkeyhint="send"></textarea>
       <button type="button" id="send" disabled>Send</button>
     </div>
+    <p id="composeHint" aria-live="polite"></p>
   </div>
 
   <script type="module">
@@ -1887,6 +1892,7 @@ This is vore. Swallow is on the table from the first look. Do not fade to fade-t
       gutList: document.getElementById("gutList"),
       fxToggle: document.getElementById("fxToggle"),
       dock: document.querySelector(".dock"),
+      composeHint: document.getElementById("composeHint"),
       modeSay: document.getElementById("modeSay"),
       modeDo: document.getElementById("modeDo"),
       stories: document.getElementById("stories"),
@@ -2788,8 +2794,11 @@ Never copy SPEECH: or ACTION: into your reply. Reply only with MOMENT, SAY, SHOT
       els.dock.dataset.mode = composeMode;
       if (!game.gone) {
         els.input.placeholder = composeMode === "say"
-          ? "Say something… *act*"
-          : "What do you do? \"talk\"";
+          ? "Say something out loud…"
+          : "Describe what you do…";
+        els.composeHint.innerHTML = composeMode === "say"
+          ? "Speaking. Wrap an action in <b>*asterisks*</b> to do something too."
+          : "Acting. Wrap words in <b>\"quotes\"</b> to say something too.";
       }
       if (keepFocus && !els.input.disabled) els.input.focus({ preventScroll: true });
     }
