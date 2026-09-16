@@ -458,19 +458,34 @@
       padding: 6px 9px;
     }
     #library {
-      display: none;
       position: fixed; inset: 0; z-index: 35;
-      background: rgba(8,4,10,.72);
+      background: rgba(8,4,10,.0);
       padding: calc(12px + var(--safe-top)) 12px calc(16px + var(--safe-bot));
       overflow-y: auto;
+      opacity: 0;
+      visibility: hidden;
+      pointer-events: none;
+      transition: opacity .28s ease, visibility .28s ease, background .28s ease;
     }
-    #library.show { display: block; }
+    #library.show {
+      opacity: 1;
+      visibility: visible;
+      pointer-events: auto;
+      background: rgba(8,4,10,.72);
+    }
     #library .sheet {
       max-width: 430px; margin: 0 auto;
       background: #1a0e1c;
       border: 1px solid rgba(255,79,216,.25);
       border-radius: 18px;
       padding: 14px;
+      transform: translateY(18px) scale(.98);
+      opacity: 0;
+      transition: transform .32s cubic-bezier(.2,.9,.2,1), opacity .28s ease;
+    }
+    #library.show .sheet {
+      transform: none;
+      opacity: 1;
     }
     #library h2 { margin: 0 0 8px; font-size: 1.05rem; }
     #library h3 {
@@ -492,6 +507,24 @@
     .card b { display: block; font-size: 0.92rem; margin-bottom: 3px; }
     .card span { color: var(--muted); font-size: 0.8rem; line-height: 1.35; }
     .card.active { border-color: var(--neon); }
+    .chatrow { display: flex; gap: 6px; align-items: stretch; margin: 0 0 8px; }
+    .chatrow .card { flex: 1; margin: 0; }
+    .iconbtn {
+      flex: 0 0 40px;
+      border: 1px solid #4a2a4c;
+      background: #241428;
+      color: var(--muted);
+      border-radius: 12px;
+      font-size: 0.78rem;
+      font-weight: 800;
+    }
+    .iconbtn.danger { color: #ff9aa6; border-color: #7a3044; }
+    #stage, #log { transition: opacity .28s ease, filter .28s ease, transform .28s ease; }
+    body.swap #stage, body.swap #log {
+      opacity: .2;
+      filter: blur(6px);
+      transform: translateY(8px);
+    }
     #libClose {
       width: 100%; min-height: 44px; margin-top: 8px;
       border: 0; border-radius: 12px;
@@ -822,7 +855,7 @@ No markdown. No extra labels. Never mention AI, models, prompts, or being an act
       lib.chats[activeChatId] = {
         id: activeChatId,
         scenarioId: s.id,
-        title: s.title,
+        title: (lib.chats[activeChatId] && lib.chats[activeChatId].title) || s.title,
         game,
         history,
         logTurns,
@@ -856,40 +889,98 @@ No markdown. No extra labels. Never mention AI, models, prompts, or being an act
       return scenarioOf(game.scenarioId).opening;
     }
 
+    function closeLibrary() {
+      els.library.classList.remove("show");
+    }
+
+    function openLibrary() {
+      renderLibrary();
+      els.library.classList.add("show");
+    }
+
+    function swapView(fn) {
+      document.body.classList.add("swap");
+      closeLibrary();
+      setTimeout(() => {
+        fn();
+        requestAnimationFrame(() => document.body.classList.remove("swap"));
+      }, 220);
+    }
+
     function newChat(scenarioId) {
       const s = scenarioOf(scenarioId);
-      activeChatId = "chat-" + Date.now();
-      game = freshGame(s.id);
-      history = [];
-      els.log.innerHTML = "";
-      logTurns = [];
-      setStill(s.shot);
-      applyPlace();
-      addTurn(s.opening);
-      els.gulp.classList.remove("show");
-      els.digest.classList.remove("show");
-      persist();
-      els.library.classList.remove("show");
+      swapView(() => {
+        activeChatId = "chat-" + Date.now();
+        game = freshGame(s.id);
+        history = [];
+        els.log.innerHTML = "";
+        logTurns = [];
+        setStill(s.shot);
+        applyPlace();
+        addTurn(s.opening);
+        els.gulp.classList.remove("show");
+        els.digest.classList.remove("show");
+        persist();
+      });
     }
 
     function openChat(id) {
       const lib = readLib();
       const data = lib.chats[id];
       if (!data) return;
-      activeChatId = id;
-      lib.activeId = id;
+      swapView(() => {
+        activeChatId = id;
+        const next = readLib();
+        next.activeId = id;
+        writeLib(next);
+        Object.assign(game, freshGame(data.scenarioId || "lanes"), data.game || {});
+        history = (data.history || []).slice();
+        logTurns = [];
+        els.log.innerHTML = "";
+        applyPlace();
+        setStill(game.shot || scenarioOf(game.scenarioId).shot);
+        const turns = (data.logTurns && data.logTurns.length) ? data.logTurns : [openingOf()];
+        turns.forEach((turn) => addTurn(turn));
+        els.gulp.classList.remove("show");
+        els.digest.classList.remove("show");
+      });
+    }
+
+    function renameChat(id) {
+      const lib = readLib();
+      const chat = lib.chats[id];
+      if (!chat) return;
+      const next = prompt("Name this chat", chat.title || "Chat");
+      if (next == null) return;
+      const name = next.trim();
+      if (!name) return;
+      chat.title = name;
       writeLib(lib);
-      Object.assign(game, freshGame(data.scenarioId || "lanes"), data.game || {});
-      history = (data.history || []).slice();
-      logTurns = [];
-      els.log.innerHTML = "";
-      applyPlace();
-      setStill(game.shot || scenarioOf(game.scenarioId).shot);
-      const turns = (data.logTurns && data.logTurns.length) ? data.logTurns : [openingOf()];
-      turns.forEach((turn) => addTurn(turn));
-      els.gulp.classList.remove("show");
-      els.digest.classList.remove("show");
-      els.library.classList.remove("show");
+      renderLibrary();
+    }
+
+    function deleteChat(id) {
+      const lib = readLib();
+      if (!lib.chats[id]) return;
+      if (!confirm("Delete this chat?")) return;
+      delete lib.chats[id];
+      if (lib.activeId === id) lib.activeId = null;
+      writeLib(lib);
+      if (activeChatId === id) {
+        const leftover = Object.keys(lib.chats)[0];
+        if (leftover) openChat(leftover);
+        else newChat("lanes");
+      } else {
+        renderLibrary();
+      }
+    }
+
+    function switchFace(id) {
+      if (!CHARACTERS[id] || !CHARACTERS[id].ready) return;
+      swapView(() => {
+        applyPlace();
+        setStill(game.shot || "establish");
+      });
     }
 
     function renderLibrary() {
@@ -903,6 +994,7 @@ No markdown. No extra labels. Never mention AI, models, prompts, or being an act
         b.querySelector("b").textContent = c.name;
         b.querySelector("span").textContent = c.blurb;
         if (!c.ready) b.disabled = true;
+        else b.addEventListener("click", () => switchFace(c.id));
         els.faceList.appendChild(b);
       });
       const soon = document.createElement("button");
@@ -932,6 +1024,8 @@ No markdown. No extra labels. Never mention AI, models, prompts, or being an act
         els.chatList.appendChild(empty);
       }
       chats.forEach((c) => {
+        const row = document.createElement("div");
+        row.className = "chatrow";
         const b = document.createElement("button");
         b.type = "button";
         b.className = "card" + (c.id === activeChatId ? " active" : "");
@@ -940,7 +1034,20 @@ No markdown. No extra labels. Never mention AI, models, prompts, or being an act
         b.querySelector("b").textContent = (c.title || "Chat");
         b.querySelector("span").textContent = when + " · " + ((c.logTurns && c.logTurns.length) || 0) + " beats";
         b.addEventListener("click", () => openChat(c.id));
-        els.chatList.appendChild(b);
+        const rn = document.createElement("button");
+        rn.type = "button";
+        rn.className = "iconbtn";
+        rn.title = "Rename";
+        rn.textContent = "Aa";
+        rn.addEventListener("click", (e) => { e.stopPropagation(); renameChat(c.id); });
+        const del = document.createElement("button");
+        del.type = "button";
+        del.className = "iconbtn danger";
+        del.title = "Delete";
+        del.textContent = "×";
+        del.addEventListener("click", (e) => { e.stopPropagation(); deleteChat(c.id); });
+        row.append(b, rn, del);
+        els.chatList.appendChild(row);
       });
     }
 
@@ -1322,8 +1429,14 @@ No markdown. No extra labels. Never mention AI, models, prompts, or being an act
       }
     });
     els.reset.addEventListener("click", resetNight);
-    els.stories.addEventListener("click", () => { renderLibrary(); els.library.classList.add("show"); });
-    els.libClose.addEventListener("click", () => els.library.classList.remove("show"));
+    els.stories.addEventListener("click", openLibrary);
+    els.libClose.addEventListener("click", closeLibrary);
+    els.library.addEventListener("click", (e) => {
+      if (e.target === els.library) closeLibrary();
+    });
+    document.addEventListener("keydown", (e) => {
+      if (e.key === "Escape") closeLibrary();
+    });
     els.gulpOk.addEventListener("click", () => els.gulp.classList.remove("show"));
     els.digestOk.addEventListener("click", resetNight);
     els.look.addEventListener("click", () => speak("I look up at Dawn from the lane."));
