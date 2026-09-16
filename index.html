@@ -7,7 +7,7 @@
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
   <meta name="theme-color" content="#120814" />
   <meta name="format-detection" content="telephone=no" />
-  <title>Dawn — Comet Lanes</title>
+  <title>Speck</title>
   <style>
     :root {
       --bg: #100812;
@@ -348,21 +348,26 @@
 
     .fate {
       position: fixed; inset: 0; z-index: 50;
-      display: none;
+      display: flex;
       align-items: center; justify-content: center;
       flex-direction: column;
       gap: 12px;
       text-align: center;
       padding: 24px;
+      opacity: 0;
+      visibility: hidden;
+      pointer-events: none;
+      transition: opacity .45s ease, visibility .45s ease;
     }
-    .fate.show { display: flex; }
+    .fate.show { opacity: 1; visibility: visible; pointer-events: auto; }
     #gulp {
       background: radial-gradient(circle at 50% 30%, #6a2048, #12040c 70%);
-      animation: gulpflash .7s ease;
     }
     #digest {
       background: radial-gradient(circle at 50% 80%, #3a2010, #070308 65%);
     }
+    .fate.show h2 { animation: dropin .7s cubic-bezier(.2,1.4,.3,1) both; }
+    .fate.show p, .fate.show button { animation: fadeup .5s ease .15s both; }
     .fate h2 {
       margin: 0;
       font-size: clamp(2.4rem, 12vw, 4rem);
@@ -380,9 +385,14 @@
       color: #2a0818;
       font-weight: 800;
     }
-    @keyframes gulpflash {
-      0% { transform: scale(1.08); filter: brightness(1.4); }
-      100% { transform: none; filter: none; }
+    @keyframes dropin {
+      0% { transform: translateY(-42vh) scale(.7); opacity: 0; filter: blur(8px); }
+      70% { transform: translateY(8px) scale(1.04); opacity: 1; filter: none; }
+      100% { transform: none; }
+    }
+    @keyframes fadeup {
+      from { opacity: 0; transform: translateY(10px); }
+      to { opacity: 1; transform: none; }
     }
     #splash {
       position: fixed; inset: 0; z-index: 40;
@@ -502,9 +512,9 @@
     <button type="button" id="digestOk">Reset night</button>
   </div>
   <div id="splash">
-    <div class="mark">Comet Lanes</div>
-    <h2>Dawn</h2>
-    <p>Last call · lane 7</p>
+    <div class="mark">Speck</div>
+    <h2>Stories</h2>
+    <p>Giantesses · last call</p>
     <div class="bar"><i></i></div>
   </div>
   <header class="top">
@@ -530,6 +540,8 @@
     <div class="sheet">
       <h2>Pick a night</h2>
       <p class="hint" style="margin:0 0 8px;color:var(--muted);font-size:.84rem">Each story keeps its own chat on this phone.</p>
+      <h3>Faces</h3>
+      <div id="faceList"></div>
       <h3>Beginnings</h3>
       <div id="scenarioList"></div>
       <h3>Saved chats</h3>
@@ -700,7 +712,17 @@ No markdown. No extra labels. Never mention AI, models, prompts, or being an act
       },
     };
 
+    const CHARACTERS = {
+      dawn: {
+        id: "dawn",
+        name: "Dawn",
+        ready: true,
+        blurb: "Yonkers. Braces. Maroon hoodie. She will swallow you.",
+      },
+    };
+
     const LIB_KEY = "dawnLib.v1";
+
     const SAVE_KEY = "dawnSave.v1";
 
     function scenarioOf(id) {
@@ -744,6 +766,7 @@ No markdown. No extra labels. Never mention AI, models, prompts, or being an act
       digestOk: document.getElementById("digestOk"),
       stories: document.getElementById("stories"),
       library: document.getElementById("library"),
+      faceList: document.getElementById("faceList"),
       scenarioList: document.getElementById("scenarioList"),
       chatList: document.getElementById("chatList"),
       libClose: document.getElementById("libClose"),
@@ -871,6 +894,23 @@ No markdown. No extra labels. Never mention AI, models, prompts, or being an act
 
     function renderLibrary() {
       const lib = readLib();
+      els.faceList.innerHTML = "";
+      Object.values(CHARACTERS).forEach((c) => {
+        const b = document.createElement("button");
+        b.type = "button";
+        b.className = "card" + (c.id === "dawn" ? " active" : "");
+        b.innerHTML = "<b></b><span></span>";
+        b.querySelector("b").textContent = c.name;
+        b.querySelector("span").textContent = c.blurb;
+        if (!c.ready) b.disabled = true;
+        els.faceList.appendChild(b);
+      });
+      const soon = document.createElement("button");
+      soon.type = "button";
+      soon.className = "card";
+      soon.disabled = true;
+      soon.innerHTML = "<b>Another face</b><span>Needs her own stills, voice prompt, and beginnings. Same actor URL. Not wired yet.</span>";
+      els.faceList.appendChild(soon);
       els.scenarioList.innerHTML = "";
       Object.values(SCENARIOS).forEach((s) => {
         const b = document.createElement("button");
