@@ -99,6 +99,28 @@
       border: 2px solid #140a16;
     }
     #log::-webkit-scrollbar-thumb:hover { background: #ff79e6; }
+    @media (min-width: 900px) {
+      body {
+        max-width: 980px;
+        display: grid;
+        grid-template-columns: minmax(280px, 380px) 1fr;
+        grid-template-rows: auto auto 1fr;
+        column-gap: 16px;
+        min-height: 100dvh;
+      }
+      header.top { grid-column: 1 / -1; }
+      #stage {
+        max-height: 72vh;
+        margin: 4px 0 0;
+      }
+      #gate { grid-column: 1; }
+      #log {
+        grid-column: 2;
+        grid-row: 2 / 4;
+        padding-bottom: calc(var(--dock) + 8px);
+      }
+      .dock { width: min(980px, 100%); }
+    }
     header.top {
       display: flex;
       align-items: center;
@@ -138,7 +160,16 @@
     #live.ready { color: #9ff0c0; border-color: #2f6a4a; }
     #live.busy { color: #ffd36a; border-color: #8a6a20; }
     #live.bad { color: #ff9aa6; border-color: var(--danger); }
-    .tools { display: flex; gap: 6px; align-items: center; }
+    .tools { display: flex; gap: 6px; align-items: center; flex-wrap: wrap; justify-content: flex-end; }
+    #gear {
+      min-height: 32px; min-width: 32px;
+      border: 1px solid #5a2a55;
+      background: #24101f;
+      color: var(--muted);
+      border-radius: 999px;
+      font-size: 0.95rem;
+      padding: 4px 8px;
+    }
     #reset {
       min-height: 32px;
       border: 1px solid #5a2a55;
@@ -532,6 +563,28 @@
       transform: none;
       opacity: 1;
     }
+    #settings {
+      position: fixed; inset: 0; z-index: 36;
+      display: flex; align-items: flex-start; justify-content: center;
+      padding: calc(12px + var(--safe-top)) 12px;
+      background: rgba(8,4,10,.72);
+      opacity: 0; visibility: hidden; pointer-events: none;
+      transition: opacity .28s ease, visibility .28s ease;
+    }
+    #settings.show { opacity: 1; visibility: visible; pointer-events: auto; }
+    #settings .sheet {
+      width: min(400px, 100%);
+      background: #1a0e1c;
+      border: 1px solid rgba(255,79,216,.25);
+      border-radius: 18px;
+      padding: 14px;
+    }
+    #settings label { display:block; font-size:.72rem; letter-spacing:.08em; text-transform:uppercase; color:var(--muted); margin: 8px 0 4px; }
+    #settings input {
+      width: 100%; min-height: 44px; border-radius: 12px;
+      border: 1px solid #5a365c; background: #140a16; color: var(--ink);
+      font-size: 16px; padding: 10px 12px;
+    }
     #library h2 { margin: 0 0 8px; font-size: 1.05rem; }
     #library h3 {
       margin: 14px 0 8px;
@@ -620,10 +673,11 @@
       <p id="placeSub">Lane 7 · last call</p>
     </div>
     <div class="tools">
-      <button type="button" id="account">Account</button>
       <button type="button" id="stories">Stories</button>
       <button type="button" id="reset">Reset</button>
+      <button type="button" id="account">Log in</button>
       <div id="live">Boot</div>
+      <button type="button" id="gear" aria-label="Settings">⚙</button>
     </div>
   </header>
 
@@ -694,6 +748,21 @@
         <button type="button" class="primary" id="authOut">Log out</button>
         <button type="button" class="ghost" id="authClose4">Close</button>
       </div>
+    </div>
+  </div>
+  <div id="settings">
+    <div class="sheet">
+      <h2>Settings</h2>
+      <label>New password</label>
+      <input id="newPass" type="password" autocomplete="new-password" />
+      <label>Confirm</label>
+      <input id="newPass2" type="password" autocomplete="new-password" />
+      <p id="setMsg" style="color:var(--muted);font-size:.84rem;min-height:1.2em"></p>
+      <button type="button" class="primary" id="savePass" style="width:100%;min-height:44px;border:0;border-radius:12px;background:var(--neon);color:#2a0818;font-weight:800">Change password</button>
+      <label style="margin-top:14px">Actor URL</label>
+      <input id="actorUrl" type="url" />
+      <button type="button" id="saveActor" style="width:100%;min-height:40px;margin-top:8px;border:0;border-radius:12px;background:#3a2044;color:var(--ink)">Save actor</button>
+      <button type="button" id="setClose" style="width:100%;min-height:40px;margin-top:8px;border:0;border-radius:12px;background:#3a2044;color:var(--ink)">Close</button>
     </div>
   </div>
   <div id="gate"></div>
@@ -856,6 +925,33 @@ No markdown. No extra labels. Never mention AI, models, prompts, or being an act
           line: "Okay this is so much better than the gutter. No manager. No cousin. Just you, me, and like a really bad idea. Don't fall off the page.",
         },
       },
+      blank: {
+        id: "blank",
+        title: "Blank night",
+        sub: "You start",
+        blurb: "No canned opening. You speak first.",
+        location: "wherever the player puts her",
+        playerPlace: "in her notice, waiting for the first move",
+        mood: "waiting on the speck",
+        shot: "look",
+        hook: "SCENARIO: Blank start. There is no prewritten opening. The player's first message is the first beat. Do not invent that they already met in a bowling alley unless the player says so.",
+        opening: null,
+      },
+      "rae-shop": {
+        id: "rae-shop",
+        title: "Night counter",
+        sub: "Bodega · 2am",
+        blurb: "Rae found you next to the lottery tickets.",
+        location: "late-night bodega counter, Queens",
+        playerPlace: "beside the scratch-off display on the laminate",
+        mood: "tired, unimpressed, already deciding",
+        shot: "look",
+        hook: "SCENARIO: 2am bodega. Rae is on register. She noticed a talking speck by the lottery tickets. Dry. Not giggly.",
+        opening: {
+          moment: "Fluorescent hum. Cold case light. A black nail taps the counter a mile above the tickets.",
+          line: "If you're a prank, I'm too tired. If you're real, you picked the wrong shift. Talk.",
+        },
+      },
       tongue: {
         id: "tongue",
         title: "Already close",
@@ -878,7 +974,19 @@ No markdown. No extra labels. Never mention AI, models, prompts, or being an act
         id: "dawn",
         name: "Dawn",
         ready: true,
+        stillDir: "stills/",
+        scenarios: ["lanes", "hoodie", "bedroom", "tongue", "blank"],
         blurb: "Yonkers. Braces. Maroon hoodie. She will swallow you.",
+        voice: "You play DAWN MARIE KELLER, 18, Yonkers valley-girl dork with braces. Soft menace. Giggles. Says like, wait wait wait.",
+      },
+      rae: {
+        id: "rae",
+        name: "Rae",
+        ready: true,
+        stillDir: "stills/rae/",
+        scenarios: ["rae-shop", "blank"],
+        blurb: "Queens. Septum. Night shift. Dry as the lotto tickets.",
+        voice: "You play RAE ORTIZ, 23, Queens. Short curls, gold septum, black nails, oversized band tee. Night bodega register. Dry, low voice, no valley girl, no braces. Tired menace. Short sentences. She will still swallow you if you stay interesting.",
       },
     };
 
@@ -886,13 +994,25 @@ No markdown. No extra labels. Never mention AI, models, prompts, or being an act
 
     const SAVE_KEY = "dawnSave.v1";
 
-    function scenarioOf(id) {
-      return SCENARIOS[id] || SCENARIOS.lanes;
+    function characterOf(id) {
+      return CHARACTERS[id] || CHARACTERS.dawn;
     }
 
-    function freshGame(scenarioId) {
+    function scenarioOf(id) {
+      return SCENARIOS[id] || SCENARIOS.blank;
+    }
+
+    function stillSrc(key) {
+      const dir = characterOf(game.characterId).stillDir || "stills/";
+      const name = (STILLS[key] ? key : "look");
+      return dir + name + ".jpg";
+    }
+
+    function freshGame(scenarioId, characterId) {
       const s = scenarioOf(scenarioId);
+      const c = characterOf(characterId || game.characterId || "dawn");
       return {
+        characterId: c.id,
         scenarioId: s.id,
         location: s.location,
         playerPlace: s.playerPlace,
@@ -902,7 +1022,7 @@ No markdown. No extra labels. Never mention AI, models, prompts, or being an act
         fate: "",
       };
     }
-    let game = freshGame("lanes");
+    let game = freshGame("lanes", "dawn");
     let activeChatId = null;
 
     const els = {
@@ -933,6 +1053,15 @@ No markdown. No extra labels. Never mention AI, models, prompts, or being an act
       libClose: document.getElementById("libClose"),
       placeTitle: document.getElementById("placeTitle"),
       placeSub: document.getElementById("placeSub"),
+      gear: document.getElementById("gear"),
+      settings: document.getElementById("settings"),
+      newPass: document.getElementById("newPass"),
+      newPass2: document.getElementById("newPass2"),
+      setMsg: document.getElementById("setMsg"),
+      savePass: document.getElementById("savePass"),
+      actorUrl: document.getElementById("actorUrl"),
+      saveActor: document.getElementById("saveActor"),
+      setClose: document.getElementById("setClose"),
       account: document.getElementById("account"),
       auth: document.getElementById("auth"),
       authEmail: document.getElementById("authEmail"),
@@ -1115,6 +1244,7 @@ No markdown. No extra labels. Never mention AI, models, prompts, or being an act
       lib.chats[activeChatId] = {
         id: activeChatId,
         scenarioId: s.id,
+        characterId: game.characterId || "dawn",
         title: (lib.chats[activeChatId] && lib.chats[activeChatId].title) || s.title,
         game,
         history,
@@ -1168,17 +1298,17 @@ No markdown. No extra labels. Never mention AI, models, prompts, or being an act
       }, 220);
     }
 
-    function newChat(scenarioId) {
+    function newChat(scenarioId, characterId) {
       const s = scenarioOf(scenarioId);
       swapView(() => {
         activeChatId = "chat-" + Date.now();
-        game = freshGame(s.id);
+        game = freshGame(s.id, characterId || game.characterId || "dawn");
         history = [];
         els.log.innerHTML = "";
         logTurns = [];
         setStill(s.shot);
         applyPlace();
-        addTurn(s.opening);
+        if (s.opening) addTurn(s.opening);
         els.gulp.classList.remove("show");
         els.digest.classList.remove("show");
       });
@@ -1238,11 +1368,10 @@ No markdown. No extra labels. Never mention AI, models, prompts, or being an act
     }
 
     function switchFace(id) {
-      if (!CHARACTERS[id] || !CHARACTERS[id].ready) return;
-      swapView(() => {
-        applyPlace();
-        setStill(game.shot || "establish");
-      });
+      const c = CHARACTERS[id];
+      if (!c || !c.ready) return;
+      const first = (c.scenarios || ["blank"])[0];
+      newChat(first, c.id);
     }
 
     function renderLibrary() {
@@ -1251,7 +1380,7 @@ No markdown. No extra labels. Never mention AI, models, prompts, or being an act
       Object.values(CHARACTERS).forEach((c) => {
         const b = document.createElement("button");
         b.type = "button";
-        b.className = "card" + (c.id === "dawn" ? " active" : "");
+        b.className = "card" + (c.id === (game.characterId || "dawn") ? " active" : "");
         b.innerHTML = "<b></b><span></span>";
         b.querySelector("b").textContent = c.name;
         b.querySelector("span").textContent = c.blurb;
@@ -1259,14 +1388,11 @@ No markdown. No extra labels. Never mention AI, models, prompts, or being an act
         else b.addEventListener("click", () => switchFace(c.id));
         els.faceList.appendChild(b);
       });
-      const soon = document.createElement("button");
-      soon.type = "button";
-      soon.className = "card";
-      soon.disabled = true;
-      soon.innerHTML = "<b>Another face</b><span>Needs her own stills, voice prompt, and beginnings. Same actor URL. Not wired yet.</span>";
-      els.faceList.appendChild(soon);
       els.scenarioList.innerHTML = "";
-      Object.values(SCENARIOS).forEach((s) => {
+      const pack = characterOf(game.characterId);
+      (pack.scenarios || Object.keys(SCENARIOS)).forEach((id) => {
+        const s = SCENARIOS[id];
+        if (!s) return;
         const b = document.createElement("button");
         b.type = "button";
         b.className = "card";
@@ -1360,13 +1486,14 @@ No markdown. No extra labels. Never mention AI, models, prompts, or being an act
     }
 
     function setStill(key) {
-      const shot = STILLS[key] || STILLS.establish;
-      game.shot = STILLS[key] ? key : "establish";
+      const name = STILLS[key] ? key : "look";
+      game.shot = name;
       els.shotchip.textContent = game.shot;
       applyScene();
-      if (els.still.src !== new URL(shot.src, location.href).href) {
+      const src = stillSrc(name);
+      if (!els.still.src.endsWith(src)) {
         els.still.style.opacity = "0.28";
-        els.still.src = shot.src;
+        els.still.src = src;
         els.still.onload = () => { els.still.style.opacity = "1"; };
       }
     }
@@ -1430,7 +1557,7 @@ No markdown. No extra labels. Never mention AI, models, prompts, or being an act
         const d = document.createElement("div");
         d.className = "line";
         const tag = document.createElement("b");
-        tag.textContent = "Dawn says";
+        tag.textContent = characterOf(game.characterId).name + " says";
         d.appendChild(tag);
         d.appendChild(document.createTextNode(line));
         wrap.appendChild(d);
@@ -1483,9 +1610,10 @@ No markdown. No extra labels. Never mention AI, models, prompts, or being an act
 
     function buildMessages(userText) {
       const s = scenarioOf(game.scenarioId);
-      const state = `STATE: scenario=${s.id}; location=${game.location}; speck is ${game.playerPlace}; mood=${game.mood}; noticed=${game.noticed}; shot=${game.shot}.`;
+      const c = characterOf(game.characterId);
+      const state = `STATE: character=${c.name}; scenario=${s.id}; location=${game.location}; speck is ${game.playerPlace}; mood=${game.mood}; noticed=${game.noticed}; shot=${game.shot}.`;
       return [
-        { role: "system", content: SYSTEM + "\n\n" + s.hook + "\n\n" + state },
+        { role: "system", content: SYSTEM + "\n\n" + c.voice + "\nLabel spoken lines SAY: not only DAWN.\n\n" + s.hook + "\n\n" + state },
         ...history.slice(-24),
         { role: "user", content: userText },
       ];
@@ -1493,8 +1621,8 @@ No markdown. No extra labels. Never mention AI, models, prompts, or being an act
 
     function parseActor(raw) {
       const text = String(raw || "").trim();
-      const momentMatch = text.match(/MOMENT:\s*([\s\S]*?)(?=\n\s*(?:DAWN|SHOT):|$)/i);
-      const dawnMatch = text.match(/DAWN:\s*([\s\S]*?)(?=\n\s*SHOT:|$)/i);
+      const momentMatch = text.match(/MOMENT:\s*([\s\S]*?)(?=\n\s*(?:DAWN|SAY|RAE|SHOT):|$)/i);
+      const dawnMatch = text.match(/(?:DAWN|SAY|RAE):\s*([\s\S]*?)(?=\n\s*SHOT:|$)/i);
       const shotMatch = text.match(/SHOT:\s*([a-z]+)/i);
       let moment = momentMatch ? momentMatch[1].trim() : "";
       let line = dawnMatch ? dawnMatch[1].trim() : "";
@@ -1765,6 +1893,27 @@ No markdown. No extra labels. Never mention AI, models, prompts, or being an act
       setAuthUi();
     });
 
+    function openSettings() {
+      els.setMsg.textContent = sessionUser ? ("Signed in as " + sessionUser.email) : "Log in to change password.";
+      els.actorUrl.value = CLOUD_ACTOR_URL;
+      els.settings.classList.add("show");
+    }
+    els.gear.addEventListener("click", openSettings);
+    els.setClose.addEventListener("click", () => els.settings.classList.remove("show"));
+    els.settings.addEventListener("click", (e) => { if (e.target === els.settings) els.settings.classList.remove("show"); });
+    els.savePass.addEventListener("click", async () => {
+      els.setMsg.textContent = "";
+      if (!supabase || !sessionUser) { els.setMsg.textContent = "Log in first."; return; }
+      if (els.newPass.value.length < 6) { els.setMsg.textContent = "Need 6+ characters."; return; }
+      if (els.newPass.value !== els.newPass2.value) { els.setMsg.textContent = "Passwords do not match."; return; }
+      const { error } = await supabase.auth.updateUser({ password: els.newPass.value });
+      els.setMsg.textContent = error ? error.message : "Password updated.";
+    });
+    els.saveActor.addEventListener("click", () => {
+      const url = (els.actorUrl.value || "").trim();
+      if (url) localStorage.setItem("dawnActor", url);
+      location.reload();
+    });
     els.stories.addEventListener("click", openLibrary);
     els.libClose.addEventListener("click", closeLibrary);
     els.library.addEventListener("click", (e) => {
