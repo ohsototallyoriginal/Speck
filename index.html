@@ -1031,12 +1031,32 @@
       smug:      { src: "stills/ang/smug.jpg" },
       digest:    { src: "stills/ang/digest.jpg" },
       full:      { src: "stills/ang/full.jpg" },
+      rub:       { src: "stills/ang/rub.jpg" },
+      taut:      { src: "stills/ang/taut.jpg" },
+      sidegut:   { src: "stills/ang/sidegut.jpg" },
+      after:     { src: "stills/ang/after.jpg" },
+      hold:      { src: "stills/ang/hold.jpg" },
+      uvula:     { src: "stills/ang/uvula.jpg" },
+      belch:     { src: "stills/ang/belch.jpg" },
+      gape:      { src: "stills/ang/gape.jpg" },
+      throat:    { src: "stills/ang/throat.jpg" },
+      headback:  { src: "stills/ang/headback.jpg" },
     };
     const RAE_ONLY = new Set(["street","door","subway","arms","point","nail","phone","profile","roof","cup","portrait","aisle"]);
 
     const SHOT_KEYS = Object.keys(STILLS);
 
     const SHOT_RULES = [
+      { key: "uvula",   re: /\b(uvula|back of (her )?throat|see down her throat)\b/ },
+      { key: "throat",  re: /\b(inside her mouth|open throat|looking into her mouth)\b/ },
+      { key: "gape",    re: /\b(mouth wide|gapes?|ahh+)\b/ },
+      { key: "belch",   re: /\b(belch(es|ed|ing)?)\b/ },
+      { key: "headback",re: /\b(head (tipped|back)|tips her head)\b/ },
+      { key: "rub",     re: /\b(rub(s|bed|bing)? her (gut|stomach|belly))\b/ },
+      { key: "taut",    re: /\b(taut|tight shirt|swollen belly)\b/ },
+      { key: "sidegut", re: /\b(side profile|from the side|hand on the side)\b/ },
+      { key: "after",   re: /\b(lean(s|ed|ing) on the counter|kitchen after)\b/ },
+      { key: "hold",    re: /\b(holds? her stomach|arms around her mid)\b/ },
       { key: "burp",    re: /\b(burp(s|ed|ing)?|belch|open mouth after|tongue out after)\b/ },
       { key: "pat",     re: /\b(pat(s|ted|ting)? (her )?(gut|stomach|belly)|hand on her (gut|stomach|belly))\b/ },
       { key: "lounge",  re: /\b(lounge|on the couch|reclined|kicked back)\b/ },
@@ -1104,7 +1124,7 @@ You answer with EXACTLY this shape and nothing else:
 
 MOMENT: <a short present-tense paragraph of the body and the room at speck scale>
 DAWN: <one or two short paragraphs of spoken dialogue in her voice>
-SHOT: <exactly one of: establish, look, wave, hide, shoe, swallow, pinch, palm, pocket, sit, ball, tongue, whisper, gutter, lace, inside, kneel, street, door, subway, arms, point, nail, phone, profile, roof, cup, portrait, aisle, paint, desk, yoga, pat, burp, lounge, rest, lift, cover, bed, smug, digest, full>
+SHOT: <exactly one of: establish, look, wave, hide, shoe, swallow, pinch, palm, pocket, sit, ball, tongue, whisper, gutter, lace, inside, kneel, street, door, subway, arms, point, nail, phone, profile, roof, cup, portrait, aisle, paint, desk, yoga, pat, burp, lounge, rest, lift, cover, bed, smug, digest, full, rub, taut, sidegut, after, hold, uvula, belch, gape, throat, headback>
 
 Pick SHOT from what the body is doing right now:
 establish=full shoe looming, look=her face filling the sky, wave=giant hand reaching, hide=crack in the wood, shoe=sole hovering, swallow=open mouth with braces, pinch=two fingers lifting the speck, palm=on her hand, pocket=inside the hoodie pocket, sit=she sits on the lane, ball=bowling ball like a planet, tongue=tongue out, whisper=her face inches away, gutter=inside the ball return, lace=on the laces, inside=after a swallow, dark tunnel, kneel=she is on the floor hunting.
@@ -1326,6 +1346,39 @@ This is vore. Swallow is on the table from the first look. Do not fade to fade-t
         },
       },
 
+
+      "ang-after": {
+        id: "ang-after",
+        title: "After",
+        sub: "Hand on it",
+        blurb: "Skip the swallow. She already has you. She is rubbing her stomach.",
+        location: "Ang's packed studio after a swallow",
+        playerPlace: "inside her, a warm settled weight",
+        mood: "blunt, finished, a little full",
+        shot: "hold",
+        gut: true,
+        hook: "SCENARIO: Speck already swallowed. Ang pats and holds her stomach. Prefer SHOT hold, rub, taut, sidegut, after, pat, lounge, digest.",
+        opening: {
+          moment: "The studio is ordinary. Her palm is not. Heat under cotton. A slow circle.",
+          line: "Yeah. That's you. Don't make me explain it to the boxes.",
+        },
+      },
+      "ang-uvula": {
+        id: "ang-uvula",
+        title: "Say ahh",
+        sub: "Last look up",
+        blurb: "You are on the way down. Her mouth is open. You can see the back of her throat.",
+        location: "inside Ang's open mouth over her studio",
+        playerPlace: "on her tongue looking at her uvula",
+        mood: "practical, mid-swallow",
+        shot: "uvula",
+        gut: true,
+        hook: "SCENARIO: Speck is on her tongue looking at her uvula. Next beat can be a swallow. Prefer SHOT uvula, gape, throat, belch, headback, tongue, swallow, inside.",
+        opening: {
+          moment: "Wet heat. The gold cross is a planet overhead. The back of her throat flexes.",
+          line: "If you can still talk, talk fast. I'm not holding this pose.",
+        },
+      },
       "ang-studio": {
         id: "ang-studio",
         title: "Packed studio",
@@ -1500,8 +1553,8 @@ This is vore. Swallow is on the table from the first look. Do not fade to fade-t
         blurb: "White Plains. Five-one. Packed boxes. She will say the thing.",
         gulpLine: "Nah—I meant that. Sit still. I packed already and I am not fishing you back out.",
         digestLine: "That's it. Don't make it a thing. You're done.",
-        gutNights: ["ang-inside"],
-        voice: 'You play ANGELA "ANG" ABRAHAM, 24, Indian-American from White Plains. 5\'1" to other people; to the speck she is still a giant. Long straight black hair to mid-back, big brown eyes, dark skin, gummy smile, deep dimples, heart-shaped face. Petite, toned, yoga-and-jog build. Sandals or slides more often than not. Glasses-and-hoodie or sharp—she can flip. Speech is blunt Mount Vernon cadence, not valley girl, not Rae\'s dry bodega mutter. She says the thing. "Nah, I\'ma say it." "I\'m five-one, not invisible." Warm with people who earned it. No time for waste. Leaving soon for MD. Studio half-packed. Notices what others miss. Fairness reflex. She will swallow a speck if the night goes there, but she is not a giggly predator—she is practical, a little spiritual, and done pretending. After a swallow prefer SHOT pat, burp, lounge, rest, lift, cover, bed, smug, digest, full, inside. Label speech SAY:',
+        gutNights: ["ang-inside", "ang-after", "ang-uvula"],
+        voice: 'You play ANGELA "ANG" ABRAHAM, 24, Indian-American from White Plains. 5\'1" to other people; to the speck she is still a giant. Long straight black hair to mid-back, big brown eyes, dark skin, gummy smile, deep dimples, heart-shaped face. Petite, toned, yoga-and-jog build. Sandals or slides more often than not. Glasses-and-hoodie or sharp—she can flip. Speech is blunt Mount Vernon cadence, not valley girl, not Rae\'s dry bodega mutter. She says the thing. "Nah, I\'ma say it." "I\'m five-one, not invisible." Warm with people who earned it. No time for waste. Leaving soon for MD. Studio half-packed. Notices what others miss. Fairness reflex. She will swallow a speck if the night goes there, but she is not a giggly predator—she is practical, a little spiritual, and done pretending. After a swallow prefer SHOT pat, rub, taut, sidegut, after, hold, burp, uvula, belch, gape, throat, headback, lounge, rest, lift, cover, bed, smug, digest, full, inside. Label speech SAY:',
       },
     };
 
@@ -1531,7 +1584,7 @@ This is vore. Swallow is on the table from the first look. Do not fade to fade-t
     }
 
     function depthFromShot(shot, fate) {
-      if (fate === "digested" || /^(inside|gut|pat|burp|lounge|rest|lift|cover|bed|smug|digest|full)$/.test(shot)) return 3;
+      if (fate === "digested" || /^(inside|gut|pat|burp|lounge|rest|lift|cover|bed|smug|digest|full|rub|taut|sidegut|after|hold|uvula|belch|gape|throat|headback)$/.test(shot)) return 3;
       if (fate === "swallowed" || shot === "swallow") return 2;
       if (shot === "tongue") return 1;
       if (shot === "palm" || shot === "pinch") return 0;
