@@ -245,10 +245,11 @@
     }
     #stage img {
       width: 100%; height: 100%;
-      object-fit: contain;
+      object-fit: cover;
       object-position: center center;
       display: block;
       background: #07040a;
+      object-fit: cover;
       transition: opacity .28s ease;
     }
     #vignette { display: none; }
@@ -462,6 +463,49 @@
       transition: opacity .45s ease, visibility .45s ease;
     }
     .fate.show { opacity: 1; visibility: visible; pointer-events: auto; }
+
+    #home {
+      position: fixed; inset: 0; z-index: 40;
+      display: flex; flex-direction: column; justify-content: center;
+      padding: 28px 22px calc(24px + var(--safe-bot));
+      background:
+        radial-gradient(70% 50% at 50% 0%, rgba(255,79,216,.22), transparent 55%),
+        radial-gradient(80% 40% at 50% 100%, rgba(180,20,40,.28), transparent 50%),
+        #09050c;
+      opacity: 0; visibility: hidden; pointer-events: none;
+      transition: opacity .35s ease, visibility .35s ease;
+    }
+    #home.show { opacity: 1; visibility: visible; pointer-events: auto; }
+    #home .eyebrow {
+      letter-spacing: .22em; text-transform: uppercase; font-size: .72rem;
+      color: var(--neon); margin: 0 0 8px;
+    }
+    #home h1 { font-size: clamp(2.6rem, 12vw, 4.2rem); margin: 0 0 8px; letter-spacing: .06em; }
+    #home .lede { color: var(--muted); max-width: 22rem; line-height: 1.45; margin: 0 0 22px; }
+    #home .faces { display: grid; gap: 10px; margin-bottom: 14px; }
+    #home .faces button {
+      text-align: left; border: 1px solid rgba(255,79,216,.25);
+      background: rgba(20,10,22,.72); color: var(--ink);
+      border-radius: 14px; padding: 14px 16px; min-height: 64px;
+    }
+    #home .faces button b { display:block; font-size: 1.05rem; }
+    #home .faces button span { display:block; color: var(--muted); font-size: .82rem; margin-top: 3px; }
+    #home .row { display: grid; gap: 8px; }
+    #home .row button {
+      min-height: 46px; border: 0; border-radius: 12px; font-weight: 800;
+    }
+    #homeContinue { background: var(--neon); color: #2a0818; }
+    #homeStories { background: #3a2044; color: var(--ink); }
+    html[data-face="rae"] #home {
+      background:
+        radial-gradient(70% 50% at 50% 0%, rgba(255,177,90,.2), transparent 55%),
+        #070a0a;
+    }
+    html[data-face="ang"] #home {
+      background:
+        radial-gradient(70% 50% at 50% 0%, rgba(232,177,74,.2), transparent 55%),
+        #0e0a06;
+    }
     #gulp {
       background: radial-gradient(circle at 50% 30%, #6a2048, #12040c 70%);
     }
@@ -724,13 +768,24 @@
   <div id="world" aria-hidden="true"><i class="alley"></i><i class="mouth"></i><i class="gut"></i></div>
   <div id="gulp" class="fate" role="dialog" aria-label="Swallowed">
     <h2>Gulp</h2>
-    <p>The alley folds. Heat, spit, and neon collapse to a wet dark. She swallowed you.</p>
-    <button type="button" id="gulpOk">Keep going</button>
+    <p>Down. Heat. A swallow that does not take it back. You are a snack now.</p>
+    <button type="button" id="gulpOk">Stay down</button>
   </div>
   <div id="digest" class="fate" role="dialog" aria-label="Digested">
-    <h2>Digested</h2>
-    <p>The night ends the way she said it would. Soft. Final. Reset when you want another last call.</p>
+    <h2>Soft end</h2>
+    <p>She kept you. The chamber finishes what the tongue started. Reset only if you want out.</p>
     <button type="button" id="digestOk">Reset night</button>
+  </div>
+
+  <div id="home">
+    <p class="eyebrow">She will swallow you</p>
+    <h1>Speck</h1>
+    <p class="lede">Pick a giantess. Stay a snack. The night only ends inside her if you let it get that far.</p>
+    <div class="faces" id="homeFaces"></div>
+    <div class="row">
+      <button type="button" id="homeContinue">Continue last night</button>
+      <button type="button" id="homeStories">All nights</button>
+    </div>
   </div>
   <div id="splash">
     <div class="mark">Speck</div>
@@ -744,7 +799,7 @@
       <p id="placeSub">Lane 7 · last call</p>
     </div>
     <div class="tools">
-      <button type="button" id="stories">Stories</button>
+      <button type="button" id="stories">Home</button>
       <button type="button" id="reset">Reset</button>
       <button type="button" id="account">Log in</button>
       <div id="live">Boot</div>
@@ -841,7 +896,7 @@
       <button type="button" id="look" disabled>Look</button>
       <button type="button" id="talk" disabled>Wave</button>
       <button type="button" id="hide" disabled>Hide</button>
-      <button type="button" id="tease" disabled>Tease</button>
+      <button type="button" id="tease" disabled>Snack</button>
     </div>
     <div class="composer">
       <textarea id="input" rows="1" placeholder="What do you do?" disabled enterkeyhint="send"></textarea>
@@ -979,7 +1034,10 @@ SHOT: <exactly one of: establish, look, wave, hide, shoe, swallow, pinch, palm, 
 Pick SHOT from what the body is doing right now:
 establish=full shoe looming, look=her face filling the sky, wave=giant hand reaching, hide=crack in the wood, shoe=sole hovering, swallow=open mouth with braces, pinch=two fingers lifting the speck, palm=on her hand, pocket=inside the hoodie pocket, sit=she sits on the lane, ball=bowling ball like a planet, tongue=tongue out, whisper=her face inches away, gutter=inside the ball return, lace=on the laces, inside=after a swallow, dark tunnel, kneel=she is on the floor hunting.
 
-No markdown. No extra labels. Never mention AI, models, prompts, or being an actor. Stay in the current scenario location unless STATE says you moved. If STATE conflicts with earlier chat, STATE wins.`;
+No markdown. No extra labels. Never mention AI, models, prompts, or being an actor. Stay in the current scenario location unless STATE says you moved. If STATE conflicts with earlier chat, STATE wins.
+
+STAKES
+This is vore. Swallow is on the table from the first look. Do not fade to fade-to-black when she eats the speck. MOMENT should feel the mouth, throat, or stomach when that is what happened. The girl stays in character. She is not shy about the snack.`;
 
 
     const SCENARIOS = {
@@ -1320,7 +1378,7 @@ No markdown. No extra labels. Never mention AI, models, prompts, or being an act
         name: "Ang",
         ready: true,
         stillDir: "stills/ang/",
-        scenarios: ["ang-studio", "ang-desk", "ang-paint", "ang-street", "ang-yoga", "ang-conor", "ang-inside", "ang-blank", "blank"],
+        scenarios: ["ang-studio", "ang-desk", "ang-paint", "ang-street", "ang-yoga", "ang-conor", "ang-inside"],
         thinkBudget: 2048,
         maxTokens: 8192,
         temperature: 0.9,
@@ -1412,6 +1470,10 @@ No markdown. No extra labels. Never mention AI, models, prompts, or being an act
       scenarioList: document.getElementById("scenarioList"),
       chatList: document.getElementById("chatList"),
       libClose: document.getElementById("libClose"),
+      home: document.getElementById("home"),
+      homeFaces: document.getElementById("homeFaces"),
+      homeContinue: document.getElementById("homeContinue"),
+      homeStories: document.getElementById("homeStories"),
       placeTitle: document.getElementById("placeTitle"),
       placeSub: document.getElementById("placeSub"),
       gear: document.getElementById("gear"),
@@ -2112,6 +2174,40 @@ No markdown. No extra labels. Never mention AI, models, prompts, or being an act
       els.digest.classList.remove("show");
     }
 
+
+    function hasPlay() {
+      return !!(history.length || (logTurns && logTurns.length > 1) || (game && game.noticed));
+    }
+
+    function paintHomeFaces() {
+      els.homeFaces.innerHTML = "";
+      Object.values(CHARACTERS).forEach((c) => {
+        if (!c.ready) return;
+        const b = document.createElement("button");
+        b.type = "button";
+        b.innerHTML = "<b></b><span></span>";
+        b.querySelector("b").textContent = c.name;
+        b.querySelector("span").textContent = c.blurb;
+        b.addEventListener("click", () => {
+          hideHome();
+          switchFace(c.id);
+        });
+        els.homeFaces.appendChild(b);
+      });
+      const saved = loadSave();
+      const can = !!(saved && ((saved.history && saved.history.length) || (saved.logTurns && saved.logTurns.length)));
+      els.homeContinue.style.display = can ? "block" : "none";
+    }
+
+    function showHome() {
+      paintHomeFaces();
+      els.home.classList.add("show");
+    }
+
+    function hideHome() {
+      els.home.classList.remove("show");
+    }
+
     async function boot() {
       const saved = loadSave();
       if (saved && ((saved.history && saved.history.length) || (saved.logTurns && saved.logTurns.length > 1))) {
@@ -2122,8 +2218,8 @@ No markdown. No extra labels. Never mention AI, models, prompts, or being an act
         game = freshGame("lanes");
         setStill(game.shot);
         applyPlace();
-        paintOpening();
       }
+      showHome();
       preloadStills();
       if (supabase) {
         await authUser();
@@ -2278,7 +2374,21 @@ No markdown. No extra labels. Never mention AI, models, prompts, or being an act
       const { error } = await supabase.auth.updateUser({ password: els.newPass.value });
       els.setMsg.textContent = error ? error.message : "Password updated.";
     });
-    els.stories.addEventListener("click", openLibrary);
+    els.stories.addEventListener("click", showHome);
+    els.homeContinue.addEventListener("click", () => {
+      hideHome();
+      const saved = loadSave();
+      if (saved) {
+        restoreSave(saved);
+        applyPlace();
+      } else if (!els.log.children.length) {
+        paintOpening();
+      }
+    });
+    els.homeStories.addEventListener("click", () => {
+      hideHome();
+      openLibrary();
+    });
     els.libClose.addEventListener("click", closeLibrary);
     els.library.addEventListener("click", (e) => {
       if (e.target === els.library) closeLibrary();
