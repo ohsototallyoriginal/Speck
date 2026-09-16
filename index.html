@@ -513,6 +513,19 @@
       color: var(--muted); font-size: .68rem; font-weight: 800;
       letter-spacing: .1em; text-transform: uppercase;
     }
+    .gone-bar { display: none; }
+    .dock.gone .gone-bar { display: block; }
+    .dock.gone .actions, .dock.gone .compose-modes, .dock.gone .composer, .dock.gone #composeHint { display: none; }
+    #goneNote { margin: 2px 4px 8px; font-size: .78rem; color: var(--muted); }
+    .gone-actions { display: grid; grid-template-columns: 2fr 1fr; gap: 8px; }
+    .gone-actions button {
+      min-height: 48px; border-radius: 14px; font-weight: 800; font-size: .78rem;
+      letter-spacing: .04em; text-transform: uppercase; cursor: pointer;
+    }
+    #continueNight { border: 0; background: var(--neon); color: #1a0c10; }
+    #newNight { border: 1px solid var(--hair); background: var(--panel); color: var(--ink); }
+    .gone-actions button:disabled { opacity: .45; }
+    @media (min-width: 900px) { .dock .gone-bar { max-width: 980px; margin-left: auto; margin-right: auto; } }
     #composeHint { margin: 5px 4px 0; font-size: .72rem; line-height: 1.3; color: var(--muted); }
     #composeHint b { color: var(--ink); font-weight: 700; }
     .dock[data-mode="say"] #composeHint b { color: var(--neon); }
@@ -779,7 +792,52 @@
       border: 1px solid var(--hair); background: var(--panel2); color: var(--ink);
       font-size: 16px; padding: 10px 12px;
     }
-    #library h2 { margin: 0 0 8px; font-size: 1.05rem; }
+    #library h2 { margin: 0; font-size: 1.05rem; flex: 1; }
+    /* Bottom sheet: leaves open backdrop above it to tap, scrolls inside */
+    #library {
+      display: flex; flex-direction: column; justify-content: flex-end;
+      overflow: hidden;
+      padding: calc(56px + var(--safe-top)) 0 0;
+      cursor: pointer;
+    }
+    #library .sheet {
+      width: 100%;
+      max-height: 100%;
+      overflow-y: auto;
+      overscroll-behavior: contain;
+      border-radius: 20px 20px 0 0;
+      border-bottom: 0;
+      padding: 0 14px calc(16px + var(--safe-bot));
+      cursor: auto;
+      transform: translateY(40px);
+    }
+    #library .sheet.dragging { transition: none; }
+    .lib-head {
+      position: sticky; top: 0; z-index: 2;
+      display: flex; align-items: center; gap: 10px;
+      margin: 0 -14px 6px; padding: 18px 14px 10px;
+      background: var(--panel2);
+      border-bottom: 1px solid color-mix(in srgb, var(--hair) 45%, transparent);
+      touch-action: none;
+    }
+    .lib-grip {
+      position: absolute; top: 7px; left: 50%; transform: translateX(-50%);
+      width: 40px; height: 4px; border-radius: 4px; background: var(--hair);
+    }
+    #libX {
+      flex: 0 0 36px; height: 36px; border-radius: 50%;
+      border: 1px solid var(--hair); background: var(--panel); color: var(--ink);
+      font-size: .95rem; cursor: pointer;
+    }
+    .face-tabs { display: grid; grid-template-columns: repeat(auto-fit, minmax(130px, 1fr)); gap: 8px; }
+    .face-tabs .card { margin: 0; }
+    .face-tabs .card.active { box-shadow: inset 0 0 0 1px var(--neon); background: color-mix(in srgb, var(--neon) 12%, var(--panel2)); }
+    #scenarioList, #gutList { transition: opacity .18s ease, transform .18s ease; }
+    #library.flip #scenarioList, #library.flip #gutList { opacity: 0; transform: translateX(10px); }
+    @media (min-width: 700px) {
+      #library { justify-content: center; align-items: center; padding: 24px; }
+      #library .sheet { max-width: 480px; max-height: 86vh; border-radius: 20px; border-bottom: 1px solid var(--hair); padding-bottom: 16px; }
+    }
     #library h3 {
       margin: 14px 0 8px;
       font-size: 0.68rem;
@@ -1119,17 +1177,21 @@
     <p id="thumbHint">Tap the picture to enlarge</p>
   </div>
   </div>
-  <div id="goneBanner">You are gone. The log stays. Reset only if you want a body again.</div>
+  <div id="goneBanner">You are gone. The log stays. She can keep going below, or start a new night.</div>
 
   <div id="library">
-    <div class="sheet">
-      <h2>Pick a night</h2>
+    <div class="sheet" role="dialog" aria-modal="true" aria-labelledby="libTitle">
+      <div class="lib-head" id="libHead">
+        <span class="lib-grip" aria-hidden="true"></span>
+        <h2 id="libTitle">Pick a night</h2>
+        <button type="button" id="libX" aria-label="Close stories">✕</button>
+      </div>
       <p class="hint" style="margin:0 0 8px;color:var(--muted);font-size:.84rem">Each story keeps its own chat on this phone.</p>
       <h3>Faces</h3>
-      <div id="faceList"></div>
-      <h3>Beginnings</h3>
+      <div id="faceList" class="face-tabs"></div>
+      <h3 id="begHead">Beginnings</h3>
       <div id="scenarioList"></div>
-      <h3>Already inside</h3>
+      <h3 id="gutHead">Already inside</h3>
       <div id="gutList"></div>
       <h3>Saved chats</h3>
       <div id="chatList"></div>
@@ -1207,6 +1269,13 @@
   <div id="log"></div>
 
   <div class="dock">
+    <div class="gone-bar">
+      <p id="goneNote">You are gone. She keeps going.</p>
+      <div class="gone-actions">
+        <button type="button" id="continueNight">Continue her night</button>
+        <button type="button" id="newNight">New night</button>
+      </div>
+    </div>
     <div class="actions">
       <button type="button" id="look" disabled>Look</button>
       <button type="button" id="talk" disabled>Wave</button>
@@ -1939,6 +2008,8 @@ This is vore. Swallow is on the table from the first look. Do not fade to fade-t
         fate: "",
         depth: 0,
         gone: false,
+        afterPasses: 0,
+        bathroomAfter: 0,
       };
     }
     let game = freshGame("rae-shop", "rae");
@@ -2217,7 +2288,10 @@ This is vore. Swallow is on the table from the first look. Do not fade to fade-t
     }
 
     function openLibrary() {
+      libFace = null;
       renderLibrary();
+      const sh = els.library.querySelector(".sheet");
+      if (sh) sh.scrollTop = 0;
       els.library.classList.add("show");
     }
 
@@ -2307,29 +2381,45 @@ This is vore. Swallow is on the table from the first look. Do not fade to fade-t
       newChat(first, c.id);
     }
 
+    // Which character's nights the Stories sheet is showing (does not start a chat)
+    let libFace = null;
+    function browseFace(id) {
+      if (!CHARACTERS[id] || id === libFace) return;
+      els.library.classList.add("flip");
+      setTimeout(() => {
+        libFace = id;
+        renderLibrary();
+        els.library.classList.remove("flip");
+      }, 140);
+    }
+
     function renderLibrary() {
       const lib = readLib();
+      if (!libFace || !CHARACTERS[libFace]) libFace = characterOf(game.characterId).id;
       els.faceList.innerHTML = "";
       Object.values(CHARACTERS).forEach((c) => {
         const b = document.createElement("button");
         b.type = "button";
-        b.className = "card" + (c.id === (game.characterId || "rae") ? " active" : "");
+        b.className = "card" + (c.id === libFace ? " active" : "");
+        b.setAttribute("aria-pressed", String(c.id === libFace));
         b.innerHTML = "<b></b><span></span>";
-        b.querySelector("b").textContent = c.name;
+        b.querySelector("b").textContent = c.name + (c.id === game.characterId ? " · playing" : "");
         b.querySelector("span").textContent = c.blurb;
         if (!c.ready) b.disabled = true;
-        else b.addEventListener("click", () => switchFace(c.id));
+        else b.addEventListener("click", () => browseFace(c.id));
         els.faceList.appendChild(b);
       });
       els.scenarioList.innerHTML = "";
-      const pack = characterOf(game.characterId);
+      const pack = characterOf(libFace);
+      document.getElementById("begHead").textContent = pack.name + "'s beginnings";
+      document.getElementById("gutHead").textContent = "Already inside " + pack.name;
       const gutSet = new Set(pack.gutNights || []);
       (pack.scenarios || Object.keys(SCENARIOS)).forEach((id) => {
         const s = SCENARIOS[id];
         if (!s || s.gut || gutSet.has(id)) return;
         const b = document.createElement("button");
         b.type = "button";
-        b.className = "card";
+        b.className = "card" + (id === game.scenarioId && pack.id === game.characterId ? " active" : "");
         b.innerHTML = "<b></b><span></span>";
         b.querySelector("b").textContent = s.title;
         b.querySelector("span").textContent = s.blurb;
@@ -2498,8 +2588,23 @@ This is vore. Swallow is on the table from the first look. Do not fade to fade-t
       persist();
     }
 
-    function readFate(shot, moment, line) {
+    // Very explicit wording only (used during the first two player messages)
+    const EXPLICIT_DIGEST = /\b(fully|completely|totally|finished|done) digest(ed|ing)?\b|\bdigested (you|the speck)\b|\bnothing (is )?left of you\b|\byou('re| are) (gone|nothing but)\b|\bsoft end\b/;
+    const PLAYER_WANTS_DIGEST = /\b(digest(ed)?|dissolve|melt me|finish me|let me go(ne)?|end me|soft end)\b/i;
+
+    function playerTurnCount() {
+      return history.filter((m) => m.role === "user" && !String(m.content).startsWith("[NARRATOR]")).length;
+    }
+
+    function readFate(shot, moment, line, opts) {
       const blob = [shot, moment, line].join(" ").toLowerCase();
+      if (opts && opts.early) {
+        const explicit = EXPLICIT_DIGEST.test(blob) || (opts.asked && /\bdigest/.test(blob));
+        if (!explicit) {
+          if (shot === "inside" || /\b(gulp(ed|s)?|swallowed you|down her throat|you slide down)\b/.test(blob)) return "gulp";
+          return null;
+        }
+      }
       if (/\b(digest(ed|ing)?|churn(ed|ing)?|stomach acids?|soft end)\b/.test(blob)) return "digest";
       if (shot === "inside" || /\b(gulp(ed|s)?|swallowed you|down her throat|you slide down)\b/.test(blob)) return "gulp";
       return null;
@@ -2550,6 +2655,17 @@ This is vore. Swallow is on the table from the first look. Do not fade to fade-t
       els.input.disabled = (!engine && !CLOUD_ACTOR_URL) || !!game.gone;
       els.send.disabled = off;
       els.dock && els.dock.classList.toggle("busy", on);
+      els.dock && els.dock.classList.toggle("gone", !!game.gone);
+      const cont = document.getElementById("continueNight");
+      if (cont) {
+        cont.disabled = on || (!engine && !CLOUD_ACTOR_URL);
+        const n = game.afterPasses || 0;
+        cont.textContent = on ? "She's still going…" : (n ? "Keep following her" : "Continue her night");
+        const note = document.getElementById("goneNote");
+        if (note) note.textContent = n
+          ? "You're gone. " + characterOf(game.characterId).name + " has carried on for " + n + (n === 1 ? " beat." : " beats.")
+          : "You're gone. " + characterOf(game.characterId).name + " keeps going without you.";
+      }
       els.look.disabled = off;
       els.talk.disabled = off;
       els.hide.disabled = off;
@@ -2593,14 +2709,18 @@ SPEECH: words the speck says out loud. She hears them (if she is close enough) a
 ACTION: what the speck physically does. It is NOT spoken. She only reacts to what she can see or feel.
 Never copy SPEECH: or ACTION: into your reply. Reply only with MOMENT, SAY, SHOT.`;
 
-    function buildMessages(userText) {
+    function buildMessages(userText, opts) {
+      opts = opts || {};
       const s = scenarioOf(game.scenarioId);
       const c = characterOf(game.characterId);
       const who = s.playerName ? ("The speck is " + s.playerName + ".") : "The speck is unnamed.";
       const snack = /\b(snack|swallow|eat me|gulp|mouth)\b/i.test(userText)
         ? " The player asked for a swallow beat this turn. Move toward mouth, tongue, or a gulp if it fits her."
         : "";
-      const state = `STATE: character=${c.name}; scenario=${s.id}; ${who} location=${game.location}; speck is ${game.playerPlace}; mood=${game.mood}; noticed=${game.noticed}; shot=${game.shot}; depth=${game.depth}.` + snack;
+      const earlyNote = (opts.turnNo && opts.turnNo <= 2 && !PLAYER_WANTS_DIGEST.test(userText) && !game.gone)
+        ? " This is player message " + opts.turnNo + " of the scene: do NOT digest or finish the speck yet. A swallow is fine only if it clearly fits; keep the speck alive and able to respond."
+        : "";
+      const state = `STATE: character=${c.name}; scenario=${s.id}; ${who} location=${game.location}; speck is ${game.playerPlace}; mood=${game.mood}; noticed=${game.noticed}; shot=${game.shot}; depth=${game.depth}.` + snack + earlyNote + (opts.extra || "");
       return [
         { role: "system", content: SYSTEM + "\n\n" + PLAYER_FORMAT + "\n\n" + c.voice + "\nLabel spoken lines SAY:.\n\n" + s.hook + "\n\n" + state },
         ...history.slice(-24),
@@ -2663,11 +2783,12 @@ Never copy SPEECH: or ACTION: into your reply. Reply only with MOMENT, SAY, SHOT
     async function speak(userText) {
       if (busy || (!engine && !CLOUD_ACTOR_URL)) return;
       applyActionHints(userText);
+      const turnNo = playerTurnCount() + 1;
       const wrap = addTurn({ you: userText, pending: true });
       const typing = addTyping();
       setBusy(true);
       try {
-        const raw = await askActor(buildMessages(userText));
+        const raw = await askActor(buildMessages(userText, { turnNo }));
         const { moment, line, actorShot } = parseActor(raw);
         const shot = pickShot({ userText, moment, line, actorShot });
         setStill(shot);
@@ -2677,8 +2798,9 @@ Never copy SPEECH: or ACTION: into your reply. Reply only with MOMENT, SAY, SHOT
         history.push({ role: "user", content: userText });
         history.push({ role: "assistant", content: raw });
         persist();
-        const fate = readFate(shot, moment, line);
-        if (fate === "digest") showFate("digest");
+        const early = turnNo <= 2;
+        const fate = readFate(shot, moment, line, { early, asked: PLAYER_WANTS_DIGEST.test(userText) });
+        if (fate === "digest" && game.fate !== "digested") showFate("digest");
         else if (fate === "gulp" && game.fate !== "swallowed" && game.fate !== "digested") showFate("gulp");
       } catch (err) {
         wrap.remove();
@@ -2693,6 +2815,48 @@ Never copy SPEECH: or ACTION: into your reply. Reply only with MOMENT, SAY, SHOT
       }
       setBusy(false);
       els.input.focus();
+    }
+
+    // After the speck is digested: the character carries the scene on alone.
+    function afterCue() {
+      const n = (game.afterPasses || 0) + 1;
+      if (!game.bathroomAfter) game.bathroomAfter = 2 + Math.floor(Math.random() * 3); // 2–4
+      const bathroom = n > game.bathroomAfter
+        ? "A bathroom trip is allowed now ONLY if it fits her, the place, and the time that has passed; it is fine to skip it entirely. If it happens, keep it brief and non-graphic, and move on."
+        : "No bathroom trip yet.";
+      return {
+        n,
+        user: "[NARRATOR] Continue the scene. The speck was fully digested and no longer speaks or acts; do not bring them back. This is after-beat " + n + ".",
+        extra: " AFTER MODE: the speck is gone. Continue " + characterOf(game.characterId).name +
+          "'s own night in this scene: what she does next, where she goes, who she talks to or texts, how she feels about it. " +
+          "Let a little time pass each beat. MOMENT is third person, about her and the place. SAY is her talking to herself or to someone else (never to the speck). " +
+          "Prefer SHOT lounge, rest, full, smug, pat, rub, after, bed, lift, cover, street, phone, door, profile. " + bathroom,
+      };
+    }
+
+    async function continueNight() {
+      if (busy || !game.gone || (!engine && !CLOUD_ACTOR_URL)) return;
+      const cue = afterCue();
+      const typing = addTyping();
+      setBusy(true);
+      try {
+        const raw = await askActor(buildMessages(cue.user, { extra: cue.extra }));
+        const { moment, line, actorShot } = parseActor(raw);
+        const shot = pickShot({ userText: "", moment, line, actorShot });
+        setStill(shot);
+        typing.remove();
+        addTurn({ moment, line });
+        history.push({ role: "user", content: cue.user });
+        history.push({ role: "assistant", content: raw });
+        game.afterPasses = cue.n;
+        persist();
+      } catch (err) {
+        typing.remove();
+        addTurn({ moment: "The scene stalls.", line: String(err && err.message ? err.message : "that glitched") });
+        setLive("Error", "bad");
+        console.error(err);
+      }
+      setBusy(false);
     }
 
     function growInput() {
@@ -3111,13 +3275,41 @@ Never copy SPEECH: or ACTION: into your reply. Reply only with MOMENT, SAY, SHOT
     });
     els.libClose.addEventListener("click", closeLibrary);
     els.library.addEventListener("click", (e) => {
-      if (e.target === els.library) closeLibrary();
+      if (!e.target.closest(".sheet")) closeLibrary();
     });
+    document.getElementById("libX").addEventListener("click", closeLibrary);
+    (() => {
+      const head = document.getElementById("libHead");
+      const sheet = els.library.querySelector(".sheet");
+      let y0 = null, dy = 0;
+      head.addEventListener("pointerdown", (e) => {
+        if (e.target.closest("button")) return;
+        y0 = e.clientY; dy = 0;
+        sheet.classList.add("dragging");
+        head.setPointerCapture(e.pointerId);
+      });
+      head.addEventListener("pointermove", (e) => {
+        if (y0 == null) return;
+        dy = Math.max(0, e.clientY - y0);
+        sheet.style.transform = "translateY(" + dy + "px)";
+      });
+      const end = () => {
+        if (y0 == null) return;
+        y0 = null;
+        sheet.classList.remove("dragging");
+        sheet.style.transform = "";
+        if (dy > 80) closeLibrary();
+      };
+      head.addEventListener("pointerup", end);
+      head.addEventListener("pointercancel", end);
+    })();
     document.addEventListener("keydown", (e) => {
       if (e.key === "Escape") closeLibrary();
     });
     els.gulpOk.addEventListener("click", () => els.gulp.classList.remove("show"));
     els.digestOk.addEventListener("click", resetNight);
+    document.getElementById("continueNight").addEventListener("click", continueNight);
+    document.getElementById("newNight").addEventListener("click", resetNight);
     els.look.addEventListener("click", () => speak("ACTION: I look up at " + speakerName() + "."));
     els.talk.addEventListener("click", () => speak("ACTION: I wave both arms and try to get her attention."));
     els.hide.addEventListener("click", () => speak("ACTION: I look for somewhere to hide."));
