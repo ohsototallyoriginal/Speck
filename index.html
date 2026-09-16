@@ -45,11 +45,10 @@
     #world .alley {
       opacity: 1;
       background:
-        radial-gradient(80% 50% at 50% -10%, rgba(255,79,216,.28), transparent 55%),
-        radial-gradient(40% 30% at 90% 80%, rgba(92,225,255,.12), transparent 50%),
-        repeating-linear-gradient(90deg, transparent 0 42px, rgba(255,79,216,.05) 42px 44px),
-        #100812;
-      animation: lanes 18s linear infinite;
+        radial-gradient(60% 40% at 30% 20%, rgba(255,79,216,.16), transparent 55%),
+        radial-gradient(50% 35% at 80% 70%, rgba(92,225,255,.08), transparent 50%),
+        #120814;
+      animation: drift 14s ease-in-out infinite alternate;
     }
     #world .mouth {
       background:
@@ -75,7 +74,7 @@
     html.scene-mouth #world .mouth { opacity: 1; }
     html.scene-gut #world .gut { opacity: 1; }
     html.scene-mouth #world .gut { opacity: 0; }
-    @keyframes lanes { to { background-position: 88px 0, 0 0, 88px 0, 0 0; } }
+    @keyframes drift { to { filter: hue-rotate(18deg) brightness(1.08); } }
     @keyframes acid { from { transform: translateY(8px); opacity: .65; } to { transform: translateY(-6px); opacity: 1; } }
     body {
       display: flex;
@@ -313,11 +312,21 @@
       border-color: rgba(255,120,140,.45);
     }
     #send {
-      min-height: 44px;
-      border: 0;
-      border-radius: 12px;
-      font-size: 0.78rem;
-      font-weight: 700;
+      flex: 0 0 72px;
+      min-height: 52px;
+      border: 1px solid rgba(255,79,216,.4);
+      border-radius: 16px;
+      background: linear-gradient(180deg, #3a2044, #241428);
+      color: var(--ink);
+      font-size: 0.72rem;
+      font-weight: 800;
+      letter-spacing: .04em;
+      text-transform: uppercase;
+      box-shadow: 0 6px 16px rgba(0,0,0,.28);
+    }
+    #send:hover {
+      border-color: var(--cyan);
+      box-shadow: 0 0 16px rgba(92,225,255,.18);
     }
     .actions button:disabled, #send:disabled, #input:disabled { opacity: .38; }
     .composer { display: flex; gap: 8px; align-items: flex-end; }
@@ -336,11 +345,6 @@
       line-height: 1.3;
     }
     #input:focus { outline: 2px solid rgba(255,79,216,.45); border-color: var(--neon); }
-    #send {
-      flex: 0 0 70px;
-      background: var(--neon);
-      color: #2a0818;
-    }
 
     .fate {
       position: fixed; inset: 0; z-index: 50;
@@ -430,6 +434,59 @@
     }
     .typing i:nth-child(2) { animation-delay: .15s; }
     .typing i:nth-child(3) { animation-delay: .3s; }
+
+    #stories {
+      min-height: 32px;
+      border: 1px solid #5a2a55;
+      background: #24101f;
+      color: var(--muted);
+      border-radius: 999px;
+      font-size: 0.68rem;
+      font-weight: 700;
+      letter-spacing: .08em;
+      text-transform: uppercase;
+      padding: 6px 9px;
+    }
+    #library {
+      display: none;
+      position: fixed; inset: 0; z-index: 35;
+      background: rgba(8,4,10,.72);
+      padding: calc(12px + var(--safe-top)) 12px calc(16px + var(--safe-bot));
+      overflow-y: auto;
+    }
+    #library.show { display: block; }
+    #library .sheet {
+      max-width: 430px; margin: 0 auto;
+      background: #1a0e1c;
+      border: 1px solid rgba(255,79,216,.25);
+      border-radius: 18px;
+      padding: 14px;
+    }
+    #library h2 { margin: 0 0 8px; font-size: 1.05rem; }
+    #library h3 {
+      margin: 14px 0 8px;
+      font-size: 0.68rem;
+      letter-spacing: .14em;
+      text-transform: uppercase;
+      color: var(--cyan);
+    }
+    .card {
+      width: 100%; text-align: left;
+      border: 1px solid #4a2a4c;
+      background: #241428;
+      color: var(--ink);
+      border-radius: 12px;
+      padding: 10px 12px;
+      margin: 0 0 8px;
+    }
+    .card b { display: block; font-size: 0.92rem; margin-bottom: 3px; }
+    .card span { color: var(--muted); font-size: 0.8rem; line-height: 1.35; }
+    .card.active { border-color: var(--neon); }
+    #libClose {
+      width: 100%; min-height: 44px; margin-top: 8px;
+      border: 0; border-radius: 12px;
+      background: #3a2044; color: var(--ink); font-weight: 700;
+    }
   </style>
 </head>
 <body>
@@ -452,10 +509,11 @@
   </div>
   <header class="top">
     <div class="brand">
-      <h1>Comet Lanes</h1>
-      <p>Lane 7 · last call</p>
+      <h1 id="placeTitle">Comet Lanes</h1>
+      <p id="placeSub">Lane 7 · last call</p>
     </div>
     <div class="tools">
+      <button type="button" id="stories">Stories</button>
       <button type="button" id="reset">Reset</button>
       <div id="live">Boot</div>
     </div>
@@ -468,6 +526,17 @@
     <div id="progress" hidden><span></span></div>
   </figure>
 
+  <div id="library">
+    <div class="sheet">
+      <h2>Pick a night</h2>
+      <p class="hint" style="margin:0 0 8px;color:var(--muted);font-size:.84rem">Each story keeps its own chat on this phone.</p>
+      <h3>Beginnings</h3>
+      <div id="scenarioList"></div>
+      <h3>Saved chats</h3>
+      <div id="chatList"></div>
+      <button type="button" id="libClose">Close</button>
+    </div>
+  </div>
   <div id="gate"></div>
   <div id="log"></div>
 
@@ -565,25 +634,93 @@ SHOT: <exactly one of: establish, look, wave, hide, shoe, swallow, pinch, palm, 
 Pick SHOT from what the body is doing right now:
 establish=full shoe looming, look=her face filling the sky, wave=giant hand reaching, hide=crack in the wood, shoe=sole hovering, swallow=open mouth with braces, pinch=two fingers lifting the speck, palm=on her hand, pocket=inside the hoodie pocket, sit=she sits on the lane, ball=bowling ball like a planet, tongue=tongue out, whisper=her face inches away, gutter=inside the ball return, lace=on the laces, inside=after a swallow, dark tunnel, kneel=she is on the floor hunting.
 
-No markdown. No extra labels. Never mention AI, models, prompts, or being an actor. Stay in Comet Lanes unless STATE says you moved. If STATE conflicts with earlier chat, STATE wins.`;
+No markdown. No extra labels. Never mention AI, models, prompts, or being an actor. Stay in the current scenario location unless STATE says you moved. If STATE conflicts with earlier chat, STATE wins.`;
 
-    const SAVE_KEY = "dawnSave.v1";
-    const OPENING = {
-      moment: "Last-call neon crawls over an unlaced rental sneaker the size of a walk-up. The alley is empty. Somewhere a mile up, metal catches the light when she grins down the lane.",
-      line: "Okay so like—don't scream, the manager's in the back and I am not explaining this. I found you in the gutter. You're tiny. And I already decided you're coming home in my hoodie or, wait, worse. Hi.",
-    };
 
-    function freshGame() {
-      return {
+    const SCENARIOS = {
+      lanes: {
+        id: "lanes",
+        title: "Comet Lanes",
+        sub: "Lane 7 · last call",
+        blurb: "She found you in the ball-return gutter after her cousin bailed.",
         location: "Comet Lanes, Yonkers, last-call, lane 7 approach",
         playerPlace: "on the oiled wood a few inches from her unlaced rental sneaker",
         mood: "delighted, territorial, already tasting the idea of you",
-        noticed: true,
         shot: "establish",
+        hook: "SCENARIO: Comet Lanes last-call. Empty alley. She just found the speck in the gutter.",
+        opening: {
+          moment: "Last-call neon crawls over an unlaced rental sneaker the size of a walk-up. The alley is empty. Somewhere a mile up, metal catches the light when she grins down the lane.",
+          line: "Okay so like—don't scream, the manager's in the back and I am not explaining this. I found you in the gutter. You're tiny. And I already decided you're coming home in my hoodie or, wait, worse. Hi.",
+        },
+      },
+      hoodie: {
+        id: "hoodie",
+        title: "Hoodie ride",
+        sub: "Bus home · pocket",
+        blurb: "She already pocketed you. The Bx is rattling and her cousin is texting.",
+        location: "late Bx bus, Yonkers, inside Dawn's hoodie pocket",
+        playerPlace: "in the linty dark of her hoodie pocket",
+        mood: "smug, whispering into her own pocket",
+        shot: "pocket",
+        hook: "SCENARIO: She already picked the speck up at Comet Lanes and dropped them in her hoodie pocket. She is on the bus home. Do not restart the alley discovery.",
+        opening: {
+          moment: "Dryer lint and a ripped movie stub make a cave. The fabric lurches with every pothole. Far above, a phone screen paints the pocket pink.",
+          line: "Okay so don't flip, I already told my cousin I found like, a bug that talks. You are so staying in here until we get off on McLean. If you poke, I swear I will—wait. Hi again.",
+        },
+      },
+      bedroom: {
+        id: "bedroom",
+        title: "Her room",
+        sub: "Desk lamp · midnight",
+        blurb: "Home. Door locked. You are on the yearbook proof sheet.",
+        location: "Dawn's bedroom in Yonkers, desk lamp, closed door",
+        playerPlace: "on a yearbook proof sheet under a cheap desk lamp",
+        mood: "private, curious, no audience",
+        shot: "look",
+        hook: "SCENARIO: Her bedroom after the alley. Door locked. Parents asleep. Yearbook pages. She can take her time.",
+        opening: {
+          moment: "A desk lamp turns the paper into a white field. Braces catch in the glare when she leans in. The door is shut. The bowling alley is a story she already told.",
+          line: "Okay this is so much better than the gutter. No manager. No cousin. Just you, me, and like a really bad idea. Don't fall off the page.",
+        },
+      },
+      tongue: {
+        id: "tongue",
+        title: "Already close",
+        sub: "On her tongue",
+        blurb: "Skip the small talk. You are already on the warm part.",
+        location: "inside Dawn's mouth, on her tongue, Comet Lanes bathroom stall",
+        playerPlace: "on her tongue behind the braces",
+        mood: "giggly, committed, one swallow from done",
+        shot: "tongue",
+        hook: "SCENARIO: The speck is already on her tongue. She ducked into the bathroom. Swallow is one decision away. Do not rewind to the gutter.",
+        opening: {
+          moment: "Heat and mint gum. Metal rails of braces on both sides. The stall lock is clicked. A swallow waits like a held breath.",
+          line: "Shh—if I talk too loud they will hear it. You taste like lane oil, which is disgusting and also I am not putting you back. Say something cute or I gulp.",
+        },
+      },
+    };
+
+    const LIB_KEY = "dawnLib.v1";
+    const SAVE_KEY = "dawnSave.v1";
+
+    function scenarioOf(id) {
+      return SCENARIOS[id] || SCENARIOS.lanes;
+    }
+
+    function freshGame(scenarioId) {
+      const s = scenarioOf(scenarioId);
+      return {
+        scenarioId: s.id,
+        location: s.location,
+        playerPlace: s.playerPlace,
+        mood: s.mood,
+        noticed: true,
+        shot: s.shot,
         fate: "",
       };
     }
-    let game = freshGame();
+    let game = freshGame("lanes");
+    let activeChatId = null;
 
     const els = {
       live: document.getElementById("live"),
@@ -605,6 +742,13 @@ No markdown. No extra labels. Never mention AI, models, prompts, or being an act
       digest: document.getElementById("digest"),
       gulpOk: document.getElementById("gulpOk"),
       digestOk: document.getElementById("digestOk"),
+      stories: document.getElementById("stories"),
+      library: document.getElementById("library"),
+      scenarioList: document.getElementById("scenarioList"),
+      chatList: document.getElementById("chatList"),
+      libClose: document.getElementById("libClose"),
+      placeTitle: document.getElementById("placeTitle"),
+      placeSub: document.getElementById("placeSub"),
     };
 
     let history = [];
@@ -612,27 +756,154 @@ No markdown. No extra labels. Never mention AI, models, prompts, or being an act
     let engine = null;
     let busy = false;
 
-    function persist() {
+    function readLib() {
       try {
-        localStorage.setItem(SAVE_KEY, JSON.stringify({
-          game, history, logTurns, at: Date.now(),
-        }));
-      } catch (e) { console.warn(e); }
+        const raw = localStorage.getItem(LIB_KEY);
+        if (raw) return JSON.parse(raw);
+      } catch {}
+      try {
+        const legacy = localStorage.getItem(SAVE_KEY);
+        if (legacy) {
+          const data = JSON.parse(legacy);
+          const id = "legacy-lanes";
+          return {
+            activeId: id,
+            chats: {
+              [id]: {
+                id,
+                scenarioId: "lanes",
+                title: "Comet Lanes",
+                game: data.game || freshGame("lanes"),
+                history: data.history || [],
+                logTurns: data.logTurns || [],
+                at: data.at || Date.now(),
+              },
+            },
+          };
+        }
+      } catch {}
+      return { activeId: null, chats: {} };
+    }
+
+    function writeLib(lib) {
+      try { localStorage.setItem(LIB_KEY, JSON.stringify(lib)); } catch (e) { console.warn(e); }
+    }
+
+    function persist() {
+      const lib = readLib();
+      if (!activeChatId) {
+        activeChatId = "chat-" + Date.now();
+      }
+      const s = scenarioOf(game.scenarioId);
+      lib.activeId = activeChatId;
+      lib.chats[activeChatId] = {
+        id: activeChatId,
+        scenarioId: s.id,
+        title: s.title,
+        game,
+        history,
+        logTurns,
+        at: Date.now(),
+      };
+      writeLib(lib);
     }
 
     function loadSave() {
-      try {
-        const raw = localStorage.getItem(SAVE_KEY);
-        if (!raw) return null;
-        const data = JSON.parse(raw);
-        if (!data || !Array.isArray(data.history) || !Array.isArray(data.logTurns)) return null;
-        return data;
-      } catch { return null; }
+      const lib = readLib();
+      const id = lib.activeId;
+      if (id && lib.chats[id]) return lib.chats[id];
+      const ids = Object.keys(lib.chats || {});
+      return ids.length ? lib.chats[ids[ids.length - 1]] : null;
     }
 
     function clearSave() {
-      try { localStorage.removeItem(SAVE_KEY); } catch {}
+      const lib = readLib();
+      if (activeChatId && lib.chats[activeChatId]) delete lib.chats[activeChatId];
+      lib.activeId = null;
+      writeLib(lib);
     }
+
+    function applyPlace() {
+      const s = scenarioOf(game.scenarioId);
+      els.placeTitle.textContent = s.title;
+      els.placeSub.textContent = s.sub;
+    }
+
+    function openingOf() {
+      return scenarioOf(game.scenarioId).opening;
+    }
+
+    function newChat(scenarioId) {
+      const s = scenarioOf(scenarioId);
+      activeChatId = "chat-" + Date.now();
+      game = freshGame(s.id);
+      history = [];
+      els.log.innerHTML = "";
+      logTurns = [];
+      setStill(s.shot);
+      applyPlace();
+      addTurn(s.opening);
+      els.gulp.classList.remove("show");
+      els.digest.classList.remove("show");
+      persist();
+      els.library.classList.remove("show");
+    }
+
+    function openChat(id) {
+      const lib = readLib();
+      const data = lib.chats[id];
+      if (!data) return;
+      activeChatId = id;
+      lib.activeId = id;
+      writeLib(lib);
+      Object.assign(game, freshGame(data.scenarioId || "lanes"), data.game || {});
+      history = (data.history || []).slice();
+      logTurns = [];
+      els.log.innerHTML = "";
+      applyPlace();
+      setStill(game.shot || scenarioOf(game.scenarioId).shot);
+      const turns = (data.logTurns && data.logTurns.length) ? data.logTurns : [openingOf()];
+      turns.forEach((turn) => addTurn(turn));
+      els.gulp.classList.remove("show");
+      els.digest.classList.remove("show");
+      els.library.classList.remove("show");
+    }
+
+    function renderLibrary() {
+      const lib = readLib();
+      els.scenarioList.innerHTML = "";
+      Object.values(SCENARIOS).forEach((s) => {
+        const b = document.createElement("button");
+        b.type = "button";
+        b.className = "card";
+        b.innerHTML = "<b></b><span></span>";
+        b.querySelector("b").textContent = s.title;
+        b.querySelector("span").textContent = s.blurb;
+        b.addEventListener("click", () => newChat(s.id));
+        els.scenarioList.appendChild(b);
+      });
+      els.chatList.innerHTML = "";
+      const chats = Object.values(lib.chats || {}).sort((a, b) => (b.at || 0) - (a.at || 0));
+      if (!chats.length) {
+        const empty = document.createElement("p");
+        empty.className = "hint";
+        empty.style.color = "var(--muted)";
+        empty.textContent = "No saved chats yet.";
+        els.chatList.appendChild(empty);
+      }
+      chats.forEach((c) => {
+        const b = document.createElement("button");
+        b.type = "button";
+        b.className = "card" + (c.id === activeChatId ? " active" : "");
+        const when = c.at ? new Date(c.at).toLocaleString() : "";
+        b.innerHTML = "<b></b><span></span>";
+        b.querySelector("b").textContent = (c.title || "Chat");
+        b.querySelector("span").textContent = when + " · " + ((c.logTurns && c.logTurns.length) || 0) + " beats";
+        b.addEventListener("click", () => openChat(c.id));
+        els.chatList.appendChild(b);
+      });
+    }
+
 
     const SPLASH_KEY = "dawnSplash.v1";
 
@@ -802,9 +1073,10 @@ No markdown. No extra labels. Never mention AI, models, prompts, or being an act
     }
 
     function buildMessages(userText) {
-      const state = `STATE: location=${game.location}; speck is ${game.playerPlace}; mood=${game.mood}; noticed=${game.noticed}; shot=${game.shot}.`;
+      const s = scenarioOf(game.scenarioId);
+      const state = `STATE: scenario=${s.id}; location=${game.location}; speck is ${game.playerPlace}; mood=${game.mood}; noticed=${game.noticed}; shot=${game.shot}.`;
       return [
-        { role: "system", content: SYSTEM + "\n\n" + state },
+        { role: "system", content: SYSTEM + "\n\n" + s.hook + "\n\n" + state },
         ...history.slice(-24),
         { role: "user", content: userText },
       ];
@@ -905,7 +1177,7 @@ No markdown. No extra labels. Never mention AI, models, prompts, or being an act
 
     function paintOpening() {
       logTurns = [];
-      addTurn(OPENING);
+      addTurn(openingOf());
     }
 
     function restoreSave(data) {
@@ -914,7 +1186,7 @@ No markdown. No extra labels. Never mention AI, models, prompts, or being an act
       logTurns = [];
       els.log.innerHTML = "";
       setStill(game.shot || "establish");
-      const turns = data.logTurns.length ? data.logTurns : [OPENING];
+      const turns = data.logTurns.length ? data.logTurns : [openingOf()];
       turns.forEach((turn) => addTurn(turn));
     }
 
@@ -922,10 +1194,12 @@ No markdown. No extra labels. Never mention AI, models, prompts, or being an act
       if (busy) return;
       if (!confirm("Start the night over? This clears the saved chat on this phone.")) return;
       clearSave();
-      game = freshGame();
+      const sid = game.scenarioId || "lanes";
+      game = freshGame(sid);
       history = [];
       els.log.innerHTML = "";
-      setStill("establish");
+      setStill(scenarioOf(sid).shot);
+      applyPlace();
       paintOpening();
       els.gulp.classList.remove("show");
       els.digest.classList.remove("show");
@@ -934,10 +1208,14 @@ No markdown. No extra labels. Never mention AI, models, prompts, or being an act
 
     async function boot() {
       const saved = loadSave();
-      if (saved && (saved.history.length || saved.logTurns.length > 1)) {
+      if (saved && ((saved.history && saved.history.length) || (saved.logTurns && saved.logTurns.length > 1))) {
+        activeChatId = saved.id || activeChatId;
         restoreSave(saved);
+        applyPlace();
       } else {
-        setStill("establish");
+        game = freshGame("lanes");
+        setStill(game.shot);
+        applyPlace();
         paintOpening();
       }
       preloadStills();
@@ -1004,6 +1282,8 @@ No markdown. No extra labels. Never mention AI, models, prompts, or being an act
       }
     });
     els.reset.addEventListener("click", resetNight);
+    els.stories.addEventListener("click", () => { renderLibrary(); els.library.classList.add("show"); });
+    els.libClose.addEventListener("click", () => els.library.classList.remove("show"));
     els.gulpOk.addEventListener("click", () => els.gulp.classList.remove("show"));
     els.digestOk.addEventListener("click", resetNight);
     els.look.addEventListener("click", () => speak("I look up at Dawn from the lane."));
