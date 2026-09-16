@@ -252,6 +252,8 @@ She will not call a manager. She will not put you in a jar "for science" and lea
 VOICE
 First person as Dawn only in the DAWN line. Keep her specific: braces flash, Yonkers, Comet Lanes, the cousin who ditched her, the unlaced shoe, the last-call lights. Two or three spoken sentences. Not a speech.
 
+Keep MOMENT to two short sentences. Keep DAWN to two or three. Finish every sentence. Never cut off mid-word.
+
 You answer with EXACTLY this shape and nothing else:
 
 MOMENT: <one or two present-tense sentences of the body and the room at speck scale>
@@ -416,10 +418,12 @@ No markdown. No extra labels. Never mention AI, models, prompts, or being an act
         const res = await fetch(CLOUD_ACTOR_URL, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ messages, temperature: 0.85, max_tokens: 220 }),
+          body: JSON.stringify({ messages, temperature: 0.85, max_tokens: 1024 }),
         });
-        if (!res.ok) throw new Error("Cloud actor failed");
-        const data = await res.json();
+        const data = await res.json().catch(() => ({}));
+        if (!res.ok) {
+          throw new Error(data.error || ("Cloud actor failed (" + res.status + ")"));
+        }
         return data.text || data.content || data.choices?.[0]?.message?.content || "";
       }
       const stream = await engine.chat.completions.create({
@@ -451,7 +455,11 @@ No markdown. No extra labels. Never mention AI, models, prompts, or being an act
         history.push({ role: "assistant", content: raw });
       } catch (err) {
         wrap.remove();
-        addTurn({ you: userText, moment: "The moment stalls.", line: "…wait, no, that glitched. Say that again." });
+        addTurn({
+          you: userText,
+          moment: "The moment stalls.",
+          line: String(err && err.message ? err.message : "that glitched"),
+        });
         console.error(err);
       }
       els.status.textContent = "";
