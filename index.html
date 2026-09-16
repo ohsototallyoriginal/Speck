@@ -33,9 +33,17 @@
     html {
       background: #08040a;
     }
-    html::before {
-      content: "";
-      position: fixed; inset: 0; z-index: -2;
+    #world {
+      position: fixed; inset: 0; z-index: -2; pointer-events: none;
+      background: #08040a;
+    }
+    #world > i {
+      position: absolute; inset: 0;
+      opacity: 0;
+      transition: opacity 1.8s ease;
+    }
+    #world .alley {
+      opacity: 1;
       background:
         radial-gradient(80% 50% at 50% -10%, rgba(255,79,216,.28), transparent 55%),
         radial-gradient(40% 30% at 90% 80%, rgba(92,225,255,.12), transparent 50%),
@@ -43,16 +51,32 @@
         #100812;
       animation: lanes 18s linear infinite;
     }
-    html::after {
-      content: "";
-      position: fixed; inset: 0; z-index: -1;
-      background: radial-gradient(circle at 20% 30%, rgba(255,79,216,.08), transparent 35%),
-                  radial-gradient(circle at 80% 70%, rgba(92,225,255,.06), transparent 40%);
-      animation: glow 8s ease-in-out infinite alternate;
-      pointer-events: none;
+    #world .mouth {
+      background:
+        radial-gradient(70% 50% at 50% 0%, rgba(180,20,40,.55), transparent 55%),
+        radial-gradient(60% 40% at 50% 100%, rgba(80,0,10,.7), transparent 50%),
+        #2a060c;
     }
+    #world .gut {
+      background:
+        radial-gradient(90% 45% at 50% 100%, rgba(90,220,70,.28), rgba(20,40,10,.0) 42%),
+        radial-gradient(80% 50% at 50% 0%, rgba(90,0,10,.55), transparent 50%),
+        linear-gradient(180deg, #1a0408 0%, #3a0a10 55%, #142208 100%);
+    }
+    #world .gut::after {
+      content: "";
+      position: absolute; left: 0; right: 0; bottom: 0; height: 34%;
+      background: linear-gradient(180deg, transparent, rgba(70,200,60,.18) 40%, rgba(40,160,50,.32));
+      filter: blur(8px);
+      animation: acid 4.5s ease-in-out infinite alternate;
+    }
+    html.scene-mouth #world .alley,
+    html.scene-gut #world .alley { opacity: 0; }
+    html.scene-mouth #world .mouth { opacity: 1; }
+    html.scene-gut #world .gut { opacity: 1; }
+    html.scene-mouth #world .gut { opacity: 0; }
     @keyframes lanes { to { background-position: 88px 0, 0 0, 88px 0, 0 0; } }
-    @keyframes glow { to { opacity: .55; } }
+    @keyframes acid { from { transform: translateY(8px); opacity: .65; } to { transform: translateY(-6px); opacity: 1; } }
     body {
       display: flex;
       flex-direction: column;
@@ -409,6 +433,7 @@
   </style>
 </head>
 <body>
+  <div id="world" aria-hidden="true"><i class="alley"></i><i class="mouth"></i><i class="gut"></i></div>
   <div id="gulp" class="fate" role="dialog" aria-label="Swallowed">
     <h2>Gulp</h2>
     <p>The alley folds. Heat, spit, and neon collapse to a wet dark. She swallowed you.</p>
@@ -644,10 +669,21 @@ No markdown. No extra labels. Never mention AI, models, prompts, or being an act
       els.live.className = kind || "";
     }
 
+    function applyScene() {
+      const fate = game.fate || "";
+      const shot = game.shot || "";
+      let scene = "alley";
+      if (fate === "digested" || shot === "inside") scene = "gut";
+      else if (fate === "swallowed" || /^(swallow|tongue)$/.test(shot)) scene = "mouth";
+      document.documentElement.classList.toggle("scene-mouth", scene === "mouth");
+      document.documentElement.classList.toggle("scene-gut", scene === "gut");
+    }
+
     function setStill(key) {
       const shot = STILLS[key] || STILLS.establish;
       game.shot = STILLS[key] ? key : "establish";
       els.shotchip.textContent = game.shot;
+      applyScene();
       if (els.still.src !== new URL(shot.src, location.href).href) {
         els.still.style.opacity = "0.28";
         els.still.src = shot.src;
@@ -681,6 +717,7 @@ No markdown. No extra labels. Never mention AI, models, prompts, or being an act
         els.digest.classList.add("show");
         game.fate = "digested";
       }
+      applyScene();
       persist();
     }
 
