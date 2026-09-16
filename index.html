@@ -5,177 +5,265 @@
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
   <meta name="apple-mobile-web-app-capable" content="yes" />
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
-  <meta name="theme-color" content="#1a1020" />
+  <meta name="theme-color" content="#120814" />
   <meta name="format-detection" content="telephone=no" />
-  <title>Dawn</title>
+  <title>Dawn — Comet Lanes</title>
   <style>
     :root {
-      --bg: #160e1c;
-      --panel: #24182c;
-      --ink: #f4eef8;
-      --muted: #b9a8c9;
-      --you: #5d7ea8;
-      --btn: #8b4aa8;
-      --danger: #a83b4a;
+      --bg: #100812;
+      --ink: #f6eef8;
+      --muted: #c9b3d4;
+      --neon: #ff4fd8;
+      --cyan: #5ce1ff;
+      --you: #3a5f86;
+      --dawn: #4a2048;
+      --danger: #c43b4e;
       --safe-top: env(safe-area-inset-top, 0px);
       --safe-bot: env(safe-area-inset-bottom, 0px);
       --kb: 0px;
+      --dock: 148px;
     }
     * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
     html, body {
-      margin: 0; height: 100%;
-      background: var(--bg); color: var(--ink);
+      margin: 0;
+      height: 100%;
+      background: radial-gradient(120% 80% at 50% -10%, #3a1438 0%, var(--bg) 55%);
+      color: var(--ink);
       font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", system-ui, sans-serif;
     }
     body {
       display: flex;
       flex-direction: column;
       min-height: 100dvh;
+      max-width: 430px;
+      margin: 0 auto;
       padding-top: var(--safe-top);
       padding-bottom: calc(var(--safe-bot) + var(--kb));
     }
-    #stage {
+    header.top {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 8px 14px 6px;
+      gap: 10px;
+    }
+    .brand {
+      min-width: 0;
+    }
+    .brand h1 {
+      margin: 0;
+      font-size: 0.72rem;
+      letter-spacing: .18em;
+      text-transform: uppercase;
+      color: var(--cyan);
+      font-weight: 700;
+    }
+    .brand p {
+      margin: 2px 0 0;
+      font-size: 1.05rem;
+      font-weight: 700;
+      letter-spacing: -0.02em;
+    }
+    #live {
       flex: 0 0 auto;
-      margin: 8px 12px 0;
+      font-size: 0.68rem;
+      font-weight: 700;
+      letter-spacing: .08em;
+      text-transform: uppercase;
+      padding: 6px 9px;
+      border-radius: 999px;
+      background: #24101f;
+      color: var(--muted);
+      border: 1px solid #5a2a55;
+    }
+    #live.ready { color: #9ff0c0; border-color: #2f6a4a; }
+    #live.busy { color: #ffd36a; border-color: #8a6a20; }
+    #live.bad { color: #ff9aa6; border-color: var(--danger); }
+
+    #stage {
       position: relative;
-      border-radius: 14px;
+      margin: 4px 12px 0;
+      border-radius: 18px;
       overflow: hidden;
-      background: #0c0810;
-      aspect-ratio: 3 / 2.05;
-      max-height: 36vh;
+      background: #07040a;
+      aspect-ratio: 4 / 3;
+      max-height: 34vh;
+      box-shadow: 0 12px 40px rgba(0,0,0,.45), inset 0 0 0 1px rgba(255,79,216,.18);
     }
     #stage img {
       width: 100%; height: 100%;
       object-fit: cover;
-      object-position: center top;
+      object-position: center 18%;
       display: block;
-      transition: opacity .18s ease;
+      transition: opacity .22s ease, transform .6s ease;
     }
+    #stage.busy img { transform: scale(1.03); }
+    #vignette {
+      pointer-events: none;
+      position: absolute; inset: 0;
+      background: linear-gradient(180deg, transparent 45%, rgba(8,4,10,.72) 100%);
+    }
+    #shotchip {
+      position: absolute;
+      left: 10px; bottom: 10px;
+      font-size: 0.68rem;
+      letter-spacing: .08em;
+      text-transform: uppercase;
+      font-weight: 700;
+      color: #fff;
+      background: rgba(16,8,18,.62);
+      backdrop-filter: blur(8px);
+      -webkit-backdrop-filter: blur(8px);
+      padding: 5px 8px;
+      border-radius: 8px;
+    }
+    #progress {
+      position: absolute; left: 0; right: 0; bottom: 0;
+      height: 3px; background: transparent;
+    }
+    #progress > span {
+      display: block; height: 100%; width: 0;
+      background: linear-gradient(90deg, var(--neon), var(--cyan));
+    }
+
+    #gate {
+      display: none;
+      margin: 8px 12px 0;
+      padding: 10px 12px;
+      background: #3a1824;
+      border: 1px solid #7a3044;
+      border-radius: 12px;
+      font-size: 0.86rem;
+      line-height: 1.4;
+    }
+    #gate.show { display: block; }
+
     #log {
       flex: 1 1 auto;
       overflow-y: auto;
       -webkit-overflow-scrolling: touch;
-      padding: 10px 12px 12px;
       overscroll-behavior: contain;
+      padding: 10px 12px calc(var(--dock) + 8px);
     }
-    .turn { margin: 0 0 14px; }
+    .turn { margin: 0 0 16px; display: flex; flex-direction: column; gap: 8px; }
     .you {
-      margin-left: 18%;
+      align-self: flex-end;
+      max-width: 84%;
       background: var(--you);
-      border-radius: 14px 14px 4px 14px;
+      border-radius: 16px 16px 4px 16px;
       padding: 10px 12px;
-      font-size: 0.95rem;
+      font-size: 0.94rem;
       line-height: 1.4;
     }
     .moment {
-      margin: 8px 0 6px;
       color: var(--muted);
-      font-size: 0.88rem;
+      font-size: 0.86rem;
       line-height: 1.45;
       font-style: italic;
+      padding: 0 4px;
     }
     .line {
-      background: #3a243f;
-      border-radius: 14px 14px 14px 4px;
+      align-self: flex-start;
+      max-width: 92%;
+      background: linear-gradient(180deg, #5a2a58, var(--dawn));
+      border: 1px solid rgba(255,79,216,.22);
+      border-radius: 4px 16px 16px 16px;
       padding: 10px 12px;
       font-size: 0.95rem;
       line-height: 1.45;
     }
     .line b {
       display: block;
-      font-size: 0.7rem;
-      letter-spacing: .04em;
+      font-size: 0.68rem;
+      letter-spacing: .12em;
       text-transform: uppercase;
-      opacity: .7;
+      color: var(--neon);
       margin-bottom: 4px;
-      font-weight: 700;
+      font-weight: 800;
     }
-    .hint {
-      color: var(--muted);
-      font-size: 0.8rem;
-      line-height: 1.4;
+    .pending .you { opacity: .7; }
+
+    .dock {
+      position: fixed;
+      left: 50%;
+      transform: translateX(-50%);
+      width: min(430px, 100%);
+      bottom: calc(var(--kb) + var(--safe-bot));
+      padding: 8px 12px 10px;
+      background: linear-gradient(180deg, rgba(16,8,18,0), rgba(16,8,18,.92) 18%, #160a18 100%);
     }
     .actions {
       display: grid;
-      grid-template-columns: 1fr 1fr 1fr 1fr;
+      grid-template-columns: repeat(4, 1fr);
       gap: 6px;
-      padding: 0 12px 8px;
+      margin-bottom: 8px;
     }
     .actions button, #send {
       min-height: 44px;
       border: 0;
       border-radius: 12px;
-      background: #3a2a48;
+      background: #2a162c;
       color: var(--ink);
-      font-size: 0.82rem;
-      font-weight: 600;
+      font-size: 0.78rem;
+      font-weight: 700;
+      letter-spacing: .02em;
     }
+    .actions button:active, #send:active { transform: scale(.97); }
     #tease { background: var(--danger); }
-    .actions button:disabled, #send:disabled, #input:disabled { opacity: .4; }
-    .composer {
-      display: flex;
-      gap: 8px;
-      padding: 0 12px calc(10px + var(--safe-bot));
-    }
+    .actions button:disabled, #send:disabled, #input:disabled { opacity: .38; }
+    .composer { display: flex; gap: 8px; align-items: flex-end; }
     #input {
       flex: 1;
       min-height: 44px;
       max-height: 96px;
       resize: none;
-      border: 1px solid #4a3558;
-      border-radius: 12px;
-      background: #1e1526;
+      border: 1px solid #5a365c;
+      border-radius: 14px;
+      background: #1a0e1c;
       color: var(--ink);
       font-size: 16px;
-      padding: 10px 12px;
+      padding: 11px 12px;
       font-family: inherit;
+      line-height: 1.3;
     }
-    #send { flex: 0 0 72px; background: var(--btn); }
-    #status {
-      padding: 6px 14px 0;
-      font-size: 0.78rem;
-      color: var(--muted);
-    }
-    #gate {
-      margin: 8px 12px;
-      padding: 12px;
-      background: #3a2030;
-      border-radius: 12px;
-      font-size: 0.88rem;
-      line-height: 1.45;
-      display: none;
-    }
-    #gate.show { display: block; }
-    #progress {
-      height: 3px;
-      background: #2a1c32;
-      margin: 6px 12px 0;
-      border-radius: 4px;
-      overflow: hidden;
-    }
-    #progress > span {
-      display: block; height: 100%; width: 0%;
-      background: #c97bb8;
+    #input:focus { outline: 2px solid rgba(255,79,216,.45); border-color: var(--neon); }
+    #send {
+      flex: 0 0 70px;
+      background: var(--neon);
+      color: #2a0818;
     }
   </style>
 </head>
 <body>
-  <div id="status">Checking WebGPU…</div>
-  <div id="progress" hidden><span></span></div>
+  <header class="top">
+    <div class="brand">
+      <h1>Comet Lanes</h1>
+      <p>Lane 7 · last call</p>
+    </div>
+    <div id="live">Boot</div>
+  </header>
+
   <figure id="stage">
-    <img id="still" alt="Dawn" />
+    <img id="still" alt="Dawn at Comet Lanes" />
+    <div id="vignette"></div>
+    <div id="shotchip">establish</div>
+    <div id="progress" hidden><span></span></div>
   </figure>
+
   <div id="gate"></div>
   <div id="log"></div>
-  <div class="actions">
-    <button type="button" id="look" disabled>Look</button>
-    <button type="button" id="talk" disabled>Wave</button>
-    <button type="button" id="hide" disabled>Hide</button>
-    <button type="button" id="tease" disabled>Tease</button>
-  </div>
-  <div class="composer">
-    <textarea id="input" rows="1" placeholder="You are in Comet Lanes. What do you do?" disabled enterkeyhint="send"></textarea>
-    <button type="button" id="send" disabled>Send</button>
+
+  <div class="dock">
+    <div class="actions">
+      <button type="button" id="look" disabled>Look</button>
+      <button type="button" id="talk" disabled>Wave</button>
+      <button type="button" id="hide" disabled>Hide</button>
+      <button type="button" id="tease" disabled>Tease</button>
+    </div>
+    <div class="composer">
+      <textarea id="input" rows="1" placeholder="What do you do?" disabled enterkeyhint="send"></textarea>
+      <button type="button" id="send" disabled>Send</button>
+    </div>
   </div>
 
   <script type="module">
@@ -184,10 +272,6 @@
     const MODEL = "SmolLM2-360M-Instruct-q4f16_1-MLC";
     const FALLBACK_MODEL = "Llama-3.2-1B-Instruct-q4f16_1-MLC";
 
-    // Cloud actor: set one of these, then reload.
-    // 1) Paste the Cloud Run URL below
-    // 2) Or open the page as dawn-giantess-rpg.html?actor=https://YOUR-URL/actor
-    // 3) Or localStorage.setItem("dawnActor", "https://YOUR-URL/actor")
     const CLOUD_ACTOR_URL = (
       new URLSearchParams(location.search).get("actor")
       || localStorage.getItem("dawnActor")
@@ -274,7 +358,7 @@ No markdown. No extra labels. Never mention AI, models, prompts, or being an act
     };
 
     const els = {
-      status: document.getElementById("status"),
+      live: document.getElementById("live"),
       log: document.getElementById("log"),
       input: document.getElementById("input"),
       send: document.getElementById("send"),
@@ -286,17 +370,25 @@ No markdown. No extra labels. Never mention AI, models, prompts, or being an act
       bar: document.querySelector("#progress span"),
       progress: document.getElementById("progress"),
       still: document.getElementById("still"),
+      stage: document.getElementById("stage"),
+      shotchip: document.getElementById("shotchip"),
     };
 
     const history = [];
     let engine = null;
     let busy = false;
 
+    function setLive(text, kind) {
+      els.live.textContent = text;
+      els.live.className = kind || "";
+    }
+
     function setStill(key) {
       const shot = STILLS[key] || STILLS.establish;
       game.shot = STILLS[key] ? key : "establish";
+      els.shotchip.textContent = game.shot;
       if (els.still.src !== new URL(shot.src, location.href).href) {
-        els.still.style.opacity = "0.35";
+        els.still.style.opacity = "0.28";
         els.still.src = shot.src;
         els.still.onload = () => { els.still.style.opacity = "1"; };
       }
@@ -320,9 +412,9 @@ No markdown. No extra labels. Never mention AI, models, prompts, or being an act
       return scoreShot([moment, line, userText].join(" \n ")) || game.shot || "establish";
     }
 
-    function addTurn({ you, moment, line }) {
+    function addTurn({ you, moment, line, pending }) {
       const wrap = document.createElement("div");
-      wrap.className = "turn";
+      wrap.className = "turn" + (pending ? " pending" : "");
       if (you) {
         const a = document.createElement("div");
         a.className = "you";
@@ -356,6 +448,9 @@ No markdown. No extra labels. Never mention AI, models, prompts, or being an act
       els.talk.disabled = off;
       els.hide.disabled = off;
       els.tease.disabled = off;
+      els.stage.classList.toggle("busy", on);
+      if (on) setLive("Thinking", "busy");
+      else if (engine || CLOUD_ACTOR_URL) setLive("Live", "ready");
     }
 
     function applyActionHints(text) {
@@ -442,9 +537,8 @@ No markdown. No extra labels. Never mention AI, models, prompts, or being an act
     async function speak(userText) {
       if (busy || (!engine && !CLOUD_ACTOR_URL)) return;
       applyActionHints(userText);
-      const wrap = addTurn({ you: userText });
+      const wrap = addTurn({ you: userText, pending: true });
       setBusy(true);
-      els.status.textContent = "Dawn…";
       try {
         const raw = await askActor(buildMessages(userText));
         const { moment, line, actorShot } = parseActor(raw);
@@ -460,11 +554,16 @@ No markdown. No extra labels. Never mention AI, models, prompts, or being an act
           moment: "The moment stalls.",
           line: String(err && err.message ? err.message : "that glitched"),
         });
+        setLive("Error", "bad");
         console.error(err);
       }
-      els.status.textContent = "";
       setBusy(false);
       els.input.focus();
+    }
+
+    function growInput() {
+      els.input.style.height = "auto";
+      els.input.style.height = Math.min(els.input.scrollHeight, 96) + "px";
     }
 
     function iosHint() {
@@ -483,7 +582,7 @@ No markdown. No extra labels. Never mention AI, models, prompts, or being an act
       const { ios, ver } = iosHint();
 
       if (CLOUD_ACTOR_URL) {
-        els.status.textContent = "Using the cloud actor.";
+        setLive("Live", "ready");
         setBusy(false);
         return;
       }
@@ -491,16 +590,15 @@ No markdown. No extra labels. Never mention AI, models, prompts, or being an act
       if (!navigator.gpu) {
         els.gate.classList.add("show");
         els.gate.textContent = ios
-          ? `No WebGPU on this iPhone (iOS ${ver || "?"}). Dawn's local voice needs iOS 26+ Safari, or set CLOUD_ACTOR_URL to your Google Cloud endpoint.`
+          ? `No WebGPU on this iPhone (iOS ${ver || "?"}). Dawn's local voice needs iOS 26+ Safari, or a cloud actor.`
           : "No WebGPU. Use Chrome, Edge, Safari 26+, or a cloud actor URL.";
-        els.status.textContent = "Voice offline.";
+        setLive("Offline", "bad");
         return;
       }
 
       els.progress.hidden = false;
-      els.status.textContent = "Loading a tiny on-device model…";
+      setLive("Loading", "busy");
       const initProgressCallback = (p) => {
-        els.status.textContent = p.text || "Loading…";
         if (typeof p.progress === "number") els.bar.style.width = Math.round(p.progress * 100) + "%";
       };
       try {
@@ -510,14 +608,14 @@ No markdown. No extra labels. Never mention AI, models, prompts, or being an act
           engine = await CreateMLCEngine(FALLBACK_MODEL, { initProgressCallback });
         } catch (e2) {
           els.gate.classList.add("show");
-          els.gate.textContent = "The on-device model failed. On iPhone this is usually memory. You can keep the stills, or later point CLOUD_ACTOR_URL at Google Cloud.";
-          els.status.textContent = "Load failed.";
+          els.gate.textContent = "The on-device model failed. On iPhone this is usually memory.";
+          setLive("Failed", "bad");
           console.error(e2);
           return;
         }
       }
       els.progress.hidden = true;
-      els.status.textContent = "";
+      setLive("Live", "ready");
       setBusy(false);
     }
 
@@ -525,8 +623,10 @@ No markdown. No extra labels. Never mention AI, models, prompts, or being an act
       const t = els.input.value.trim();
       if (!t) return;
       els.input.value = "";
+      growInput();
       speak(t);
     });
+    els.input.addEventListener("input", growInput);
     els.input.addEventListener("keydown", (e) => {
       if (e.key === "Enter" && !e.shiftKey) {
         e.preventDefault();
