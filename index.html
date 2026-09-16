@@ -480,8 +480,16 @@
       font-size: 16px; padding: 10px 12px;
     }
     #auth .row { display: flex; gap: 8px; margin-top: 12px; }
-    #auth .row button { flex: 1; min-height: 44px; border: 0; border-radius: 12px; font-weight: 700; color: var(--ink); background: #3a2044; }
+    #auth .row button, #auth .primary {
+      flex: 1; min-height: 44px; border: 0; border-radius: 12px;
+      font-weight: 700; color: var(--ink); background: #3a2044;
+    }
+    #auth .primary { width: 100%; margin-top: 12px; background: var(--neon); color: #2a0818; }
+    #auth .ghost { background: transparent; border: 0; color: var(--cyan); width: 100%; min-height: 40px; margin-top: 8px; font-weight: 700; }
+    #auth h2 { margin: 0 0 8px; font-size: 1.15rem; }
     #authErr { color: #ff9aa6; font-size: .8rem; min-height: 1.1em; margin-top: 8px; }
+    .authpane { display: none; }
+    .authpane.on { display: block; }
     #stories {
       min-height: 32px;
       border: 1px solid #5a2a55;
@@ -641,32 +649,49 @@
   </div>
   <div id="auth">
     <div class="sheet" id="authSheet">
-      <h2 style="margin:0 0 8px;font-size:1.05rem">Account</h2>
-      <p id="authStatus" style="margin:0 0 8px;color:var(--muted);font-size:.86rem">Guest. Chats stay on this phone until you sign in.</p>
-      <div id="setupBox">
+      <h2 id="authTitle">Log in</h2>
+      <p id="authStatus" style="margin:0 0 8px;color:var(--muted);font-size:.86rem"></p>
+      <div id="authErr"></div>
+
+      <div id="setupBox" class="authpane">
         <label>Project URL</label>
         <input id="sbUrl" type="url" placeholder="https://xxxx.supabase.co" />
-        <label>Anon key</label>
+        <label>Anon public key</label>
         <input id="sbAnon" type="text" placeholder="eyJ..." autocomplete="off" />
-        <div class="row"><button type="button" id="sbSave">Save project</button></div>
+        <button type="button" class="primary" id="sbSave">Save and continue</button>
+        <button type="button" class="ghost" id="authClose2">Close</button>
       </div>
-      <div id="loginBox">
+
+      <div id="welcomeBox" class="authpane">
+        <button type="button" class="primary" id="goLogin">I have an account</button>
+        <button type="button" class="primary" id="goSignup" style="background:#3a2044;color:var(--ink)">Create account</button>
+        <button type="button" class="ghost" id="authClose3">Not now</button>
+      </div>
+
+      <div id="loginBox" class="authpane">
         <label>Email</label>
         <input id="authEmail" type="email" autocomplete="username" />
         <label>Password</label>
         <input id="authPass" type="password" autocomplete="current-password" />
-        <div id="authErr"></div>
-        <div class="row">
-          <button type="button" id="authIn">Log in</button>
-          <button type="button" id="authUp">Sign up</button>
-        </div>
-        <div class="row">
-          <button type="button" id="authOut">Log out</button>
-          <button type="button" id="authClose">Close</button>
-        </div>
+        <button type="button" class="primary" id="authIn">Log in</button>
+        <button type="button" class="ghost" id="toSignup">Need an account? Sign up</button>
+        <button type="button" class="ghost" id="authClose">Close</button>
       </div>
-      <div class="row" id="setupCloseRow" style="display:none">
-        <button type="button" id="authClose2">Close</button>
+
+      <div id="signupBox" class="authpane">
+        <label>Email</label>
+        <input id="signEmail" type="email" autocomplete="email" />
+        <label>Password</label>
+        <input id="signPass" type="password" autocomplete="new-password" />
+        <label>Confirm password</label>
+        <input id="signPass2" type="password" autocomplete="new-password" />
+        <button type="button" class="primary" id="authUp">Create account</button>
+        <button type="button" class="ghost" id="toLogin">Already have an account? Log in</button>
+      </div>
+
+      <div id="signedBox" class="authpane">
+        <button type="button" class="primary" id="authOut">Log out</button>
+        <button type="button" class="ghost" id="authClose4">Close</button>
       </div>
     </div>
   </div>
@@ -917,12 +942,20 @@ No markdown. No extra labels. Never mention AI, models, prompts, or being an act
       authClose: document.getElementById("authClose"),
       authClose2: document.getElementById("authClose2"),
       setupBox: document.getElementById("setupBox"),
+      welcomeBox: document.getElementById("welcomeBox"),
       loginBox: document.getElementById("loginBox"),
-      setupCloseRow: document.getElementById("setupCloseRow"),
+      signupBox: document.getElementById("signupBox"),
+      signedBox: document.getElementById("signedBox"),
+      authTitle: document.getElementById("authTitle"),
       sbUrl: document.getElementById("sbUrl"),
       sbAnon: document.getElementById("sbAnon"),
       sbSave: document.getElementById("sbSave"),
+      signEmail: document.getElementById("signEmail"),
+      signPass: document.getElementById("signPass"),
+      signPass2: document.getElementById("signPass2"),
     };
+    let authView = "welcome";
+
 
     let sessionUser = null;
 
@@ -972,27 +1005,65 @@ No markdown. No extra labels. Never mention AI, models, prompts, or being an act
       return sessionUser;
     }
 
+    function showAuthPane(name) {
+      authView = name;
+      ["setupBox","welcomeBox","loginBox","signupBox","signedBox"].forEach((id) => {
+        const el = els[id];
+        if (el) el.classList.toggle("on", id === name + "Box" || (name === "setup" && id === "setupBox") || (name === "welcome" && id === "welcomeBox") || (name === "login" && id === "loginBox") || (name === "signup" && id === "signupBox") || (name === "signed" && id === "signedBox"));
+      });
+    }
+
     function setAuthUi() {
       if (!els.account) return;
-      if (els.setupBox) els.setupBox.style.display = cloudReady ? "none" : "block";
-      if (els.loginBox) els.loginBox.style.display = cloudReady ? "block" : "none";
-      if (els.setupCloseRow) els.setupCloseRow.style.display = cloudReady ? "none" : "block";
       if (!cloudReady) {
         els.account.textContent = "Setup";
-        els.authStatus.textContent = "Create a Supabase project, run the SQL file, then paste the Project URL and anon public key here.";
+        els.authTitle.textContent = "Connect project";
+        els.authStatus.textContent = "One-time: paste Project URL and anon public key from Supabase → Settings → API.";
+        showAuthPane("setup");
         return;
       }
       if (sessionUser) {
-        els.account.textContent = "In";
-        els.authStatus.textContent = "Signed in as " + sessionUser.email + ". Nights sync to this account.";
+        els.account.textContent = "You";
+        els.authTitle.textContent = "Signed in";
+        els.authStatus.textContent = sessionUser.email + ". Your nights live on this account.";
+        showAuthPane("signed");
       } else {
-        els.account.textContent = "Account";
-        els.authStatus.textContent = "Guest. Chats stay on this phone until you sign in.";
+        els.account.textContent = "Log in";
+        if (authView === "signup") {
+          els.authTitle.textContent = "Create account";
+          els.authStatus.textContent = "Nights already on this phone will upload after you create the account.";
+          showAuthPane("signup");
+        } else if (authView === "login") {
+          els.authTitle.textContent = "Log in";
+          els.authStatus.textContent = "Welcome back. Local nights upload after you log in.";
+          showAuthPane("login");
+        } else {
+          els.authTitle.textContent = "Speck";
+          els.authStatus.textContent = "Save nights to an account so they follow you to another phone.";
+          showAuthPane("welcome");
+        }
       }
     }
 
+    async function uploadLocalChats() {
+      const lib = readLib();
+      const chats = Object.values(lib.chats || {});
+      for (const chat of chats) {
+        if (chat.history && chat.history.length) await pushChat(chat);
+      }
+    }
+
+    async function afterLogin() {
+      await authUser();
+      await uploadLocalChats();
+      await pullChats();
+      setAuthUi();
+      renderLibrary();
+    }
+
     async function pushChat(chat) {
-      if (!supabase || !sessionUser || !chat || !history.length) return;
+      if (!supabase || !sessionUser || !chat) return;
+      if (!(chat.history && chat.history.length)) return;
       const { error } = await supabase.from("chats").upsert({
         id: chat.id,
         user_id: sessionUser.id,
@@ -1555,7 +1626,10 @@ No markdown. No extra labels. Never mention AI, models, prompts, or being an act
       preloadStills();
       if (supabase) {
         await authUser();
-        if (sessionUser) await pullChats();
+        if (sessionUser) {
+          await uploadLocalChats();
+          await pullChats();
+        }
         setAuthUi();
       } else {
         setAuthUi();
@@ -1625,19 +1699,26 @@ No markdown. No extra labels. Never mention AI, models, prompts, or being an act
     els.reset.addEventListener("click", resetNight);
     function openAuth() {
       els.authErr.textContent = "";
+      authView = sessionUser ? "signed" : (cloudReady ? "welcome" : "setup");
       setAuthUi();
       els.auth.classList.add("show");
     }
     function closeAuth() { els.auth.classList.remove("show"); }
 
     els.account.addEventListener("click", openAuth);
-    els.authClose.addEventListener("click", closeAuth);
-    if (els.authClose2) els.authClose2.addEventListener("click", closeAuth);
+    ["authClose","authClose2","authClose3","authClose4"].forEach((id) => {
+      const el = document.getElementById(id);
+      if (el) el.addEventListener("click", closeAuth);
+    });
+    document.getElementById("goLogin").addEventListener("click", () => { authView = "login"; setAuthUi(); });
+    document.getElementById("goSignup").addEventListener("click", () => { authView = "signup"; setAuthUi(); });
+    document.getElementById("toLogin").addEventListener("click", () => { authView = "login"; setAuthUi(); });
+    document.getElementById("toSignup").addEventListener("click", () => { authView = "signup"; setAuthUi(); });
     els.sbSave.addEventListener("click", () => {
       const url = (els.sbUrl.value || "").trim();
       const anon = (els.sbAnon.value || "").trim();
       if (!url.includes("supabase.co") || anon.length < 20) {
-        els.authStatus.textContent = "Need a real Project URL and the anon public key from Settings → API.";
+        els.authErr.textContent = "Need Project URL and the anon public key.";
         return;
       }
       localStorage.setItem("speckSupabaseUrl", url);
@@ -1647,33 +1728,31 @@ No markdown. No extra labels. Never mention AI, models, prompts, or being an act
     els.auth.addEventListener("click", (e) => { if (e.target === els.auth) closeAuth(); });
     els.authIn.addEventListener("click", async () => {
       els.authErr.textContent = "";
-      if (!supabase) { els.authErr.textContent = "Add your Supabase keys first."; return; }
+      if (!supabase) { els.authErr.textContent = "Connect the project first."; return; }
       const { error } = await supabase.auth.signInWithPassword({
         email: els.authEmail.value.trim(),
         password: els.authPass.value,
       });
       if (error) { els.authErr.textContent = error.message; return; }
-      await authUser();
-      await pullChats();
-      setAuthUi();
-      renderLibrary();
-      closeAuth();
+      await afterLogin();
     });
     els.authUp.addEventListener("click", async () => {
       els.authErr.textContent = "";
-      if (!supabase) { els.authErr.textContent = "Add your Supabase keys first."; return; }
+      if (!supabase) { els.authErr.textContent = "Connect the project first."; return; }
+      if (els.signPass.value.length < 6) { els.authErr.textContent = "Password needs at least 6 characters."; return; }
+      if (els.signPass.value !== els.signPass2.value) { els.authErr.textContent = "Passwords do not match."; return; }
       const { error } = await supabase.auth.signUp({
-        email: els.authEmail.value.trim(),
-        password: els.authPass.value,
+        email: els.signEmail.value.trim(),
+        password: els.signPass.value,
       });
       if (error) { els.authErr.textContent = error.message; return; }
-      await authUser();
-      setAuthUi();
-      els.authErr.textContent = sessionUser ? "Account created." : "Check email if confirm is on, or turn confirm off in Auth settings.";
+      await afterLogin();
+      if (!sessionUser) els.authErr.textContent = "Account created. If Confirm email is on, check your inbox, then log in.";
     });
-    els.authOut.addEventListener("click", async () => {
+    document.getElementById("authOut").addEventListener("click", async () => {
       if (supabase) await supabase.auth.signOut();
       sessionUser = null;
+      authView = "welcome";
       setAuthUi();
     });
 
