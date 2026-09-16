@@ -99,23 +99,19 @@
       border-radius: 18px;
       overflow: hidden;
       background: #07040a;
-      aspect-ratio: 4 / 3;
-      max-height: 34vh;
+      aspect-ratio: 3 / 4;
+      max-height: min(46vh, 420px);
       box-shadow: 0 12px 40px rgba(0,0,0,.45), inset 0 0 0 1px rgba(255,79,216,.18);
     }
     #stage img {
       width: 100%; height: 100%;
-      object-fit: cover;
-      object-position: center 18%;
+      object-fit: contain;
+      object-position: center center;
       display: block;
-      transition: opacity .22s ease, transform .6s ease;
+      background: #07040a;
+      transition: opacity .28s ease;
     }
-    #stage.busy img { transform: scale(1.03); }
-    #vignette {
-      pointer-events: none;
-      position: absolute; inset: 0;
-      background: linear-gradient(180deg, transparent 45%, rgba(8,4,10,.72) 100%);
-    }
+    #vignette { display: none; }
     #shotchip {
       position: absolute;
       left: 10px; bottom: 10px;
@@ -245,9 +241,66 @@
       background: var(--neon);
       color: #2a0818;
     }
+
+    #splash {
+      position: fixed; inset: 0; z-index: 40;
+      background: #0c0610;
+      display: flex; flex-direction: column;
+      align-items: center; justify-content: center;
+      gap: 14px;
+      transition: opacity .55s ease, visibility .55s ease;
+    }
+    #splash.hide { opacity: 0; visibility: hidden; pointer-events: none; }
+    #splash .mark {
+      font-size: 0.72rem; letter-spacing: .22em; text-transform: uppercase;
+      color: var(--cyan); font-weight: 800;
+    }
+    #splash h2 {
+      margin: 0; font-size: 1.6rem; letter-spacing: -.03em;
+    }
+    #splash p { margin: 0; color: var(--muted); font-size: 0.88rem; }
+    #splash .bar {
+      width: 140px; height: 3px; border-radius: 4px; overflow: hidden;
+      background: #2a162c;
+    }
+    #splash .bar > i {
+      display: block; height: 100%; width: 40%;
+      background: linear-gradient(90deg, var(--neon), var(--cyan));
+      animation: load 1.1s ease-in-out infinite;
+    }
+    @keyframes load { 0%{transform:translateX(-120%)} 100%{transform:translateX(280%)} }
+    @keyframes rise {
+      from { opacity: 0; transform: translateY(10px); }
+      to { opacity: 1; transform: none; }
+    }
+    @keyframes dots {
+      0%, 80%, 100% { opacity: .25; transform: translateY(0); }
+      40% { opacity: 1; transform: translateY(-2px); }
+    }
+    .turn { animation: rise .28s ease both; }
+    .typing {
+      align-self: flex-start;
+      background: #3a2040;
+      border-radius: 4px 16px 16px 16px;
+      padding: 12px 14px;
+      display: flex; gap: 5px; align-items: center;
+    }
+    .typing i {
+      width: 7px; height: 7px; border-radius: 50%;
+      background: var(--neon);
+      animation: dots 1s infinite;
+    }
+    .typing i:nth-child(2) { animation-delay: .15s; }
+    .typing i:nth-child(3) { animation-delay: .3s; }
   </style>
 </head>
 <body>
+  <div id="splash">
+    <div class="mark">Comet Lanes</div>
+    <h2>Dawn</h2>
+    <p>Last call · lane 7</p>
+    <div class="bar"><i></i></div>
+  </div>
   <header class="top">
     <div class="brand">
       <h1>Comet Lanes</h1>
@@ -427,6 +480,36 @@ No markdown. No extra labels. Never mention AI, models, prompts, or being an act
       try { localStorage.removeItem(SAVE_KEY); } catch {}
     }
 
+    const SPLASH_KEY = "dawnSplash.v1";
+
+    function hideSplash() {
+      const el = document.getElementById("splash");
+      if (!el) return;
+      el.classList.add("hide");
+      try { sessionStorage.setItem(SPLASH_KEY, "1"); } catch {}
+    }
+
+    function shouldSplash(forceLoad) {
+      if (forceLoad) return true;
+      try { return sessionStorage.getItem(SPLASH_KEY) !== "1"; } catch { return true; }
+    }
+
+    function addTyping() {
+      const wrap = document.createElement("div");
+      wrap.className = "turn pending-dawn";
+      wrap.innerHTML = '<div class="typing" aria-label="Dawn is typing"><i></i><i></i><i></i></div>';
+      els.log.appendChild(wrap);
+      els.log.scrollTop = els.log.scrollHeight;
+      return wrap;
+    }
+
+    function preloadStills() {
+      SHOT_KEYS.forEach((k) => {
+        const im = new Image();
+        im.src = STILLS[k].src;
+      });
+    }
+
     function setLive(text, kind) {
       els.live.textContent = text;
       els.live.className = kind || "";
@@ -588,18 +671,21 @@ No markdown. No extra labels. Never mention AI, models, prompts, or being an act
       if (busy || (!engine && !CLOUD_ACTOR_URL)) return;
       applyActionHints(userText);
       const wrap = addTurn({ you: userText, pending: true });
+      const typing = addTyping();
       setBusy(true);
       try {
         const raw = await askActor(buildMessages(userText));
         const { moment, line, actorShot } = parseActor(raw);
         setStill(pickShot({ userText, moment, line, actorShot }));
         wrap.remove();
+        typing.remove();
         addTurn({ you: userText, moment, line });
         history.push({ role: "user", content: userText });
         history.push({ role: "assistant", content: raw });
         persist();
       } catch (err) {
         wrap.remove();
+        typing.remove();
         addTurn({
           you: userText,
           moment: "The moment stalls.",
@@ -659,11 +745,17 @@ No markdown. No extra labels. Never mention AI, models, prompts, or being an act
         setStill("establish");
         paintOpening();
       }
+      preloadStills();
       const { ios, ver } = iosHint();
+      const needsModel = !CLOUD_ACTOR_URL;
+      if (!shouldSplash(needsModel && !navigator.gpu === false)) {
+        hideSplash();
+      }
 
       if (CLOUD_ACTOR_URL) {
         setLive("Live", "ready");
         setBusy(false);
+        setTimeout(hideSplash, shouldSplash(false) ? 700 : 0);
         return;
       }
 
@@ -673,6 +765,7 @@ No markdown. No extra labels. Never mention AI, models, prompts, or being an act
           ? `No WebGPU on this iPhone (iOS ${ver || "?"}). Dawn's local voice needs iOS 26+ Safari, or a cloud actor.`
           : "No WebGPU. Use Chrome, Edge, Safari 26+, or a cloud actor URL.";
         setLive("Offline", "bad");
+        hideSplash();
         return;
       }
 
@@ -690,6 +783,7 @@ No markdown. No extra labels. Never mention AI, models, prompts, or being an act
           els.gate.classList.add("show");
           els.gate.textContent = "The on-device model failed. On iPhone this is usually memory.";
           setLive("Failed", "bad");
+          hideSplash();
           console.error(e2);
           return;
         }
@@ -697,6 +791,7 @@ No markdown. No extra labels. Never mention AI, models, prompts, or being an act
       els.progress.hidden = true;
       setLive("Live", "ready");
       setBusy(false);
+      hideSplash();
     }
 
     els.send.addEventListener("click", () => {
