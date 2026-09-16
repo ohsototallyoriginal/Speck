@@ -119,14 +119,26 @@
         grid-row: 2 / 4;
         padding-bottom: calc(var(--dock) + 8px);
       }
-      .dock { width: min(980px, 100%); }
+      .dock {
+        left: 0;
+        right: 0;
+        transform: none;
+        width: 100%;
+        max-width: none;
+        padding: 10px 24px 14px;
+      }
+      .dock .actions { max-width: 980px; margin-left: auto; margin-right: auto; }
+      .dock .composer { max-width: 980px; margin-left: auto; margin-right: auto; }
     }
     header.top {
       display: flex;
       align-items: center;
       justify-content: space-between;
-      padding: 8px 14px 6px;
+      padding: 10px 14px 18px;
       gap: 10px;
+      position: relative;
+      z-index: 8;
+      background: linear-gradient(180deg, rgba(8,4,10,.92) 0%, rgba(8,4,10,.55) 62%, rgba(8,4,10,0) 100%);
     }
     .brand {
       min-width: 0;
@@ -759,9 +771,6 @@
       <input id="newPass2" type="password" autocomplete="new-password" />
       <p id="setMsg" style="color:var(--muted);font-size:.84rem;min-height:1.2em"></p>
       <button type="button" class="primary" id="savePass" style="width:100%;min-height:44px;border:0;border-radius:12px;background:var(--neon);color:#2a0818;font-weight:800">Change password</button>
-      <label style="margin-top:14px">Actor URL</label>
-      <input id="actorUrl" type="url" />
-      <button type="button" id="saveActor" style="width:100%;min-height:40px;margin-top:8px;border:0;border-radius:12px;background:#3a2044;color:var(--ink)">Save actor</button>
       <button type="button" id="setClose" style="width:100%;min-height:40px;margin-top:8px;border:0;border-radius:12px;background:#3a2044;color:var(--ink)">Close</button>
     </div>
   </div>
@@ -1191,8 +1200,6 @@ No markdown. No extra labels. Never mention AI, models, prompts, or being an act
       newPass2: document.getElementById("newPass2"),
       setMsg: document.getElementById("setMsg"),
       savePass: document.getElementById("savePass"),
-      actorUrl: document.getElementById("actorUrl"),
-      saveActor: document.getElementById("saveActor"),
       setClose: document.getElementById("setClose"),
       account: document.getElementById("account"),
       auth: document.getElementById("auth"),
@@ -2027,7 +2034,6 @@ No markdown. No extra labels. Never mention AI, models, prompts, or being an act
 
     function openSettings() {
       els.setMsg.textContent = sessionUser ? ("Signed in as " + sessionUser.email) : "Log in to change password.";
-      els.actorUrl.value = CLOUD_ACTOR_URL;
       els.settings.classList.add("show");
     }
     els.gear.addEventListener("click", openSettings);
@@ -2040,11 +2046,6 @@ No markdown. No extra labels. Never mention AI, models, prompts, or being an act
       if (els.newPass.value !== els.newPass2.value) { els.setMsg.textContent = "Passwords do not match."; return; }
       const { error } = await supabase.auth.updateUser({ password: els.newPass.value });
       els.setMsg.textContent = error ? error.message : "Password updated.";
-    });
-    els.saveActor.addEventListener("click", () => {
-      const url = (els.actorUrl.value || "").trim();
-      if (url) localStorage.setItem("dawnActor", url);
-      location.reload();
     });
     els.stories.addEventListener("click", openLibrary);
     els.libClose.addEventListener("click", closeLibrary);
