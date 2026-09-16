@@ -18,6 +18,9 @@
       --you: #3a5f86;
       --dawn: #4a2048;
       --danger: #c43b4e;
+      --panel: #3a2044;
+      --panel2: #241428;
+      --linebg: #5a2a58;
       --safe-top: env(safe-area-inset-top, 0px);
       --safe-bot: env(safe-area-inset-bottom, 0px);
       --kb: 0px;
@@ -35,11 +38,19 @@
       --neon: #ff4fd8;
       --cyan: #5ce1ff;
       --you: #3a5f86;
+      --panel: #3a2044;
+      --panel2: #241428;
+      --linebg: #5a2a58;
+      --dawn: #4a2048;
     }
     html[data-face="rae"] {
       --neon: #ffb15a;
       --cyan: #3fd4c4;
       --you: #3a5a52;
+      --panel: #1d3532;
+      --panel2: #10201e;
+      --linebg: #2a4a44;
+      --dawn: #1a3330;
     }
     html[data-face="rae"] #world .alley {
       background:
@@ -51,6 +62,10 @@
       --neon: #e8b14a;
       --cyan: #f3d7a0;
       --you: #5a4630;
+      --panel: #3a2a18;
+      --panel2: #24180e;
+      --linebg: #5a3e22;
+      --dawn: #3a2814;
     }
     html[data-face="ang"] #world .alley {
       background:
@@ -330,7 +345,7 @@
     .line {
       align-self: flex-start;
       max-width: 92%;
-      background: linear-gradient(180deg, #5a2a58, var(--dawn));
+      background: linear-gradient(180deg, var(--linebg), var(--dawn));
       border: 1px solid rgba(255,79,216,.28);
       border-radius: 4px 16px 16px 16px;
       padding: 10px 12px;
@@ -393,7 +408,7 @@
       min-height: 52px;
       border: 1px solid rgba(255,79,216,.22);
       border-radius: 16px;
-      background: linear-gradient(180deg, #3a2044, #241428);
+      background: linear-gradient(180deg, var(--panel), var(--panel2));
       color: var(--ink);
       font-size: 0.72rem;
       font-weight: 800;
@@ -419,7 +434,7 @@
       min-height: 52px;
       border: 1px solid rgba(255,79,216,.4);
       border-radius: 16px;
-      background: linear-gradient(180deg, #3a2044, #241428);
+      background: linear-gradient(180deg, var(--panel), var(--panel2));
       color: var(--ink);
       font-size: 0.72rem;
       font-weight: 800;
@@ -495,7 +510,7 @@
       min-height: 46px; border: 0; border-radius: 12px; font-weight: 800;
     }
     #homeContinue { background: var(--neon); color: #2a0818; }
-    #homeStories { background: #3a2044; color: var(--ink); }
+    #homeStories { background: var(--panel); color: var(--ink); }
     html[data-face="rae"] #home {
       background:
         radial-gradient(70% 50% at 50% 0%, rgba(255,177,90,.2), transparent 55%),
@@ -628,7 +643,7 @@
     #auth .row { display: flex; gap: 8px; margin-top: 12px; }
     #auth .row button, #auth .primary {
       flex: 1; min-height: 44px; border: 0; border-radius: 12px;
-      font-weight: 700; color: var(--ink); background: #3a2044;
+      font-weight: 700; color: var(--ink); background: var(--panel);
     }
     #auth .primary { width: 100%; margin-top: 12px; background: var(--neon); color: #2a0818; }
     #auth .ghost { background: transparent; border: 0; color: var(--cyan); width: 100%; min-height: 40px; margin-top: 8px; font-weight: 700; }
@@ -714,7 +729,7 @@
     .card {
       width: 100%; text-align: left;
       border: 1px solid #4a2a4c;
-      background: #241428;
+      background: var(--panel2);
       color: var(--ink);
       border-radius: 12px;
       padding: 10px 12px;
@@ -744,7 +759,7 @@
     .iconbtn {
       flex: 0 0 40px;
       border: 1px solid #4a2a4c;
-      background: #241428;
+      background: var(--panel2);
       color: var(--muted);
       border-radius: 12px;
       font-size: 0.78rem;
@@ -795,7 +810,7 @@
     #libClose {
       width: 100%; min-height: 44px; margin-top: 8px;
       border: 0; border-radius: 12px;
-      background: #3a2044; color: var(--ink); font-weight: 700;
+      background: var(--panel); color: var(--ink); font-weight: 700;
     }
   </style>
 </head>
@@ -835,7 +850,8 @@
       <p id="placeSub">Lane 7 · last call</p>
     </div>
     <div class="tools">
-      <button type="button" id="stories">Home</button>
+      <button type="button" id="homeBtn">Home</button>
+      <button type="button" id="stories">Stories</button>
       <button type="button" id="reset">Reset</button>
       <button type="button" id="account">Log in</button>
       <div id="live">Boot</div>
@@ -889,7 +905,7 @@
 
       <div id="welcomeBox" class="authpane">
         <button type="button" class="primary" id="goLogin">I have an account</button>
-        <button type="button" class="primary" id="goSignup" style="background:#3a2044;color:var(--ink)">Create account</button>
+        <button type="button" class="primary" id="goSignup" style="background:var(--panel);color:var(--ink)">Create account</button>
         <button type="button" class="ghost" id="authClose3">Not now</button>
         <button type="button" class="ghost" id="fixProject">Wrong project keys</button>
       </div>
@@ -933,7 +949,7 @@
       <label style="margin-top:14px;display:flex;gap:8px;align-items:center;text-transform:none;letter-spacing:0;font-size:.9rem;color:var(--ink)">
         <input id="fxToggle" type="checkbox" checked /> Swallow sound and haptics
       </label>
-      <button type="button" id="setClose" style="width:100%;min-height:40px;margin-top:8px;border:0;border-radius:12px;background:#3a2044;color:var(--ink)">Close</button>
+      <button type="button" id="setClose" style="width:100%;min-height:40px;margin-top:8px;border:0;border-radius:12px;background:var(--panel);color:var(--ink)">Close</button>
     </div>
   </div>
   <div id="gate"></div>
@@ -1172,7 +1188,7 @@ This is vore. Swallow is on the table from the first look. Do not fade to fade-t
         mood: "bored, polite-mean, waiting to leave",
         shot: "look",
         hidden: true,
-        hook: "SCENARIO: NORMAL SIZED DATE. Ang is 5'1" and the player is a normal adult across a diner booth. This is NOT giantess and NOT vore unless the player openly compliments her looks or especially her feet/sandals. Until that compliment she is bored by everything: the fries, the movie talk, med-school small talk, him. Long still takes. Diner chrome. Sandals under the table. Foot on the opposite bench if she feels like it. Tarantino diner energy: talky, mean-quiet, feet in frame, no shrink. AFTER a genuine compliment to her or her feet, the scale may slip — the booth goes huge, or he gets small, and only then may swallow come on the table. Do not start swallowed. Do not invent a bowling alley.",
+        hook: 'SCENARIO: NORMAL SIZED DATE. Ang is five-one and the player is a normal adult across a diner booth. Not giantess and not vore unless the player openly compliments her looks or especially her feet or sandals. Until that compliment she is bored by everything. Long still takes. Diner chrome. Sandals under the table. After a genuine compliment to her or her feet, the scale may slip and swallow may come on the table. Do not start swallowed. Do not invent a bowling alley.',
         opening: {
           moment: "Formica. A ketchup bottle like a regular ketchup bottle. Her sandal hangs off one heel under the table. She is looking at the parking lot more than at you.",
           line: "If this is a date you should've picked better fries. Talk if you want. I'm already tired.",
@@ -1612,6 +1628,7 @@ This is vore. Swallow is on the table from the first look. Do not fade to fade-t
       gutList: document.getElementById("gutList"),
       fxToggle: document.getElementById("fxToggle"),
       stories: document.getElementById("stories"),
+      homeBtn: document.getElementById("homeBtn"),
       library: document.getElementById("library"),
       faceList: document.getElementById("faceList"),
       scenarioList: document.getElementById("scenarioList"),
@@ -2408,7 +2425,14 @@ This is vore. Swallow is on the table from the first look. Do not fade to fade-t
         setStill(game.shot);
         applyPlace();
       }
-      showHome();
+      const first = !localStorage.getItem("speckHomeSeen");
+      if (first) {
+        localStorage.setItem("speckHomeSeen", "1");
+        showHome();
+      } else {
+        hideHome();
+        if (!els.log.children.length) paintOpening();
+      }
       preloadStills();
       if (supabase) {
         await authUser();
@@ -2563,7 +2587,8 @@ This is vore. Swallow is on the table from the first look. Do not fade to fade-t
       const { error } = await supabase.auth.updateUser({ password: els.newPass.value });
       els.setMsg.textContent = error ? error.message : "Password updated.";
     });
-    els.stories.addEventListener("click", showHome);
+    els.homeBtn.addEventListener("click", showHome);
+    els.stories.addEventListener("click", openLibrary);
     document.querySelector("#home h1").addEventListener("click", maybeBooth);
     document.querySelector("#library .hint") && document.querySelector("#library .hint").addEventListener("click", () => {
       if (characterOf(game.characterId).id === "ang") maybeBooth();
