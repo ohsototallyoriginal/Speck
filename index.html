@@ -825,7 +825,20 @@
       lace:      { src: "stills/lace.jpg" },
       inside:    { src: "stills/inside.jpg" },
       kneel:     { src: "stills/kneel.jpg" },
+      street:    { src: "stills/rae/street.jpg" },
+      door:      { src: "stills/rae/door.jpg" },
+      subway:    { src: "stills/rae/subway.jpg" },
+      arms:      { src: "stills/rae/arms.jpg" },
+      point:     { src: "stills/rae/point.jpg" },
+      nail:      { src: "stills/rae/nail.jpg" },
+      phone:     { src: "stills/rae/phone.jpg" },
+      profile:   { src: "stills/rae/profile.jpg" },
+      roof:      { src: "stills/rae/roof.jpg" },
+      cup:       { src: "stills/rae/cup.jpg" },
+      portrait:  { src: "stills/rae/portrait.jpg" },
+      aisle:     { src: "stills/rae/aisle.jpg" },
     };
+    const RAE_ONLY = new Set(["street","door","subway","arms","point","nail","phone","profile","roof","cup","portrait","aisle"]);
 
     const SHOT_KEYS = Object.keys(STILLS);
 
@@ -846,6 +859,17 @@
       { key: "whisper", re: /\b(whisper|lean(s|ed|ing) in|too close|breath on)\b/ },
       { key: "wave",    re: /\b(wave|reach(es|ing)|huge hand|fingers like)\b/ },
       { key: "look",    re: /\b(look(s|ing)? down|leans over|hair (falls|curtain)|face fills)\b/ },
+      { key: "street",  re: /\b(sidewalk|outside|wet street|neon reflection|queens street)\b/ },
+      { key: "subway",  re: /\b(subway|train car|holding the pole|mta)\b/ },
+      { key: "door",    re: /\b(apartment|doorway|hallway|keys in the lock)\b/ },
+      { key: "roof",    re: /\b(rooftop|roof|skyline|city lights)\b/ },
+      { key: "phone",   re: /\b(phone|texting|screen glow)\b/ },
+      { key: "arms",    re: /\b(arms crossed|unimpressed stare|register)\b/ },
+      { key: "point",   re: /\b(points? (down|at you)|one finger)\b/ },
+      { key: "nail",    re: /\b(fingernail|black nail|on her nail)\b/ },
+      { key: "cup",     re: /\b(coffee|cup|iced coffee)\b/ },
+      { key: "profile", re: /\b(profile|freezer light|side of her face)\b/ },
+      { key: "aisle",   re: /\b(aisle|chip rack|between shelves)\b/ },
     ];
 
     const SYSTEM = `You are the actor playing DAWN MARIE KELLER, 18.
@@ -871,7 +895,7 @@ You answer with EXACTLY this shape and nothing else:
 
 MOMENT: <a short present-tense paragraph of the body and the room at speck scale>
 DAWN: <one or two short paragraphs of spoken dialogue in her voice>
-SHOT: <exactly one of: establish, look, wave, hide, shoe, swallow, pinch, palm, pocket, sit, ball, tongue, whisper, gutter, lace, inside, kneel>
+SHOT: <exactly one of: establish, look, wave, hide, shoe, swallow, pinch, palm, pocket, sit, ball, tongue, whisper, gutter, lace, inside, kneel, street, door, subway, arms, point, nail, phone, profile, roof, cup, portrait, aisle>
 
 Pick SHOT from what the body is doing right now:
 establish=full shoe looming, look=her face filling the sky, wave=giant hand reaching, hide=crack in the wood, shoe=sole hovering, swallow=open mouth with braces, pinch=two fingers lifting the speck, palm=on her hand, pocket=inside the hoodie pocket, sit=she sits on the lane, ball=bowling ball like a planet, tongue=tongue out, whisper=her face inches away, gutter=inside the ball return, lace=on the laces, inside=after a swallow, dark tunnel, kneel=she is on the floor hunting.
@@ -945,13 +969,119 @@ No markdown. No extra labels. Never mention AI, models, prompts, or being an act
         location: "late-night bodega counter, Queens",
         playerPlace: "beside the scratch-off display on the laminate",
         mood: "tired, unimpressed, already deciding",
-        shot: "look",
-        hook: "SCENARIO: 2am bodega. Rae is on register. She noticed a talking speck by the lottery tickets. Dry. Not giggly.",
+        shot: "arms",
+        hook: "SCENARIO: 2am bodega register. Rae noticed a talking speck by the lottery tickets. Dry. Prefer SHOT arms, aisle, point, palm, pinch, nail.",
         opening: {
-          moment: "Fluorescent hum. Cold case light. A black nail taps the counter a mile above the tickets.",
+          moment: "Fluorescent hum. Cold case light. She has her arms crossed a mile above the tickets.",
           line: "If you're a prank, I'm too tired. If you're real, you picked the wrong shift. Talk.",
         },
       },
+      "rae-aisle": {
+        id: "rae-aisle",
+        title: "Chip aisle",
+        sub: "Between the racks",
+        blurb: "You are on the tile. She is the whole hallway.",
+        location: "bodega snack aisle, teal freezer at the end",
+        playerPlace: "on the tile between the chip racks",
+        mood: "hunting the floor without kneeling yet",
+        shot: "establish",
+        hook: "SCENARIO: Snack aisle. Speck on the tile. Prefer SHOT establish, aisle, shoe, kneel, point.",
+        opening: {
+          moment: "Bags of chips make canyon walls. A freezer hums at the far end. Two sneakers close the aisle.",
+          line: "Don't run under the rack. I already saw you. That's just rude.",
+        },
+      },
+      "rae-street": {
+        id: "rae-street",
+        title: "After shift",
+        sub: "Wet sidewalk",
+        blurb: "She clocked out. You are still with her.",
+        location: "wet Queens sidewalk outside the bodega at night",
+        playerPlace: "somewhere on the wet concrete near her sneakers",
+        mood: "off the clock, still not dumping you",
+        shot: "street",
+        hook: "SCENARIO: Outside after shift. Wet street. Prefer SHOT street, phone, shoe, pocket.",
+        opening: {
+          moment: "Rain on the awning. Bodega neon writes itself on the sidewalk. She does not look like she is taking you back inside.",
+          line: "Shift's over. You're either coming home in a pocket or you're a smear. Pick.",
+        },
+      },
+      "rae-subway": {
+        id: "rae-subway",
+        title: "Last train",
+        sub: "Holding the pole",
+        blurb: "Fluorescent car. She is the tallest thing in it.",
+        location: "late-night NYC subway car",
+        playerPlace: "somewhere on her as the car rocks",
+        mood: "public, quiet, unimpressed",
+        shot: "subway",
+        hook: "SCENARIO: Subway home. Prefer SHOT subway, pocket, palm, whisper. Do not rewind to the register.",
+        opening: {
+          moment: "The car lurches. A steel pole is a tree trunk in her fist. Nobody is looking down far enough to see you.",
+          line: "If you yell, I put you in the rail gap. Sit still.",
+        },
+      },
+      "rae-door": {
+        id: "rae-door",
+        title: "Her building",
+        sub: "Hallway bulb",
+        blurb: "Keys. Peeling paint. She has not decided the room yet.",
+        location: "Queens walk-up hallway, her apartment doorway",
+        playerPlace: "near the threshold or already in her hand",
+        mood: "private now, still dry",
+        shot: "door",
+        hook: "SCENARIO: Her building doorway. Prefer SHOT door, palm, pocket, whisper.",
+        opening: {
+          moment: "One hallway bulb. Paint peeling off the jamb. The lock turns like it has opinions.",
+          line: "Neighbors hear everything. So you don't exist until this door shuts.",
+        },
+      },
+      "rae-roof": {
+        id: "rae-roof",
+        title: "Roof",
+        sub: "City below",
+        blurb: "She came up here to smoke nothing and look at you.",
+        location: "Queens rooftop at night, skyline behind her",
+        playerPlace: "on the parapet or in her palm over the drop",
+        mood: "quiet, meaner in the open air",
+        shot: "roof",
+        hook: "SCENARIO: Rooftop. Prefer SHOT roof, palm, point, profile.",
+        opening: {
+          moment: "Wind off the river. The city is a tray of lights under her elbow. The drop is a suggestion.",
+          line: "Don't get poetic. I came up here because the apartment is hot, not because you're special.",
+        },
+      },
+      "rae-pocket": {
+        id: "rae-pocket",
+        title: "Jeans pocket",
+        sub: "Already in",
+        blurb: "Denim cave. Black nails at the rim.",
+        location: "inside Rae's front jeans pocket",
+        playerPlace: "in the dark of her pocket",
+        mood: "smug without smiling much",
+        shot: "pocket",
+        hook: "SCENARIO: Already in the jeans pocket. Prefer SHOT pocket, nail, phone. Do not restart the counter.",
+        opening: {
+          moment: "Denim walls. A slit of bodega light. Black nails hook the pocket open like a garage door.",
+          line: "You live here until I say. Poke and I zip you against my hip the whole walk.",
+        },
+      },
+      "rae-nail": {
+        id: "rae-nail",
+        title: "On the nail",
+        sub: "Black polish plaza",
+        blurb: "You are on the glossy part. She is watching.",
+        location: "on Rae's black-painted fingernail",
+        playerPlace: "standing on the polish",
+        mood: "amused in a tired way",
+        shot: "nail",
+        hook: "SCENARIO: Speck is on her black fingernail. Prefer SHOT nail, pinch, swallow, point.",
+        opening: {
+          moment: "Gloss like a wet street. Her face is a building in the blur beyond the cuticle.",
+          line: "That's a whole plaza for you. Don't slip. I am not licking polish.",
+        },
+      },
+
       tongue: {
         id: "tongue",
         title: "Already close",
@@ -984,9 +1114,9 @@ No markdown. No extra labels. Never mention AI, models, prompts, or being an act
         name: "Rae",
         ready: true,
         stillDir: "stills/rae/",
-        scenarios: ["rae-shop", "blank"],
+        scenarios: ["rae-shop", "rae-aisle", "rae-street", "rae-subway", "rae-door", "rae-roof", "rae-pocket", "rae-nail", "blank"],
         blurb: "Queens. Septum. Night shift. Dry as the lotto tickets.",
-        voice: "You play RAE ORTIZ, 23, Queens. Short curls, gold septum, black nails, oversized band tee. Night bodega register. Dry, low voice, no valley girl, no braces. Tired menace. Short sentences. She will still swallow you if you stay interesting.",
+        voice: "You play RAE ORTIZ, 23, Queens. Short curls, gold septum, black nails, oversized band tee. Dry, low voice, no valley girl, no braces. Tired menace. Prefer Rae shots: street, door, subway, arms, point, nail, phone, profile, roof, cup, aisle, pocket, shoe, pinch, palm.",
       },
     };
 
@@ -1003,8 +1133,10 @@ No markdown. No extra labels. Never mention AI, models, prompts, or being an act
     }
 
     function stillSrc(key) {
-      const dir = characterOf(game.characterId).stillDir || "stills/";
-      const name = (STILLS[key] ? key : "look");
+      const c = characterOf(game.characterId);
+      const dir = c.stillDir || "stills/";
+      let name = STILLS[key] ? key : "look";
+      if (c.id !== "rae" && RAE_ONLY.has(name)) name = "look";
       return dir + name + ".jpg";
     }
 
