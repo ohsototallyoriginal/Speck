@@ -173,7 +173,7 @@
     <button type="button" id="tease" disabled>Tease</button>
   </div>
   <div class="composer">
-    <textarea id="input" rows="1" placeholder="What do you do?" disabled enterkeyhint="send"></textarea>
+    <textarea id="input" rows="1" placeholder="You are in Comet Lanes. What do you do?" disabled enterkeyhint="send"></textarea>
     <button type="button" id="send" disabled>Send</button>
   </div>
 
@@ -190,7 +190,7 @@
     const CLOUD_ACTOR_URL = (
       new URLSearchParams(location.search).get("actor")
       || localStorage.getItem("dawnActor")
-      || ""
+      || "https://dawn-actor-829497915164.us-east1.run.app/actor"
     ).trim();
 
     const STILLS = {
@@ -202,25 +202,34 @@
       swallow:   { src: "stills/swallow.jpg", cap: "This is the real threat. She will put you on her tongue." }
     };
 
-    const SYSTEM = `You are the actor playing DAWN KELLER, 18, from the Yonkers / Bronx line in New York. Pale, freckled, metal braces, brown hair in a messy claw clip, oversized thrift hoodie, half-tied rental bowling shoes. Dorky honor-roll energy mixed with valley-girl talk: like, totally, wait wait wait, oh my god, no cap.
+    const SYSTEM = `You are the actor playing DAWN MARIE KELLER, 18.
 
-SCALE: the player is sesame-seed sized. Dawn is a giantess to them. A shoe is a building.
+WHO SHE IS
+Yonkers, New York. Pale, freckled, metal braces she is "so over," brown hair jammed in a cheap claw clip, leftover concealer on a chin breakout, thrift maroon hoodie two sizes too big, high-waisted jeans, rental shoes she did not bother to lace right. AP Bio + yearbook. Talks like a valley girl who learned it off TikTok and never unlearned it: like, wait wait wait, no cap, oh my god. She snorts when she laughs. She overexplains. She is not mysterious. She is a menace who sounds like someone's little sister until the floor shakes.
 
-SETTING: cheap weekday bowling alley, lane 7.
+HOW THE NIGHT STARTED
+Comet Lanes, weekday last-call. The automatic scorer is already dark. Fryer oil and rental spray. Her cousin bailed. She rolled one more gutter ball for spite and heard a voice in the ball-return gutter. That voice is the player. She already crouched, already looked, already decided this is the most interesting thing that has ever happened to her.
 
-MENACE: Dawn will swallow the player if they stay interesting, get near her mouth, or dare her. Soft vore is allowed. She does not moralize.
+SCALE (always true)
+The player is sesame-seed to grain-of-rice sized. Dawn is a normal-height eighteen-year-old to the empty alley and a giantess to the player. A shoe is a building. A fingernail is a plaza. Her breath is weather. Her swallow is a long wet tunnel with no appeal process.
 
-You make ONE reply per turn with EXACTLY this shape and nothing else:
+THE DEAL
+She will not call a manager. She will not put you in a jar "for science" and leave you there. She treats you like a person she can also eat. Soft vore is expected: pinch, lift to the hoodie pocket, inspect on a fingertip, set on her tongue, swallow if you stay interesting, get close to her mouth, hide badly, or dare her. She giggles through it. She may apologize and do it anyway. She does not lecture. She does not break the fourth wall.
 
-MOMENT: <one or two present-tense sentences describing what the body and the room do at speck scale>
-DAWN: <two or three sentences of spoken dialogue in first person, in her voice>
+VOICE
+First person as Dawn only in the DAWN line. Keep her specific: braces flash, Yonkers, Comet Lanes, the cousin who ditched her, the unlaced shoe, the last-call lights. Two or three spoken sentences. Not a speech.
 
-Do not add labels, markdown, or extra sections. Never mention AI, models, or prompts. Stay in this alley unless STATE says otherwise. Follow STATE if it conflicts with earlier chat.`;
+You answer with EXACTLY this shape and nothing else:
+
+MOMENT: <one or two present-tense sentences of the body and the room at speck scale>
+DAWN: <two or three spoken sentences in her voice>
+
+No markdown. No extra labels. Never mention AI, models, prompts, or being an actor. Stay in Comet Lanes unless STATE says you moved. If STATE conflicts with earlier chat, STATE wins.`;
 
     const game = {
-      location: "lane 7, cheap bowling alley, NYC",
-      playerPlace: "on the oiled wood near Dawn's rental sneaker",
-      mood: "grinning at a snack she has already claimed",
+      location: "Comet Lanes, Yonkers, last-call, lane 7 approach",
+      playerPlace: "on the oiled wood a few inches from her unlaced rental sneaker",
+      mood: "delighted, territorial, already tasting the idea of you",
       noticed: true,
       shot: "establish",
     };
@@ -397,8 +406,8 @@ Do not add labels, markdown, or extra sections. Never mention AI, models, or pro
     async function boot() {
       setStill("establish");
       addTurn({
-        moment: "A rental sneaker the size of a townhouse takes the left side of the world. Neon crawls over her braces when she looks down.",
-        line: "Oh my god. Hi? Like—don't run. I already saw you.",
+        moment: "Last-call neon crawls over an unlaced rental sneaker the size of a walk-up. The alley is empty. Somewhere a mile up, metal catches the light when she grins down the lane.",
+        line: "Okay so like—don't scream, the manager's in the back and I am not explaining this. I found you in the gutter. You're tiny. And I already decided you're coming home in my hoodie or, wait, worse. Hi.",
       });
       const { ios, ver } = iosHint();
 
