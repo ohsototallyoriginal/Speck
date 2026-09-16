@@ -4,6 +4,8 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
   <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-title" content="Speck" />
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
   <meta name="theme-color" content="#120814" />
   <meta name="format-detection" content="telephone=no" />
@@ -821,6 +823,94 @@
       width: 100%; min-height: 44px; margin-top: 8px;
       border: 0; border-radius: 12px;
       background: var(--panel); color: var(--ink); font-weight: 700;
+    }
+
+    /* ---------- Phone layout (home-screen app friendly) ---------- */
+    @media (max-width: 899px) {
+      html, body { overflow: hidden; overscroll-behavior: none; }
+      body {
+        height: 100dvh;
+        min-height: 0;
+        max-width: 560px;
+      }
+      /* Header: title row + one scrollable row of buttons, nothing overflows */
+      header.top {
+        display: grid;
+        grid-template-columns: minmax(0, 1fr);
+        gap: 8px;
+        padding: 8px 12px 10px;
+        flex: 0 0 auto;
+      }
+      .brand h1, .brand p {
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+      }
+      .brand p { font-size: 1rem; }
+      .tools {
+        flex-wrap: nowrap;
+        justify-content: flex-start;
+        overflow-x: auto;
+        scrollbar-width: none;
+        -webkit-overflow-scrolling: touch;
+        margin: 0 -12px;
+        padding: 0 12px 2px;
+      }
+      .tools::-webkit-scrollbar { display: none; }
+      .tools { gap: 5px; }
+      .tools > * { flex: 0 0 auto; white-space: nowrap; }
+      .tools button, #live { padding: 5px 9px; letter-spacing: .05em; }
+      #gear { padding: 4px 8px; }
+      #live { order: -1; }
+      #gear { margin-left: auto; }
+
+      /* Image: a real hero that fills the width, tap to enlarge */
+      #stage {
+        flex: 0 0 auto;
+        margin: 0 12px;
+        aspect-ratio: auto;
+        height: clamp(200px, 40dvh, 460px);
+        max-height: none;
+        cursor: zoom-in;
+        transition: height .3s ease, opacity .28s ease, filter .28s ease, transform .28s ease;
+      }
+      #stage.big { height: calc(100dvh - 240px - var(--safe-top) - var(--safe-bot)); cursor: zoom-out; }
+      #stage img { object-position: center 30%; }
+      html.kb-open #stage, html.kb-open #stage.big { height: 110px; }
+      html.kb-open #meter { display: none; }
+      #meter { margin: 8px 12px 2px; flex: 0 0 auto; }
+      #log { border-top: 1px solid color-mix(in srgb, var(--hair) 40%, transparent); margin-top: 6px; }
+      .meter-labels { margin-bottom: 4px; }
+      #gate, #goneBanner { flex: 0 0 auto; }
+
+      /* Chat log takes the remaining space and scrolls on its own */
+      #log {
+        flex: 1 1 0;
+        min-height: 0;
+        padding: 12px 12px 12px;
+      }
+
+      /* Controls sit in the layout (not on top of the text) */
+      .dock {
+        position: static;
+        transform: none;
+        width: auto;
+        flex: 0 0 auto;
+        padding: 6px 10px 8px;
+        background: var(--panel2);
+        border-top: 1px solid var(--hair);
+      }
+      html.scene-gut .dock, html.scene-mouth .dock { background: var(--panel2); }
+      .actions { gap: 6px; margin-bottom: 6px; }
+      .actions button { min-height: 40px; border-radius: 12px; box-shadow: none; font-size: .7rem; }
+      .compose-modes { margin-bottom: 6px; }
+      .compose-modes button { min-height: 28px; }
+      .dock .composer { padding: 0; border: 0; background: transparent; }
+      #input { min-height: 42px; padding: 10px 12px; }
+      #send { flex-basis: 64px; min-height: 42px; border-radius: 12px; box-shadow: none; }
+    }
+    @media (max-width: 899px) and (max-height: 640px) {
+      #stage { height: clamp(150px, 30dvh, 260px); }
     }
   </style>
 </head>
@@ -2752,11 +2842,24 @@ This is vore. Swallow is on the table from the first look. Do not fade to fade-t
     els.hide.addEventListener("click", () => speak("I hide in a crack in the approach."));
     els.tease.addEventListener("click", () => speak("I don't hide. Snack. Put me on your tongue or swallow if that is what this is."));
 
+    els.stage.addEventListener("click", () => {
+      els.stage.classList.toggle("big");
+      setTimeout(() => { els.log.scrollTop = els.log.scrollHeight; }, 320);
+    });
+
+    const dockEl = document.querySelector(".dock");
+    if (dockEl && window.ResizeObserver) {
+      new ResizeObserver(() => {
+        document.documentElement.style.setProperty("--dock", dockEl.offsetHeight + "px");
+      }).observe(dockEl);
+    }
+
     if (window.visualViewport) {
       const vv = window.visualViewport;
       const sync = () => {
         const hidden = window.innerHeight - vv.height - vv.offsetTop;
         document.documentElement.style.setProperty("--kb", Math.max(0, hidden) + "px");
+        document.documentElement.classList.toggle("kb-open", hidden > 80);
         els.log.scrollTop = els.log.scrollHeight;
       };
       vv.addEventListener("resize", sync);
