@@ -643,18 +643,30 @@
     <div class="sheet" id="authSheet">
       <h2 style="margin:0 0 8px;font-size:1.05rem">Account</h2>
       <p id="authStatus" style="margin:0 0 8px;color:var(--muted);font-size:.86rem">Guest. Chats stay on this phone until you sign in.</p>
-      <label>Email</label>
-      <input id="authEmail" type="email" autocomplete="username" />
-      <label>Password</label>
-      <input id="authPass" type="password" autocomplete="current-password" />
-      <div id="authErr"></div>
-      <div class="row">
-        <button type="button" id="authIn">Log in</button>
-        <button type="button" id="authUp">Sign up</button>
+      <div id="setupBox">
+        <label>Project URL</label>
+        <input id="sbUrl" type="url" placeholder="https://xxxx.supabase.co" />
+        <label>Anon key</label>
+        <input id="sbAnon" type="text" placeholder="eyJ..." autocomplete="off" />
+        <div class="row"><button type="button" id="sbSave">Save project</button></div>
       </div>
-      <div class="row">
-        <button type="button" id="authOut">Log out</button>
-        <button type="button" id="authClose">Close</button>
+      <div id="loginBox">
+        <label>Email</label>
+        <input id="authEmail" type="email" autocomplete="username" />
+        <label>Password</label>
+        <input id="authPass" type="password" autocomplete="current-password" />
+        <div id="authErr"></div>
+        <div class="row">
+          <button type="button" id="authIn">Log in</button>
+          <button type="button" id="authUp">Sign up</button>
+        </div>
+        <div class="row">
+          <button type="button" id="authOut">Log out</button>
+          <button type="button" id="authClose">Close</button>
+        </div>
+      </div>
+      <div class="row" id="setupCloseRow" style="display:none">
+        <button type="button" id="authClose2">Close</button>
       </div>
     </div>
   </div>
@@ -903,6 +915,13 @@ No markdown. No extra labels. Never mention AI, models, prompts, or being an act
       authUp: document.getElementById("authUp"),
       authOut: document.getElementById("authOut"),
       authClose: document.getElementById("authClose"),
+      authClose2: document.getElementById("authClose2"),
+      setupBox: document.getElementById("setupBox"),
+      loginBox: document.getElementById("loginBox"),
+      setupCloseRow: document.getElementById("setupCloseRow"),
+      sbUrl: document.getElementById("sbUrl"),
+      sbAnon: document.getElementById("sbAnon"),
+      sbSave: document.getElementById("sbSave"),
     };
 
     let sessionUser = null;
@@ -955,9 +974,12 @@ No markdown. No extra labels. Never mention AI, models, prompts, or being an act
 
     function setAuthUi() {
       if (!els.account) return;
+      if (els.setupBox) els.setupBox.style.display = cloudReady ? "none" : "block";
+      if (els.loginBox) els.loginBox.style.display = cloudReady ? "block" : "none";
+      if (els.setupCloseRow) els.setupCloseRow.style.display = cloudReady ? "none" : "block";
       if (!cloudReady) {
         els.account.textContent = "Setup";
-        els.authStatus.textContent = "Paste your Supabase URL and anon key in localStorage as speckSupabaseUrl and speckSupabaseAnon, then reload.";
+        els.authStatus.textContent = "Create a Supabase project, run the SQL file, then paste the Project URL and anon public key here.";
         return;
       }
       if (sessionUser) {
@@ -1610,6 +1632,18 @@ No markdown. No extra labels. Never mention AI, models, prompts, or being an act
 
     els.account.addEventListener("click", openAuth);
     els.authClose.addEventListener("click", closeAuth);
+    if (els.authClose2) els.authClose2.addEventListener("click", closeAuth);
+    els.sbSave.addEventListener("click", () => {
+      const url = (els.sbUrl.value || "").trim();
+      const anon = (els.sbAnon.value || "").trim();
+      if (!url.includes("supabase.co") || anon.length < 20) {
+        els.authStatus.textContent = "Need a real Project URL and the anon public key from Settings → API.";
+        return;
+      }
+      localStorage.setItem("speckSupabaseUrl", url);
+      localStorage.setItem("speckSupabaseAnon", anon);
+      location.reload();
+    });
     els.auth.addEventListener("click", (e) => { if (e.target === els.auth) closeAuth(); });
     els.authIn.addEventListener("click", async () => {
       els.authErr.textContent = "";
