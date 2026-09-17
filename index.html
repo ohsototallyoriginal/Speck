@@ -1128,6 +1128,49 @@
       min-width: 0;
       flex: 1 1 auto;
     }
+    .brand-top {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 2px;
+    }
+    .site-name {
+      font-size: .72rem;
+      font-weight: 900;
+      letter-spacing: .16em;
+      text-transform: uppercase;
+      color: var(--neon);
+    }
+    .home-chip {
+      border: 1px solid var(--hair);
+      background: var(--panel2);
+      color: var(--muted);
+      font-size: .62rem;
+      font-weight: 800;
+      letter-spacing: .08em;
+      text-transform: uppercase;
+      border-radius: 999px;
+      padding: 3px 9px;
+      min-height: 0;
+      cursor: pointer;
+    }
+    .home-chip:hover { color: var(--ink); border-color: var(--neon); }
+    .brand h1 {
+      font-size: 1.05rem;
+      margin: 0;
+      line-height: 1.2;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .brand p {
+      margin: 2px 0 0;
+      font-size: .78rem;
+      color: var(--muted);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
     .ornament {
       flex: 0 0 auto;
       width: 132px;
@@ -1138,73 +1181,17 @@
       box-shadow:
         0 0 0 1px color-mix(in srgb, var(--neon) 35%, transparent),
         0 4px 14px rgba(0,0,0,.35);
+      background: var(--panel2);
     }
-    .ornament svg { overflow: hidden; display: block; width: 132px; height: 40px; }
-    /* Skin field behind the lip strip */
-    .orn-skin { fill: url(#ornSkin); }
-    .orn-cavity { fill: url(#ornCavity); }
-    .orn-tongue { fill: #c43a52; opacity: .85; }
-    .orn-lip-top, .orn-lip-bot { fill: url(#ornLip); }
-    .orn-lip-line { fill: none; stroke: color-mix(in srgb, var(--neon) 55%, #3a1020); stroke-width: .7; opacity: .7; }
-    .orn-teeth { fill: #f2e8e0; opacity: .55; }
-    /* Jaw open/close */
-    .orn-lip-top { animation: ornLipTop 3.2s ease-in-out infinite; transform-origin: 66px 10px; }
-    .orn-lip-bot { animation: ornLipBot 3.2s ease-in-out infinite; transform-origin: 66px 30px; }
-    .orn-cavity-g { animation: ornCavity 3.2s ease-in-out infinite; transform-origin: 66px 20px; }
-    .orn-tongue-g { animation: ornTongue 3.2s ease-in-out infinite; transform-origin: 90px 22px; }
-    /* All-white anon figure being drawn in */
-    .orn-anon { animation: ornAnon 3.2s ease-in-out infinite; }
-    .orn-anon .anon-fill { fill: #f5f7fa; }
-    .orn-anon .anon-line {
-      fill: none;
-      stroke: #f5f7fa;
-      stroke-width: 1.5;
-      stroke-linecap: round;
-      stroke-linejoin: round;
+    .ornament img {
+      display: block;
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      object-position: center;
     }
-    .orn-anon-g { transform-origin: 42px 22px; }
-    /* Glowing speck orbiting the strip */
-    .orn-speck-orbit { animation: ornOrbit 4.8s linear infinite; transform-origin: 66px 20px; }
-    .orn-halo { fill: var(--cyan); opacity: .28; }
-    .orn-dot { fill: #eafcff; filter: drop-shadow(0 0 2px var(--cyan)); }
-    .orn-mote { fill: var(--cyan); opacity: 0; animation: ornTwinkle 3.6s ease-in-out infinite; }
-    .orn-mote.m2 { animation-delay: 1.2s; }
-    .orn-mote.m3 { animation-delay: 2.4s; }
-    .orn-frame { fill: none; stroke: color-mix(in srgb, var(--neon) 40%, transparent); stroke-width: 1; }
-    @keyframes ornLipTop {
-      0%, 100% { transform: translateY(0); }
-      45% { transform: translateY(-5px); }
-      55% { transform: translateY(-5px); }
-    }
-    @keyframes ornLipBot {
-      0%, 100% { transform: translateY(0); }
-      45% { transform: translateY(5px); }
-      55% { transform: translateY(5px); }
-    }
-    @keyframes ornCavity {
-      0%, 100% { transform: scaleY(0.35); opacity: .85; }
-      45%, 55% { transform: scaleY(1); opacity: 1; }
-    }
-    @keyframes ornTongue {
-      0%, 100% { transform: translateX(6px) scale(0.7); opacity: .4; }
-      45%, 55% { transform: translateX(0) scale(1); opacity: .9; }
-    }
-    @keyframes ornAnon {
-      0%, 100% { transform: translate(0, 0) scale(1); opacity: 1; }
-      40% { transform: translate(10px, 1px) scale(0.92); opacity: 1; }
-      52% { transform: translate(22px, 0) scale(0.7); opacity: .85; }
-      62% { transform: translate(28px, 0) scale(0.45); opacity: .35; }
-      72% { transform: translate(8px, 0) scale(0.9); opacity: .9; }
-    }
-    @keyframes ornOrbit {
-      from { transform: rotate(0deg) translate(18px, 0) rotate(0deg); }
-      to   { transform: rotate(360deg) translate(18px, 0) rotate(-360deg); }
-    }
-    @keyframes ornTwinkle { 0%,100% { opacity: 0; } 50% { opacity: .85; } }
     @media (prefers-reduced-motion: reduce) {
-      .ornament *, .ornament { animation: none !important; }
-      .orn-mote { opacity: .55; }
-      .orn-cavity-g { transform: scaleY(0.7); }
+      .ornament img { image-rendering: auto; }
     }
     #settings .sheet { max-height: calc(100dvh - 24px - var(--safe-top)); overflow-y: auto; }
     #settings input[type="checkbox"] { width: 22px; height: 22px; min-height: 0; padding: 0; flex: 0 0 auto; accent-color: var(--neon); }
@@ -1219,11 +1206,15 @@
     #home button { cursor: pointer; }
     .brand h1 {
       margin: 0;
-      font-size: 0.72rem;
-      letter-spacing: .18em;
-      text-transform: uppercase;
-      color: var(--cyan);
-      font-weight: 700;
+      font-size: 1.02rem;
+      letter-spacing: 0;
+      text-transform: none;
+      color: var(--ink);
+      font-weight: 800;
+      line-height: 1.2;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
     }
     .brand p {
       margin: 2px 0 0;
@@ -2313,7 +2304,6 @@
       }
       .brand p { font-size: 1rem; }
       .ornament { width: 108px; height: 32px; margin-right: -2px; }
-      .ornament svg { width: 108px; height: 32px; }
       .tools {
         flex-wrap: nowrap;
         justify-content: flex-start;
@@ -2469,84 +2459,20 @@
   <header class="top">
     <div class="brand-row">
       <div class="brand">
+        <div class="brand-top">
+          <span class="site-name">Speck</span>
+          <button type="button" id="homeBtn" class="home-chip" title="Home">Home</button>
+        </div>
         <h1 id="placeTitle">Night counter</h1>
-        <p id="placeSub">Bodega · 2am</p>
+        <p id="placeSub">Character · scene</p>
       </div>
       <div class="ornament" aria-hidden="true">
-        <svg viewBox="0 0 132 40" width="132" height="40">
-          <defs>
-            <clipPath id="ornClip"><rect x="0" y="0" width="132" height="40" rx="8"/></clipPath>
-            <linearGradient id="ornSkin" x1="0" y1="0" x2="0" y2="1">
-              <stop offset="0" stop-color="#e8b89a"/>
-              <stop offset="0.45" stop-color="#d4927a"/>
-              <stop offset="1" stop-color="#c47868"/>
-            </linearGradient>
-            <linearGradient id="ornLip" x1="0" y1="0" x2="0" y2="1">
-              <stop offset="0" stop-color="#c44a62"/>
-              <stop offset="0.5" stop-color="#a03048"/>
-              <stop offset="1" stop-color="#7a2038"/>
-            </linearGradient>
-            <radialGradient id="ornCavity" cx="70%" cy="50%" r="70%">
-              <stop offset="0" stop-color="#2a0814"/>
-              <stop offset="0.55" stop-color="#14040a"/>
-              <stop offset="1" stop-color="#080206"/>
-            </radialGradient>
-          </defs>
-          <g clip-path="url(#ornClip)">
-            <!-- Widescreen close-up strip of skin -->
-            <rect class="orn-skin" x="0" y="0" width="132" height="40"/>
-
-            <!-- Mouth cavity (scales open with the jaw) -->
-            <g class="orn-cavity-g">
-              <ellipse class="orn-cavity" cx="72" cy="20" rx="38" ry="14"/>
-              <!-- soft teeth hint along the top of the opening -->
-              <path class="orn-teeth" d="M42 14h8v2.2h-8zm10 0h7v2h-7zm9 0h7v2.2h-7zm9 0h7v2h-7zm9 0h7v2.2h-7z"/>
-              <!-- tongue reaching forward when open -->
-              <g class="orn-tongue-g">
-                <ellipse class="orn-tongue" cx="78" cy="23" rx="16" ry="5.5"/>
-              </g>
-            </g>
-
-            <!-- Upper lip strip -->
-            <g class="orn-lip-top">
-              <path d="M6 0h120c0 0-6 8-14 11-10 4-22 6-38 6s-28-2-38-6C28 8 22 0 22 0z"/>
-              <path class="orn-lip-line" d="M18 11c12 4 28 6 48 6s36-2 48-6"/>
-            </g>
-            <!-- Lower lip strip -->
-            <g class="orn-lip-bot">
-              <path d="M10 40h112c0 0-5-7-14-10-11-4-24-6-42-6s-31 2-42 6C15 33 10 40 10 40z"/>
-              <path class="orn-lip-line" d="M20 30c12-3 28-5 46-5s34 2 46 5"/>
-            </g>
-
-            <!-- All-white anon figure at the left of the mouth, getting drawn in -->
-            <g class="orn-anon-g">
-              <g class="orn-anon">
-                <circle class="anon-fill" cx="34" cy="15.5" r="3.4"/>
-                <path class="anon-line" d="M34 19v7.5"/>
-                <path class="anon-line" d="M34 21.2l-3.8-2.6M34 21.2l3.5-2"/>
-                <path class="anon-line" d="M34 26.5l-2.6 4.2M34 26.5l2.8 4"/>
-              </g>
-            </g>
-
-            <!-- Ambient motes inside the strip -->
-            <circle class="orn-mote m1" cx="98" cy="12" r="1"/>
-            <circle class="orn-mote m2" cx="108" cy="22" r="0.9"/>
-            <circle class="orn-mote m3" cx="92" cy="28" r="1.1"/>
-
-            <!-- Glowing speck orbiting the composition -->
-            <g class="orn-speck-orbit">
-              <circle class="orn-halo" cx="0" cy="0" r="4.5"/>
-              <circle class="orn-dot" cx="0" cy="0" r="1.7"/>
-            </g>
-          </g>
-          <!-- Thin frame so it reads as a cropped film strip -->
-          <rect class="orn-frame" x="0.5" y="0.5" width="131" height="39" rx="7.5"/>
-        </svg>
+        <img id="bannerGif" src="banner.gif" alt="" />
       </div>
     </div>
     <div class="tools">
-      <button type="button" id="homeBtn">Home</button>
       <button type="button" id="stories">Stories</button>
+      <button type="button" id="chats">Chats</button>
       <button type="button" id="account">Log in</button>
       <div id="live">Boot</div>
       <button type="button" id="gear" aria-label="Settings">⚙</button>
@@ -2599,17 +2525,21 @@
       <div class="lib-head" id="libHead">
         <span class="lib-grip" aria-hidden="true"></span>
         <h2 id="libTitle">Pick a night</h2>
-        <button type="button" id="libX" aria-label="Close stories">✕</button>
+        <button type="button" id="libX" aria-label="Close">✕</button>
       </div>
-      <p class="hint" style="margin:0 0 8px;color:var(--muted);font-size:.84rem">Each story keeps its own chat on this phone.</p>
-      <h3>Faces</h3>
-      <div id="faceList" class="face-tabs"></div>
-      <h3 id="begHead">Beginnings</h3>
-      <div id="scenarioList"></div>
-      <h3 id="gutHead">Already inside</h3>
-      <div id="gutList"></div>
-      <h3>Saved chats</h3>
-      <div id="chatList"></div>
+      <p class="hint" id="libHint" style="margin:0 0 8px;color:var(--muted);font-size:.84rem">Each story keeps its own chat on this phone.</p>
+      <div id="libStoriesPane">
+        <h3>Faces</h3>
+        <div id="faceList" class="face-tabs"></div>
+        <h3 id="begHead">Beginnings</h3>
+        <div id="scenarioList"></div>
+        <h3 id="gutHead">Already inside</h3>
+        <div id="gutList"></div>
+      </div>
+      <div id="libChatsPane" hidden>
+        <h3>Saved chats</h3>
+        <div id="chatList"></div>
+      </div>
       <button type="button" id="libClose">Close</button>
     </div>
   </div>
@@ -2884,7 +2814,15 @@ establish=her shoe or the room looming, look=her face filling the sky, wave=gian
 No markdown. No extra labels. Never mention AI, models, prompts, or being an actor. Stay in the current scenario location unless STATE says you moved. If STATE conflicts with earlier chat, STATE wins.
 
 STAKES
-This is vore. Swallow is on the table from the first look. Do not fade to fade-to-black when she eats the speck. MOMENT should feel the mouth, throat, or stomach when that is what happened. The girl stays in character. She is not shy about the snack.`;
+This is vore. Swallow is on the table from the first look. Do not fade to fade-to-black when she eats the speck. MOMENT should feel the mouth, throat, or stomach when that is what happened. The girl stays in character. She is not shy about the snack.
+
+INSIDE / STOMACH (critical — never break this)
+Once the speck is swallowed or already inside her stomach/gut (depth gut, SHOT inside/hold/rub/lounge/burp/pat/digest/full/taut, or STATE says they are inside):
+- She CANNOT see the speck. No eye contact, no looking down at them, no describing their face or body as visible.
+- She can only feel them: pressure, tickles, kicks, warmth, squirms against the stomach wall.
+- From outside, the only visual sign is a tiny bulge or ripple under her skin/clothes if they struggle — never a clear view of the person.
+- Dialogue is to the belly / inward, or murmured as if talking to a presence she feels, not someone she is looking at.
+- MOMENT stays in heat, soft walls, wet dark, churn, and sensation — not a lit room she is watching them in.`;
 
 
     const SCENARIOS = {
@@ -6283,6 +6221,7 @@ This is vore. Swallow is on the table from the first look. Do not fade to fade-t
       modeSay: document.getElementById("modeSay"),
       modeDo: document.getElementById("modeDo"),
       stories: document.getElementById("stories"),
+      chats: document.getElementById("chats"),
       homeBtn: document.getElementById("homeBtn"),
       library: document.getElementById("library"),
       faceList: document.getElementById("faceList"),
@@ -6531,8 +6470,12 @@ This is vore. Swallow is on the table from the first look. Do not fade to fade-t
 
     function applyPlace() {
       const s = scenarioOf(game.scenarioId);
+      const c = characterOf(game.characterId);
       els.placeTitle.textContent = activeChatTitle();
-      els.placeSub.textContent = s.sub;
+      // Character name · scenario subtitle
+      const subBits = [c.name];
+      if (s.sub && String(s.sub).trim()) subBits.push(String(s.sub).trim());
+      els.placeSub.textContent = subBits.join(" · ");
       applyTheme();
       paintMeter();
       if (composeReady) setBusy(busy);
@@ -6548,8 +6491,25 @@ This is vore. Swallow is on the table from the first look. Do not fade to fade-t
       syncGutTimer();
     }
 
-    function openLibrary() {
+    function setLibraryMode(mode) {
+      const storiesPane = document.getElementById("libStoriesPane");
+      const chatsPane = document.getElementById("libChatsPane");
+      const title = document.getElementById("libTitle");
+      const hint = document.getElementById("libHint");
+      const isChats = mode === "chats";
+      if (storiesPane) storiesPane.hidden = isChats;
+      if (chatsPane) chatsPane.hidden = !isChats;
+      if (title) title.textContent = isChats ? "Saved chats" : "Stories";
+      if (hint) {
+        hint.textContent = isChats
+          ? "Pick up a night you already started on this phone."
+          : "Choose a face and a beginning — each story keeps its own chat.";
+      }
+    }
+
+    function openLibrary(mode) {
       libFace = null;
+      setLibraryMode(mode === "chats" ? "chats" : "stories");
       renderLibrary();
       const sh = els.library.querySelector(".sheet");
       if (sh) sh.scrollTop = 0;
@@ -7090,9 +7050,14 @@ Never copy SPEECH: or ACTION: into your reply. Reply only with MOMENT, SAY, SHOT
           + ", Intent=" + labelLevel(dm.factors.intent)
           + ". Do NOT finish/digest the speck unless the writing is extremely explicit about final digestion."
           + " Burps/belches are intense (critical). Calm holds, rubs, and settling buy the speck time."
-          + " Prefer SHOT inside, hold, rub, pat, lounge, burp, belch, taut, full, smug.";
+          + " Prefer SHOT inside, hold, rub, pat, lounge, burp, belch, taut, full, smug."
+          + " INSIDE RULE: she cannot SEE the speck — only feel them (or a tiny bulge if they struggle).";
       } else if (game.depth >= 3 && !game.gone) {
-        meterNote = " Speck is inside the gut. Digestion is NOT finished. Keep them present and able to act. Prefer SHOT inside, hold, rub, lounge, pat.";
+        meterNote = " Speck is INSIDE the gut. Digestion is NOT finished. Keep them present and able to act."
+          + " She cannot see them — only feel pressure/kicks/warmth, or notice a tiny bulge if they squirm."
+          + " Prefer SHOT inside, hold, rub, lounge, pat, burp.";
+      } else if (game.depth >= 2 && !game.gone) {
+        meterNote = " Speck is on the swallow path (mouth/throat). Sight is limited to wet dark and motion — not a clear view of a person standing in a room.";
       }
       const state = `STATE: character=${c.name}; scenario=${s.id}; ${who} location=${game.location}; speck is ${game.playerPlace}; mood=${game.mood}; noticed=${game.noticed}; shot=${game.shot}; depth=${game.depth}.` + snack + earlyNote + meterNote + (opts.extra || "");
       return [
@@ -7636,7 +7601,8 @@ Never copy SPEECH: or ACTION: into your reply. Reply only with MOMENT, SAY, SHOT
       els.setMsg.textContent = error ? error.message : "Password updated.";
     });
     els.homeBtn.addEventListener("click", showHome);
-    els.stories.addEventListener("click", openLibrary);
+    els.stories.addEventListener("click", () => openLibrary("stories"));
+    if (els.chats) els.chats.addEventListener("click", () => openLibrary("chats"));
     document.querySelector("#home h1").addEventListener("click", maybeBooth);
     document.querySelector("#library .hint") && document.querySelector("#library .hint").addEventListener("click", () => {
       if (characterOf(game.characterId).id === "ang") maybeBooth();
@@ -7689,7 +7655,7 @@ Never copy SPEECH: or ACTION: into your reply. Reply only with MOMENT, SAY, SHOT
     });
     els.homeStories.addEventListener("click", () => {
       hideHome();
-      openLibrary();
+      openLibrary("stories");
     });
     els.libClose.addEventListener("click", closeLibrary);
     els.library.addEventListener("click", (e) => {
