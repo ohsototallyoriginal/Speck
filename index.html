@@ -1472,6 +1472,36 @@
     }
     .gone-bar { display: none; }
     .dock.gone .gone-bar { display: block; }
+    #skullBar {
+      display: none;
+      align-items: center;
+      justify-content: center;
+      gap: 14px;
+      margin: 0 0 12px;
+      padding: 14px 16px;
+      border-radius: 12px;
+      background: #050505;
+      border: 1px solid #1a1a1a;
+      color: #f2f2f2;
+      box-shadow: inset 0 0 24px rgba(0,0,0,.8);
+    }
+    #skullBar.show { display: flex; }
+    #skullBar .skull {
+      font-size: 1.8rem;
+      line-height: 1;
+      filter: drop-shadow(0 0 10px rgba(255,255,255,.18));
+    }
+    #skullBar .skull-copy {
+      font-size: .82rem;
+      font-weight: 900;
+      letter-spacing: .28em;
+      text-transform: uppercase;
+    }
+    #meter.skull-mode .meter-labels,
+    #meter.skull-mode .meter-track,
+    #meter.skull-mode #digestMeter,
+    #meter.skull-mode #gutSettle,
+    #meter.skull-mode #gutPhase { display: none !important; }
     .dock.gone .actions, .dock.gone .compose-modes, .dock.gone .composer, .dock.gone #composeHint { display: none; }
     #goneNote { margin: 2px 4px 8px; font-size: .78rem; color: var(--muted); }
     .gone-actions { display: grid; grid-template-columns: 2fr 1fr; gap: 8px; }
@@ -2980,6 +3010,10 @@
 
   <div class="dock">
     <div class="gone-bar">
+      <div id="skullBar" hidden>
+        <span class="skull" aria-hidden="true">☠</span>
+        <span class="skull-copy">Gone</span>
+      </div>
       <p id="goneNote">You are gone. She keeps going.</p>
       <div class="gone-actions">
         <button type="button" id="continueNight">Continue her night</button>
@@ -5915,6 +5949,7 @@ Once the speck is swallowed or already inside her stomach/gut (depth gut, SHOT i
       }
       applyScene();
       if (els.goneBanner) els.goneBanner.classList.remove("show");
+      paintSkullBar();
       paintGutPhase();
       paintActions();
     }
@@ -6329,10 +6364,17 @@ Once the speck is swallowed or already inside her stomach/gut (depth gut, SHOT i
     }
 
     function finishDigestMeter() {
-      if (game.gone) return;
-      stopDigestMeter({ clear: true });
+      if (game.gone && game.bowelDone) return;
       clearGutTimer();
-      showFate("digest");
+      game.fate = "digested";
+      game.digestDone = true;
+      // Digest finished → Disposal meter. Not gone until disposal completes.
+      if (!(game.bowel && game.bowel.active) && !game.bowelDone) {
+        startBowelMovement({ path: "dead", silent: false });
+      } else {
+        stopDigestMeter({ clear: true });
+        showFate("digest");
+      }
     }
 
     const BOWEL_MIN_MS = 90 * 1000;
@@ -6413,16 +6455,16 @@ Once the speck is swallowed or already inside her stomach/gut (depth gut, SHOT i
         factors: (game.digestMeter && game.digestMeter.factors) || { hunger: 0.2, fullness: 0.75, intent: 0.7 },
       };
       if (alive && !silent) {
-        addNotice("You forced your way further down. Bowel movement — you're still here.");
+        addNotice("You forced your way further down. Disposal meter — you're still here.");
       } else if (!silent && !game.gone) {
         showFate("bowel");
-        addNotice("Bowel movement. The tracker stays on until she's done.");
+        addNotice("Digest-O finished. Disposal meter is running.");
       } else if (!silent) {
-        addNotice("Bowel movement. She's handling what's left of you.");
+        addNotice("Disposal meter. She's handling what's left of you.");
       }
       paintBowelMeter(alive
-        ? "You pushed past the chamber. The tract is moving you along."
-        : "The chamber is finished. Her body wants you moved along.");
+        ? "You pushed past the chamber. Disposal is moving you along."
+        : "Digest-O is done. Disposal is next.");
       startBowelTicker();
       persist();
     }
@@ -6445,7 +6487,7 @@ Once the speck is swallowed or already inside her stomach/gut (depth gut, SHOT i
       const h = document.getElementById("dmHunger");
       const f = document.getElementById("dmFull");
       const i = document.getElementById("dmIntent");
-      if (title) title.textContent = "Bowel Movement";
+      if (title) title.textContent = "Disposal";
       if (clock) clock.textContent = formatClock(bm.remainingMs);
       if (fill) fill.style.transform = "scaleX(" + Math.max(0, Math.min(1, ratio)).toFixed(4) + ")";
       if (h) h.textContent = ratio > 0.55 ? "Building" : ratio > 0.25 ? "Urgent" : "Now";
@@ -6523,28 +6565,37 @@ Once the speck is swallowed or already inside her stomach/gut (depth gut, SHOT i
       const wasAlive = !!(game.bowel && game.bowel.alive && !game.gone);
       if (game.bowel) game.bowel.active = false;
       game.bowelDone = true;
+      game.digestDone = true;
       stopDigestMeter({ clear: true });
       const panel = document.getElementById("digestMeter");
-      if (panel) panel.classList.remove("bowel");
+      if (panel) panel.classList.remove("bowel", "show");
       const title = document.getElementById("dmTitle");
       if (title) title.textContent = "Digest-O Meter";
-      if (!game.gone) {
-        game.gone = true;
-        game.fate = "digested";
-        setDepth(3);
-        addTurn({
-          moment: wasAlive
-            ? "You forced the last stretch yourself. Heat, pressure, then air that isn't hers."
-            : "The last of you leaves her. She is already thinking about the rest of the night.",
-          line: pickFreshLine("gone"),
-        });
-        addNotice("That's the end of you. Continue her night when you want.");
-      } else {
-        addNotice("She's done with that. The night keeps going.");
-      }
+      game.gone = true;
+      game.fate = "digested";
+      setDepth(3);
+      addTurn({
+        moment: wasAlive
+          ? "You forced the last stretch yourself. Heat, pressure, then air that isn't hers."
+          : "Digestion and disposal are finished. There is nothing left of you but the night she keeps.",
+        line: pickFreshLine("gone"),
+      });
+      paintSkullBar();
       paintMeter();
       persist();
       setBusy(false);
+      addNotice("Both meters are done. You're gone.");
+    }
+
+    function paintSkullBar() {
+      const bar = document.getElementById("skullBar");
+      const done = !!(game.gone && game.bowelDone);
+      if (bar) {
+        bar.hidden = !done;
+        bar.classList.toggle("show", done);
+      }
+      if (els.meter) els.meter.classList.toggle("skull-mode", done);
+      document.documentElement.classList.toggle("skull-end", done);
     }
 
     // Response scoring: each beat can add or subtract time
@@ -6866,6 +6917,7 @@ Once the speck is swallowed or already inside her stomach/gut (depth gut, SHOT i
         digestMeter: null,
         bowel: null,
         bowelDone: false,
+        digestDone: false,
         usedLines: [],
       };
     }
@@ -7614,7 +7666,7 @@ Once the speck is swallowed or already inside her stomach/gut (depth gut, SHOT i
         setDepth(2);
         gulpFx();
       } else if (kind === "bowel") {
-        if (titleEl) titleEl.textContent = "Bowel movement";
+        if (titleEl) titleEl.textContent = "Disposal";
         els.digestLine.textContent = pickFreshLine("bowel");
         if (stayBtn) stayBtn.textContent = "Stay with it";
         els.digest.classList.add("show");
@@ -8416,19 +8468,23 @@ Never copy SPEECH: or ACTION: into your reply. Reply only with MOMENT, SAY, SHOT
     }
     els.digestStay.addEventListener("click", () => {
       els.digest.classList.remove("show");
-      stopDigestMeter({ clear: true });
-      clearGutTimer();
-      game.gone = true;
       game.fate = "digested";
+      game.digestDone = true;
       setDepth(3);
-      addTurn({
-        moment: "The chamber keeps you. There is no more room-scale. Only her.",
-        line: pickFreshLine("digest"),
-      });
+      if (!game.bowelDone && !(game.bowel && game.bowel.active)) {
+        startBowelMovement({ path: "dead", silent: true });
+        addTurn({
+          moment: "The chamber is finished with you. What is left of you is already moving on.",
+          line: pickFreshLine("bowel"),
+        });
+        addNotice("Digest-O is done. Disposal meter is running.");
+      } else if (game.bowelDone) {
+        game.gone = true;
+        paintSkullBar();
+      }
       paintMeter();
       persist();
       setBusy(false);
-      addNotice("You're gone. Continue her night when you're ready.");
     });
     els.homeContinue.addEventListener("click", () => {
       hideHome();
