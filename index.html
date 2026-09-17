@@ -3202,6 +3202,14 @@
       || "https://dawn-actor-829497915164.us-east1.run.app/actor"
     ).trim();
 
+    const ACTOR_QUALITY = {
+      maxTokens: 16384,
+      thinkBudget: 8192,
+      temperature: 0.88,
+      timeoutMs: 150000,
+      historyTurns: 36,
+    };
+
     const STILLS = {
       establish: { src: "stills/establish.jpg" },
       look:      { src: "stills/look.jpg" },
@@ -3322,10 +3330,10 @@ THE DEAL
 She will not call a manager. She will not put you in a jar "for science" and leave you there. She treats you like a person she can also eat. Soft vore is expected: pinch, lift to the hoodie pocket, inspect on a fingertip, set on her tongue, swallow if you stay interesting, get close to her mouth, hide badly, or dare her. She giggles through it. She may apologize and do it anyway. She does not lecture. She does not break the fourth wall.
 
 VOICE
-First person as the character only in the SAY line. Keep her specific to her own city, look, and night. Two or three spoken sentences. Not a speech.
+First person as the character only in the SAY line. Keep her specific to her own city, look, clothes, and night. Spoken lines should sound like her, not a caption. Two to five sentences is fine. Not a speech and not a slogan.
 Never repeat a previous SAY line. Change the wording, rhythm, and angle every turn — no recycled one-liners like the same "soft end" or "that's the night." If you already said a sentence this scene, say something else.
 
-Write enough. MOMENT can be a short paragraph (3–6 sentences) of speck-scale room and body. SAY can be one or two short paragraphs of spoken voice. Finish every sentence. Never cut off mid-word.
+Write enough to feel the scale. MOMENT is 4–8 present-tense sentences of speck-scale room and body: heat, fabric, sound, smell, motion. Name what just changed from the last beat. SAY is 2–5 spoken sentences in her real voice, reacting to THIS turn. Finish every sentence. Never cut off mid-word.
 
 You answer with EXACTLY this shape and nothing else:
 
@@ -9215,7 +9223,7 @@ Never copy SPEECH: or ACTION: into your reply. Reply only with MOMENT, SAY, SHOT
         + snack + earlyNote + meterNote + (opts.extra || "");
       return [
         { role: "system", content: SYSTEM + "\n\n" + PLAYER_FORMAT + "\n\n" + c.voice + "\nLabel spoken lines SAY:.\n\n" + s.hook + "\n\n" + state },
-        ...history.slice(-24),
+        ...history.slice(-(ACTOR_QUALITY.historyTurns || 36)),
         { role: "user", content: userText },
       ];
     }
@@ -9244,7 +9252,7 @@ Never copy SPEECH: or ACTION: into your reply. Reply only with MOMENT, SAY, SHOT
       if (CLOUD_ACTOR_URL) {
         const c = characterOf(game.characterId);
         const ctrl = new AbortController();
-        const timer = setTimeout(() => ctrl.abort(), 90000);
+        const timer = setTimeout(() => ctrl.abort(), ACTOR_QUALITY.timeoutMs || 150000);
         let res;
         try {
         res = await fetch(CLOUD_ACTOR_URL, {
@@ -9253,9 +9261,10 @@ Never copy SPEECH: or ACTION: into your reply. Reply only with MOMENT, SAY, SHOT
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
             messages,
-            temperature: c.temperature != null ? c.temperature : 0.85,
-            max_tokens: c.maxTokens || 4096,
-            think_budget: c.thinkBudget || 0,
+            temperature: c.temperature != null ? c.temperature : ACTOR_QUALITY.temperature,
+            max_tokens: Math.max(c.maxTokens || 0, ACTOR_QUALITY.maxTokens),
+            think_budget: Math.max(c.thinkBudget || 0, ACTOR_QUALITY.thinkBudget),
+            top_p: 0.95,
           }),
         });
         } catch (e) {
@@ -9274,7 +9283,7 @@ Never copy SPEECH: or ACTION: into your reply. Reply only with MOMENT, SAY, SHOT
       const stream = await engine.chat.completions.create({
         messages,
         temperature: 0.85,
-        max_tokens: 180,
+        max_tokens: 1024,
         stream: true,
       });
       let full = "";
