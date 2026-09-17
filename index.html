@@ -5998,29 +5998,55 @@ This is vore. Swallow is on the table from the first look. Do not fade to fade-t
     }
 
     // Response scoring: each beat can add or subtract time
-    const RE_BURP = /\b(burp(s|ed|ing)?|belch(es|ed|ing)?|rancid air|gas rises)\b/i;
-    const RE_CHURN = /\b(churn(s|ed|ing)?|squeeze(s|d)?|cramp(s|ed)?|acid(s|ic)?|dissolve|melting|gurgle)\b/i;
+    const RE_BURP = /\b(burp(s|ed|ing)?|belch(es|ed|ing)?|rancid air|gas rises|air rushes)\b/i;
+    const RE_CHURN = /\b(churn(s|ed|ing)?|squeeze(s|d)?|cramp(s|ed)?|acid(s|ic)?|dissolve|melting|gurgle|knead|tighten)\b/i;
+    const RE_SQUIRM = /\b(squirm(s|ed|ing)?|wriggle(s|d)?|struggle(s|d)?|kick(s|ed|ing)?|thrash(es|ed|ing)?|fight(s|ing)?|punch(es|ed|ing)?|claw(s|ed|ing)?)\b/i;
     const RE_CALM = /\b(settle(s|d)?|gentle|soft hold|rub(s|bed|bing)?|pat(s|ted)?|lounge|rest(s|ing)?|asleep|keep(s|ing)? you|not yet)\b/i;
     const RE_FEED = /\b(just ate|full(er)?|stuffed|heavy meal|satisfied)\b/i;
     const RE_HUNGER = /\b(hungry|starving|empty|craving|needs? a snack)\b/i;
     const RE_REGURG = /\b(regurgitat(e|es|ed|ing)|cough(s|ed|ing)? (you )?up|spit(s|ting)? (you )?out|hack(s|ed)? up|come back up|back (up|out) (her )?throat|onto her tongue|out of her mouth)\b/i;
 
+    // 0 early in the clock → 1 near the end. Later hits hurt more.
+    function digestElapsedScale(dm) {
+      const total = Math.max(1, dm.totalMs || DIGEST_MAX_MS);
+      const elapsed = 1 - Math.max(0, Math.min(1, (dm.remainingMs || 0) / total));
+      // Ease in so mid-clock already feels serious
+      return elapsed * elapsed * 0.35 + elapsed * 0.65;
+    }
+
+    function scaledHitSeconds(dm, minSec, maxSec) {
+      const t = digestElapsedScale(dm);
+      const base = minSec + t * (maxSec - minSec);
+      const jitter = (Math.random() - 0.35) * (maxSec - minSec) * 0.12;
+      return Math.max(minSec, Math.round(base + jitter));
+    }
+
+    function formatHitNote(label, sec) {
+      if (sec >= 60) {
+        const m = Math.floor(sec / 60);
+        const s = sec % 60;
+        return label + " (−" + m + ":" + String(s).padStart(2, "0") + ")";
+      }
+      return label + " (−" + sec + "s)";
+    }
+
     function applyDigestBeat(shot, moment, line, userText) {
       const dm = game.digestMeter;
       if (!dm || !dm.active || game.gone) return;
       const blob = [shot, moment, line, userText].join(" \n ");
+      const userBlob = String(userText || "");
       let delta = 0;
       let note = "";
-      // Reverse path: regurgitation buys a lot of time and can eject you
+
+      // Reverse path: regurgitation buys time and can eject you
       if (RE_REGURG.test(blob) || shot === "tongue" || shot === "palm") {
-        const gain = 50 + Math.floor(Math.random() * 55);
+        const gain = 40 + Math.floor(Math.random() * 50);
         delta += gain * 1000;
         note = "Coming back up (+" + gain + "s)";
         dm.factors.intent = clamp01(dm.factors.intent - 0.12);
         dm.remainingMs = Math.max(0, Math.min(DIGEST_MAX_MS, dm.remainingMs + delta));
         if (dm.remainingMs > dm.totalMs) dm.totalMs = dm.remainingMs;
         paintDigestMeter(note);
-        // Strong regurg language or surface shot → climb the depth meter in reverse
         if (RE_REGURG.test(blob) || shot === "palm" || shot === "look") {
           const target = shot === "palm" || shot === "look" || shot === "shoe" ? 0 : (shot === "tongue" ? 1 : 2);
           setDepth(target, { absolute: true });
@@ -6028,49 +6054,58 @@ This is vore. Swallow is on the table from the first look. Do not fade to fade-t
         persist();
         return;
       }
+
+      // Harsh, time-scaled penalties (early ≈ min, late ≈ max)
+      // Burp: 30s → 3–5 min | Squirm: 45s → 2–4 min | Churn: 25s → ~2 min
       if (RE_BURP.test(blob) || shot === "burp" || shot === "belch") {
-        // Critical hit
-        const hit = 45 + Math.floor(Math.random() * 40); // 45–85s
+        const maxBurp = 180 + Math.floor(Math.random() * 121); // 3:00–5:00
+        const hit = scaledHitSeconds(dm, 30, maxBurp);
         delta -= hit * 1000;
-        note = "Burp — critical hit (−" + hit + "s)";
+        note = formatHitNote("Burp — critical hit", hit);
         if (fxOn()) {
           try { navigator.vibrate && navigator.vibrate([30, 40, 80, 40, 120]); } catch {}
         }
-        dm.factors.intent = clamp01(dm.factors.intent + 0.06);
-        dm.factors.hunger = clamp01(dm.factors.hunger + 0.04);
-      } else if (RE_CHURN.test(blob) || shot === "digest" || shot === "taut") {
-        const hit = 18 + Math.floor(Math.random() * 22);
+        dm.factors.intent = clamp01(dm.factors.intent + 0.08);
+        dm.factors.hunger = clamp01(dm.factors.hunger + 0.05);
+      } else if (RE_SQUIRM.test(blob) || RE_SQUIRM.test(userBlob)) {
+        const hit = scaledHitSeconds(dm, 45, 240); // 45s → 4 min
         delta -= hit * 1000;
-        note = "Chamber works you (−" + hit + "s)";
-        dm.factors.intent = clamp01(dm.factors.intent + 0.04);
+        note = formatHitNote("Squirming draws a squeeze", hit);
+        dm.factors.intent = clamp01(dm.factors.intent + 0.1);
+      } else if (RE_CHURN.test(blob) || shot === "digest" || shot === "taut") {
+        const hit = scaledHitSeconds(dm, 25, 150); // 25s → 2:30
+        delta -= hit * 1000;
+        note = formatHitNote("Chamber works you", hit);
+        dm.factors.intent = clamp01(dm.factors.intent + 0.05);
       } else if (RE_CALM.test(blob) || shot === "lounge" || shot === "hold" || shot === "rub" || shot === "pat") {
-        const gain = 12 + Math.floor(Math.random() * 20);
+        // Calm still helps, but less than a single burp can cost late-game
+        const gain = 10 + Math.floor(Math.random() * 16);
         delta += gain * 1000;
         note = "She settles (+" + gain + "s)";
-        dm.factors.intent = clamp01(dm.factors.intent - 0.03);
+        dm.factors.intent = clamp01(dm.factors.intent - 0.04);
       } else if (RE_FEED.test(blob)) {
-        const gain = 20 + Math.floor(Math.random() * 25);
+        const gain = 15 + Math.floor(Math.random() * 20);
         delta += gain * 1000;
         note = "Fullness helps (+" + gain + "s)";
         dm.factors.fullness = clamp01(dm.factors.fullness + 0.1);
         dm.factors.hunger = clamp01(dm.factors.hunger - 0.08);
       } else if (RE_HUNGER.test(blob)) {
-        const hit = 15 + Math.floor(Math.random() * 15);
+        const hit = scaledHitSeconds(dm, 20, 90);
         delta -= hit * 1000;
-        note = "Hunger spikes (−" + hit + "s)";
-        dm.factors.hunger = clamp01(dm.factors.hunger + 0.1);
+        note = formatHitNote("Hunger spikes", hit);
+        dm.factors.hunger = clamp01(dm.factors.hunger + 0.12);
       } else {
-        // Mild drift toward digestion over time
-        const hit = 4 + Math.floor(Math.random() * 8);
+        const hit = scaledHitSeconds(dm, 8, 28);
         delta -= hit * 1000;
-        note = "Slow burn (−" + hit + "s)";
+        note = formatHitNote("Slow burn", hit);
       }
-      // Player struggle / dare can nudge intent up
-      if (/\b(struggle|kick|fight|dare|snack|eat me|digest me)\b/i.test(userText || "")) {
-        dm.factors.intent = clamp01(dm.factors.intent + 0.05);
+
+      // Extra intent spike if the player dares her
+      if (/\b(dare|snack|eat me|digest me|finish me)\b/i.test(userBlob)) {
+        dm.factors.intent = clamp01(dm.factors.intent + 0.08);
       }
+
       dm.remainingMs = Math.max(0, Math.min(DIGEST_MAX_MS, dm.remainingMs + delta));
-      // Recalibrate total floor so bar stays meaningful
       if (dm.remainingMs > dm.totalMs) dm.totalMs = dm.remainingMs;
       paintDigestMeter(note);
       if (dm.remainingMs <= 0) finishDigestMeter();
