@@ -1251,7 +1251,12 @@
       padding: 6px 10px;
     }
     #gear { min-width: 32px; font-size: 0.95rem; padding: 4px 8px; letter-spacing: 0; text-transform: none; }
-    .tools button:hover, #homeBtn:hover, #stories:hover { border-color: var(--neon); color: var(--neon); }
+    .tools button:hover, #homeBtn:hover, #stories:hover, #chats:hover { border-color: var(--neon); color: var(--neon); }
+    .tools button.on {
+      border-color: var(--neon);
+      color: var(--neon);
+      background: color-mix(in srgb, var(--neon) 12%, var(--panel2));
+    }
 
     #stage {
       position: relative;
@@ -1974,6 +1979,26 @@
       position: absolute; top: 7px; left: 50%; transform: translateX(-50%);
       width: 40px; height: 4px; border-radius: 4px; background: var(--hair);
     }
+    .lib-switch {
+      display: flex; gap: 8px; margin: 0 0 12px;
+    }
+    .lib-switch button {
+      flex: 1;
+      min-height: 36px;
+      border-radius: 999px;
+      border: 1px solid var(--hair);
+      background: var(--panel);
+      color: var(--muted);
+      font-size: .72rem;
+      font-weight: 800;
+      letter-spacing: .08em;
+      text-transform: uppercase;
+    }
+    .lib-switch button.on {
+      border-color: var(--neon);
+      color: var(--ink);
+      background: color-mix(in srgb, var(--neon) 14%, var(--panel2));
+    }
     #libX {
       flex: 0 0 36px; height: 36px; border-radius: 50%;
       border: 1px solid var(--hair); background: var(--panel); color: var(--ink);
@@ -2205,8 +2230,12 @@
       box-sizing: border-box;
     }
     #digestMeter.show { display: block; }
-    /* Keep the Palm→Gut tracker visible; digest/bowel meters stack under it */
-    #meter.digest-mode #digestMeter { margin-top: 8px; }
+    /* Digest / bowel replace the palm→gut strip so it doesn't reprint as white labels */
+    #meter.digest-mode .meter-labels,
+    #meter.digest-mode .meter-track { display: none; }
+    #meter.digest-mode #digestMeter { margin-top: 0; }
+    #meter.digest-mode #gutPhase { display: none; }
+    #goneBanner { display: none !important; }
     #digestMeter.hot { border-color: rgba(255, 140, 60, .55); }
     #digestMeter.critical {
       border-color: rgba(255, 70, 50, .75);
@@ -2729,6 +2758,10 @@
         <button type="button" id="libX" aria-label="Close">✕</button>
       </div>
       <p class="hint" id="libHint" style="margin:0 0 8px;color:var(--muted);font-size:.84rem">Each story keeps its own chat on this phone.</p>
+      <div class="lib-switch" role="tablist">
+        <button type="button" id="libTabStories" class="on" role="tab">Stories</button>
+        <button type="button" id="libTabChats" role="tab">Saved chats</button>
+      </div>
       <div id="libStoriesPane">
         <h3>Faces</h3>
         <div id="faceList" class="face-tabs"></div>
@@ -5750,7 +5783,7 @@ Once the speck is swallowed or already inside her stomach/gut (depth gut, SHOT i
         els.meter.classList.toggle("bowel-mode", bowelOn);
       }
       applyScene();
-      if (els.goneBanner) els.goneBanner.classList.toggle("show", !!game.gone);
+      if (els.goneBanner) els.goneBanner.classList.remove("show");
       paintGutPhase();
       paintActions();
     }
@@ -6297,7 +6330,7 @@ Once the speck is swallowed or already inside her stomach/gut (depth gut, SHOT i
 
     function tickBowelMovement() {
       const bm = game.bowel;
-      if (!bm || !bm.active || game.gone) {
+      if (!bm || !bm.active) {
         if (bowelTimer) { clearInterval(bowelTimer); bowelTimer = null; }
         return;
       }
@@ -6317,7 +6350,7 @@ Once the speck is swallowed or already inside her stomach/gut (depth gut, SHOT i
 
     function applyBowelBeat(shot, moment, line, userText) {
       const bm = game.bowel;
-      if (!bm || !bm.active || game.gone) return;
+      if (!bm || !bm.active) return;
       const blob = [shot, moment, line, userText].join(" \n ");
       let delta = 0;
       let note = "";
@@ -6978,6 +7011,8 @@ Once the speck is swallowed or already inside her stomach/gut (depth gut, SHOT i
 
     function closeLibrary() {
       els.library.classList.remove("show");
+      if (els.stories) els.stories.classList.remove("on");
+      if (els.chats) els.chats.classList.remove("on");
       applyTheme(game.characterId);
       syncGutTimer();
     }
@@ -6987,6 +7022,8 @@ Once the speck is swallowed or already inside her stomach/gut (depth gut, SHOT i
       const chatsPane = document.getElementById("libChatsPane");
       const title = document.getElementById("libTitle");
       const hint = document.getElementById("libHint");
+      const tabS = document.getElementById("libTabStories");
+      const tabC = document.getElementById("libTabChats");
       const isChats = mode === "chats";
       if (storiesPane) storiesPane.hidden = isChats;
       if (chatsPane) chatsPane.hidden = !isChats;
@@ -6996,15 +7033,19 @@ Once the speck is swallowed or already inside her stomach/gut (depth gut, SHOT i
           ? "Pick up a night you already started on this phone."
           : "Choose a face and a beginning — each story keeps its own chat.";
       }
+      if (tabS) tabS.classList.toggle("on", !isChats);
+      if (tabC) tabC.classList.toggle("on", isChats);
+      if (els.stories) els.stories.classList.toggle("on", !isChats && els.library && els.library.classList.contains("show"));
+      if (els.chats) els.chats.classList.toggle("on", isChats && els.library && els.library.classList.contains("show"));
     }
 
     function openLibrary(mode) {
       libFace = null;
+      els.library.classList.add("show");
       setLibraryMode(mode === "chats" ? "chats" : "stories");
       renderLibrary();
       const sh = els.library.querySelector(".sheet");
       if (sh) sh.scrollTop = 0;
-      els.library.classList.add("show");
       pauseGutTimer();
     }
 
@@ -8264,6 +8305,10 @@ Never copy SPEECH: or ACTION: into your reply. Reply only with MOMENT, SAY, SHOT
       if (!e.target.closest(".sheet")) closeLibrary();
     });
     document.getElementById("libX").addEventListener("click", closeLibrary);
+    const libTabStories = document.getElementById("libTabStories");
+    const libTabChats = document.getElementById("libTabChats");
+    if (libTabStories) libTabStories.addEventListener("click", () => { setLibraryMode("stories"); renderLibrary(); });
+    if (libTabChats) libTabChats.addEventListener("click", () => { setLibraryMode("chats"); renderLibrary(); });
     (() => {
       const head = document.getElementById("libHead");
       const sheet = els.library.querySelector(".sheet");
