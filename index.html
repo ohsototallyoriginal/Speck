@@ -2144,9 +2144,18 @@
       border: 1px solid var(--hair); background: var(--panel); color: var(--ink);
       font-size: .95rem; cursor: pointer;
     }
+    .face-group { margin: 0 0 12px; }
+    .face-group h4 {
+      margin: 0 0 6px;
+      font-size: .62rem;
+      letter-spacing: .16em;
+      text-transform: uppercase;
+      color: var(--muted);
+      font-weight: 800;
+    }
     .face-tabs {
       display: flex; gap: 8px; overflow-x: auto;
-      padding: 2px 0 10px; margin: 0 -4px 4px;
+      padding: 2px 0 8px; margin: 0 -4px 0;
       scrollbar-width: none;
     }
     .face-tabs::-webkit-scrollbar { display: none; }
@@ -3167,8 +3176,7 @@
         <button type="button" id="libTabChats" role="tab">Saved chats</button>
       </div>
       <div id="libStoriesPane">
-        <h3>Who</h3>
-        <div id="faceList" class="face-tabs"></div>
+        <div id="faceList"></div>
         <div class="night-tools">
           <div class="night-tabs" role="tablist">
             <button type="button" id="nightTabBegin" class="on">Start outside</button>
@@ -7145,7 +7153,16 @@ Once the speck is swallowed or already inside her stomach/gut (depth gut, SHOT i
     };
 
 
-    const FACE_ORDER = ["mara", "ang", "maddy", "maggie", "fran", "nat", "alex", "sable", "tessa", "priya", "wren"];
+    const FACE_ORDER = ["ang", "maddy", "maggie", "fran", "nat", "alex", "mara", "sable", "tessa", "priya", "wren", "billie", "jlaw", "cardi", "june", "zendaya", "sydney", "icespice"];
+    const FACE_GROUPS = [
+      { id: "friends", label: "Friend group", ids: ["ang", "maddy", "maggie", "fran", "nat", "alex"] },
+      { id: "originals", label: "Originals", ids: ["mara", "sable", "tessa", "priya", "wren"] },
+      { id: "celebs", label: "Celebrities", ids: ["billie", "jlaw", "cardi", "june", "zendaya", "sydney", "icespice"] },
+    ];
+    function faceGroupOf(id) {
+      const g = FACE_GROUPS.find((x) => x.ids.indexOf(id) >= 0);
+      return g ? g.id : "originals";
+    }
 
     function characterList() {
       const seen = new Set();
@@ -8821,7 +8838,8 @@ Once the speck is swallowed or already inside her stomach/gut (depth gut, SHOT i
       const lib = readLib();
       if (!libFace || !CHARACTERS[libFace]) libFace = characterOf(game.characterId).id;
       els.faceList.innerHTML = "";
-      characterList().forEach((c) => {
+      const used = new Set();
+      const makeChip = (c) => {
         const b = document.createElement("button");
         b.type = "button";
         b.className = "card" + (c.id === libFace ? " active" : "");
@@ -8831,8 +8849,34 @@ Once the speck is swallowed or already inside her stomach/gut (depth gut, SHOT i
         b.querySelector("span").textContent = c.blurb;
         if (!c.ready) b.disabled = true;
         else b.addEventListener("click", () => browseFace(c.id));
-        els.faceList.appendChild(b);
+        return b;
+      };
+      FACE_GROUPS.forEach((g) => {
+        const pack = g.ids.map((id) => CHARACTERS[id]).filter((c) => c && c.ready);
+        if (!pack.length) return;
+        pack.forEach((c) => used.add(c.id));
+        const wrap = document.createElement("div");
+        wrap.className = "face-group";
+        const h = document.createElement("h4");
+        h.textContent = g.label;
+        const rail = document.createElement("div");
+        rail.className = "face-tabs";
+        pack.forEach((c) => rail.appendChild(makeChip(c)));
+        wrap.append(h, rail);
+        els.faceList.appendChild(wrap);
       });
+      const leftover = characterList().filter((c) => c.ready && !used.has(c.id));
+      if (leftover.length) {
+        const wrap = document.createElement("div");
+        wrap.className = "face-group";
+        const h = document.createElement("h4");
+        h.textContent = "More";
+        const rail = document.createElement("div");
+        rail.className = "face-tabs";
+        leftover.forEach((c) => rail.appendChild(makeChip(c)));
+        wrap.append(h, rail);
+        els.faceList.appendChild(wrap);
+      }
       const pack = characterOf(libFace);
       const q = ((document.getElementById("nightSearch") || {}).value || "").trim().toLowerCase();
       const tab = libNightTab || "begin";
@@ -8884,33 +8928,50 @@ Once the speck is swallowed or already inside her stomach/gut (depth gut, SHOT i
         empty.style.color = "var(--muted)";
         empty.textContent = "No saved chats yet.";
         els.chatList.appendChild(empty);
+      } else {
+        const buckets = { friends: [], originals: [], celebs: [] };
+        chats.forEach((c) => {
+          const face = c.characterId || (c.game && c.game.characterId) || ownerOfScenario(c.scenarioId) || "mara";
+          const g = faceGroupOf(face);
+          (buckets[g] || buckets.originals).push(c);
+        });
+        const labels = { friends: "Friend group", originals: "Originals", celebs: "Celebrities" };
+        ["friends", "originals", "celebs"].forEach((key) => {
+          const list = buckets[key];
+          if (!list.length) return;
+          const h = document.createElement("h3");
+          h.textContent = labels[key] + " · " + list.length;
+          els.chatList.appendChild(h);
+          list.forEach((c) => {
+            const row = document.createElement("div");
+            row.className = "chatrow";
+            const b = document.createElement("button");
+            b.type = "button";
+            b.className = "card" + (c.id === activeChatId ? " active" : "");
+            const when = c.at ? new Date(c.at).toLocaleString() : "";
+            const face = c.characterId || (c.game && c.game.characterId) || "";
+            const who = (CHARACTERS[face] && CHARACTERS[face].name) || "";
+            b.innerHTML = "<b></b><span></span>";
+            b.querySelector("b").textContent = (who ? who + " · " : "") + (c.title || "Chat");
+            b.querySelector("span").textContent = when + " · " + ((c.logTurns && c.logTurns.length) || 0) + " beats";
+            b.addEventListener("click", () => openChat(c.id));
+            const rn = document.createElement("button");
+            rn.type = "button";
+            rn.className = "iconbtn";
+            rn.title = "Rename";
+            rn.textContent = "Aa";
+            rn.addEventListener("click", (e) => { e.stopPropagation(); renameChat(c.id); });
+            const del = document.createElement("button");
+            del.type = "button";
+            del.className = "iconbtn danger";
+            del.title = "Delete";
+            del.textContent = "×";
+            del.addEventListener("click", (e) => { e.stopPropagation(); deleteChat(c.id); });
+            row.append(b, rn, del);
+            els.chatList.appendChild(row);
+          });
+        });
       }
-      chats.forEach((c) => {
-        const row = document.createElement("div");
-        row.className = "chatrow";
-        const b = document.createElement("button");
-        b.type = "button";
-        b.className = "card" + (c.id === activeChatId ? " active" : "");
-        const when = c.at ? new Date(c.at).toLocaleString() : "";
-        b.innerHTML = "<b></b><span></span>";
-        b.querySelector("b").textContent = (c.title || "Chat");
-        b.querySelector("span").textContent = when + " · " + ((c.logTurns && c.logTurns.length) || 0) + " beats";
-        b.addEventListener("click", () => openChat(c.id));
-        const rn = document.createElement("button");
-        rn.type = "button";
-        rn.className = "iconbtn";
-        rn.title = "Rename";
-        rn.textContent = "Aa";
-        rn.addEventListener("click", (e) => { e.stopPropagation(); renameChat(c.id); });
-        const del = document.createElement("button");
-        del.type = "button";
-        del.className = "iconbtn danger";
-        del.title = "Delete";
-        del.textContent = "×";
-        del.addEventListener("click", (e) => { e.stopPropagation(); deleteChat(c.id); });
-        row.append(b, rn, del);
-        els.chatList.appendChild(row);
-      });
     }
 
 
@@ -9732,7 +9793,7 @@ No markdown. No MOMENT. No SHOT. Never speak as ${her}.`;
       newChat("ang-booth", "ang");
     }
     function paintHomeFaces() {
-      const featuredIds = ["ang", "maddy", "maggie", "fran", "mara"];
+      const featuredIds = ["ang", "maddy", "maggie", "fran", "nat", "alex"];
       const makeFace = (c) => {
         const b = document.createElement("button");
         b.type = "button";
