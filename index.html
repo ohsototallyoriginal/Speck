@@ -2016,6 +2016,161 @@
       font-size: .86rem;
     }
     #goneBanner.show { display: block; }
+
+    /* ——— Digest-O Meter ——— */
+    #digestFx {
+      position: fixed; inset: 0; z-index: 6; pointer-events: none;
+      opacity: 0; transition: opacity .6s ease;
+    }
+    #digestFx.on { opacity: 1; }
+    #digestFx .fx-bubbles { position: absolute; inset: 0; overflow: hidden; }
+    #digestFx .fx-bubble {
+      position: absolute; bottom: -8%;
+      border-radius: 50%;
+      background: radial-gradient(circle at 30% 30%, rgba(180,255,120,.55), rgba(80,160,40,.12) 55%, transparent 70%);
+      box-shadow: inset 0 0 6px rgba(200,255,140,.35);
+      animation: digBubble linear infinite;
+      opacity: .55;
+    }
+    #digestFx .fx-gurgle {
+      position: absolute; inset: 0;
+      background:
+        radial-gradient(60% 40% at 50% 80%, rgba(120,200,60,.14), transparent 55%),
+        radial-gradient(40% 30% at 30% 60%, rgba(200,80,40,.1), transparent 50%);
+      animation: digGurgle 3.2s ease-in-out infinite alternate;
+      opacity: .4;
+    }
+    #digestFx .fx-vignette {
+      position: absolute; inset: 0;
+      box-shadow: inset 0 0 80px 20px rgba(40,10,0,.35);
+      transition: box-shadow .8s ease;
+    }
+    html.digest-hot #digestFx .fx-vignette {
+      box-shadow: inset 0 0 100px 28px rgba(120,30,0,.55);
+    }
+    html.digest-critical #digestFx .fx-vignette {
+      box-shadow: inset 0 0 120px 40px rgba(160,20,10,.72);
+      animation: digPulse 1.1s ease-in-out infinite;
+    }
+    html.digest-critical #stage {
+      animation: digShake .45s ease-in-out infinite;
+    }
+    @keyframes digBubble {
+      0% { transform: translate3d(0, 0, 0) scale(.6); opacity: 0; }
+      12% { opacity: .65; }
+      100% { transform: translate3d(var(--dx, 0), -110vh, 0) scale(1.15); opacity: 0; }
+    }
+    @keyframes digGurgle {
+      from { filter: hue-rotate(0deg) brightness(1); transform: scale(1); }
+      to { filter: hue-rotate(18deg) brightness(1.12); transform: scale(1.04); }
+    }
+    @keyframes digPulse {
+      0%, 100% { opacity: .85; }
+      50% { opacity: 1; }
+    }
+    @keyframes digShake {
+      0%, 100% { transform: translate(0, 0); }
+      25% { transform: translate(-1px, 1px); }
+      75% { transform: translate(1px, -1px); }
+    }
+    #digestMeter {
+      position: fixed;
+      left: 50%;
+      transform: translateX(-50%) translateY(12px);
+      bottom: calc(var(--dock) + var(--kb) + var(--safe-bot) + 8px);
+      z-index: 12;
+      width: min(360px, calc(100% - 24px));
+      padding: 12px 14px 10px;
+      border-radius: 16px;
+      border: 1px solid rgba(180, 220, 80, .35);
+      background: linear-gradient(180deg, rgba(28, 36, 14, .92), rgba(12, 16, 8, .94));
+      box-shadow: 0 12px 40px rgba(0,0,0,.45), 0 0 0 1px rgba(0,0,0,.2);
+      backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
+      opacity: 0; visibility: hidden; pointer-events: none;
+      transition: opacity .35s ease, visibility .35s ease, transform .35s ease, border-color .4s ease;
+    }
+    #digestMeter.show {
+      opacity: 1; visibility: visible; pointer-events: auto;
+      transform: translateX(-50%) translateY(0);
+    }
+    #digestMeter.hot { border-color: rgba(255, 140, 60, .55); }
+    #digestMeter.critical {
+      border-color: rgba(255, 70, 50, .75);
+      box-shadow: 0 12px 40px rgba(80,0,0,.4), 0 0 24px rgba(255,60,40,.25);
+    }
+    #digestMeter .dm-head {
+      display: flex; align-items: center; justify-content: space-between; gap: 8px;
+      margin-bottom: 8px;
+    }
+    #digestMeter .dm-title {
+      font-size: .68rem; letter-spacing: .14em; text-transform: uppercase;
+      font-weight: 800; color: #c8f06a;
+    }
+    #digestMeter.hot .dm-title { color: #ffb060; }
+    #digestMeter.critical .dm-title { color: #ff6a55; }
+    #digestMeter .dm-clock {
+      font-variant-numeric: tabular-nums;
+      font-weight: 800; font-size: 1.05rem;
+      color: var(--ink); letter-spacing: .04em;
+    }
+    #digestMeter .dm-track {
+      height: 10px; border-radius: 99px;
+      background: rgba(0,0,0,.4);
+      overflow: hidden; position: relative;
+    }
+    #digestMeter .dm-fill {
+      display: block; height: 100%; width: 100%;
+      border-radius: 99px;
+      background: linear-gradient(90deg, #7ad420, #d4f06a);
+      transform-origin: left center;
+      transition: transform .4s linear, background .5s ease;
+    }
+    #digestMeter.hot .dm-fill {
+      background: linear-gradient(90deg, #e87820, #ffc060);
+    }
+    #digestMeter.critical .dm-fill {
+      background: linear-gradient(90deg, #c43020, #ff7050);
+      animation: digFillPulse .9s ease-in-out infinite;
+    }
+    @keyframes digFillPulse {
+      0%, 100% { filter: brightness(1); }
+      50% { filter: brightness(1.25); }
+    }
+    #digestMeter .dm-stats {
+      display: flex; gap: 8px; margin-top: 8px; flex-wrap: wrap;
+    }
+    #digestMeter .dm-stat {
+      flex: 1 1 auto;
+      min-width: 72px;
+      font-size: .62rem; letter-spacing: .06em; text-transform: uppercase;
+      color: var(--muted);
+    }
+    #digestMeter .dm-stat b {
+      display: block; font-size: .78rem; letter-spacing: 0;
+      text-transform: none; color: var(--ink); margin-top: 2px; font-weight: 700;
+    }
+    #digestMeter .dm-toast {
+      margin-top: 8px; min-height: 1.2em;
+      font-size: .78rem; color: #d8f090;
+      transition: color .3s ease;
+    }
+    #digestMeter.hot .dm-toast { color: #ffc080; }
+    #digestMeter.critical .dm-toast { color: #ff9a88; }
+    #digestMeter .dm-note {
+      margin: 6px 0 0; font-size: .7rem; color: var(--muted); line-height: 1.35;
+    }
+    @media (prefers-reduced-motion: reduce) {
+      #digestFx .fx-bubble, #digestFx .fx-gurgle,
+      html.digest-critical #digestFx .fx-vignette,
+      html.digest-critical #stage,
+      #digestMeter.critical .dm-fill { animation: none !important; }
+    }
+    @media (min-width: 900px) {
+      #digestMeter { bottom: 24px; left: auto; right: 24px; transform: none; }
+      #digestMeter.show { transform: none; }
+    }
+
     #libClose {
       width: 100%; min-height: 44px; margin-top: 8px;
       border: 0; border-radius: 12px;
@@ -2254,6 +2409,26 @@
   </div>
   </div>
   <div id="goneBanner">You are gone. The log stays. She can keep going below, or start a new night.</div>
+
+  <div id="digestFx" aria-hidden="true">
+    <div class="fx-gurgle"></div>
+    <div class="fx-bubbles" id="digestBubbles"></div>
+    <div class="fx-vignette"></div>
+  </div>
+  <div id="digestMeter" role="status" aria-live="polite" aria-label="Digest-O Meter">
+    <div class="dm-head">
+      <span class="dm-title">Digest-O Meter</span>
+      <span class="dm-clock" id="dmClock">--:--</span>
+    </div>
+    <div class="dm-track"><i class="dm-fill" id="dmFill"></i></div>
+    <div class="dm-stats">
+      <div class="dm-stat">Hunger <b id="dmHunger">—</b></div>
+      <div class="dm-stat">Fullness <b id="dmFull">—</b></div>
+      <div class="dm-stat">Intent <b id="dmIntent">—</b></div>
+    </div>
+    <div class="dm-toast" id="dmToast"></div>
+    <p class="dm-note">Survive the chamber. Burps are critical hits. Calm her down to buy time.</p>
+  </div>
 
   <div id="library">
     <div class="sheet" role="dialog" aria-modal="true" aria-labelledby="libTitle">
@@ -5264,8 +5439,303 @@ This is vore. Swallow is on the table from the first look. Do not fade to fade-t
     }
 
     function setDepth(n) {
-      game.depth = Math.max(game.depth || 0, n);
+      const prev = game.depth || 0;
+      game.depth = Math.max(prev, n);
       paintMeter();
+      if (game.depth >= 3 && prev < 3 && !game.gone && game.fate !== "digested") {
+        if (!game.gutEnteredAt) game.gutEnteredAt = Date.now();
+        armDigestWatch();
+      }
+    }
+
+    /* ——— Digest-O Meter system ——— */
+    const GUT_ARM_MS = 2 * 60 * 1000;          // 2 min in gut before meter appears
+    const DIGEST_MIN_MS = 5 * 60 * 1000;       // 5 min floor
+    const DIGEST_MAX_MS = 20 * 60 * 1000;      // 20 min ceiling
+    let digestTimer = null;
+    let digestWatch = null;
+    let digestToastTimer = null;
+
+    function clamp01(n) { return Math.max(0, Math.min(1, n)); }
+
+    function labelLevel(v) {
+      if (v < 0.28) return "Low";
+      if (v < 0.55) return "Medium";
+      if (v < 0.78) return "High";
+      return "Critical";
+    }
+
+    function formatClock(ms) {
+      const s = Math.max(0, Math.ceil(ms / 1000));
+      const m = Math.floor(s / 60);
+      const r = s % 60;
+      return m + ":" + String(r).padStart(2, "0");
+    }
+
+    function inferDigestFactors() {
+      const blob = history.slice(-12).map((m) => m.content || "").join(" ").toLowerCase();
+      let hunger = 0.45 + Math.random() * 0.2;
+      let fullness = 0.4 + Math.random() * 0.2;
+      let intent = 0.4 + Math.random() * 0.2;
+      if (/\b(starving|famished|ravenous|skipped (lunch|dinner)|empty stomach)\b/.test(blob)) hunger += 0.28;
+      if (/\b(hungry|peckish|snack|craving)\b/.test(blob)) hunger += 0.14;
+      if (/\b(full|stuffed|heavy|just ate|after dinner|after lunch|bloated)\b/.test(blob)) { fullness += 0.28; hunger -= 0.12; }
+      if (/\b(coffee|tea|salad|light)\b/.test(blob)) fullness -= 0.08;
+      if (/\b(want(s|ed)? you (gone|finished)|keep you|mine|soft end|digest)\b/.test(blob)) intent += 0.22;
+      if (/\b(careful|gentle|not yet|don't|hold|safe)\b/.test(blob)) intent -= 0.12;
+      if (/\b(burp|belch|churn)\b/.test(blob)) { hunger += 0.08; intent += 0.1; }
+      // Character temperament nudge
+      const id = game.characterId || "";
+      if (/dimitrescu|giganta|shego|cardi|icespice/.test(id)) intent += 0.08;
+      if (/zendaya|garnet|twob|june|sydney/.test(id)) intent -= 0.06;
+      return {
+        hunger: clamp01(hunger),
+        fullness: clamp01(fullness),
+        intent: clamp01(intent),
+      };
+    }
+
+    function computeDigestDuration(factors) {
+      // Hungrier + higher intent + emptier = shorter clock
+      const danger = factors.hunger * 0.4 + factors.intent * 0.4 + (1 - factors.fullness) * 0.2;
+      const ms = DIGEST_MAX_MS - danger * (DIGEST_MAX_MS - DIGEST_MIN_MS);
+      // slight variance
+      const jitter = (Math.random() - 0.5) * 60 * 1000;
+      return Math.round(Math.max(DIGEST_MIN_MS, Math.min(DIGEST_MAX_MS, ms + jitter)));
+    }
+
+    function armDigestWatch() {
+      if (digestWatch || game.gone || (game.digestMeter && game.digestMeter.active)) return;
+      const entered = game.gutEnteredAt || Date.now();
+      game.gutEnteredAt = entered;
+      const wait = Math.max(0, GUT_ARM_MS - (Date.now() - entered));
+      digestWatch = setTimeout(() => {
+        digestWatch = null;
+        if (!game.gone && game.depth >= 3 && game.fate !== "digested") startDigestMeter();
+      }, wait);
+    }
+
+    function startDigestMeter(saved) {
+      if (game.gone || game.fate === "digested") return;
+      const factors = (saved && saved.factors) || inferDigestFactors();
+      const totalMs = (saved && saved.totalMs) || computeDigestDuration(factors);
+      const remainingMs = (saved && typeof saved.remainingMs === "number")
+        ? saved.remainingMs
+        : totalMs;
+      game.digestMeter = {
+        active: true,
+        startedAt: (saved && saved.startedAt) || Date.now(),
+        totalMs,
+        remainingMs: Math.max(0, remainingMs),
+        factors,
+        lastTick: Date.now(),
+      };
+      spawnBubbles(10);
+      paintDigestMeter("The chamber notices you. Clock is running.");
+      startDigestTicker();
+      persist();
+    }
+
+    function startDigestTicker() {
+      if (digestTimer) clearInterval(digestTimer);
+      digestTimer = setInterval(tickDigestMeter, 1000);
+      tickDigestMeter();
+    }
+
+    function stopDigestMeter(opts) {
+      opts = opts || {};
+      if (digestTimer) { clearInterval(digestTimer); digestTimer = null; }
+      if (digestWatch) { clearTimeout(digestWatch); digestWatch = null; }
+      const root = document.documentElement;
+      root.classList.remove("digest-hot", "digest-critical");
+      const fx = document.getElementById("digestFx");
+      const panel = document.getElementById("digestMeter");
+      if (fx) fx.classList.remove("on");
+      if (panel) panel.classList.remove("show", "hot", "critical");
+      if (game.digestMeter) game.digestMeter.active = false;
+      if (opts.clear) {
+        game.digestMeter = null;
+        game.gutEnteredAt = null;
+      }
+    }
+
+    function spawnBubbles(n) {
+      const host = document.getElementById("digestBubbles");
+      if (!host) return;
+      host.innerHTML = "";
+      const count = Math.max(6, Math.min(28, n | 0));
+      for (let i = 0; i < count; i++) {
+        const b = document.createElement("i");
+        b.className = "fx-bubble";
+        const size = 8 + Math.random() * 28;
+        b.style.width = size + "px";
+        b.style.height = size + "px";
+        b.style.left = (Math.random() * 100) + "%";
+        b.style.setProperty("--dx", ((Math.random() - 0.5) * 80) + "px");
+        b.style.animationDuration = (4 + Math.random() * 7) + "s";
+        b.style.animationDelay = (-Math.random() * 8) + "s";
+        host.appendChild(b);
+      }
+    }
+
+    function dmToast(msg) {
+      const el = document.getElementById("dmToast");
+      if (!el) return;
+      el.textContent = msg || "";
+      if (digestToastTimer) clearTimeout(digestToastTimer);
+      if (msg) {
+        digestToastTimer = setTimeout(() => {
+          if (el.textContent === msg) el.textContent = "";
+        }, 4200);
+      }
+    }
+
+    function paintDigestMeter(toastMsg) {
+      const dm = game.digestMeter;
+      const panel = document.getElementById("digestMeter");
+      const fx = document.getElementById("digestFx");
+      if (!dm || !dm.active || !panel) return;
+      const ratio = dm.totalMs > 0 ? dm.remainingMs / dm.totalMs : 0;
+      const clock = document.getElementById("dmClock");
+      const fill = document.getElementById("dmFill");
+      const h = document.getElementById("dmHunger");
+      const f = document.getElementById("dmFull");
+      const i = document.getElementById("dmIntent");
+      if (clock) clock.textContent = formatClock(dm.remainingMs);
+      if (fill) fill.style.transform = "scaleX(" + Math.max(0, Math.min(1, ratio)).toFixed(4) + ")";
+      if (h) h.textContent = labelLevel(dm.factors.hunger);
+      if (f) f.textContent = labelLevel(dm.factors.fullness);
+      if (i) i.textContent = labelLevel(dm.factors.intent);
+      panel.classList.add("show");
+      panel.classList.toggle("hot", ratio <= 0.4 && ratio > 0.18);
+      panel.classList.toggle("critical", ratio <= 0.18);
+      if (fx) fx.classList.add("on");
+      const root = document.documentElement;
+      root.classList.toggle("digest-hot", ratio <= 0.4 && ratio > 0.18);
+      root.classList.toggle("digest-critical", ratio <= 0.18);
+      // Intensify bubbles as time runs out
+      const bubbleN = ratio > 0.55 ? 10 : ratio > 0.3 ? 16 : ratio > 0.15 ? 22 : 28;
+      const host = document.getElementById("digestBubbles");
+      if (host && host.childElementCount !== bubbleN) spawnBubbles(bubbleN);
+      if (toastMsg) dmToast(toastMsg);
+    }
+
+    function tickDigestMeter() {
+      const dm = game.digestMeter;
+      if (!dm || !dm.active || game.gone) {
+        stopDigestMeter();
+        return;
+      }
+      if (game.depth < 3) {
+        // Left the gut somehow — pause meter visually but keep state
+        paintDigestMeter();
+        return;
+      }
+      const now = Date.now();
+      const dt = Math.min(5000, Math.max(0, now - (dm.lastTick || now)));
+      dm.lastTick = now;
+      dm.remainingMs = Math.max(0, dm.remainingMs - dt);
+      paintDigestMeter();
+      if (dm.remainingMs <= 0) {
+        finishDigestMeter();
+      }
+    }
+
+    function finishDigestMeter() {
+      stopDigestMeter();
+      if (game.gone || game.fate === "digested") return;
+      showFate("digest");
+      // Auto-commit to gone after a beat if they don't pick — they still get the dialog
+    }
+
+    // Response scoring: each beat can add or subtract time
+    const RE_BURP = /\b(burp(s|ed|ing)?|belch(es|ed|ing)?|rancid air|gas rises)\b/i;
+    const RE_CHURN = /\b(churn(s|ed|ing)?|squeeze(s|d)?|cramp(s|ed)?|acid(s|ic)?|dissolve|melting|gurgle)\b/i;
+    const RE_CALM = /\b(settle(s|d)?|gentle|soft hold|rub(s|bed|bing)?|pat(s|ted)?|lounge|rest(s|ing)?|asleep|keep(s|ing)? you|not yet)\b/i;
+    const RE_FEED = /\b(just ate|full(er)?|stuffed|heavy meal|satisfied)\b/i;
+    const RE_HUNGER = /\b(hungry|starving|empty|craving|needs? a snack)\b/i;
+
+    function applyDigestBeat(shot, moment, line, userText) {
+      const dm = game.digestMeter;
+      if (!dm || !dm.active || game.gone) return;
+      const blob = [shot, moment, line, userText].join(" \n ");
+      let delta = 0;
+      let note = "";
+      if (RE_BURP.test(blob) || shot === "burp" || shot === "belch") {
+        // Critical hit
+        const hit = 45 + Math.floor(Math.random() * 40); // 45–85s
+        delta -= hit * 1000;
+        note = "Burp — critical hit (−" + hit + "s)";
+        if (fxOn()) {
+          try { navigator.vibrate && navigator.vibrate([30, 40, 80, 40, 120]); } catch {}
+        }
+        dm.factors.intent = clamp01(dm.factors.intent + 0.06);
+        dm.factors.hunger = clamp01(dm.factors.hunger + 0.04);
+      } else if (RE_CHURN.test(blob) || shot === "digest" || shot === "taut") {
+        const hit = 18 + Math.floor(Math.random() * 22);
+        delta -= hit * 1000;
+        note = "Chamber works you (−" + hit + "s)";
+        dm.factors.intent = clamp01(dm.factors.intent + 0.04);
+      } else if (RE_CALM.test(blob) || shot === "lounge" || shot === "hold" || shot === "rub" || shot === "pat") {
+        const gain = 12 + Math.floor(Math.random() * 20);
+        delta += gain * 1000;
+        note = "She settles (+" + gain + "s)";
+        dm.factors.intent = clamp01(dm.factors.intent - 0.03);
+      } else if (RE_FEED.test(blob)) {
+        const gain = 20 + Math.floor(Math.random() * 25);
+        delta += gain * 1000;
+        note = "Fullness helps (+" + gain + "s)";
+        dm.factors.fullness = clamp01(dm.factors.fullness + 0.1);
+        dm.factors.hunger = clamp01(dm.factors.hunger - 0.08);
+      } else if (RE_HUNGER.test(blob)) {
+        const hit = 15 + Math.floor(Math.random() * 15);
+        delta -= hit * 1000;
+        note = "Hunger spikes (−" + hit + "s)";
+        dm.factors.hunger = clamp01(dm.factors.hunger + 0.1);
+      } else {
+        // Mild drift toward digestion over time
+        const hit = 4 + Math.floor(Math.random() * 8);
+        delta -= hit * 1000;
+        note = "Slow burn (−" + hit + "s)";
+      }
+      // Player struggle / dare can nudge intent up
+      if (/\b(struggle|kick|fight|dare|snack|eat me|digest me)\b/i.test(userText || "")) {
+        dm.factors.intent = clamp01(dm.factors.intent + 0.05);
+      }
+      dm.remainingMs = Math.max(0, Math.min(DIGEST_MAX_MS, dm.remainingMs + delta));
+      // Recalibrate total floor so bar stays meaningful
+      if (dm.remainingMs > dm.totalMs) dm.totalMs = dm.remainingMs;
+      paintDigestMeter(note);
+      if (dm.remainingMs <= 0) finishDigestMeter();
+      else persist();
+    }
+
+    function resumeDigestMeterFromSave() {
+      if (game.gone || game.fate === "digested") {
+        stopDigestMeter({ clear: true });
+        return;
+      }
+      if (game.digestMeter && game.digestMeter.active) {
+        // Account for time away
+        const dm = game.digestMeter;
+        if (dm.lastTick) {
+          const away = Date.now() - dm.lastTick;
+          if (away > 0 && away < 6 * 60 * 60 * 1000) {
+            dm.remainingMs = Math.max(0, dm.remainingMs - away);
+          }
+        }
+        dm.lastTick = Date.now();
+        if (dm.remainingMs <= 0) {
+          finishDigestMeter();
+          return;
+        }
+        startDigestTicker();
+        paintDigestMeter("Still in the chamber…");
+        return;
+      }
+      if (game.depth >= 3 && game.gutEnteredAt) {
+        armDigestWatch();
+      }
     }
 
     const LIB_KEY = "dawnLib.v1";
@@ -5357,6 +5827,8 @@ This is vore. Swallow is on the table from the first look. Do not fade to fade-t
         gone: false,
         afterPasses: 0,
         bathroomAfter: 0,
+        gutEnteredAt: null,
+        digestMeter: null,
       };
     }
     let game = freshGame("mara-laundry", "mara");
@@ -5669,6 +6141,7 @@ This is vore. Swallow is on the table from the first look. Do not fade to fade-t
     function newChat(scenarioId, characterId) {
       const s = scenarioOf(scenarioId);
       swapView(() => {
+        stopDigestMeter({ clear: true });
         activeChatId = "chat-" + Date.now();
         game = freshGame(s.id, characterId || game.characterId || "mara");
         history = [];
@@ -5679,6 +6152,13 @@ This is vore. Swallow is on the table from the first look. Do not fade to fade-t
         if (s.opening) addTurn(s.opening);
         els.gulp.classList.remove("show");
         els.digest.classList.remove("show");
+        // Gut-start scenarios arm the meter after 2 minutes inside
+        if (game.depth >= 3 || (s.gut || (s.shot === "inside"))) {
+          game.depth = Math.max(game.depth || 0, 3);
+          game.gutEnteredAt = Date.now();
+          paintMeter();
+          armDigestWatch();
+        }
       });
     }
 
@@ -5687,6 +6167,7 @@ This is vore. Swallow is on the table from the first look. Do not fade to fade-t
       const data = lib.chats[id];
       if (!data) return;
       swapView(() => {
+        stopDigestMeter({ clear: true });
         activeChatId = id;
         const next = readLib();
         next.activeId = id;
@@ -5702,6 +6183,7 @@ This is vore. Swallow is on the table from the first look. Do not fade to fade-t
         turns.forEach((turn) => addTurn(turn));
         els.gulp.classList.remove("show");
         els.digest.classList.remove("show");
+        resumeDigestMeterFromSave();
       });
     }
 
@@ -5993,14 +6475,15 @@ This is vore. Swallow is on the table from the first look. Do not fade to fade-t
         els.digest.classList.add("show");
         game.fate = "digested";
         setDepth(3);
+        stopDigestMeter({ clear: true });
         gulpFx();
       }
       applyScene();
       persist();
     }
 
-    // Very explicit wording only (used during the first two player messages)
-    const EXPLICIT_DIGEST = /\b(fully|completely|totally|finished|done) digest(ed|ing)?\b|\bdigested (you|the speck)\b|\bnothing (is )?left of you\b|\byou('re| are) (gone|nothing but)\b|\bsoft end\b/;
+    // DIGESTED is hard: needs Digest-O Meter active + strong explicit language, or meter timeout
+    const EXPLICIT_DIGEST = /\b(fully|completely|totally|finished|done) digest(ed|ing)?\b|\bdigested (you|the speck)\b|\bnothing (is )?left of you\b|\byou('re| are) (gone|nothing but)\b|\bsoft end\b|\bthe chamber finishes\b|\bno more (of )?you\b/;
     const PLAYER_WANTS_DIGEST = /\b(digest(ed)?|dissolve|melt me|finish me|let me go(ne)?|end me|soft end)\b/i;
 
     function playerTurnCount() {
@@ -6009,14 +6492,19 @@ This is vore. Swallow is on the table from the first look. Do not fade to fade-t
 
     function readFate(shot, moment, line, opts) {
       const blob = [shot, moment, line].join(" ").toLowerCase();
+      const meterOn = !!(game.digestMeter && game.digestMeter.active);
       if (opts && opts.early) {
-        const explicit = EXPLICIT_DIGEST.test(blob) || (opts.asked && /\bdigest/.test(blob));
-        if (!explicit) {
-          if (shot === "inside" || /\b(gulp(ed|s)?|swallowed you|down her throat|you slide down)\b/.test(blob)) return "gulp";
-          return null;
-        }
+        // First messages: never digest via text alone
+        if (shot === "inside" || /\b(gulp(ed|s)?|swallowed you|down her throat|you slide down)\b/.test(blob)) return "gulp";
+        return null;
       }
-      if (/\b(digest(ed|ing)?|churn(ed|ing)?|stomach acids?|soft end)\b/.test(blob)) return "digest";
+      // Digest only if meter is running AND language is strongly explicit (or player begged)
+      if (meterOn) {
+        const hard = EXPLICIT_DIGEST.test(blob);
+        const begged = opts && opts.asked && EXPLICIT_DIGEST.test(blob);
+        if (hard || begged) return "digest";
+      }
+      // Without meter: digest text is flavor only — never auto-finish
       if (shot === "inside" || /\b(gulp(ed|s)?|swallowed you|down her throat|you slide down)\b/.test(blob)) return "gulp";
       return null;
     }
@@ -6131,7 +6619,21 @@ Never copy SPEECH: or ACTION: into your reply. Reply only with MOMENT, SAY, SHOT
       const earlyNote = (opts.turnNo && opts.turnNo <= 2 && !PLAYER_WANTS_DIGEST.test(userText) && !game.gone)
         ? " This is player message " + opts.turnNo + " of the scene: do NOT digest or finish the speck yet. A swallow is fine only if it clearly fits; keep the speck alive and able to respond."
         : "";
-      const state = `STATE: character=${c.name}; scenario=${s.id}; ${who} location=${game.location}; speck is ${game.playerPlace}; mood=${game.mood}; noticed=${game.noticed}; shot=${game.shot}; depth=${game.depth}.` + snack + earlyNote + (opts.extra || "");
+      let meterNote = "";
+      if (game.digestMeter && game.digestMeter.active && !game.gone) {
+        const dm = game.digestMeter;
+        const secs = Math.max(0, Math.ceil(dm.remainingMs / 1000));
+        meterNote = " DIGEST-O METER is active: ~" + secs + "s left on the chamber clock."
+          + " Hunger=" + labelLevel(dm.factors.hunger)
+          + ", Fullness=" + labelLevel(dm.factors.fullness)
+          + ", Intent=" + labelLevel(dm.factors.intent)
+          + ". Do NOT finish/digest the speck unless the writing is extremely explicit about final digestion."
+          + " Burps/belches are intense (critical). Calm holds, rubs, and settling buy the speck time."
+          + " Prefer SHOT inside, hold, rub, pat, lounge, burp, belch, taut, full, smug.";
+      } else if (game.depth >= 3 && !game.gone) {
+        meterNote = " Speck is inside the gut. Digestion is NOT finished. Keep them present and able to act. Prefer SHOT inside, hold, rub, lounge, pat.";
+      }
+      const state = `STATE: character=${c.name}; scenario=${s.id}; ${who} location=${game.location}; speck is ${game.playerPlace}; mood=${game.mood}; noticed=${game.noticed}; shot=${game.shot}; depth=${game.depth}.` + snack + earlyNote + meterNote + (opts.extra || "");
       return [
         { role: "system", content: SYSTEM + "\n\n" + PLAYER_FORMAT + "\n\n" + c.voice + "\nLabel spoken lines SAY:.\n\n" + s.hook + "\n\n" + state },
         ...history.slice(-24),
@@ -6226,6 +6728,13 @@ Never copy SPEECH: or ACTION: into your reply. Reply only with MOMENT, SAY, SHOT
         const fate = readFate(shot, moment, line, { early, asked: PLAYER_WANTS_DIGEST.test(userText) });
         if (fate === "digest" && game.fate !== "digested") showFate("digest");
         else if (fate === "gulp" && game.fate !== "swallowed" && game.fate !== "digested") showFate("gulp");
+        // Digest-O Meter reacts to this beat when you're in the chamber
+        if (game.depth >= 3 && game.digestMeter && game.digestMeter.active && game.fate !== "digested") {
+          applyDigestBeat(shot, moment, line, userText);
+        } else if (game.depth >= 3 && !game.gone && game.fate !== "digested") {
+          if (!game.gutEnteredAt) game.gutEnteredAt = Date.now();
+          armDigestWatch();
+        }
       } catch (err) {
         wrap.remove();
         typing.remove();
@@ -6301,6 +6810,7 @@ Never copy SPEECH: or ACTION: into your reply. Reply only with MOMENT, SAY, SHOT
     }
 
     function restoreSave(data) {
+      stopDigestMeter({ clear: true });
       const face = (data.game && data.game.characterId) || data.characterId || "mara";
       Object.assign(game, freshGame(data.game && data.game.scenarioId, face), data.game || {}, { characterId: face });
       history = data.history.slice();
@@ -6309,11 +6819,13 @@ Never copy SPEECH: or ACTION: into your reply. Reply only with MOMENT, SAY, SHOT
       setStill(game.shot || "establish");
       const turns = data.logTurns.length ? data.logTurns : [openingOf()];
       turns.forEach((turn) => addTurn(turn));
+      resumeDigestMeterFromSave();
     }
 
     function resetNight() {
       if (busy) return;
       if (!confirm("Start the night over? This clears the saved chat on this phone.")) return;
+      stopDigestMeter({ clear: true });
       clearSave();
       const sid = game.scenarioId || "mara-laundry";
       game = freshGame(sid, game.characterId);
@@ -6381,6 +6893,8 @@ Never copy SPEECH: or ACTION: into your reply. Reply only with MOMENT, SAY, SHOT
         setStill(game.shot);
         applyPlace();
       }
+      // restoreSave already resumes meter; cover fresh gut starts just in case
+      if (!game.gone) resumeDigestMeterFromSave();
       const first = !localStorage.getItem("speckHomeSeen");
       if (first) {
         localStorage.setItem("speckHomeSeen", "1");
@@ -6665,6 +7179,7 @@ Never copy SPEECH: or ACTION: into your reply. Reply only with MOMENT, SAY, SHOT
     }
     els.digestStay.addEventListener("click", () => {
       els.digest.classList.remove("show");
+      stopDigestMeter({ clear: true });
       game.gone = true;
       game.fate = "digested";
       setDepth(3);
