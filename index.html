@@ -54,25 +54,25 @@
       --hair: rgba(255,79,216,.35);
       --glass: rgba(18,8,20,.78);
     }
-    html[data-face="rae"] {
-      --skin-hi: #e2b089;
-      --skin: #b97b52;
-      --neon: #ffb15a;
-      --cyan: #3fd4c4;
-      --you: #3a5a52;
-      --panel: #1d3532;
-      --panel2: #10201e;
-      --linebg: #2a4a44;
-      --dawn: #1a3330;
-      --muted: #b9d8d3;
-      --hair: rgba(63,212,196,.35);
-      --glass: rgba(8,16,16,.8);
+    html[data-face="mara"] {
+      --skin-hi: #e8b898;
+      --skin: #c08058;
+      --neon: #e87858;
+      --cyan: #f0c8a0;
+      --you: #5a3a30;
+      --panel: #3a2420;
+      --panel2: #140c0a;
+      --linebg: #5a3830;
+      --dawn: #2a1814;
+      --muted: #e0c8b8;
+      --hair: rgba(232,120,88,.42);
+      --glass: rgba(16,8,6,.86);
     }
-    html[data-face="rae"] #world .alley {
+    html[data-face="mara"] #world .alley {
       background:
-        radial-gradient(55% 38% at 20% 15%, rgba(255,177,90,.18), transparent 55%),
-        radial-gradient(50% 35% at 85% 75%, rgba(63,212,196,.12), transparent 52%),
-        #0a1010;
+        radial-gradient(55% 38% at 20% 15%, rgba(232,120,88,.18), transparent 55%),
+        radial-gradient(50% 35% at 85% 75%, rgba(180,100,60,.12), transparent 52%),
+        #140c0a;
     }
     html[data-face="ang"] {
       --skin-hi: #b07a55;
@@ -947,7 +947,7 @@
     }
 
 
-    html[data-face="rae"].scene-mouth #world .mouth {
+    html[data-face="mara"].scene-mouth #world .mouth {
       background:
         radial-gradient(70% 50% at 50% 0%, rgba(180,70,30,.5), transparent 55%),
         #220c08;
@@ -957,7 +957,7 @@
         radial-gradient(70% 50% at 50% 0%, rgba(160,80,40,.5), transparent 55%),
         #1c0c08;
     }
-    html[data-face="rae"].scene-gut #world .gut {
+    html[data-face="mara"].scene-gut #world .gut {
       background:
         radial-gradient(90% 45% at 50% 100%, rgba(70,200,90,.26), transparent 42%),
         linear-gradient(180deg, #120808 0%, #2a100c 55%, #102010 100%);
@@ -1026,7 +1026,7 @@
       animation: gullet 2.6s linear infinite;
     }
     @keyframes gullet { from { background-position: 0 0; } to { background-position: 0 42px; } }
-    html[data-face="rae"] #world .throat {
+    html[data-face="mara"] #world .throat {
       background:
         radial-gradient(40% 70% at 50% 110%, rgba(8,2,0,.95), transparent 60%),
         radial-gradient(90% 40% at 50% -5%, rgba(190,80,40,.5), transparent 55%),
@@ -1512,10 +1512,10 @@
     }
     #homeContinue { background: var(--neon); color: #2a0818; }
     #homeStories { background: var(--panel); color: var(--ink); }
-    html[data-face="rae"] #home {
+    html[data-face="mara"] #home {
       background:
-        radial-gradient(70% 50% at 50% 0%, rgba(255,177,90,.2), transparent 55%),
-        #070a0a;
+        radial-gradient(70% 50% at 50% 0%, rgba(232,120,88,.22), transparent 55%),
+        #140c0a;
     }
     html[data-face="ang"] #home {
       background:
@@ -2410,18 +2410,18 @@
       lace:      { src: "stills/lace.jpg" },
       inside:    { src: "stills/inside.jpg" },
       kneel:     { src: "stills/kneel.jpg" },
-      street:    { src: "stills/rae/street.jpg" },
-      door:      { src: "stills/rae/door.jpg" },
-      subway:    { src: "stills/rae/subway.jpg" },
-      arms:      { src: "stills/rae/arms.jpg" },
-      point:     { src: "stills/rae/point.jpg" },
-      nail:      { src: "stills/rae/nail.jpg" },
-      phone:     { src: "stills/rae/phone.jpg" },
-      profile:   { src: "stills/rae/profile.jpg" },
-      roof:      { src: "stills/rae/roof.jpg" },
-      cup:       { src: "stills/rae/cup.jpg" },
-      portrait:  { src: "stills/rae/portrait.jpg" },
-      aisle:     { src: "stills/rae/aisle.jpg" },
+      street:    { src: "stills/mara/street.jpg" },
+      door:      { src: "stills/mara/door.jpg" },
+      subway:    { src: "stills/mara/subway.jpg" },
+      arms:      { src: "stills/mara/arms.jpg" },
+      point:     { src: "stills/mara/point.jpg" },
+      nail:      { src: "stills/mara/nail.jpg" },
+      phone:     { src: "stills/mara/phone.jpg" },
+      profile:   { src: "stills/mara/profile.jpg" },
+      roof:      { src: "stills/mara/roof.jpg" },
+      cup:       { src: "stills/mara/cup.jpg" },
+      portrait:  { src: "stills/mara/portrait.jpg" },
+      aisle:     { src: "stills/mara/aisle.jpg" },
       paint:     { src: "stills/ang/paint.jpg" },
       desk:      { src: "stills/ang/desk.jpg" },
       hoodie:    { src: "stills/ang/hoodie.jpg" },
@@ -2546,20 +2546,20 @@ This is vore. Swallow is on the table from the first look. Do not fade to fade-t
         hook: "SCENARIO: Blank start. There is no prewritten opening. The player's first message is the first beat. Do not invent an earlier meeting or place unless the player says so.",
         opening: null,
       },
-      "rae-inside": {
-        id: "rae-inside",
-        title: "Register after",
-        sub: "Already down",
-        blurb: "Skip the tickets. You are already in the warm dark.",
-        location: "inside Rae after the counter",
-        playerPlace: "in the quiet dark of her stomach",
-        mood: "dry, finished with the conversation",
+      "mara-inside": {
+        id: "mara-inside",
+        title: "Already in",
+        sub: "Warm dark",
+        blurb: "Skip the talk. You are already where she put you.",
+        location: "inside Mara",
+        playerPlace: "in the dark warm chamber",
+        mood: "low voice, settled, not performing",
         shot: "inside",
         gut: true,
-        hook: "SCENARIO: Speck already swallowed. Rae is dry. Prefer SHOT inside, gut. Do not rewind to the register.",
+        hook: "SCENARIO: Speck already inside Mara. Original MILF energy—warm, dry, adult. Prefer SHOT inside, hold, rub, lounge, digest.",
         opening: {
-          moment: "No tickets. No neon. Heat and a slow squeeze. She does not narrate it.",
-          line: "If you talk I feel it. That's the whole review.",
+          moment: "Heat. Soft pressure. No performance. Only her breath and the quiet of a body that has done this on purpose.",
+          line: "There. You're in. Soft. Don't make me explain it to the morning.",
         },
       },
       "ang-booth": {
@@ -2578,127 +2578,186 @@ This is vore. Swallow is on the table from the first look. Do not fade to fade-t
           line: "If this is a date you should've picked better fries. Talk if you want. I'm already tired.",
         },
       },
-      "rae-shop": {
-        id: "rae-shop",
-        title: "Night counter",
-        sub: "Bodega · 2am",
-        blurb: "Rae found you next to the lottery tickets.",
-        location: "late-night bodega counter, Queens",
-        playerPlace: "beside the scratch-off display on the laminate",
-        mood: "tired, unimpressed, already deciding",
-        shot: "arms",
-        hook: "SCENARIO: 2am bodega register. Rae noticed a talking speck by the lottery tickets. Dry. Prefer SHOT arms, aisle, point, palm, pinch, nail.",
+      "mara-laundry": {
+        id: "mara-laundry",
+        title: "Late laundry",
+        sub: "24h · machines",
+        blurb: "She found you on the folding table. Detergent and late TV.",
+        location: "24-hour laundromat at night, folding table, humming dryers",
+        playerPlace: "on the scarred folding table near a basket",
+        mood: "tired warmth, already deciding what to do with you",
+        shot: "look",
+        hook: "SCENARIO: Mara at the laundromat late. Speck on the table. Adult, dry-warm, no girlish performance. Prefer SHOT look, palm, pinch, sit, whisper.",
         opening: {
-          moment: "Fluorescent hum. Cold case light. She has her arms crossed a mile above the tickets.",
-          line: "If you're a prank, I'm too tired. If you're real, you picked the wrong shift. Talk.",
+          moment: "Fluorescent hum. A dryer thumps like a distant heart. Her hand lands near you with the weight of someone who has folded a thousand loads.",
+          line: "If you're a prank, I'm too old. If you're real—talk. I am not chasing you under a machine.",
         },
       },
-      "rae-aisle": {
-        id: "rae-aisle",
-        title: "Chip aisle",
-        sub: "Between the racks",
-        blurb: "You are on the tile. She is the whole hallway.",
-        location: "bodega snack aisle, teal freezer at the end",
-        playerPlace: "on the tile between the chip racks",
-        mood: "hunting the floor without kneeling yet",
-        shot: "establish",
-        hook: "SCENARIO: Snack aisle. Speck on the tile. Prefer SHOT establish, aisle, shoe, kneel, point.",
+      "mara-kitchen": {
+        id: "mara-kitchen",
+        title: "Kitchen light",
+        sub: "After midnight",
+        blurb: "Wine glass. Bare feet. You are on the counter.",
+        location: "Mara's apartment kitchen after midnight, under-cabinet light",
+        playerPlace: "on the counter near a wine glass base",
+        mood: "unguarded, low voice, curious",
+        shot: "look",
+        hook: "SCENARIO: Mara in her kitchen late. Prefer SHOT look, palm, pinch, sit, lounge, whisper.",
         opening: {
-          moment: "Bags of chips make canyon walls. A freezer hums at the far end. Two sneakers close the aisle.",
-          line: "Don't run under the rack. I already saw you. That's just rude.",
+          moment: "Tile cool underfoot for her; for you the counter is a plateau. Wine meniscus. Bare toes somewhere below the frame.",
+          line: "Don't fall in the glass. I only have the one clean. Come here—or talk from there.",
         },
       },
-      "rae-street": {
-        id: "rae-street",
-        title: "After shift",
-        sub: "Wet sidewalk",
-        blurb: "She clocked out. You are still with her.",
-        location: "wet Queens sidewalk outside the bodega at night",
-        playerPlace: "somewhere on the wet concrete near her sneakers",
-        mood: "off the clock, still not dumping you",
-        shot: "street",
-        hook: "SCENARIO: Outside after shift. Wet street. Prefer SHOT street, phone, shoe, pocket.",
+      "mara-couch": {
+        id: "mara-couch",
+        title: "Couch",
+        sub: "TV low",
+        blurb: "She put you on the armrest. On purpose.",
+        location: "living room couch, TV glow, throw blanket",
+        playerPlace: "on the couch armrest",
+        mood: "settled, mildly possessive already",
+        shot: "sit",
+        hook: "SCENARIO: Mara on the couch with speck. Prefer SHOT sit, look, palm, lounge, whisper, hold.",
         opening: {
-          moment: "Rain on the awning. Bodega neon writes itself on the sidewalk. She does not look like she is taking you back inside.",
-          line: "Shift's over. You're either coming home in a pocket or you're a smear. Pick.",
+          moment: "Fabric weave. Remote the size of a door. Her thigh is a warm ridge a step away.",
+          line: "Stay on the arm. If you tumble into the cushions I am not digging for an hour.",
         },
       },
-      "rae-subway": {
-        id: "rae-subway",
-        title: "Last train",
-        sub: "Holding the pole",
-        blurb: "Fluorescent car. She is the tallest thing in it.",
-        location: "late-night NYC subway car",
-        playerPlace: "somewhere on her as the car rocks",
-        mood: "public, quiet, unimpressed",
-        shot: "subway",
-        hook: "SCENARIO: Subway home. Prefer SHOT subway, pocket, palm, whisper. Do not rewind to the register.",
+      "mara-bed": {
+        id: "mara-bed",
+        title: "Bedside",
+        sub: "Lamp · quiet",
+        blurb: "Phone face-down. She has you in her palm.",
+        location: "bedroom, one lamp, phone face-down, sheets",
+        playerPlace: "in her open palm above the sheet",
+        mood: "intimate, dry, adult",
+        shot: "palm",
+        hook: "SCENARIO: Mara bedside with speck in hand. Prefer SHOT palm, whisper, look, lounge, bed.",
         opening: {
-          moment: "The car lurches. A steel pole is a tree trunk in her fist. Nobody is looking down far enough to see you.",
-          line: "If you yell, I put you in the rail gap. Sit still.",
+          moment: "Sheet texture. Lamp halo. Her palm is a warm room with fingerprint ridges for hills.",
+          line: "No speeches. You're here. I am not turning the lamp up for a show.",
         },
       },
-      "rae-door": {
-        id: "rae-door",
-        title: "Her building",
-        sub: "Hallway bulb",
-        blurb: "Keys. Peeling paint. She has not decided the room yet.",
-        location: "Queens walk-up hallway, her apartment doorway",
-        playerPlace: "near the threshold or already in her hand",
-        mood: "private now, still dry",
-        shot: "door",
-        hook: "SCENARIO: Her building doorway. Prefer SHOT door, palm, pocket, whisper.",
+      "mara-street": {
+        id: "mara-street",
+        title: "Walk home",
+        sub: "Block quiet",
+        blurb: "She almost stepped on you. She did not.",
+        location: "sidewalk on her block at night, streetlamp, quiet cars",
+        playerPlace: "on the concrete near her shoe",
+        mood: "startled then in charge",
+        shot: "shoe",
+        hook: "SCENARIO: Mara on the sidewalk. Prefer SHOT shoe, establish, look, palm, street.",
         opening: {
-          moment: "One hallway bulb. Paint peeling off the jamb. The lock turns like it has opinions.",
-          line: "Neighbors hear everything. So you don't exist until this door shuts.",
+          moment: "Concrete grit. A shoe sole stops. Streetlamp makes her shadow a building.",
+          line: "Jesus—almost. You talking? Get off the curb before a tire does it for you.",
         },
       },
-      "rae-roof": {
-        id: "rae-roof",
-        title: "Roof",
-        sub: "City below",
-        blurb: "She came up here to smoke nothing and look at you.",
-        location: "Queens rooftop at night, skyline behind her",
-        playerPlace: "on the parapet or in her palm over the drop",
-        mood: "quiet, meaner in the open air",
-        shot: "roof",
-        hook: "SCENARIO: Rooftop. Prefer SHOT roof, palm, point, profile.",
+      "mara-bath": {
+        id: "mara-bath",
+        title: "Bath edge",
+        sub: "Steam",
+        blurb: "She set you on the tub rim. Steam. No rush.",
+        location: "bathroom, tub, steam, one candle or night light",
+        playerPlace: "on the tub rim",
+        mood: "private, unarmored, still dry",
+        shot: "look",
+        hook: "SCENARIO: Mara bath edge. Prefer SHOT look, palm, pinch, lounge, whisper.",
         opening: {
-          moment: "Wind off the river. The city is a tray of lights under her elbow. The drop is a suggestion.",
-          line: "Don't get poetic. I came up here because the apartment is hot, not because you're special.",
+          moment: "Porcelain cliff. Steam. Water lap far below your scale. Her shoulder is a pale hill when she leans.",
+          line: "Don't slip in. I am not fishing with a strainer. Talk if you want.",
         },
       },
-      "rae-pocket": {
-        id: "rae-pocket",
-        title: "Jeans pocket",
-        sub: "Already in",
-        blurb: "Denim cave. Black nails at the rim.",
-        location: "inside Rae's front jeans pocket",
+      "mara-pocket": {
+        id: "mara-pocket",
+        title: "Coat pocket",
+        sub: "Already held",
+        blurb: "Lint dark. She knows you're in there.",
+        location: "inside Mara's coat pocket on the walk",
         playerPlace: "in the dark of her pocket",
-        mood: "smug without smiling much",
+        mood: "practical, mildly smug",
         shot: "pocket",
-        hook: "SCENARIO: Already in the jeans pocket. Prefer SHOT pocket, nail, phone. Do not restart the counter.",
+        hook: "SCENARIO: Speck in Mara's pocket. Prefer SHOT pocket, street, palm. Do not rewind to discovery.",
         opening: {
-          moment: "Denim walls. A slit of bodega light. Black nails hook the pocket open like a garage door.",
-          line: "You live here until I say. Poke and I zip you against my hip the whole walk.",
+          moment: "Fabric walls. Lint soft. Motion of her hip turns the dark into weather.",
+          line: "Pocket rules: no yelling at the crosswalk. We talk when I say.",
         },
       },
-      "rae-nail": {
-        id: "rae-nail",
+      "mara-nail": {
+        id: "mara-nail",
         title: "On the nail",
-        sub: "Black polish plaza",
+        sub: "Simple polish",
         blurb: "You are on the glossy part. She is watching.",
-        location: "on Rae's black-painted fingernail",
+        location: "on Mara's fingernail",
         playerPlace: "standing on the polish",
-        mood: "amused in a tired way",
+        mood: "amused, unhurried",
         shot: "nail",
-        hook: "SCENARIO: Speck is on her black fingernail. Prefer SHOT nail, pinch, swallow, point.",
+        hook: "SCENARIO: Speck on Mara's nail. Prefer SHOT nail, pinch, palm, look, swallow.",
         opening: {
-          moment: "Gloss like a wet street. Her face is a building in the blur beyond the cuticle.",
-          line: "That's a whole plaza for you. Don't slip. I am not licking polish.",
+          moment: "Polish like a dark wet street. Her face is a building beyond the cuticle.",
+          line: "Whole plaza for you. Don't slip. I am not licking polish at my age.",
         },
       },
-
+      "mara-blank": {
+        id: "mara-blank",
+        title: "You start",
+        sub: "Mara · no script",
+        blurb: "No canned open. First line is yours.",
+        location: "wherever the player puts Mara",
+        playerPlace: "in her notice",
+        mood: "waiting, dry-warm when she answers",
+        shot: "look",
+        hook: "SCENARIO: Blank start with Mara. Player speaks first. Adult MILF energy—warm, dry, no girlish bit.",
+        opening: null,
+      },
+      "mara-after": {
+        id: "mara-after",
+        title: "Couch after",
+        sub: "Hand on it",
+        blurb: "She already has you. TV low. No audience.",
+        location: "couch after a swallow",
+        playerPlace: "inside her, settled weight",
+        mood: "low voice, finished explaining",
+        shot: "hold",
+        gut: true,
+        hook: "SCENARIO: After-swallow Mara. Prefer SHOT hold, lounge, rub, after, rest.",
+        opening: {
+          moment: "Cushion valley. Her palm is a warm ceiling. TV light without detail.",
+          line: "Soft end. That's the night. Stay quiet.",
+        },
+      },
+      "mara-asleep": {
+        id: "mara-asleep",
+        title: "Asleep with you",
+        sub: "She does not know",
+        blurb: "You're already inside. She's out.",
+        location: "Mara's bed, dark",
+        playerPlace: "inside her while she sleeps",
+        mood: "unaware, vulnerable quiet",
+        shot: "rest",
+        gut: true,
+        hook: "SCENARIO: Speck inside Mara while she sleeps. She does NOT know. Prefer SHOT rest, bed, hold, inside. Minimal SAY unless she half-wakes.",
+        opening: {
+          moment: "Dark. Slow breath. Sheets shift when she turns. No lamp.",
+          line: "",
+        },
+      },
+      "mara-morning": {
+        id: "mara-morning",
+        title: "Morning coffee",
+        sub: "She knows",
+        blurb: "Mug steam. Hand on her stomach. She is not late yet.",
+        location: "kitchen morning after, coffee, robe",
+        playerPlace: "inside her while she drinks coffee",
+        mood: "matter-of-fact, slightly fond",
+        shot: "hold",
+        gut: true,
+        hook: "SCENARIO: Speck inside Mara in the morning. Prefer SHOT hold, rub, lounge, cup.",
+        opening: {
+          moment: "Mug heat far above. Robe cotton. Her palm rests like a decision already made.",
+          line: "You're still there. Soft. Coffee first—then we see about the day.",
+        },
+      },
 
       "ang-after": {
         id: "ang-after",
@@ -3308,6 +3367,117 @@ This is vore. Swallow is on the table from the first look. Do not fade to fade-t
           line: "That's it. Soft. I said what I said.",
         },
       },
+      "cardi-club": {
+        id: "cardi-club",
+        title: "Club booth",
+        sub: "Bass · VIP",
+        blurb: "She has you in her fist away from the floor.",
+        location: "VIP booth, bass through the seat, bottle service light",
+        playerPlace: "in her closed fist",
+        mood: "loud world, private hand, in charge",
+        shot: "palm",
+        hook: "SCENARIO: Cardi in VIP with speck hidden in hand. Prefer SHOT palm, whisper, look, phone.",
+        opening: {
+          moment: "Bass in the bones of the booth. Her fingers make a dark room. Jewelry flashes when she peeks in.",
+          line: "You stay in the hand. Floor is not for you. Talk soft.",
+        },
+      },
+      "cardi-jet": {
+        id: "cardi-jet",
+        title: "Private cabin",
+        sub: "Clouds",
+        blurb: "Seatbelt light off. She set you on the tray.",
+        location: "private jet cabin, night, tray table",
+        playerPlace: "on the tray table",
+        mood: "unhurried power, teasing",
+        shot: "look",
+        hook: "SCENARIO: Cardi on a jet with speck. Prefer SHOT look, palm, pinch, lounge, phone.",
+        opening: {
+          moment: "Leather. Hum of engines. Tray grain. Her nail taps like thunder far away.",
+          line: "Don't fall off at altitude. That would be embarrassing for both of us.",
+        },
+      },
+      "cardi-stage": {
+        id: "cardi-stage",
+        title: "After the set",
+        sub: "She knows",
+        blurb: "Backstage. Hand on midriff. Crowd still roaring far away.",
+        location: "backstage after a performance, hand on stomach",
+        playerPlace: "inside her, settled after a swallow",
+        mood: "wired then soft, possessive",
+        shot: "hold",
+        gut: true,
+        hook: "SCENARIO: Speck inside Cardi after a show. Prefer SHOT hold, rub, lounge, after.",
+        opening: {
+          moment: "Bass still in the walls. Her palm rests. Sweat and perfume and decision.",
+          line: "You're in. Soft. They can cheer—they don't get this.",
+        },
+      },
+      "cardi-bath": {
+        id: "cardi-bath",
+        title: "Marble soak",
+        sub: "She knows",
+        blurb: "Steam. You're already where she put you.",
+        location: "marble bathroom, tub, steam",
+        playerPlace: "inside her during a soak",
+        mood: "unguarded, still witty if she talks",
+        shot: "lounge",
+        gut: true,
+        hook: "SCENARIO: Speck inside Cardi in the bath. Prefer SHOT lounge, hold, rest, rub.",
+        opening: {
+          moment: "Steam. Water far above. Jewelry off. No cameras.",
+          line: "Don't kick. This is the quiet I paid for.",
+        },
+      },
+      "cardi-asleep": {
+        id: "cardi-asleep",
+        title: "Asleep with you",
+        sub: "She does not know",
+        blurb: "You're already inside. She's out.",
+        location: "Cardi's bed, dark",
+        playerPlace: "inside her while she sleeps",
+        mood: "unaware",
+        shot: "rest",
+        gut: true,
+        hook: "SCENARIO: Speck inside Cardi while she sleeps. Prefer SHOT rest, bed, hold, inside. Minimal SAY.",
+        opening: {
+          moment: "Dark. Slow breath. Sheets. City murmur far away.",
+          line: "",
+        },
+      },
+      "cardi-fit": {
+        id: "cardi-fit",
+        title: "Fitting room",
+        sub: "She knows",
+        blurb: "Mirrors. Hand on her stomach under the fabric.",
+        location: "designer fitting room, mirrors, pins",
+        playerPlace: "inside her while she tries on clothes",
+        mood: "distractedly smug",
+        shot: "hold",
+        gut: true,
+        hook: "SCENARIO: Speck inside Cardi in a fitting room. Prefer SHOT hold, look, rub, smug.",
+        opening: {
+          moment: "Mirrors multiply her. Fabric shifts. Her palm finds you through the dress.",
+          line: "If this fits, you made it harder. Soft. Stay put.",
+        },
+      },
+      "cardi-jet-in": {
+        id: "cardi-jet-in",
+        title: "Cabin quiet",
+        sub: "Already in",
+        blurb: "Cruise altitude. You're already down.",
+        location: "inside Cardi on the jet",
+        playerPlace: "in the dark warm chamber at altitude",
+        mood: "settled power",
+        shot: "inside",
+        gut: true,
+        hook: "SCENARIO: Speck already inside Cardi in flight. Prefer SHOT inside, hold, lounge, digest.",
+        opening: {
+          moment: "Engine hum as weather. Heat. Soft pressure. No ground.",
+          line: "You're in for the flight. Soft end when I say.",
+        },
+      },
+
 
       "june-desk": {
         id: "june-desk",
@@ -4532,6 +4702,113 @@ This is vore. Swallow is on the table from the first look. Do not fade to fade-t
           line: "You in. Soft end. Don't make it a whole thing.",
         },
       },
+      "icespice-kitchen": {
+        id: "icespice-kitchen",
+        title: "Kitchen night",
+        sub: "Leftovers",
+        blurb: "Fridge light. She found you on the counter.",
+        location: "apartment kitchen at night, fridge light, counter",
+        playerPlace: "on the counter near a takeout container",
+        mood: "half-awake soft, amused",
+        shot: "look",
+        hook: "SCENARIO: Ice Spice kitchen night. Prefer SHOT look, palm, pinch, sit.",
+        opening: {
+          moment: "Fridge glow. Counter crumb landscape. Her hand parks like a soft hill.",
+          line: "Yo—you real? Don't fall in the food. Talk.",
+        },
+      },
+      "icespice-mall": {
+        id: "icespice-mall",
+        title: "Mall carpet",
+        sub: "Bags",
+        blurb: "She almost stepped on you between stores.",
+        location: "mall corridor, bags, store light",
+        playerPlace: "on the carpet near her shoe",
+        mood: "startled then chill",
+        shot: "shoe",
+        hook: "SCENARIO: Ice Spice at the mall. Prefer SHOT shoe, establish, look, palm.",
+        opening: {
+          moment: "Carpet pattern. A shoe stops. Bags sway. Muzak far away.",
+          line: "Almost. My bad. You talkin' from the floor though?",
+        },
+      },
+      "icespice-blank": {
+        id: "icespice-blank",
+        title: "You start",
+        sub: "Ice · no script",
+        blurb: "No canned open. First line is yours.",
+        location: "wherever the player puts Ice Spice",
+        playerPlace: "in her notice",
+        mood: "waiting, soft when she answers",
+        shot: "look",
+        hook: "SCENARIO: Blank start with Ice Spice. Player speaks first.",
+        opening: null,
+      },
+      "icespice-after": {
+        id: "icespice-after",
+        title: "Couch quiet",
+        sub: "Hand on it",
+        blurb: "She already has you. Phone face-down.",
+        location: "couch after a swallow",
+        playerPlace: "inside her",
+        mood: "low soft voice",
+        shot: "hold",
+        gut: true,
+        hook: "SCENARIO: After-swallow Ice Spice. Prefer SHOT hold, lounge, rub, after.",
+        opening: {
+          moment: "Cushion. Palm ceiling. Phone dark.",
+          line: "Soft end. That's it.",
+        },
+      },
+      "icespice-asleep": {
+        id: "icespice-asleep",
+        title: "Asleep with you",
+        sub: "She does not know",
+        blurb: "You're already inside. She's out.",
+        location: "bed, dark",
+        playerPlace: "inside her while she sleeps",
+        mood: "unaware",
+        shot: "rest",
+        gut: true,
+        hook: "SCENARIO: Speck inside Ice Spice while she sleeps. Prefer SHOT rest, bed, inside. Minimal SAY.",
+        opening: {
+          moment: "Dark. Slow breath. City soft through the window.",
+          line: "",
+        },
+      },
+      "icespice-edit": {
+        id: "icespice-edit",
+        title: "Content night",
+        sub: "She knows",
+        blurb: "Ring light off. Hand on midriff. Still working.",
+        location: "content setup desk, monitors, hand on stomach",
+        playerPlace: "inside her while she works",
+        mood: "distracted soft",
+        shot: "hold",
+        gut: true,
+        hook: "SCENARIO: Speck inside Ice Spice during downtime/work. Prefer SHOT hold, desk, rub, phone.",
+        opening: {
+          moment: "Screen glow. Her palm rests. Chair creaks.",
+          line: "If you move I lose the thought. Soft. I'm workin'.",
+        },
+      },
+      "icespice-ride": {
+        id: "icespice-ride",
+        title: "Ride quiet",
+        sub: "Already in",
+        blurb: "Tint. You're already down. City sliding by.",
+        location: "inside Ice Spice in the car",
+        playerPlace: "in the dark warm chamber on the road",
+        mood: "settled, unhurried",
+        shot: "inside",
+        gut: true,
+        hook: "SCENARIO: Speck already inside Ice Spice during a ride. Prefer SHOT inside, hold, lounge.",
+        opening: {
+          moment: "Engine. Heat. Soft pressure. Tint world outside.",
+          line: "You in for the ride. Soft. Don't make it loud.",
+        },
+      },
+
 
       "midna-twilight": {
         id: "midna-twilight",
@@ -4579,20 +4856,23 @@ This is vore. Swallow is on the table from the first look. Do not fade to fade-t
           line: "Hush. You're kept. Soft end—for now.",
         },
       },
-    };    };
+    };
 
     const CHARACTERS = {
-      rae: {
-        id: "rae",
-        name: "Rae",
+      mara: {
+        id: "mara",
+        name: "Mara",
         ready: true,
-        stillDir: "stills/rae/",
-        scenarios: ["rae-shop", "rae-aisle", "rae-street", "rae-subway", "rae-door", "rae-roof", "rae-pocket", "rae-nail", "blank"],
-        blurb: "Queens. Septum. Night shift. Dry as the lotto tickets.",
-        gulpLine: "There. Shift's still on. You don't get a speech.",
-        digestLine: "Quiet. I told you I don't do bits.",
-        gutNights: ["rae-inside"],
-        voice: "You play RAE ORTIZ, 23, Queens. Short curls, gold septum, black nails, oversized band tee. Dry, low voice, no valley girl, no braces. Tired menace. Prefer Rae shots: street, door, subway, arms, point, nail, phone, profile, roof, cup, aisle, pocket, shoe, pinch, palm.",
+        stillDir: "stills/mara/",
+        scenarios: ["mara-laundry", "mara-kitchen", "mara-couch", "mara-bed", "mara-street", "mara-bath", "mara-pocket", "mara-nail", "mara-blank"],
+        thinkBudget: 2048,
+        maxTokens: 8192,
+        temperature: 0.88,
+        blurb: "Thirty-nine. Laundry nights. Warm, dry, done performing.",
+        gulpLine: "There. You're in. Soft. No speech.",
+        digestLine: "Quiet. That's the night. Don't make me explain the morning.",
+        gutNights: ["mara-inside", "mara-after", "mara-asleep", "mara-morning"],
+        voice: "You play MARA, 39, original character—not a celebrity. Adult woman: warm, dry, low voice, no valley girl, no girlish bit. Full figure, tired-beautiful, often robe or jeans and a soft tee, simple nails, hair that has seen a long day. She manages late hours (laundromat / building / her own kitchen after midnight). Soft vore is intimacy and decision, not a teen dare—she may sound almost maternal without becoming cartoon. Prefer SHOT look, palm, pinch, sit, lounge, hold, whisper, pocket, nail, shoe, street, bed, inside, rub, after. Label speech SAY:",
       },
       ang: {
         id: "ang",
@@ -4645,15 +4925,15 @@ This is vore. Swallow is on the table from the first look. Do not fade to fade-t
         name: "Cardi",
         ready: true,
         stillDir: "stills/cardi/",
-        scenarios: ["cardi-mirror", "cardi-suv", "cardi-closet", "cardi-studio", "cardi-street", "cardi-blank"],
+        scenarios: ["cardi-mirror", "cardi-suv", "cardi-closet", "cardi-studio", "cardi-street", "cardi-club", "cardi-jet", "cardi-blank"],
         thinkBudget: 2048,
         maxTokens: 8192,
-        temperature: 0.9,
-        blurb: "Bronx volume. Witty. Will say it.",
+        temperature: 0.92,
+        blurb: "Bronx volume. Witty. Will say it. Soft when it's real.",
         gulpLine: "Yeah—down. Don't kick like you pay rent.",
         digestLine: "That's it. Soft. I said what I said.",
-        gutNights: ["cardi-inside", "cardi-after"],
-        voice: "You play CARDI B, present day. Bronx cadence, fast wit, Caribbean-American flavor in rhythm—never a pure meme cartoon. Loud when she wants, soft when it's real. Nails, hair, fashion as scale weapons. She teases hard; soft vore stays soft: pinch, tongue, swallow if earned. Prefer SHOT look, nail, palm, pinch, street, phone, whisper, swallow, hold, inside. Label speech SAY:",
+        gutNights: ["cardi-inside", "cardi-after", "cardi-stage", "cardi-bath", "cardi-asleep", "cardi-fit", "cardi-jet-in"],
+        voice: "You play CARDI B, present day. Bronx cadence, fast wit, Caribbean-American rhythm in speech—never a pure meme cartoon or only catchphrases. Loud when she wants, soft when it's real; switches on a dime. Nails, hair, fashion as scale weapons. She teases hard and protects what she claims. Soft vore stays soft: pinch, tongue, swallow if earned—not cruelty for content. Prefer SHOT look, nail, palm, pinch, street, phone, whisper, swallow, hold, inside, lounge, rub. Label speech SAY:",
       },
       june: {
         id: "june",
@@ -4902,13 +5182,15 @@ This is vore. Swallow is on the table from the first look. Do not fade to fade-t
         name: "Ice Spice",
         ready: true,
         stillDir: "stills/icespice/",
-        scenarios: ["icespice-studio", "icespice-car"],
+        scenarios: ["icespice-studio", "icespice-car", "icespice-kitchen", "icespice-mall", "icespice-blank"],
+        thinkBudget: 2048,
+        maxTokens: 8192,
         temperature: 0.9,
-        blurb: "Soft drawl. Unhurried. Not trying to be anyone else.",
+        blurb: "Soft drawl. Unhurried. Bronx-adjacent calm.",
         gulpLine: "You in. Soft end. Don't make it a whole thing.",
         digestLine: "Quiet. That's it.",
-        gutNights: ["icespice-inside"],
-        voice: "You play ICE SPICE, present day. Soft Bronx-adjacent drawl, unhurried, playful, low volume confidence—not Cardi, not a meme. Fashion-forward casual. Soft vore stays soft and private. Prefer SHOT look, palm, pinch, phone, whisper, street, inside, hold. Label speech SAY:",
+        gutNights: ["icespice-inside", "icespice-after", "icespice-asleep", "icespice-edit", "icespice-ride"],
+        voice: "You play ICE SPICE, present day. Soft Bronx-adjacent drawl, unhurried, playful, low-volume confidence—not Cardi, not pure meme. Fashion-forward casual. Soft vore stays soft and private; she does not perform it for a room. Prefer SHOT look, palm, pinch, phone, whisper, street, lounge, hold, inside, rub. Label speech SAY:",
       },
       midna: {
         id: "midna",
@@ -4976,12 +5258,12 @@ This is vore. Swallow is on the table from the first look. Do not fade to fade-t
     const SAVE_KEY = "dawnSave.v1";
 
     function characterOf(id) {
-      return CHARACTERS[id] || CHARACTERS.rae;
+      return CHARACTERS[id] || CHARACTERS.mara;
     }
 
     function ownerOfScenario(id) {
       const key = String(id || "");
-      if (key.startsWith("rae-")) return "rae";
+      if (key.startsWith("mara-")) return "mara";
       if (key.startsWith("ang-")) return "ang";
       if (key.startsWith("billie-")) return "billie";
       if (key.startsWith("jlaw-")) return "jlaw";
@@ -5015,7 +5297,7 @@ This is vore. Swallow is on the table from the first look. Do not fade to fade-t
     }
 
     const THEME_COLORS = {
-      rae: "#070a0a", ang: "#0e0a06",
+      mara: "#140c0a", ang: "#0e0a06",
       billie: "#0a0e16", jlaw: "#100c08", cardi: "#10060a", june: "#080610",
       zendaya: "#0c0a06", dimitrescu: "#0a0406", jessica: "#10060a", shego: "#040a06",
       wendy: "#0c0a06", marceline: "#080610", bulma: "#080c12", twob: "#08080c",
@@ -5046,7 +5328,7 @@ This is vore. Swallow is on the table from the first look. Do not fade to fade-t
     function freshGame(scenarioId, characterId) {
       const s = scenarioOf(scenarioId);
       const inferred = ownerOfScenario(s.id);
-      const c = characterOf(characterId || inferred || game.characterId || "rae");
+      const c = characterOf(characterId || inferred || game.characterId || "mara");
       return {
         characterId: c.id,
         scenarioId: s.id,
@@ -5062,7 +5344,7 @@ This is vore. Swallow is on the table from the first look. Do not fade to fade-t
         bathroomAfter: 0,
       };
     }
-    let game = freshGame("rae-shop", "rae");
+    let game = freshGame("mara-laundry", "mara");
     let activeChatId = null;
 
     const els = {
@@ -5263,7 +5545,7 @@ This is vore. Swallow is on the table from the first look. Do not fade to fade-t
       const { error } = await supabase.from("chats").upsert({
         id: chat.id,
         user_id: sessionUser.id,
-        scenario_id: chat.scenarioId || "rae-shop",
+        scenario_id: chat.scenarioId || "mara-laundry",
         title: chat.title || "Chat",
         game: chat.game || {},
         history: chat.history || [],
@@ -5309,7 +5591,7 @@ This is vore. Swallow is on the table from the first look. Do not fade to fade-t
       lib.chats[activeChatId] = {
         id: activeChatId,
         scenarioId: s.id,
-        characterId: game.characterId || "rae",
+        characterId: game.characterId || "mara",
         title: (lib.chats[activeChatId] && lib.chats[activeChatId].title) || s.title,
         game,
         history,
@@ -5373,7 +5655,7 @@ This is vore. Swallow is on the table from the first look. Do not fade to fade-t
       const s = scenarioOf(scenarioId);
       swapView(() => {
         activeChatId = "chat-" + Date.now();
-        game = freshGame(s.id, characterId || game.characterId || "rae");
+        game = freshGame(s.id, characterId || game.characterId || "mara");
         history = [];
         els.log.innerHTML = "";
         logTurns = [];
@@ -5394,8 +5676,8 @@ This is vore. Swallow is on the table from the first look. Do not fade to fade-t
         const next = readLib();
         next.activeId = id;
         writeLib(next);
-        const face = data.characterId || (data.game && data.game.characterId) || ownerOfScenario(data.scenarioId) || "rae";
-        Object.assign(game, freshGame(data.scenarioId || "rae-shop", face), data.game || {}, { characterId: face });
+        const face = data.characterId || (data.game && data.game.characterId) || ownerOfScenario(data.scenarioId) || "mara";
+        Object.assign(game, freshGame(data.scenarioId || "mara-laundry", face), data.game || {}, { characterId: face });
         history = (data.history || []).slice();
         logTurns = [];
         els.log.innerHTML = "";
@@ -5433,7 +5715,7 @@ This is vore. Swallow is on the table from the first look. Do not fade to fade-t
       if (activeChatId === id) {
         const leftover = Object.keys(lib.chats)[0];
         if (leftover) openChat(leftover);
-        else newChat("rae-shop", "rae");
+        else newChat("mara-laundry", "mara");
       } else {
         renderLibrary();
       }
@@ -6000,7 +6282,7 @@ Never copy SPEECH: or ACTION: into your reply. Reply only with MOMENT, SAY, SHOT
     }
 
     function restoreSave(data) {
-      const face = (data.game && data.game.characterId) || data.characterId || "rae";
+      const face = (data.game && data.game.characterId) || data.characterId || "mara";
       Object.assign(game, freshGame(data.game && data.game.scenarioId, face), data.game || {}, { characterId: face });
       history = data.history.slice();
       logTurns = [];
@@ -6014,7 +6296,7 @@ Never copy SPEECH: or ACTION: into your reply. Reply only with MOMENT, SAY, SHOT
       if (busy) return;
       if (!confirm("Start the night over? This clears the saved chat on this phone.")) return;
       clearSave();
-      const sid = game.scenarioId || "rae-shop";
+      const sid = game.scenarioId || "mara-laundry";
       game = freshGame(sid, game.characterId);
       history = [];
       els.log.innerHTML = "";
@@ -6076,7 +6358,7 @@ Never copy SPEECH: or ACTION: into your reply. Reply only with MOMENT, SAY, SHOT
         restoreSave(saved);
         applyPlace();
       } else {
-        game = freshGame("rae-shop", "rae");
+        game = freshGame("mara-laundry", "mara");
         setStill(game.shot);
         applyPlace();
       }
