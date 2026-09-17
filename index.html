@@ -6982,7 +6982,6 @@ Once the speck is swallowed or already inside her stomach/gut (depth gut, SHOT i
       game.fate = "digested";
       game.digestDone = true;
       startBowelMovement({ path: "dead", silent: true });
-      addNotice("Digest-O hit zero. Disposal starts.");
       triggerDigestFx("burp");
       fireClockBeat("digest");
     }
@@ -7207,12 +7206,14 @@ Once the speck is swallowed or already inside her stomach/gut (depth gut, SHOT i
       const who = snackName() || "the speck from this night";
       const her = characterOf(game.characterId).name;
       const place = game.location || scenarioOf(game.scenarioId).location || "this scene";
-      return " DIGESTION JUST FINISHED THIS BEAT. " + her + " finished digesting " + who + " in " + place + "."
-        + " She MUST acknowledge that in MOMENT and SAY. Do not skip it. Do not pretend it was gas."
-        + " Use the name " + who + " if they have one. React in her real voice — blunt, short, fair — but the fact has to land."
-        + " She can feel the weight change. She can mutter at her stomach. She does not talk as if " + who + " can still answer."
-        + " Do NOT make the whole line a bathroom errand. Disposal can start after she names what happened."
-        + " Prefer SHOT after, hold, full, smug, cover, rest.";
+      return " Continue the SAME scene in " + place + ". Do not start a new chapter."
+        + " Offstage: the digest clock just hit zero — " + who + " is finished as a living voice inside " + her + "."
+        + " Fold that into the next beat the way she would actually notice it mid-conversation: a pause, a hand on her stomach, a quieter aside, the weight going still."
+        + (snackName() ? (" She knows it was " + snackName() + ".") : "")
+        + " Do NOT drop a canned slogan ('that's it', 'you're done', 'soft end', 'don't make it a thing')."
+        + " Do NOT jump to a bathroom errand as the whole beat."
+        + " SAY continues her voice from the last line — not a title card. She does not wait for " + who + " to answer."
+        + " Prefer SHOT after, hold, full, cover, rest, lounge.";
     }
 
     const CLOCK_BEATS = {
@@ -7246,8 +7247,8 @@ Once the speck is swallowed or already inside her stomach/gut (depth gut, SHOT i
       let user = spec.user;
       let extra = spec.extra;
       if (kind === "digest") {
-        user = "[NARRATOR] Digest-O hits zero. " + her + " just finished digesting "
-          + (who || "the speck") + ". This beat is her reaction to that fact. Do not skip it.";
+        user = "[NARRATOR] Keep the scene going in the same place. Quiet note: the chamber just finished "
+          + (who || "the speck") + ". " + her + " notices in the flow of what she was already doing — not a new speech.";
         extra = digestAckNote();
         game.digestAcked = true;
       } else if (kind === "disposal") {
@@ -8787,7 +8788,7 @@ Never copy SPEECH: or ACTION: into your reply. Reply only with MOMENT, SAY, SHOT
         extra: " AFTER MODE: continue " + characterOf(game.characterId).name +
           " in the SAME night. Location stays \"" + place + "\" unless she takes one plausible step (hallway, bathroom, couch)."
           + (whoSnack ? (" She remembers the snack was " + whoSnack + ".") : "")
-          + (n <= 2 && !game.digestAcked ? digestAckNote() : (n <= 2 ? " She already finished them. A leftover reaction is fine. Do not pretend it did not happen." : ""))
+          + (n <= 2 ? " Stay in the same conversation. The snack is finished; she can feel that without announcing a slogan." : "")
           + " Do not invent a new city, job, or friend group mid-sentence."
           + " MOMENT is third person about her and THIS place. SAY is to herself or someone actually here."
           + " Prefer SHOT lounge, rest, full, smug, pat, rub, after, bed, lift, cover, street, phone, door, profile. " + bathroom +
