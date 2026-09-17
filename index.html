@@ -1128,40 +1128,83 @@
       min-width: 0;
       flex: 1 1 auto;
     }
-    .ornament { flex: 0 0 auto; width: 120px; height: 44px; line-height: 0; }
-    .ornament svg { overflow: hidden; display: block; }
-    .orn-girl { fill: var(--neon); opacity: .9; }
-    .orn-girl-line { fill: none; stroke: var(--neon); stroke-width: 1.1; opacity: .85; }
-    .orn-hair { fill: var(--cyan); opacity: .55; }
-    .orn-hand { fill: var(--neon); opacity: .95; }
-    .orn-chase { animation: ornReach 3.6s ease-in-out infinite; transform-origin: 78px 40px; }
-    .orn-floor { stroke: var(--hair); stroke-width: 1; stroke-linecap: round; }
-    .orn-mote { fill: var(--cyan); opacity: 0; animation: ornTwinkle 4.2s ease-in-out infinite; }
-    .orn-mote.m2 { animation-delay: 1.4s; }
-    .orn-mote.m3 { animation-delay: 2.8s; }
-    .orn-speck { animation: ornFlee 3.6s ease-in-out infinite; }
-    .orn-halo { fill: var(--cyan); opacity: .22; animation: ornPulse 2.2s ease-in-out infinite; transform-box: fill-box; transform-origin: center; }
-    .orn-dot { fill: #eafcff; stroke: var(--cyan); stroke-width: .8; }
-    .orn-mouth { fill: #2a0810; stroke: var(--neon); stroke-width: .7; opacity: .9; }
-    @keyframes ornReach {
-      0%, 100% { transform: translate(0, 0) rotate(0deg); }
-      40% { transform: translate(-6px, 1px) rotate(-4deg); }
-      55% { transform: translate(-10px, 2px) rotate(-7deg); }
-      70% { transform: translate(-4px, 0) rotate(-2deg); }
+    .ornament {
+      flex: 0 0 auto;
+      width: 132px;
+      height: 40px;
+      line-height: 0;
+      border-radius: 8px;
+      overflow: hidden;
+      box-shadow:
+        0 0 0 1px color-mix(in srgb, var(--neon) 35%, transparent),
+        0 4px 14px rgba(0,0,0,.35);
     }
-    @keyframes ornTwinkle { 0%,100% { opacity: 0; } 50% { opacity: .9; } }
-    @keyframes ornPulse { 0%,100% { transform: scale(.8); opacity: .15; } 50% { transform: scale(1.3); opacity: .35; } }
-    @keyframes ornFlee {
-      0%   { transform: translate(8px, 0); }
-      35%  { transform: translate(28px, -3px); }
-      50%  { transform: translate(38px, -1px); }
-      65%  { transform: translate(22px, 1px); }
-      80%  { transform: translate(42px, -2px); }
-      100% { transform: translate(8px, 0); }
+    .ornament svg { overflow: hidden; display: block; width: 132px; height: 40px; }
+    /* Skin field behind the lip strip */
+    .orn-skin { fill: url(#ornSkin); }
+    .orn-cavity { fill: url(#ornCavity); }
+    .orn-tongue { fill: #c43a52; opacity: .85; }
+    .orn-lip-top, .orn-lip-bot { fill: url(#ornLip); }
+    .orn-lip-line { fill: none; stroke: color-mix(in srgb, var(--neon) 55%, #3a1020); stroke-width: .7; opacity: .7; }
+    .orn-teeth { fill: #f2e8e0; opacity: .55; }
+    /* Jaw open/close */
+    .orn-lip-top { animation: ornLipTop 3.2s ease-in-out infinite; transform-origin: 66px 10px; }
+    .orn-lip-bot { animation: ornLipBot 3.2s ease-in-out infinite; transform-origin: 66px 30px; }
+    .orn-cavity-g { animation: ornCavity 3.2s ease-in-out infinite; transform-origin: 66px 20px; }
+    .orn-tongue-g { animation: ornTongue 3.2s ease-in-out infinite; transform-origin: 90px 22px; }
+    /* All-white anon figure being drawn in */
+    .orn-anon { animation: ornAnon 3.2s ease-in-out infinite; }
+    .orn-anon .anon-fill { fill: #f5f7fa; }
+    .orn-anon .anon-line {
+      fill: none;
+      stroke: #f5f7fa;
+      stroke-width: 1.5;
+      stroke-linecap: round;
+      stroke-linejoin: round;
     }
+    .orn-anon-g { transform-origin: 42px 22px; }
+    /* Glowing speck orbiting the strip */
+    .orn-speck-orbit { animation: ornOrbit 4.8s linear infinite; transform-origin: 66px 20px; }
+    .orn-halo { fill: var(--cyan); opacity: .28; }
+    .orn-dot { fill: #eafcff; filter: drop-shadow(0 0 2px var(--cyan)); }
+    .orn-mote { fill: var(--cyan); opacity: 0; animation: ornTwinkle 3.6s ease-in-out infinite; }
+    .orn-mote.m2 { animation-delay: 1.2s; }
+    .orn-mote.m3 { animation-delay: 2.4s; }
+    .orn-frame { fill: none; stroke: color-mix(in srgb, var(--neon) 40%, transparent); stroke-width: 1; }
+    @keyframes ornLipTop {
+      0%, 100% { transform: translateY(0); }
+      45% { transform: translateY(-5px); }
+      55% { transform: translateY(-5px); }
+    }
+    @keyframes ornLipBot {
+      0%, 100% { transform: translateY(0); }
+      45% { transform: translateY(5px); }
+      55% { transform: translateY(5px); }
+    }
+    @keyframes ornCavity {
+      0%, 100% { transform: scaleY(0.35); opacity: .85; }
+      45%, 55% { transform: scaleY(1); opacity: 1; }
+    }
+    @keyframes ornTongue {
+      0%, 100% { transform: translateX(6px) scale(0.7); opacity: .4; }
+      45%, 55% { transform: translateX(0) scale(1); opacity: .9; }
+    }
+    @keyframes ornAnon {
+      0%, 100% { transform: translate(0, 0) scale(1); opacity: 1; }
+      40% { transform: translate(10px, 1px) scale(0.92); opacity: 1; }
+      52% { transform: translate(22px, 0) scale(0.7); opacity: .85; }
+      62% { transform: translate(28px, 0) scale(0.45); opacity: .35; }
+      72% { transform: translate(8px, 0) scale(0.9); opacity: .9; }
+    }
+    @keyframes ornOrbit {
+      from { transform: rotate(0deg) translate(18px, 0) rotate(0deg); }
+      to   { transform: rotate(360deg) translate(18px, 0) rotate(-360deg); }
+    }
+    @keyframes ornTwinkle { 0%,100% { opacity: 0; } 50% { opacity: .85; } }
     @media (prefers-reduced-motion: reduce) {
       .ornament *, .ornament { animation: none !important; }
-      .orn-mote { opacity: .6; }
+      .orn-mote { opacity: .55; }
+      .orn-cavity-g { transform: scaleY(0.7); }
     }
     #settings .sheet { max-height: calc(100dvh - 24px - var(--safe-top)); overflow-y: auto; }
     #settings input[type="checkbox"] { width: 22px; height: 22px; min-height: 0; padding: 0; flex: 0 0 auto; accent-color: var(--neon); }
@@ -2072,6 +2115,21 @@
       color: var(--muted);
       letter-spacing: .02em;
     }
+    .gut-settle .gs-skip {
+      margin-left: 2px;
+      border: 1px solid rgba(180, 220, 80, .4);
+      background: color-mix(in srgb, var(--panel) 70%, #3a5020);
+      color: #d8f090;
+      font-size: .62rem;
+      font-weight: 800;
+      letter-spacing: .06em;
+      text-transform: uppercase;
+      border-radius: 999px;
+      padding: 3px 9px;
+      min-height: 0;
+      cursor: pointer;
+    }
+    .gut-settle .gs-skip:hover { border-color: #c8f06a; color: #f0ffc0; }
     @media (prefers-reduced-motion: reduce) { #meterFill::after { animation: none !important; } }
     #goneBanner {
       display: none;
@@ -2084,7 +2142,86 @@
     }
     #goneBanner.show { display: block; }
 
-    /* ——— Digest-O Meter ——— */
+    /* ——— Digest-O Meter (compact, under depth meter) ——— */
+    #digestMeter {
+      display: none;
+      margin-top: 8px;
+      padding: 8px 10px 8px;
+      border-radius: 12px;
+      border: 1px solid rgba(180, 220, 80, .32);
+      background: linear-gradient(180deg, rgba(28, 36, 14, .88), rgba(12, 16, 8, .9));
+      width: 100%;
+      box-sizing: border-box;
+    }
+    #digestMeter.show { display: block; }
+    #meter.digest-mode .meter-labels,
+    #meter.digest-mode .meter-track { display: none; }
+    #meter.digest-mode #digestMeter { margin-top: 0; }
+    #digestMeter.hot { border-color: rgba(255, 140, 60, .55); }
+    #digestMeter.critical {
+      border-color: rgba(255, 70, 50, .75);
+      box-shadow: 0 0 16px rgba(255,60,40,.18);
+    }
+    #digestMeter .dm-head {
+      display: flex; align-items: center; justify-content: space-between; gap: 8px;
+      margin-bottom: 6px;
+    }
+    #digestMeter .dm-title {
+      font-size: .62rem; letter-spacing: .12em; text-transform: uppercase;
+      font-weight: 800; color: #c8f06a;
+    }
+    #digestMeter.hot .dm-title { color: #ffb060; }
+    #digestMeter.critical .dm-title { color: #ff6a55; }
+    #digestMeter .dm-clock {
+      font-variant-numeric: tabular-nums;
+      font-weight: 800; font-size: .95rem;
+      color: var(--ink); letter-spacing: .04em;
+    }
+    #digestMeter .dm-track {
+      height: 8px; border-radius: 99px;
+      background: rgba(0,0,0,.4);
+      overflow: hidden; position: relative;
+    }
+    #digestMeter .dm-fill {
+      display: block; height: 100%; width: 100%;
+      border-radius: 99px;
+      background: linear-gradient(90deg, #7ad420, #d4f06a);
+      transform-origin: left center;
+      transition: transform .4s linear, background .5s ease;
+    }
+    #digestMeter.hot .dm-fill {
+      background: linear-gradient(90deg, #e87820, #ffc060);
+    }
+    #digestMeter.critical .dm-fill {
+      background: linear-gradient(90deg, #c43020, #ff7050);
+      animation: digFillPulse .9s ease-in-out infinite;
+    }
+    @keyframes digFillPulse {
+      0%, 100% { filter: brightness(1); }
+      50% { filter: brightness(1.25); }
+    }
+    #digestMeter .dm-stats {
+      display: flex; gap: 6px; margin-top: 6px; flex-wrap: wrap;
+    }
+    #digestMeter .dm-stat {
+      flex: 1 1 auto;
+      min-width: 56px;
+      font-size: .58rem; letter-spacing: .05em; text-transform: uppercase;
+      color: var(--muted);
+    }
+    #digestMeter .dm-stat b {
+      display: block; font-size: .72rem; letter-spacing: 0;
+      text-transform: none; color: var(--ink); margin-top: 1px; font-weight: 700;
+    }
+    #digestMeter .dm-toast {
+      margin-top: 5px; min-height: 1.1em;
+      font-size: .72rem; color: #d8f090;
+      transition: color .3s ease;
+    }
+    #digestMeter.hot .dm-toast { color: #ffc080; }
+    #digestMeter.critical .dm-toast { color: #ff9a88; }
+
+    /* ——— Digest-O FX layer ——— */
     #digestFx {
       position: fixed; inset: 0; z-index: 6; pointer-events: none;
       opacity: 0; transition: opacity .6s ease;
@@ -2140,102 +2277,11 @@
       25% { transform: translate(-1px, 1px); }
       75% { transform: translate(1px, -1px); }
     }
-    #digestMeter {
-      position: fixed;
-      left: 50%;
-      transform: translateX(-50%) translateY(12px);
-      bottom: calc(var(--dock) + var(--kb) + var(--safe-bot) + 8px);
-      z-index: 12;
-      width: min(360px, calc(100% - 24px));
-      padding: 12px 14px 10px;
-      border-radius: 16px;
-      border: 1px solid rgba(180, 220, 80, .35);
-      background: linear-gradient(180deg, rgba(28, 36, 14, .92), rgba(12, 16, 8, .94));
-      box-shadow: 0 12px 40px rgba(0,0,0,.45), 0 0 0 1px rgba(0,0,0,.2);
-      backdrop-filter: blur(10px);
-      -webkit-backdrop-filter: blur(10px);
-      opacity: 0; visibility: hidden; pointer-events: none;
-      transition: opacity .35s ease, visibility .35s ease, transform .35s ease, border-color .4s ease;
-    }
-    #digestMeter.show {
-      opacity: 1; visibility: visible; pointer-events: auto;
-      transform: translateX(-50%) translateY(0);
-    }
-    #digestMeter.hot { border-color: rgba(255, 140, 60, .55); }
-    #digestMeter.critical {
-      border-color: rgba(255, 70, 50, .75);
-      box-shadow: 0 12px 40px rgba(80,0,0,.4), 0 0 24px rgba(255,60,40,.25);
-    }
-    #digestMeter .dm-head {
-      display: flex; align-items: center; justify-content: space-between; gap: 8px;
-      margin-bottom: 8px;
-    }
-    #digestMeter .dm-title {
-      font-size: .68rem; letter-spacing: .14em; text-transform: uppercase;
-      font-weight: 800; color: #c8f06a;
-    }
-    #digestMeter.hot .dm-title { color: #ffb060; }
-    #digestMeter.critical .dm-title { color: #ff6a55; }
-    #digestMeter .dm-clock {
-      font-variant-numeric: tabular-nums;
-      font-weight: 800; font-size: 1.05rem;
-      color: var(--ink); letter-spacing: .04em;
-    }
-    #digestMeter .dm-track {
-      height: 10px; border-radius: 99px;
-      background: rgba(0,0,0,.4);
-      overflow: hidden; position: relative;
-    }
-    #digestMeter .dm-fill {
-      display: block; height: 100%; width: 100%;
-      border-radius: 99px;
-      background: linear-gradient(90deg, #7ad420, #d4f06a);
-      transform-origin: left center;
-      transition: transform .4s linear, background .5s ease;
-    }
-    #digestMeter.hot .dm-fill {
-      background: linear-gradient(90deg, #e87820, #ffc060);
-    }
-    #digestMeter.critical .dm-fill {
-      background: linear-gradient(90deg, #c43020, #ff7050);
-      animation: digFillPulse .9s ease-in-out infinite;
-    }
-    @keyframes digFillPulse {
-      0%, 100% { filter: brightness(1); }
-      50% { filter: brightness(1.25); }
-    }
-    #digestMeter .dm-stats {
-      display: flex; gap: 8px; margin-top: 8px; flex-wrap: wrap;
-    }
-    #digestMeter .dm-stat {
-      flex: 1 1 auto;
-      min-width: 72px;
-      font-size: .62rem; letter-spacing: .06em; text-transform: uppercase;
-      color: var(--muted);
-    }
-    #digestMeter .dm-stat b {
-      display: block; font-size: .78rem; letter-spacing: 0;
-      text-transform: none; color: var(--ink); margin-top: 2px; font-weight: 700;
-    }
-    #digestMeter .dm-toast {
-      margin-top: 8px; min-height: 1.2em;
-      font-size: .78rem; color: #d8f090;
-      transition: color .3s ease;
-    }
-    #digestMeter.hot .dm-toast { color: #ffc080; }
-    #digestMeter.critical .dm-toast { color: #ff9a88; }
-    #digestMeter .dm-note {
-      margin: 6px 0 0; font-size: .7rem; color: var(--muted); line-height: 1.35;
-    }
     @media (prefers-reduced-motion: reduce) {
       #digestFx .fx-bubble, #digestFx .fx-gurgle,
       html.digest-critical #digestFx .fx-vignette,
       html.digest-critical #stage,
       #digestMeter.critical .dm-fill { animation: none !important; }
-    }
-    @media (min-width: 900px) {
-      #digestMeter { bottom: 24px; left: auto; right: 24px; transform: none; }
-      #digestMeter.show { transform: none; }
     }
 
     #libClose {
@@ -2266,8 +2312,8 @@
         text-overflow: ellipsis;
       }
       .brand p { font-size: 1rem; }
-      .ornament { width: 96px; height: 36px; margin-right: -2px; }
-      .ornament svg { width: 96px; height: 36px; }
+      .ornament { width: 108px; height: 32px; margin-right: -2px; }
+      .ornament svg { width: 108px; height: 32px; }
       .tools {
         flex-wrap: nowrap;
         justify-content: flex-start;
@@ -2368,17 +2414,6 @@
         background: var(--panel2);
         border-top: 1px solid var(--hair);
       }
-      /* Digest-O Meter sits above the in-flow dock on phones */
-      #digestMeter {
-        position: fixed;
-        left: 12px;
-        right: 12px;
-        width: auto;
-        max-width: none;
-        transform: translateY(12px);
-        bottom: calc(var(--dock, 140px) + var(--kb, 0px));
-      }
-      #digestMeter.show { transform: translateY(0); }
       html.scene-gut .dock, html.scene-throat .dock, html.scene-mouth .dock { background: var(--panel2); }
       .actions { gap: 6px; margin-bottom: 6px; }
       .actions button { min-height: 40px; border-radius: 12px; box-shadow: none; font-size: .7rem; }
@@ -2438,37 +2473,74 @@
         <p id="placeSub">Bodega · 2am</p>
       </div>
       <div class="ornament" aria-hidden="true">
-        <svg viewBox="0 0 120 44" width="120" height="44">
+        <svg viewBox="0 0 132 40" width="132" height="40">
           <defs>
-            <clipPath id="ornClip"><rect x="0" y="0" width="120" height="44" rx="10"/></clipPath>
+            <clipPath id="ornClip"><rect x="0" y="0" width="132" height="40" rx="8"/></clipPath>
+            <linearGradient id="ornSkin" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0" stop-color="#e8b89a"/>
+              <stop offset="0.45" stop-color="#d4927a"/>
+              <stop offset="1" stop-color="#c47868"/>
+            </linearGradient>
+            <linearGradient id="ornLip" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0" stop-color="#c44a62"/>
+              <stop offset="0.5" stop-color="#a03048"/>
+              <stop offset="1" stop-color="#7a2038"/>
+            </linearGradient>
+            <radialGradient id="ornCavity" cx="70%" cy="50%" r="70%">
+              <stop offset="0" stop-color="#2a0814"/>
+              <stop offset="0.55" stop-color="#14040a"/>
+              <stop offset="1" stop-color="#080206"/>
+            </radialGradient>
           </defs>
           <g clip-path="url(#ornClip)">
-            <!-- Giantess looming from the right, hand reaching for the speck -->
-            <g class="orn-chase">
-              <!-- hair cascade -->
-              <path class="orn-hair" d="M88 2c8 2 16 8 18 18 2 10-2 18-8 22l-6-4c4-4 6-10 5-16-1-7-6-12-12-14z"/>
-              <!-- head -->
-              <circle class="orn-girl" cx="96" cy="12" r="9"/>
-              <!-- playful open mouth -->
-              <ellipse class="orn-mouth" cx="92" cy="15" rx="2.4" ry="1.8"/>
-              <!-- shoulder / torso hint -->
-              <path class="orn-girl" d="M78 40c4-12 12-18 22-20 2 6 2 14 0 22H78z"/>
-              <!-- reaching hand -->
-              <g class="orn-hand">
-                <ellipse cx="64" cy="30" rx="7" ry="5.5"/>
-                <path d="M58 27c-3-1-5-3-6-5M59 31c-4 0-7-1-9-3M60 34c-3 1-6 1-8 0" class="orn-girl-line"/>
+            <!-- Widescreen close-up strip of skin -->
+            <rect class="orn-skin" x="0" y="0" width="132" height="40"/>
+
+            <!-- Mouth cavity (scales open with the jaw) -->
+            <g class="orn-cavity-g">
+              <ellipse class="orn-cavity" cx="72" cy="20" rx="38" ry="14"/>
+              <!-- soft teeth hint along the top of the opening -->
+              <path class="orn-teeth" d="M42 14h8v2.2h-8zm10 0h7v2h-7zm9 0h7v2.2h-7zm9 0h7v2h-7zm9 0h7v2.2h-7z"/>
+              <!-- tongue reaching forward when open -->
+              <g class="orn-tongue-g">
+                <ellipse class="orn-tongue" cx="78" cy="23" rx="16" ry="5.5"/>
               </g>
             </g>
-            <line class="orn-floor" x1="4" y1="40" x2="116" y2="40"/>
-            <circle class="orn-mote m1" cx="22" cy="12" r="1.2"/>
-            <circle class="orn-mote m2" cx="40" cy="20" r="1"/>
-            <circle class="orn-mote m3" cx="14" cy="26" r="1.1"/>
-            <!-- Speck fleeing left-to-right, almost caught -->
-            <g class="orn-speck">
-              <circle class="orn-halo" cx="0" cy="34" r="5.5"/>
-              <circle class="orn-dot" cx="0" cy="34" r="2"/>
+
+            <!-- Upper lip strip -->
+            <g class="orn-lip-top">
+              <path d="M6 0h120c0 0-6 8-14 11-10 4-22 6-38 6s-28-2-38-6C28 8 22 0 22 0z"/>
+              <path class="orn-lip-line" d="M18 11c12 4 28 6 48 6s36-2 48-6"/>
+            </g>
+            <!-- Lower lip strip -->
+            <g class="orn-lip-bot">
+              <path d="M10 40h112c0 0-5-7-14-10-11-4-24-6-42-6s-31 2-42 6C15 33 10 40 10 40z"/>
+              <path class="orn-lip-line" d="M20 30c12-3 28-5 46-5s34 2 46 5"/>
+            </g>
+
+            <!-- All-white anon figure at the left of the mouth, getting drawn in -->
+            <g class="orn-anon-g">
+              <g class="orn-anon">
+                <circle class="anon-fill" cx="34" cy="15.5" r="3.4"/>
+                <path class="anon-line" d="M34 19v7.5"/>
+                <path class="anon-line" d="M34 21.2l-3.8-2.6M34 21.2l3.5-2"/>
+                <path class="anon-line" d="M34 26.5l-2.6 4.2M34 26.5l2.8 4"/>
+              </g>
+            </g>
+
+            <!-- Ambient motes inside the strip -->
+            <circle class="orn-mote m1" cx="98" cy="12" r="1"/>
+            <circle class="orn-mote m2" cx="108" cy="22" r="0.9"/>
+            <circle class="orn-mote m3" cx="92" cy="28" r="1.1"/>
+
+            <!-- Glowing speck orbiting the composition -->
+            <g class="orn-speck-orbit">
+              <circle class="orn-halo" cx="0" cy="0" r="4.5"/>
+              <circle class="orn-dot" cx="0" cy="0" r="1.7"/>
             </g>
           </g>
+          <!-- Thin frame so it reads as a cropped film strip -->
+          <rect class="orn-frame" x="0.5" y="0.5" width="131" height="39" rx="7.5"/>
         </svg>
       </div>
     </div>
@@ -2490,12 +2562,26 @@
     <div id="progress" hidden><span></span></div>
   </figure>
   <div id="meter" data-step="palm">
-    <div class="meter-labels"><span>Palm</span><span>Tongue</span><span>Gulp</span><span>Gut</span></div>
-    <div class="meter-track"><i id="meterFill"></i></div>
+    <div class="meter-labels" id="meterLabels"><span>Palm</span><span>Tongue</span><span>Gulp</span><span>Gut</span></div>
+    <div class="meter-track" id="meterTrack"><i id="meterFill"></i></div>
     <div id="gutSettle" class="gut-settle" hidden>
       <span class="gs-label">Settling in</span>
       <span class="gs-clock" id="gutSettleClock">2:00</span>
       <span class="gs-hint" id="gutSettleHint">active time only</span>
+      <button type="button" id="gutSettleSkip" class="gs-skip">Skip</button>
+    </div>
+    <div id="digestMeter" role="status" aria-live="polite" aria-label="Digest-O Meter">
+      <div class="dm-head">
+        <span class="dm-title">Digest-O Meter</span>
+        <span class="dm-clock" id="dmClock">--:--</span>
+      </div>
+      <div class="dm-track"><i class="dm-fill" id="dmFill"></i></div>
+      <div class="dm-stats">
+        <div class="dm-stat">Hunger <b id="dmHunger">—</b></div>
+        <div class="dm-stat">Fullness <b id="dmFull">—</b></div>
+        <div class="dm-stat">Intent <b id="dmIntent">—</b></div>
+      </div>
+      <div class="dm-toast" id="dmToast"></div>
     </div>
     <p id="thumbHint">Tap the picture to enlarge</p>
   </div>
@@ -2506,20 +2592,6 @@
     <div class="fx-gurgle"></div>
     <div class="fx-bubbles" id="digestBubbles"></div>
     <div class="fx-vignette"></div>
-  </div>
-  <div id="digestMeter" role="status" aria-live="polite" aria-label="Digest-O Meter">
-    <div class="dm-head">
-      <span class="dm-title">Digest-O Meter</span>
-      <span class="dm-clock" id="dmClock">--:--</span>
-    </div>
-    <div class="dm-track"><i class="dm-fill" id="dmFill"></i></div>
-    <div class="dm-stats">
-      <div class="dm-stat">Hunger <b id="dmHunger">—</b></div>
-      <div class="dm-stat">Fullness <b id="dmFull">—</b></div>
-      <div class="dm-stat">Intent <b id="dmIntent">—</b></div>
-    </div>
-    <div class="dm-toast" id="dmToast"></div>
-    <p class="dm-note">Survive the chamber. Burps are critical hits. Calm her down to buy time.</p>
   </div>
 
   <div id="library">
@@ -5531,8 +5603,12 @@ This is vore. Swallow is on the table from the first look. Do not fade to fade-t
       const d = Math.max(0, Math.min(3, Number(game.depth || 0)));
       if (els.meterFill) els.meterFill.style.width = ((d + 1) / 4 * 100) + "%";
       if (els.meter) els.meter.dataset.step = DEPTH_ORDER[d] || "palm";
+      // While Digest-O is live, it replaces the palm→gut strip; regurg path restores it
+      const digActive = !!(game.digestMeter && game.digestMeter.active);
+      if (els.meter) els.meter.classList.toggle("digest-mode", digActive);
       applyScene();
       els.goneBanner.classList.toggle("show", !!game.gone);
+      paintActions();
     }
 
     function setDepth(n, opts) {
@@ -5815,10 +5891,12 @@ This is vore. Swallow is on the table from the first look. Do not fade to fade-t
       const panel = document.getElementById("digestMeter");
       if (fx) fx.classList.remove("on");
       if (panel) panel.classList.remove("show", "hot", "critical");
+      if (els.meter) els.meter.classList.remove("digest-mode");
       if (game.digestMeter) game.digestMeter.active = false;
       if (opts.clear) {
         game.digestMeter = null;
       }
+      paintActions();
     }
 
     function spawnBubbles(n) {
@@ -5871,18 +5949,18 @@ This is vore. Swallow is on the table from the first look. Do not fade to fade-t
       panel.classList.add("show");
       panel.classList.toggle("hot", ratio <= 0.4 && ratio > 0.18);
       panel.classList.toggle("critical", ratio <= 0.18);
+      if (els.meter) els.meter.classList.add("digest-mode");
       if (fx) fx.classList.add("on");
       const root = document.documentElement;
       root.classList.toggle("digest-hot", ratio <= 0.4 && ratio > 0.18);
       root.classList.toggle("digest-critical", ratio <= 0.18);
-      // Reserve space so the log isn't clipped under the floating meter
-      const meterH = Math.ceil(panel.getBoundingClientRect().height || 120) + 12;
-      root.style.setProperty("--digest-meter", meterH + "px");
+      root.style.setProperty("--digest-meter", "0px");
       // Intensify bubbles as time runs out
       const bubbleN = ratio > 0.55 ? 10 : ratio > 0.3 ? 16 : ratio > 0.15 ? 22 : 28;
       const host = document.getElementById("digestBubbles");
       if (host && host.childElementCount !== bubbleN) spawnBubbles(bubbleN);
       if (toastMsg) dmToast(toastMsg);
+      paintActions();
     }
 
     function tickDigestMeter() {
@@ -6868,6 +6946,33 @@ This is vore. Swallow is on the table from the first look. Do not fade to fade-t
       return wrap;
     }
 
+    function actionPrompts() {
+      const name = speakerName();
+      const inGut = (game.depth || 0) >= 3 || (game.digestMeter && game.digestMeter.active);
+      if (inGut) {
+        return {
+          look: { label: "Press", text: "ACTION: I press outward against the soft walls of " + name + "'s stomach, testing how much give there is." },
+          talk: { label: "Call out", text: "ACTION: I call up toward her from inside.\nSPEECH: Can you hear me in there?" },
+          hide: { label: "Settle", text: "ACTION: I stop struggling and settle into a fold of her stomach, trying to ride the slow churn." },
+          tease: { label: "Beg soft", text: "ACTION: I press a hand to the nearest warm wall.\nSPEECH: Easy… keep me. Don't finish me yet." },
+        };
+      }
+      return {
+        look: { label: "Look", text: "ACTION: I look up at " + name + "." },
+        talk: { label: "Wave", text: "ACTION: I wave both arms and try to get her attention." },
+        hide: { label: "Hide", text: "ACTION: I look for somewhere to hide." },
+        tease: { label: "Snack", text: "ACTION: I stop hiding and step into the open.\nSPEECH: Go on. Snack. Put me on your tongue or swallow, if that is what this is." },
+      };
+    }
+
+    function paintActions() {
+      const p = actionPrompts();
+      if (els.look) els.look.textContent = p.look.label;
+      if (els.talk) els.talk.textContent = p.talk.label;
+      if (els.hide) els.hide.textContent = p.hide.label;
+      if (els.tease) els.tease.textContent = p.tease.label;
+    }
+
     function setBusy(on) {
       busy = on;
       const off = on || (!engine && !CLOUD_ACTOR_URL) || !!game.gone;
@@ -6889,6 +6994,7 @@ This is vore. Swallow is on the table from the first look. Do not fade to fade-t
       els.talk.disabled = off;
       els.hide.disabled = off;
       els.tease.disabled = off;
+      paintActions();
       els.stage.classList.toggle("busy", on);
       if (game.gone) els.input.placeholder = "You are gone. Reset for another night.";
       else if (typeof setCompose === "function" && composeReady) setCompose(composeMode);
@@ -7587,10 +7693,28 @@ Never copy SPEECH: or ACTION: into your reply. Reply only with MOMENT, SAY, SHOT
     els.digestOk.addEventListener("click", resetNight);
     document.getElementById("continueNight").addEventListener("click", continueNight);
     document.getElementById("newNight").addEventListener("click", resetNight);
-    els.look.addEventListener("click", () => speak("ACTION: I look up at " + speakerName() + "."));
-    els.talk.addEventListener("click", () => speak("ACTION: I wave both arms and try to get her attention."));
-    els.hide.addEventListener("click", () => speak("ACTION: I look for somewhere to hide."));
-    els.tease.addEventListener("click", () => speak("ACTION: I stop hiding and step into the open.\nSPEECH: Go on. Snack. Put me on your tongue or swallow, if that is what this is."));
+    els.look.addEventListener("click", () => speak(actionPrompts().look.text));
+    els.talk.addEventListener("click", () => speak(actionPrompts().talk.text));
+    els.hide.addEventListener("click", () => speak(actionPrompts().hide.text));
+    els.tease.addEventListener("click", () => speak(actionPrompts().tease.text));
+
+    // Skip the 2-minute gut settle grace period
+    const gutSkipBtn = document.getElementById("gutSettleSkip");
+    if (gutSkipBtn) {
+      gutSkipBtn.addEventListener("click", (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        if (game.gone || game.fate === "digested") return;
+        if ((game.depth || 0) < 3) return;
+        if (game.digestMeter && game.digestMeter.active) return;
+        const gt = ensureGutTimer();
+        gt.accruedMs = gt.neededMs || GUT_ARM_MS;
+        gt.runningSince = null;
+        if (gutSettleTick) { clearInterval(gutSettleTick); gutSettleTick = null; }
+        hideGutSettle();
+        startDigestMeter();
+      });
+    }
 
     const sceneBar = document.getElementById("sceneBar");
     function setSceneBig(on) {
