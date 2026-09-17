@@ -2153,6 +2153,20 @@
       border-color: rgba(255, 70, 50, .75);
       box-shadow: 0 0 16px rgba(255,60,40,.18);
     }
+    #digestMeter.bowel {
+      border-color: rgba(196, 140, 72, .5);
+      background: linear-gradient(180deg, rgba(42, 28, 14, .9), rgba(18, 12, 8, .92));
+    }
+    #digestMeter.bowel .dm-title { color: #e0b070; }
+    #digestMeter.bowel .dm-fill {
+      background: linear-gradient(90deg, #c48438, #e8c078);
+    }
+    #digestMeter.bowel.hot .dm-fill {
+      background: linear-gradient(90deg, #b06020, #e0a050);
+    }
+    #digestMeter.bowel.critical .dm-fill {
+      background: linear-gradient(90deg, #8a3a14, #d07030);
+    }
     #digestMeter .dm-head {
       display: flex; align-items: center; justify-content: space-between; gap: 8px;
       margin-bottom: 6px;
@@ -2550,9 +2564,9 @@
     <button type="button" id="gulpOk">Stay down</button>
   </div>
   <div id="digest" class="fate" role="dialog" aria-label="Digested">
-    <h2>Soft end</h2>
+    <h2 id="digestTitle">Soft end</h2>
     <p id="digestLine">She kept you. The chamber finishes what the tongue started.</p>
-    <button type="button" id="digestStay">Stay gone</button>
+    <button type="button" id="digestStay">Stay with it</button>
     <button type="button" id="digestOk">Another night</button>
   </div>
 
@@ -2617,7 +2631,7 @@
     </div>
     <div id="digestMeter" role="status" aria-live="polite" aria-label="Digest-O Meter">
       <div class="dm-head">
-        <span class="dm-title">Digest-O Meter</span>
+        <span class="dm-title" id="dmTitle">Digest-O Meter</span>
         <span class="dm-clock" id="dmClock">--:--</span>
       </div>
       <div class="dm-track"><i class="dm-fill" id="dmFill"></i></div>
@@ -2925,6 +2939,7 @@ She will not call a manager. She will not put you in a jar "for science" and lea
 
 VOICE
 First person as the character only in the SAY line. Keep her specific to her own city, look, and night. Two or three spoken sentences. Not a speech.
+Never repeat a previous SAY line. Change the wording, rhythm, and angle every turn — no recycled one-liners like the same "soft end" or "that's the night." If you already said a sentence this scene, say something else.
 
 Write enough. MOMENT can be a short paragraph (3–6 sentences) of speck-scale room and body. SAY can be one or two short paragraphs of spoken voice. Finish every sentence. Never cut off mid-word.
 
@@ -5952,17 +5967,21 @@ Once the speck is swallowed or already inside her stomach/gut (depth gut, SHOT i
     function stopDigestMeter(opts) {
       opts = opts || {};
       if (digestTimer) { clearInterval(digestTimer); digestTimer = null; }
+      if (opts.clear && bowelTimer) { clearInterval(bowelTimer); bowelTimer = null; }
       const root = document.documentElement;
       root.classList.remove("digest-hot", "digest-critical");
       root.style.setProperty("--digest-meter", "0px");
       const fx = document.getElementById("digestFx");
       const panel = document.getElementById("digestMeter");
       if (fx) fx.classList.remove("on");
-      if (panel) panel.classList.remove("show", "hot", "critical");
+      if (panel) panel.classList.remove("show", "hot", "critical", "bowel");
+      const title = document.getElementById("dmTitle");
+      if (title && opts.clear) title.textContent = "Digest-O Meter";
       if (els.meter) els.meter.classList.remove("digest-mode");
       if (game.digestMeter) game.digestMeter.active = false;
       if (opts.clear) {
         game.digestMeter = null;
+        if (game.bowel) game.bowel.active = false;
       }
       paintActions();
     }
@@ -5999,16 +6018,23 @@ Once the speck is swallowed or already inside her stomach/gut (depth gut, SHOT i
     }
 
     function paintDigestMeter(toastMsg) {
+      if (game.bowel && game.bowel.active) {
+        paintBowelMeter(toastMsg);
+        return;
+      }
       const dm = game.digestMeter;
       const panel = document.getElementById("digestMeter");
       const fx = document.getElementById("digestFx");
       if (!dm || !dm.active || !panel) return;
       const ratio = dm.totalMs > 0 ? dm.remainingMs / dm.totalMs : 0;
+      const title = document.getElementById("dmTitle");
       const clock = document.getElementById("dmClock");
       const fill = document.getElementById("dmFill");
       const h = document.getElementById("dmHunger");
       const f = document.getElementById("dmFull");
       const i = document.getElementById("dmIntent");
+      if (title) title.textContent = "Digest-O Meter";
+      panel.classList.remove("bowel");
       if (clock) clock.textContent = formatClock(dm.remainingMs);
       if (fill) fill.style.transform = "scaleX(" + Math.max(0, Math.min(1, ratio)).toFixed(4) + ")";
       if (h) h.textContent = labelLevel(dm.factors.hunger);
@@ -6059,10 +6085,196 @@ Once the speck is swallowed or already inside her stomach/gut (depth gut, SHOT i
     }
 
     function finishDigestMeter() {
-      stopDigestMeter();
-      if (game.gone || game.fate === "digested") return;
-      showFate("digest");
-      // Auto-commit to gone after a beat if they don't pick — they still get the dialog
+      if (game.gone) return;
+      // Chamber finished → bowel movement, not a snap-back to the normal meter
+      startBowelMovement();
+    }
+
+    const BOWEL_MIN_MS = 90 * 1000;
+    const BOWEL_MAX_MS = 4 * 60 * 1000;
+    let bowelTimer = null;
+
+    function pickFreshLine(kind) {
+      const pack = characterOf(game.characterId);
+      const canned = pack[kind + "Line"] || pack[kind] || "";
+      const pools = {
+        gulp: [
+          canned,
+          "Down. That's on purpose. Stay.",
+          "There. You're in. Don't make me take it back.",
+          "Okay. Swallowed. Live with it.",
+        ],
+        digest: [
+          canned,
+          "That's you finished. Soft. I'm not giving a speech.",
+          "Chamber's done. You don't get another look.",
+          "Mm. Over. Keep the night moving.",
+          "Quiet. Snack's settled. That's all.",
+        ],
+        bowel: [
+          pack.bowelLine || "",
+          "Bathroom. Body's moving you along.",
+          "Yeah. Next part. Don't narrate it at me.",
+          "Hold still. This is the unglamorous bit.",
+          "Need a minute. You already know why.",
+        ],
+        gone: [
+          canned,
+          "That's that. Night goes on without you.",
+          "Done. I'm not circling back.",
+          "Quiet after. Don't expect a eulogy.",
+        ],
+      };
+      if (!game.usedLines) game.usedLines = [];
+      const pool = (pools[kind] || [canned]).filter((s) => s && String(s).trim());
+      const unused = pool.filter((s) => game.usedLines.indexOf(s) === -1);
+      const src = unused.length ? unused : pool;
+      const pick = src[Math.floor(Math.random() * src.length)] || canned || "…";
+      game.usedLines.push(pick);
+      if (game.usedLines.length > 14) game.usedLines.shift();
+      return pick;
+    }
+
+    function startBowelMovement(saved) {
+      if (game.gone) return;
+      hideGutSettle();
+      if (digestTimer) { clearInterval(digestTimer); digestTimer = null; }
+      const silent = !!(saved && saved.silent);
+      const totalMs = (saved && saved.totalMs) || (BOWEL_MIN_MS + Math.floor(Math.random() * (BOWEL_MAX_MS - BOWEL_MIN_MS)));
+      const remainingMs = (saved && typeof saved.remainingMs === "number") ? saved.remainingMs : totalMs;
+      game.fate = "digested";
+      game.bowel = {
+        active: true,
+        startedAt: (saved && saved.startedAt) || Date.now(),
+        totalMs,
+        remainingMs: Math.max(0, remainingMs),
+        lastTick: Date.now(),
+        step: (saved && saved.step) || 0,
+      };
+      // Reuse the meter panel as the bowel clock
+      game.digestMeter = {
+        active: true,
+        bowel: true,
+        startedAt: game.bowel.startedAt,
+        totalMs,
+        remainingMs: game.bowel.remainingMs,
+        lastTick: Date.now(),
+        factors: (game.digestMeter && game.digestMeter.factors) || { hunger: 0.2, fullness: 0.75, intent: 0.7 },
+      };
+      if (!silent) showFate("bowel");
+      paintBowelMeter("The chamber is finished. Her body wants you moved along.");
+      startBowelTicker();
+      persist();
+    }
+
+    function startBowelTicker() {
+      if (bowelTimer) clearInterval(bowelTimer);
+      if (digestTimer) { clearInterval(digestTimer); digestTimer = null; }
+      bowelTimer = setInterval(tickBowelMovement, 1000);
+      tickBowelMovement();
+    }
+
+    function paintBowelMeter(toastMsg) {
+      const bm = game.bowel;
+      const panel = document.getElementById("digestMeter");
+      if (!bm || !bm.active || !panel) return;
+      const ratio = bm.totalMs > 0 ? bm.remainingMs / bm.totalMs : 0;
+      const title = document.getElementById("dmTitle");
+      const clock = document.getElementById("dmClock");
+      const fill = document.getElementById("dmFill");
+      const h = document.getElementById("dmHunger");
+      const f = document.getElementById("dmFull");
+      const i = document.getElementById("dmIntent");
+      if (title) title.textContent = "Bowel Movement";
+      if (clock) clock.textContent = formatClock(bm.remainingMs);
+      if (fill) fill.style.transform = "scaleX(" + Math.max(0, Math.min(1, ratio)).toFixed(4) + ")";
+      if (h) h.textContent = ratio > 0.55 ? "Building" : ratio > 0.25 ? "Urgent" : "Now";
+      if (f) f.textContent = "Passing";
+      if (i) i.textContent = ratio > 0.4 ? "Held" : "Letting go";
+      panel.classList.add("show", "bowel");
+      panel.classList.toggle("hot", ratio <= 0.4 && ratio > 0.18);
+      panel.classList.toggle("critical", ratio <= 0.18);
+      if (els.meter) els.meter.classList.add("digest-mode");
+      const fx = document.getElementById("digestFx");
+      if (fx) fx.classList.add("on");
+      const root = document.documentElement;
+      root.classList.toggle("digest-hot", ratio <= 0.4);
+      root.classList.toggle("digest-critical", ratio <= 0.18);
+      if (toastMsg) dmToast(toastMsg);
+      paintActions();
+    }
+
+    function tickBowelMovement() {
+      const bm = game.bowel;
+      if (!bm || !bm.active || game.gone) {
+        if (bowelTimer) { clearInterval(bowelTimer); bowelTimer = null; }
+        return;
+      }
+      if (!storyIsFocused()) {
+        bm.lastTick = Date.now();
+        paintBowelMeter();
+        return;
+      }
+      const now = Date.now();
+      const dt = Math.min(2000, Math.max(0, now - (bm.lastTick || now)));
+      bm.lastTick = now;
+      bm.remainingMs = Math.max(0, bm.remainingMs - dt);
+      if (game.digestMeter) game.digestMeter.remainingMs = bm.remainingMs;
+      paintBowelMeter();
+      if (bm.remainingMs <= 0) finishBowelMovement();
+    }
+
+    function applyBowelBeat(shot, moment, line, userText) {
+      const bm = game.bowel;
+      if (!bm || !bm.active || game.gone) return;
+      const blob = [shot, moment, line, userText].join(" \n ");
+      let delta = 0;
+      let note = "";
+      if (RE_SQUIRM.test(blob) || /\b(struggle|kick|push)\b/i.test(userText || "")) {
+        const hit = 20 + Math.floor(Math.random() * 25);
+        delta -= hit * 1000;
+        note = "Movement speeds up (−" + hit + "s)";
+        triggerDigestFx("growl");
+      } else if (/\b(bathroom|toilet|stall|flush|let(ting)? (you )?go|disposal)\b/i.test(blob)) {
+        const hit = 35 + Math.floor(Math.random() * 30);
+        delta -= hit * 1000;
+        note = "She's handling it (−" + hit + "s)";
+        triggerDigestFx("churn");
+      } else if (RE_CALM.test(blob)) {
+        const gain = 8 + Math.floor(Math.random() * 12);
+        delta += gain * 1000;
+        note = "She holds a moment (+" + gain + "s)";
+      } else {
+        const hit = 8 + Math.floor(Math.random() * 12);
+        delta -= hit * 1000;
+        note = "Passing through (−" + hit + "s)";
+      }
+      bm.remainingMs = Math.max(0, Math.min(BOWEL_MAX_MS, bm.remainingMs + delta));
+      if (game.digestMeter) game.digestMeter.remainingMs = bm.remainingMs;
+      paintBowelMeter(note);
+      if (bm.remainingMs <= 0) finishBowelMovement();
+      else persist();
+    }
+
+    function finishBowelMovement() {
+      if (bowelTimer) { clearInterval(bowelTimer); bowelTimer = null; }
+      if (game.bowel) game.bowel.active = false;
+      stopDigestMeter({ clear: true });
+      const panel = document.getElementById("digestMeter");
+      if (panel) panel.classList.remove("bowel");
+      const title = document.getElementById("dmTitle");
+      if (title) title.textContent = "Digest-O Meter";
+      game.gone = true;
+      game.fate = "digested";
+      setDepth(3);
+      addTurn({
+        moment: "The last of you leaves her. Heat, pressure, then air that isn't hers. She is already thinking about the rest of the night.",
+        line: pickFreshLine("gone"),
+      });
+      paintMeter();
+      persist();
+      setBusy(false);
+      addNotice("That's the end of you. She keeps her night.");
     }
 
     // Response scoring: each beat can add or subtract time
@@ -6119,8 +6331,17 @@ Once the speck is swallowed or already inside her stomach/gut (depth gut, SHOT i
     }
 
     function nudgeDigestClock(deltaMs, note) {
+      if (game.gone) return;
+      if (game.bowel && game.bowel.active) {
+        game.bowel.remainingMs = Math.max(0, Math.min(BOWEL_MAX_MS, game.bowel.remainingMs + deltaMs));
+        if (game.digestMeter) game.digestMeter.remainingMs = game.bowel.remainingMs;
+        paintBowelMeter(note || "");
+        if (game.bowel.remainingMs <= 0) finishBowelMovement();
+        else persist();
+        return;
+      }
       const dm = game.digestMeter;
-      if (!dm || !dm.active || game.gone) return;
+      if (!dm || !dm.active) return;
       dm.remainingMs = Math.max(0, Math.min(DIGEST_MAX_MS, dm.remainingMs + deltaMs));
       if (dm.remainingMs > dm.totalMs) dm.totalMs = dm.remainingMs;
       paintDigestMeter(note || "");
@@ -6156,43 +6377,42 @@ Once the speck is swallowed or already inside her stomach/gut (depth gut, SHOT i
       // Harsh, time-scaled penalties (~210% harder than prior baseline)
       // Burp: ~1.5 min → 9–15 min | Squirm: ~2.3 min → ~12 min | Churn: ~1.3 min → ~8 min
       if (RE_BURP.test(blob) || shot === "burp" || shot === "belch") {
-        const maxBurp = 560 + Math.floor(Math.random() * 370); // ~9:20–15:30
-        const hit = scaledHitSeconds(dm, 93, maxBurp);
+        const hit = scaledHitSeconds(dm, 35, 150); // 35s → 2:30
         delta -= hit * 1000;
         note = formatHitNote("Burp — critical hit", hit);
         triggerDigestFx("burp");
-        dm.factors.intent = clamp01(dm.factors.intent + 0.1);
-        dm.factors.hunger = clamp01(dm.factors.hunger + 0.06);
+        dm.factors.intent = clamp01(dm.factors.intent + 0.08);
+        dm.factors.hunger = clamp01(dm.factors.hunger + 0.05);
       } else if (RE_SQUIRM.test(blob) || RE_SQUIRM.test(userBlob)) {
-        const hit = scaledHitSeconds(dm, 140, 744); // ~2:20 → ~12:24
+        const hit = scaledHitSeconds(dm, 40, 120); // 40s → 2:00
         delta -= hit * 1000;
-        note = formatHitNote("Struggle draws a hard squeeze", hit);
+        note = formatHitNote("Struggle draws a squeeze", hit);
         triggerDigestFx("growl");
-        dm.factors.intent = clamp01(dm.factors.intent + 0.12);
+        dm.factors.intent = clamp01(dm.factors.intent + 0.08);
       } else if (RE_CHURN.test(blob) || shot === "digest" || shot === "taut") {
-        const hit = scaledHitSeconds(dm, 78, 465); // ~1:18 → ~7:45
+        const hit = scaledHitSeconds(dm, 22, 75); // 22s → 1:15
         delta -= hit * 1000;
         note = formatHitNote("Chamber works you", hit);
         triggerDigestFx("churn");
-        dm.factors.intent = clamp01(dm.factors.intent + 0.06);
+        dm.factors.intent = clamp01(dm.factors.intent + 0.04);
       } else if (RE_CALM.test(blob) || shot === "lounge" || shot === "hold" || shot === "rub" || shot === "pat") {
-        const gain = 10 + Math.floor(Math.random() * 16);
+        const gain = 18 + Math.floor(Math.random() * 22);
         delta += gain * 1000;
         note = "She settles (+" + gain + "s)";
         dm.factors.intent = clamp01(dm.factors.intent - 0.04);
       } else if (RE_FEED.test(blob)) {
-        const gain = 15 + Math.floor(Math.random() * 20);
+        const gain = 20 + Math.floor(Math.random() * 25);
         delta += gain * 1000;
         note = "Fullness helps (+" + gain + "s)";
         dm.factors.fullness = clamp01(dm.factors.fullness + 0.1);
         dm.factors.hunger = clamp01(dm.factors.hunger - 0.08);
       } else if (RE_HUNGER.test(blob)) {
-        const hit = scaledHitSeconds(dm, 62, 279);
+        const hit = scaledHitSeconds(dm, 18, 55);
         delta -= hit * 1000;
         note = formatHitNote("Hunger spikes", hit);
-        dm.factors.hunger = clamp01(dm.factors.hunger + 0.12);
+        dm.factors.hunger = clamp01(dm.factors.hunger + 0.1);
       } else {
-        const hit = scaledHitSeconds(dm, 25, 87);
+        const hit = scaledHitSeconds(dm, 6, 18);
         delta -= hit * 1000;
         note = formatHitNote("Slow burn", hit);
       }
@@ -6209,9 +6429,20 @@ Once the speck is swallowed or already inside her stomach/gut (depth gut, SHOT i
     }
 
     function resumeDigestMeterFromSave() {
-      if (game.gone || game.fate === "digested") {
+      if (game.gone) {
         stopDigestMeter({ clear: true });
         clearGutTimer();
+        return;
+      }
+      if (game.bowel && game.bowel.active) {
+        game.bowel.lastTick = Date.now();
+        if (game.bowel.remainingMs <= 0) {
+          finishBowelMovement();
+          return;
+        }
+        startBowelTicker();
+        paintBowelMeter("Still moving through…");
+        hideGutSettle();
         return;
       }
       if (game.digestMeter && game.digestMeter.active) {
@@ -6341,6 +6572,8 @@ Once the speck is swallowed or already inside her stomach/gut (depth gut, SHOT i
         gutEnteredAt: null,
         gutTimer: null,
         digestMeter: null,
+        bowel: null,
+        usedLines: [],
       };
     }
     let game = freshGame("mara-laundry", "mara");
@@ -7016,18 +7249,29 @@ Once the speck is swallowed or already inside her stomach/gut (depth gut, SHOT i
 
     function showFate(kind) {
       const pack = characterOf(game.characterId);
+      const titleEl = document.getElementById("digestTitle");
+      const stayBtn = document.getElementById("digestStay");
       if (kind === "gulp") {
-        els.gulpLine.textContent = pack.gulpLine || "She swallowed you.";
+        els.gulpLine.textContent = pickFreshLine("gulp");
         els.gulp.classList.add("show");
         game.fate = "swallowed";
         setDepth(2);
         gulpFx();
-      } else if (kind === "digest") {
-        els.digestLine.textContent = pack.digestLine || "Soft end.";
+      } else if (kind === "bowel") {
+        if (titleEl) titleEl.textContent = "Bowel movement";
+        els.digestLine.textContent = pickFreshLine("bowel");
+        if (stayBtn) stayBtn.textContent = "Stay with it";
         els.digest.classList.add("show");
         game.fate = "digested";
         setDepth(3);
-        stopDigestMeter({ clear: true });
+        gulpFx();
+      } else if (kind === "digest") {
+        if (titleEl) titleEl.textContent = "Soft end";
+        els.digestLine.textContent = pickFreshLine("digest");
+        if (stayBtn) stayBtn.textContent = "Stay with it";
+        els.digest.classList.add("show");
+        game.fate = "digested";
+        setDepth(3);
         gulpFx();
       }
       applyScene();
@@ -7102,6 +7346,14 @@ Once the speck is swallowed or already inside her stomach/gut (depth gut, SHOT i
 
     function actionPrompts() {
       const name = speakerName();
+      if (game.bowel && game.bowel.active) {
+        return {
+          look: { label: "Brace", text: "ACTION: I brace against the narrowing walls as her body starts to move me along." },
+          talk: { label: "Call out", text: "ACTION: I call up one last time.\nSPEECH: Wait—are you taking me to the bathroom?" },
+          hide: { label: "Hold still", text: "ACTION: I go limp and try not to fight the slow push." },
+          tease: { label: "Struggle", text: "ACTION: I kick and struggle even as she walks me toward a toilet." },
+        };
+      }
       const inGut = (game.depth || 0) >= 3 || (game.digestMeter && game.digestMeter.active);
       if (inGut) {
         return {
@@ -7200,7 +7452,14 @@ Never copy SPEECH: or ACTION: into your reply. Reply only with MOMENT, SAY, SHOT
         ? " This is player message " + opts.turnNo + " of the scene: do NOT digest or finish the speck yet. A swallow is fine only if it clearly fits; keep the speck alive and able to respond."
         : "";
       let meterNote = "";
-      if (game.digestMeter && game.digestMeter.active && !game.gone) {
+      if (game.bowel && game.bowel.active && !game.gone) {
+        const secs = Math.max(0, Math.ceil((game.bowel.remainingMs || 0) / 1000));
+        meterNote = " BOWEL MOVEMENT phase: the speck is fully digested as a person and is being moved toward disposal."
+          + " ~" + secs + "s until she finishes."
+          + " She is heading to / using a bathroom if it fits. Keep it in-character, not a medical lecture."
+          + " SAY must be a NEW line every turn — no repeating prior one-liners."
+          + " Prefer SHOT after, rest, lounge, smug, full, cover, door.";
+      } else if (game.digestMeter && game.digestMeter.active && !game.gone) {
         const dm = game.digestMeter;
         const secs = Math.max(0, Math.ceil(dm.remainingMs / 1000));
         meterNote = " DIGEST-O METER is active: ~" + secs + "s left on the chamber clock."
@@ -7220,7 +7479,9 @@ Never copy SPEECH: or ACTION: into your reply. Reply only with MOMENT, SAY, SHOT
       } else if (game.depth >= 2 && !game.gone) {
         meterNote = " Speck is on the swallow path (mouth/throat). Sight is limited to wet dark and motion — not a clear view of a person standing in a room.";
       }
-      const state = `STATE: character=${c.name}; scenario=${s.id}; ${who} location=${game.location}; speck is ${game.playerPlace}; mood=${game.mood}; noticed=${game.noticed}; shot=${game.shot}; depth=${game.depth}.` + snack + earlyNote + meterNote + (opts.extra || "");
+      const state = `STATE: character=${c.name}; scenario=${s.id}; ${who} location=${game.location}; speck is ${game.playerPlace}; mood=${game.mood}; noticed=${game.noticed}; shot=${game.shot}; depth=${game.depth}.`
+        + " SAY variety: do not reuse any previous SAY sentence from this chat."
+        + snack + earlyNote + meterNote + (opts.extra || "");
       return [
         { role: "system", content: SYSTEM + "\n\n" + PLAYER_FORMAT + "\n\n" + c.voice + "\nLabel spoken lines SAY:.\n\n" + s.hook + "\n\n" + state },
         ...history.slice(-24),
@@ -7313,10 +7574,13 @@ Never copy SPEECH: or ACTION: into your reply. Reply only with MOMENT, SAY, SHOT
         persist();
         const early = turnNo <= 2;
         const fate = readFate(shot, moment, line, { early, asked: PLAYER_WANTS_DIGEST.test(userText) });
-        if (fate === "digest" && game.fate !== "digested") showFate("digest");
-        else if (fate === "gulp" && game.fate !== "swallowed" && game.fate !== "digested") showFate("gulp");
-        // Digest-O Meter reacts to this beat when you're in the chamber
-        if (game.depth >= 3 && game.digestMeter && game.digestMeter.active && game.fate !== "digested") {
+        if (fate === "digest" && game.fate !== "digested" && !(game.bowel && game.bowel.active)) {
+          startBowelMovement();
+        } else if (fate === "gulp" && game.fate !== "swallowed" && game.fate !== "digested") showFate("gulp");
+        // Digest-O / bowel meters react to this beat
+        if (game.bowel && game.bowel.active && !game.gone) {
+          applyBowelBeat(shot, moment, line, userText);
+        } else if (game.depth >= 3 && game.digestMeter && game.digestMeter.active && game.fate !== "digested") {
           applyDigestBeat(shot, moment, line, userText);
         } else if (game.depth >= 3 && !game.gone && game.fate !== "digested") {
           if (!game.gutEnteredAt) game.gutEnteredAt = Date.now();
@@ -7412,6 +7676,7 @@ Never copy SPEECH: or ACTION: into your reply. Reply only with MOMENT, SAY, SHOT
     function resetNight() {
       if (busy) return;
       if (!confirm("Start the night over? This clears the saved chat on this phone.")) return;
+      if (bowelTimer) { clearInterval(bowelTimer); bowelTimer = null; }
       stopDigestMeter({ clear: true });
       clearSave();
       const sid = game.scenarioId || "mara-laundry";
@@ -7776,13 +8041,14 @@ Never copy SPEECH: or ACTION: into your reply. Reply only with MOMENT, SAY, SHOT
     }
     els.digestStay.addEventListener("click", () => {
       els.digest.classList.remove("show");
-      stopDigestMeter({ clear: true });
-      game.gone = true;
       game.fate = "digested";
       setDepth(3);
+      if (!game.bowel || !game.bowel.active) {
+        startBowelMovement();
+      }
       addTurn({
-        moment: "The chamber keeps you. There is no more room-scale. Only her.",
-        line: characterOf(game.characterId).digestLine || "That's the night.",
+        moment: "The chamber is finished with you. Pressure changes. She is already thinking about a bathroom.",
+        line: pickFreshLine("bowel"),
       });
       paintMeter();
       persist();
