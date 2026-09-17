@@ -1482,30 +1482,43 @@
 
     #home {
       position: fixed; inset: 0; z-index: 40;
-      display: flex; flex-direction: column; justify-content: center;
-      padding: 28px 22px calc(24px + var(--safe-bot));
+      display: flex; flex-direction: column; justify-content: flex-start;
+      padding: max(20px, var(--safe-top)) 18px calc(20px + var(--safe-bot));
       background:
         radial-gradient(70% 50% at 50% 0%, rgba(255,79,216,.22), transparent 55%),
         radial-gradient(80% 40% at 50% 100%, rgba(180,20,40,.28), transparent 50%),
         #09050c;
       opacity: 0; visibility: hidden; pointer-events: none;
       transition: opacity .35s ease, visibility .35s ease;
+      overflow-y: auto;
+      overscroll-behavior: contain;
+      -webkit-overflow-scrolling: touch;
     }
     #home.show { opacity: 1; visibility: visible; pointer-events: auto; }
+    #home .home-inner {
+      width: min(420px, 100%);
+      margin: 0 auto;
+      padding: 12px 0 8px;
+    }
     #home .eyebrow {
       letter-spacing: .22em; text-transform: uppercase; font-size: .72rem;
       color: var(--neon); margin: 0 0 8px;
     }
-    #home h1 { font-size: clamp(2.6rem, 12vw, 4.2rem); margin: 0 0 8px; letter-spacing: .06em; }
-    #home .lede { color: var(--muted); max-width: 22rem; line-height: 1.45; margin: 0 0 22px; }
-    #home .faces { display: grid; gap: 10px; margin-bottom: 14px; }
+    #home h1 { font-size: clamp(2.4rem, 11vw, 3.6rem); margin: 0 0 8px; letter-spacing: .06em; }
+    #home .lede { color: var(--muted); max-width: 22rem; line-height: 1.45; margin: 0 0 18px; }
+    #home .faces { display: grid; gap: 8px; margin-bottom: 12px; }
     #home .faces button {
       text-align: left; border: 1px solid var(--hair);
       background: var(--glass); color: var(--ink);
-      border-radius: 14px; padding: 14px 16px; min-height: 64px;
+      border-radius: 14px; padding: 12px 14px; min-height: 56px;
     }
-    #home .faces button b { display:block; font-size: 1.05rem; }
-    #home .faces button span { display:block; color: var(--muted); font-size: .82rem; margin-top: 3px; }
+    #home .faces button:hover,
+    #home .faces button:focus-visible {
+      border-color: var(--neon);
+      background: color-mix(in srgb, var(--neon) 10%, var(--glass));
+    }
+    #home .faces button b { display:block; font-size: 1rem; }
+    #home .faces button span { display:block; color: var(--muted); font-size: .8rem; margin-top: 2px; }
     #home .row { display: grid; gap: 8px; }
     #home .row button {
       min-height: 46px; border: 0; border-radius: 12px; font-weight: 800;
@@ -2167,15 +2180,17 @@
   </div>
 
   <div id="home">
-    <p class="eyebrow">She will swallow you</p>
-    <h1>Speck</h1>
-    <p class="lede">Pick a giantess. Stay a snack. The night only ends inside her if you let it get that far.</p>
-    <div class="faces" id="homeFaces"></div>
-    <div class="row">
-      <button type="button" id="homeContinue">Continue last night</button>
-      <button type="button" id="homeStories">All nights</button>
+    <div class="home-inner">
+      <p class="eyebrow">She will swallow you</p>
+      <h1>Speck</h1>
+      <p class="lede">Pick a giantess. Stay a snack. The night only ends inside her if you let it get that far.</p>
+      <div class="faces" id="homeFaces"></div>
+      <div class="row">
+        <button type="button" id="homeContinue">Continue last night</button>
+        <button type="button" id="homeStories">All nights</button>
+      </div>
+      <p class="home-dismiss">Tap anywhere else to close</p>
     </div>
-    <p class="home-dismiss">Tap anywhere else to close</p>
   </div>
   <div id="splash">
     <div class="mark">Speck</div>
@@ -5915,7 +5930,9 @@ This is vore. Swallow is on the table from the first look. Do not fade to fade-t
         const next = !tried ? "look" : (tried === "look" ? "portrait" : "");
         if (!next) { els.still.style.opacity = "0"; return; }
         els.still.dataset.fallback = next;
-        els.still.src = dir + next + ".jpg";
+        const fallbackSrc = dir + next + ".jpg";
+        els.still.dataset.src = fallbackSrc;
+        els.still.src = fallbackSrc;
       });
       els.still.addEventListener("load", () => { els.still.style.opacity = "1"; });
     }
@@ -5927,8 +5944,10 @@ This is vore. Swallow is on the table from the first look. Do not fade to fade-t
       setDepth(depthFromShot(name, game.fate));
       applyScene();
       const src = stillSrc(name);
-      if (!els.still.src.endsWith(src)) {
+      // Compare via data-src: img.src is always absolute and can diverge from relative path
+      if (els.still.dataset.src !== src) {
         delete els.still.dataset.fallback;
+        els.still.dataset.src = src;
         els.still.style.opacity = "0.28";
         els.still.src = src;
         els.still.onload = () => {
