@@ -5746,8 +5746,8 @@ Once the speck is swallowed or already inside her stomach/gut (depth gut, SHOT i
         location: "loud White Plains bar, sticky table, last-call lights",
         playerPlace: "on the wet varnish near her glass",
         mood: "drunk-confident, rewriting the night live",
-        shot: "look",
-        hook: "SCENARIO: Speck at a bar with Maddy Rivera after too many drinks. Prefer SHOT look, palm, pinch, swallow, sit, phone. She is sloppy and will not call it that. Belches mid-sentence. Soft vore on the table if dared or if she gets bored.",
+        shot: "tongue",
+        hook: "SCENARIO: Speck at a bar with Maddy Rivera after too many drinks. Prefer SHOT tongue, look, palm, pinch, swallow, sit, phone. She is sloppy and will not call it that. Belches mid-sentence. Soft vore on the table if dared or if she gets bored.",
         opening: {
           moment: "Ice a glacier in a glass. Condensation river. She laughs too loud at her own setup. The stool groans when she leans.",
           line: "I'm not sloppy. I'm fun. There's a difference, and you used to— wait. Who even are you.",
@@ -5761,7 +5761,7 @@ Once the speck is swallowed or already inside her stomach/gut (depth gut, SHOT i
         location: "Maddy's living room, Jon's hoodie on a chair, TV paused",
         playerPlace: "on the rug where Conor was standing",
         mood: "too-nice smile, old intimacy used as a weapon",
-        shot: "look",
+        shot: "kneel",
         playerName: "Conor",
         hook: "SCENARIO: The speck IS CONOR, Maddy's old high-school best friend. Call him Conor. Never treat him as a stranger. She dated the friendship into the ground after Jon and will not admit it. She pokes, gaslights lightly, smiles too much. Soft vore is on the table and she will joke it is not that deep. Prefer SHOT look, palm, pinch, sit, whisper, swallow, lounge.",
         opening: {
@@ -5903,7 +5903,7 @@ Once the speck is swallowed or already inside her stomach/gut (depth gut, SHOT i
         location: "club bathroom stall, bass through tile, her back to the door",
         playerPlace: "inside her while the night keeps going outside",
         mood: "hot, sloppy-glam, private",
-        shot: "hold",
+        shot: "smug",
         gut: true,
         hook: "SCENARIO: Speck already inside Maddy in a club bathroom stall. Prefer SHOT hold, inside, smug, cover, lounge. Public bass, private chamber. She cannot see them.",
         opening: {
@@ -5999,7 +5999,7 @@ Once the speck is swallowed or already inside her stomach/gut (depth gut, SHOT i
         location: "parking garage roof at giantess scale, night, lot lights",
         playerPlace: "on the concrete lip near her hip",
         mood: "dramatic, a little mean, pretty in the sodium light",
-        shot: "look",
+        shot: "street",
         hook: "SCENARIO: TRUE GIANTESS. Maddy perched on a parking garage. Prefer SHOT look, establish, palm, pinch, street, swallow. Night city is toys. She likes being looked at.",
         opening: {
           moment: "Lot lights are a constellation under her thigh. Wind is her hair. A bus far below is a slow bug.",
@@ -7452,6 +7452,7 @@ Once the speck is swallowed or already inside her stomach/gut (depth gut, SHOT i
         scenarioId: s.id,
         location: s.location,
         playerPlace: s.playerPlace,
+        playerName: s.playerName || "",
         mood: s.mood,
         noticed: true,
         shot: s.shot,
@@ -8405,7 +8406,14 @@ Never copy SPEECH: or ACTION: into your reply. Reply only with MOMENT, SAY, SHOT
       opts = opts || {};
       const s = scenarioOf(game.scenarioId);
       const c = characterOf(game.characterId);
-      const who = s.playerName ? ("The speck is " + s.playerName + ".") : "The speck is unnamed.";
+      const whoName = game.playerName || s.playerName || "";
+      const who = whoName
+        ? (game.gone
+          ? ("IDENTITY: the speck WAS " + whoName + ". " + c.name + " knows exactly who that was and must not forget the name. She may think or mutter about " + whoName + ". She does not speak as if " + whoName + " can still answer.")
+          : ("The speck IS " + whoName + ". Call them " + whoName + ". Never treat them as a stranger."))
+        : (game.gone
+          ? "IDENTITY: the speck was an unnamed tiny person she already knows from this night. Do not invent a new stranger. Do not forget this night's snack."
+          : "The speck is unnamed.");
       const snack = /\b(snack|swallow|eat me|gulp|mouth)\b/i.test(userText)
         ? " The player asked for a swallow beat this turn. Move toward mouth, tongue, or a gulp if it fits her."
         : "";
@@ -8445,8 +8453,20 @@ Never copy SPEECH: or ACTION: into your reply. Reply only with MOMENT, SAY, SHOT
           + " Prefer SHOT inside, hold, rub, lounge, pat, burp. Stay inside — no casual exits.";
       } else if (game.depth >= 2 && !game.gone) {
         meterNote = " Speck is on the swallow path (mouth/throat). Sight is limited to wet dark and motion — not a clear view of a person standing in a room.";
+      } else if (game.gone) {
+        const idName = game.playerName || s.playerName || "the speck from this night";
+        meterNote = " AFTER DIGEST: " + idName + " is digested and gone as a speaker."
+          + " " + c.name + " REMEMBERS who they were. Do not blank the name. Do not pretend it was a random bug."
+          + " Do NOT reset the night or invent a new city."
+          + " Stay in this same night and place: " + (game.location || s.location || "the current scene") + "."
+          + " They were " + (game.playerPlace || "inside her") + "."
+          + " Continue from the last MOMENT — same clothes, same room or the next room she would actually walk to (bathroom only if disposal is running)."
+          + " Never bring " + idName + " back as a living voice.";
       }
-      const state = `STATE: character=${c.name}; scenario=${s.id}; ${who} location=${game.location}; speck is ${game.playerPlace}; mood=${game.mood}; noticed=${game.noticed}; shot=${game.shot}; depth=${game.depth}.`
+      const recap = sceneRecap();
+      const state = `STATE: character=${c.name}; scenario=${s.id} (${s.title || s.id}); ${who} location=${game.location}; speck is ${game.playerPlace}; mood=${game.mood}; noticed=${game.noticed}; shot=${game.shot}; depth=${game.depth}; fate=${game.fate || "none"}; gone=${!!game.gone}; digestDone=${!!game.digestDone}; bowel=${game.bowel && game.bowel.active ? "active" : (game.bowelDone ? "done" : "no")}.`
+        + " Continuity: do not forget the location, outfit, or last beat. If STATE conflicts with a sudden new place, STATE wins."
+        + recap
         + " SAY variety: do not reuse any previous SAY sentence from this chat."
         + snack + earlyNote + meterNote + (opts.extra || "");
       return [
@@ -8573,21 +8593,43 @@ Never copy SPEECH: or ACTION: into your reply. Reply only with MOMENT, SAY, SHOT
     }
 
     // After the speck is digested: the character carries the scene on alone.
+    function sceneRecap() {
+      const bits = [];
+      const s = scenarioOf(game.scenarioId);
+      if (s && s.title) bits.push("Night is \"" + s.title + "\".");
+      const who = game.playerName || (s && s.playerName) || "";
+      if (who) bits.push("The snack was " + who + " — remember that name.");
+      if (game.location) bits.push("Place: " + game.location + ".");
+      const recent = (typeof logTurns !== "undefined" ? logTurns : []).slice(-3);
+      recent.forEach((t, i) => {
+        if (t && t.moment) bits.push("Beat " + (i + 1) + ": " + String(t.moment).replace(/\s+/g, " ").slice(0, 220));
+      });
+      if (!bits.length) return "";
+      return " SCENE MEMORY (do not drop this): " + bits.join(" ");
+    }
+
     function afterCue() {
       const n = (game.afterPasses || 0) + 1;
       const bowelOn = !!(game.bowel && game.bowel.active);
+      const place = game.location || scenarioOf(game.scenarioId).location || "the same scene";
+      const whoSnack = game.playerName || scenarioOf(game.scenarioId).playerName || "";
       const bathroom = bowelOn
-        ? "This beat is a bowel movement / bathroom disposal of what is left of the speck. Keep it in-character. The speck cannot speak or act."
+        ? "Disposal is running. She may walk to a bathroom FROM " + place + " — do not teleport to a new city or a new night."
         : (game.bowelDone
-          ? "Disposal already happened. Do not rewind it. Continue her night."
-          : "No bathroom trip unless it clearly fits later.");
+          ? "Disposal already happened. Stay in the aftermath of " + place + ". Do not rewind. Do not start a different story."
+          : "No bathroom trip unless it clearly fits from " + place + ".");
       return {
         n,
-        user: "[NARRATOR] Continue the scene. The speck was fully digested and no longer speaks or acts; do not bring them back. This is after-beat " + n + ".",
-        extra: " AFTER MODE: the speck is gone. Continue " + characterOf(game.characterId).name +
-          "'s own night in this scene: what she does next, where she goes, who she talks to or texts, how she feels about it. " +
-          "Let a little time pass each beat. MOMENT is third person, about her and the place. SAY is her talking to herself or to someone else (never to the speck). " +
-          "Prefer SHOT lounge, rest, full, smug, pat, rub, after, bed, lift, cover, street, phone, door, profile. " + bathroom,
+        user: "[NARRATOR] Continue THIS scene in " + place + ". "
+          + (whoSnack ? (whoSnack + " is digested and gone as a speaker. She still knows it was " + whoSnack + ". ") : "The speck is digested and gone. ")
+          + "Do not reset location or forget who they were. After-beat " + n + ".",
+        extra: " AFTER MODE: continue " + characterOf(game.characterId).name +
+          " in the SAME night. Location stays \"" + place + "\" unless she takes one plausible step (hallway, bathroom, couch)."
+          + (whoSnack ? (" She remembers the snack was " + whoSnack + " and may mention that name. She does not wait for a reply.") : "")
+          + " Do not invent a new city, job, or friend group mid-sentence."
+          + " MOMENT is third person about her and THIS place. SAY is to herself or someone actually here."
+          + " Prefer SHOT lounge, rest, full, smug, pat, rub, after, bed, lift, cover, street, phone, door, profile. " + bathroom +
+          sceneRecap(),
       };
     }
 
