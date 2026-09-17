@@ -6435,10 +6435,13 @@ Once the speck is swallowed or already inside her stomach/gut (depth gut, SHOT i
       if (digestTimer) { clearInterval(digestTimer); digestTimer = null; }
       const silent = !!saved.silent;
       const path = saved.path || (game.gone || game.fate === "digested" ? "dead" : "forced");
-      const alive = path === "forced" && !game.gone;
       const totalMs = (saved && saved.totalMs) || (BOWEL_MIN_MS + Math.floor(Math.random() * (BOWEL_MAX_MS - BOWEL_MIN_MS)));
       const remainingMs = (saved && typeof saved.remainingMs === "number") ? saved.remainingMs : totalMs;
-      if (!alive) game.fate = "digested";
+      // Disposal means the speck is already digested — they watch / Continue, they don't talk
+      game.fate = "digested";
+      game.digestDone = true;
+      game.gone = true;
+      const alive = false;
       game.bowel = {
         active: true,
         path,
@@ -6459,18 +6462,15 @@ Once the speck is swallowed or already inside her stomach/gut (depth gut, SHOT i
         lastTick: Date.now(),
         factors: (game.digestMeter && game.digestMeter.factors) || { hunger: 0.2, fullness: 0.75, intent: 0.7 },
       };
-      if (alive && !silent) {
-        addNotice("You forced your way further down. Disposal meter — you're still here.");
-      } else if (!silent && !game.gone) {
-        showFate("bowel");
-        addNotice("Digest-O finished. Disposal meter is running.");
-      } else if (!silent) {
-        addNotice("Disposal meter. She's handling what's left of you.");
+      if (!silent) {
+        addNotice("You're digested. Disposal is running — Continue her night whenever you want.");
       }
-      paintBowelMeter(alive
-        ? "You pushed past the chamber. Disposal is moving you along."
-        : "Digest-O is done. Disposal is next.");
+      paintBowelMeter(path === "forced"
+        ? "You forced it lower. You're digested. Disposal is moving what's left."
+        : "You're digested. Disposal is next.");
       startBowelTicker();
+      paintMeter();
+      setBusy(false);
       persist();
     }
 
@@ -7862,11 +7862,16 @@ Once the speck is swallowed or already inside her stomach/gut (depth gut, SHOT i
       if (cont) {
         cont.disabled = on || (!engine && !CLOUD_ACTOR_URL);
         const n = game.afterPasses || 0;
-        cont.textContent = on ? "She's still going…" : (n ? "Keep following her" : "Continue her night");
+        const disposing = !!(game.bowel && game.bowel.active && !game.bowelDone);
+        cont.textContent = on ? "She's still going…" : (disposing ? "Continue disposal" : (n ? "Keep following her" : "Continue her night"));
         const note = document.getElementById("goneNote");
-        if (note) note.textContent = n
-          ? "You're gone. " + characterOf(game.characterId).name + " has carried on for " + n + (n === 1 ? " beat." : " beats.")
-          : "You're gone. " + characterOf(game.characterId).name + " keeps going without you.";
+        if (note) {
+          note.textContent = disposing
+            ? "You're digested. Disposal is still running — keep going when you want."
+            : (n
+              ? "You're gone. " + characterOf(game.characterId).name + " has carried on for " + n + (n === 1 ? " beat." : " beats.")
+              : "You're digested. " + characterOf(game.characterId).name + " keeps going without you.");
+        }
       }
       els.look.disabled = off;
       els.talk.disabled = off;
