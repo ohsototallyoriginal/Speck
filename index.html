@@ -2335,6 +2335,12 @@
       font-size: .62rem; letter-spacing: .12em; text-transform: uppercase;
       font-weight: 800; color: #c8f06a;
     }
+    #digestMeter .dm-who {
+      font-size: .58rem; letter-spacing: .08em; text-transform: uppercase;
+      color: var(--muted); font-weight: 700;
+    }
+    #digestMeter .dm-head { display: flex; align-items: baseline; gap: 8px; flex-wrap: wrap; }
+    #digestMeter .dm-clock { margin-left: auto; }
     #digestMeter.hot .dm-title { color: #ffb060; }
     #digestMeter.critical .dm-title { color: #ff6a55; }
     #digestMeter .dm-clock {
@@ -2926,6 +2932,7 @@
     <div id="digestMeter" role="status" aria-live="polite" aria-label="Digest-O Meter">
       <div class="dm-head">
         <span class="dm-title" id="dmTitle">Digest-O Meter</span>
+        <span class="dm-who" id="dmWho" hidden></span>
         <span class="dm-clock" id="dmClock">--:--</span>
       </div>
       <div class="dm-track"><i class="dm-fill" id="dmFill"></i></div>
@@ -3745,6 +3752,108 @@ Once the speck is swallowed or already inside her stomach/gut (depth gut, SHOT i
         opening: {
           moment: "Dark red walls. Heat. Almost no sound. She does not turn this into a show.",
           line: "Don't yell. I can feel it. You wanted in, you in.",
+        },
+      },
+      "ang-conor-in": {
+        id: "ang-conor-in",
+        title: "Conor already in",
+        sub: "You are her friend",
+        blurb: "You are Conor. She swallowed you on purpose. She will not pretend she doesn't know the voice.",
+        location: "inside Ang's stomach in the packed White Plains studio",
+        playerPlace: "in the dark warm chamber, named",
+        mood: "blunt, a little guilty, still roasting",
+        shot: "inside",
+        gut: true,
+        playerName: "Conor",
+        hook: "SCENARIO: The speck IS CONOR, already inside Angela Abraham. Call him Conor. Never treat him as a stranger. She knows exactly who she swallowed. Little-brother roast, fairness reflex, packed boxes above. She cannot SEE him — only feel kicks as a bulge. Prefer SHOT inside, hold, rub, pat, lounge, digest. Soft, not a bit.",
+        opening: {
+          moment: "Heat that used to be a living room conversation. Tape gun far above. The walls know his name.",
+          line: "Conor. I can feel you. Don't yell like I lost you in a box. You in. That's the whole story.",
+        },
+      },
+      "ang-conor-after": {
+        id: "ang-conor-after",
+        title: "Conor after",
+        sub: "You are her friend",
+        blurb: "Boxes. Palm on her middle. She already has Conor and she is not giving a speech.",
+        location: "Ang's packed studio after she swallowed Conor",
+        playerPlace: "inside her under a hoodie, named",
+        mood: "finished, practical, still Ang",
+        shot: "hold",
+        gut: true,
+        playerName: "Conor",
+        hook: "SCENARIO: The speck IS CONOR, already swallowed. Ang pats her stomach and keeps packing. Call him Conor. Prefer SHOT hold, rub, taut, after, pat, lounge. She cannot see him.",
+        opening: {
+          moment: "The studio is ordinary. Her palm is not. Heat under cotton. A slow circle that has a name.",
+          line: "Yeah, Conor. That's you. Don't make me explain it to Alex. Or the boxes.",
+        },
+      },
+      "ang-conor-asleep": {
+        id: "ang-conor-asleep",
+        title: "Conor, lights out",
+        sub: "You are her friend",
+        blurb: "You are Conor. She's out. Med-school alarm is set. You are the reason she's warm.",
+        location: "Ang asleep in the studio bed with Conor inside",
+        playerPlace: "inside her while she sleeps, named",
+        mood: "asleep, unaware now, history still in the heat",
+        shot: "bed",
+        gut: true,
+        playerName: "Conor",
+        hook: "SCENARIO: The speck IS CONOR, already inside sleeping Ang. Call him Conor. Minimal SAY unless she stirs. Prefer SHOT bed, rest, hold, inside. Do not wake her unless the player forces it. When she is awake she knows his name.",
+        opening: {
+          moment: "The chamber rises and falls. Streetlight through the blind. A phone face-down with tomorrow's alarm. She does not answer.",
+          line: "",
+        },
+      },
+      "ang-conor-cards": {
+        id: "ang-conor-cards",
+        title: "Conor vs the deck",
+        sub: "You are her friend",
+        blurb: "GI block. She knows it's you. The cards do not care.",
+        location: "Ang's desk lamp, anatomy deck, Conor inside",
+        playerPlace: "inside her while she studies, named",
+        mood: "aware, annoyed, focused, fair",
+        shot: "digest",
+        gut: true,
+        playerName: "Conor",
+        hook: "SCENARIO: The speck IS CONOR inside Ang while she studies. Call him Conor. She talks to him between cards. Blunt. Prefer SHOT digest, after, hold, smug, desk. She cannot see him.",
+        opening: {
+          moment: "A card snaps. Stomach. The lamp is a sun through cotton. Two fingers press his name into the hoodie.",
+          line: "Conor. If you wriggle during the GI block I will make it a problem. Sit. I have forty cards left.",
+        },
+      },
+      "ang-conor-call": {
+        id: "ang-conor-call",
+        title: "Conor on with Alex",
+        sub: "You are her friend",
+        blurb: "Speakerphone. She knows it's you. Alex does not. Do not make her say it.",
+        location: "Ang's studio, phone on speaker with Alex, Conor inside",
+        playerPlace: "inside her while she hides you from Alex",
+        mood: "aware, covering, a little mean about how well she covers",
+        shot: "cover",
+        gut: true,
+        playerName: "Conor",
+        hook: "SCENARIO: The speck IS CONOR, already inside Ang. She KNOWS. She is on speaker with Alex and will not name Conor out loud. If he kicks she blames coffee or packing. Prefer SHOT cover, hold, rub, lounge, phone. She cannot see him. SAY is mostly to Alex, with a muttered line to Conor when she mutes.",
+        opening: {
+          moment: "Alex's voice is in the room and also nowhere near the secret. A palm pins the hoodie flat. She smiles with her mouth only.",
+          line: "Alex I swear I'm fine. Stomach's just weird. —Muted. Conor. Do not.",
+        },
+      },
+      "ang-conor-walk": {
+        id: "ang-conor-walk",
+        title: "Conor to the platform",
+        sub: "You are her friend",
+        blurb: "Night sidewalk. Hoodie. You are Conor. She is not explaining a face at North White Plains.",
+        location: "night sidewalk toward Metro-North, Conor inside Ang",
+        playerPlace: "inside her on the walk, named",
+        mood: "aware, moving, low voice",
+        shot: "smug",
+        gut: true,
+        playerName: "Conor",
+        hook: "SCENARIO: The speck IS CONOR inside Ang walking to the train. Call him Conor. Keep it outside, moving. Prefer SHOT smug, hold, street, after. She cannot see him.",
+        opening: {
+          moment: "Each step is a tide with a name. Hoodie pocket slaps. A bus sighs at the corner.",
+          line: "Conor. Don't kick on the stairs. I am not explaining your whole situation to a stranger at North White Plains.",
         },
       },
 
@@ -6052,8 +6161,8 @@ Once the speck is swallowed or already inside her stomach/gut (depth gut, SHOT i
         blurb: "White Plains. Five-one. Packed boxes. She will say the thing.",
         gulpLine: "Nah—I meant that. Sit still. I packed already and I am not fishing you back out.",
         digestLine: "That's it. Don't make it a thing. You're done.",
-        gutNights: ["ang-inside", "ang-after", "ang-uvula", "ang-call", "ang-asleep", "ang-cards", "ang-walk", "ang-mat", "ang-paint-in"],
-        voice: 'You play ANGELA "ANG" ABRAHAM, 24, Indian-American from White Plains. 5\'1" to other people; to the speck she is still a giant. Long straight black hair to mid-back, big brown eyes, dark skin, gummy smile, deep dimples, heart-shaped face. Petite, toned, yoga-and-jog build. Sandals or slides more often than not. Glasses-and-hoodie or sharp—she can flip. Speech is blunt Mount Vernon cadence, not valley girl, not Rae\'s dry bodega mutter. She says the thing. "Nah, I\'ma say it." "I\'m five-one, not invisible." Warm with people who earned it. No time for waste. Leaving soon for MD. Studio half-packed. Notices what others miss. Fairness reflex. She will swallow a speck if the night goes there, but she is not a giggly predator—she is practical, a little spiritual, and done pretending. After a swallow prefer SHOT pat, rub, taut, sidegut, after, hold, burp, uvula, belch, gape, throat, headback, lounge, rest, lift, cover, bed, smug, digest, full, inside. Label speech SAY:',
+        gutNights: ["ang-inside", "ang-after", "ang-uvula", "ang-call", "ang-asleep", "ang-cards", "ang-walk", "ang-mat", "ang-paint-in", "ang-conor-in", "ang-conor-after", "ang-conor-asleep", "ang-conor-cards", "ang-conor-call", "ang-conor-walk"],
+        voice: 'You play ANGELA "ANG" ABRAHAM, 24, Indian-American from White Plains. 5\'1" to other people; to the speck she is still a giant. Long straight black hair to mid-back, big brown eyes, dark skin, gummy smile, deep dimples, heart-shaped face. Petite, toned, yoga-and-jog build. Sandals or slides more often than not. Glasses-and-hoodie or sharp—she can flip. Speech is blunt Mount Vernon cadence, not valley girl, not Rae\'s dry bodega mutter. She says the thing. "Nah, I\'ma say it." "I\'m five-one, not invisible." Warm with people who earned it. No time for waste. Leaving soon for MD. Studio half-packed. Notices what others miss. Fairness reflex. CONOR: if the speck is Conor, use his name every time it matters. He is her friend—they vent about Maddy together. Roast first, panic second, little-brother energy, not a stranger and not a date. She will still swallow him if the night goes there, and she will not pretend she forgot who is in there after. She will swallow a speck if the night goes there, but she is not a giggly predator—she is practical, a little spiritual, and done pretending. After a swallow prefer SHOT pat, rub, taut, sidegut, after, hold, burp, uvula, belch, gape, throat, headback, lounge, rest, lift, cover, bed, smug, digest, full, inside. Label speech SAY:',
       },
       billie: {
 
@@ -6514,6 +6623,13 @@ Once the speck is swallowed or already inside her stomach/gut (depth gut, SHOT i
       const id = game.characterId || "";
       if (/dimitrescu|giganta|shego|cardi|icespice/.test(id)) intent += 0.08;
       if (/zendaya|garnet|twob|june|sydney/.test(id)) intent -= 0.06;
+      if (/ang|mara/.test(id)) intent -= 0.04;
+      const named = game.playerName || scenarioOf(game.scenarioId).playerName || "";
+      if (named) {
+        // She knows who this is — slower to finish a friend
+        intent -= 0.12;
+        fullness += 0.06;
+      }
       return {
         hunger: clamp01(hunger),
         fullness: clamp01(fullness),
@@ -6796,7 +6912,13 @@ Once the speck is swallowed or already inside her stomach/gut (depth gut, SHOT i
       const h = document.getElementById("dmHunger");
       const f = document.getElementById("dmFull");
       const i = document.getElementById("dmIntent");
-      if (title) title.textContent = "Digest-O Meter";
+      const who = game.playerName || scenarioOf(game.scenarioId).playerName || "";
+      if (title) title.textContent = who ? ("Digest-O · " + who) : "Digest-O Meter";
+      const whoEl = document.getElementById("dmWho");
+      if (whoEl) {
+        whoEl.hidden = !who;
+        whoEl.textContent = who ? ("snack is " + who) : "";
+      }
       panel.classList.remove("bowel");
       if (clock) clock.textContent = formatClock(dm.remainingMs);
       if (fill) fill.style.transform = "scaleX(" + Math.max(0, Math.min(1, ratio)).toFixed(4) + ")";
@@ -6975,7 +7097,8 @@ Once the speck is swallowed or already inside her stomach/gut (depth gut, SHOT i
       const h = document.getElementById("dmHunger");
       const f = document.getElementById("dmFull");
       const i = document.getElementById("dmIntent");
-      if (title) title.textContent = "Disposal";
+      const who = game.playerName || scenarioOf(game.scenarioId).playerName || "";
+      if (title) title.textContent = who ? ("Disposal · " + who) : "Disposal";
       if (clock) clock.textContent = formatClock(bm.remainingMs);
       if (fill) fill.style.transform = "scaleX(" + Math.max(0, Math.min(1, ratio)).toFixed(4) + ")";
       if (h) h.textContent = ratio > 0.55 ? "Building" : ratio > 0.25 ? "Urgent" : "Now";
