@@ -2388,6 +2388,12 @@
       background: color-mix(in srgb, var(--panel) 65%, #184028);
       color: #b8ffd0;
     }
+    #digestMeter .dm-adjust button {
+      position: relative;
+      z-index: 8;
+      pointer-events: auto;
+    }
+    #meter { position: relative; z-index: 7; }
 
     /* ——— Digest-O FX layer ——— */
     #digestFx {
@@ -6229,6 +6235,7 @@ Once the speck is swallowed or already inside her stomach/gut (depth gut, SHOT i
       }
       startDigestTicker();
       persist();
+      if (!(saved && (saved.silent || saved.startedAt))) fireClockBeat("settle");
     }
 
     function startDigestTicker() {
@@ -6332,13 +6339,14 @@ Once the speck is swallowed or already inside her stomach/gut (depth gut, SHOT i
     }
 
     function tickDigestMeter() {
+      // Disposal owns the clock while it's running — don't kill the panel
+      if (game.bowel && game.bowel.active) return;
       const dm = game.digestMeter;
-      if (!dm || !dm.active || game.gone) {
-        stopDigestMeter();
+      if (!dm || !dm.active || game.bowelDone) {
+        if (!(game.bowel && game.bowel.active)) stopDigestMeter();
         return;
       }
       if (game.depth < 3) {
-        // Left the gut somehow — pause meter visually but keep state
         paintDigestMeter();
         return;
       }
@@ -6364,17 +6372,14 @@ Once the speck is swallowed or already inside her stomach/gut (depth gut, SHOT i
     }
 
     function finishDigestMeter() {
-      if (game.gone && game.bowelDone) return;
+      if (game.bowelDone || (game.bowel && game.bowel.active)) return;
       clearGutTimer();
       game.fate = "digested";
       game.digestDone = true;
-      // Digest finished → Disposal meter. Not gone until disposal completes.
-      if (!(game.bowel && game.bowel.active) && !game.bowelDone) {
-        startBowelMovement({ path: "dead", silent: false });
-      } else {
-        stopDigestMeter({ clear: true });
-        showFate("digest");
-      }
+      startBowelMovement({ path: "dead", silent: true });
+      addNotice("Digest-O hit zero. Disposal starts.");
+      triggerDigestFx("burp");
+      fireClockBeat("digest");
     }
 
     const BOWEL_MIN_MS = 90 * 1000;
@@ -6584,7 +6589,60 @@ Once the speck is swallowed or already inside her stomach/gut (depth gut, SHOT i
       paintMeter();
       persist();
       setBusy(false);
-      addNotice("Both meters are done. You're gone.");
+      addNotice("Disposal hit zero. You're gone.");
+      fireClockBeat("disposal");
+    }
+
+    const CLOCK_BEATS = {
+      settle: {
+        user: "[NARRATOR] Two minutes inside have passed. The chamber has settled. A digest clock starts on the speck.",
+        extra: " The speck is still alive inside. React to the chamber waking up — pressure, heat, a first real squeeze. Do NOT finish them. SAY is a NEW line. Prefer SHOT inside, hold, taut, smug.",
+      },
+      digest: {
+        user: "[NARRATOR] The Digest-O Meter hits zero. Digestion finishes. Disposal begins; the speck is no longer a person in the stomach.",
+        extra: " Digest-O just hit zero. Start the disposal beat: she feels the shift lower, maybe walks toward a bathroom. The speck cannot hold a conversation. SAY is a NEW line. Prefer SHOT after, full, smug, cover, door.",
+      },
+      disposal: {
+        user: "[NARRATOR] The Disposal meter hits zero. Digestion and disposal are both finished. The speck is gone.",
+        extra: " AFTER MODE: both clocks are done. Skull-end. Continue her night without the speck. Never bring them back. SAY is a NEW line to herself or someone else. Prefer SHOT lounge, street, phone, door, smug, rest.",
+      },
+    };
+
+    let clockBeatKind = null;
+    async function fireClockBeat(kind) {
+      if (!CLOCK_BEATS[kind]) return;
+      if (!engine && !CLOUD_ACTOR_URL) return;
+      if (clockBeatKind === kind) return;
+      clockBeatKind = kind;
+      const wait = () => new Promise((r) => setTimeout(r, 350));
+      let guard = 0;
+      while (busy && guard++ < 20) await wait();
+      if (busy) { clockBeatKind = null; return; }
+      const spec = CLOCK_BEATS[kind];
+      const typing = addTyping();
+      setBusy(true);
+      try {
+        const raw = await askActor(buildMessages(spec.user, { extra: spec.extra }));
+        const parsed = parseActor(raw);
+        const shot = pickShot({ userText: spec.user, moment: parsed.moment, line: parsed.line, actorShot: parsed.actorShot });
+        setStill(shot);
+        typing.remove();
+        addTurn({ moment: parsed.moment, line: parsed.line });
+        history.push({ role: "user", content: spec.user });
+        history.push({ role: "assistant", content: raw });
+        if (kind === "digest" && game.bowel && game.bowel.active) {
+          applyBowelBeat(shot, parsed.moment, parsed.line, spec.user);
+        } else if (kind === "settle" && game.digestMeter && game.digestMeter.active && !(game.bowel && game.bowel.active)) {
+          applyDigestBeat(shot, parsed.moment, parsed.line, spec.user);
+        }
+        persist();
+      } catch (err) {
+        typing.remove();
+        console.error(err);
+        addNotice(String(err && err.message ? err.message : "Clock beat failed."), () => fireClockBeat(kind));
+      }
+      setBusy(false);
+      clockBeatKind = null;
     }
 
     function paintSkullBar() {
@@ -6674,15 +6732,21 @@ Once the speck is swallowed or already inside her stomach/gut (depth gut, SHOT i
     }
 
     function nudgeDigestClock(deltaMs, note) {
-      if (game.gone) return;
+      if (game.bowelDone) return;
       if (game.bowel && game.bowel.active) {
-        game.bowel.remainingMs = Math.max(0, Math.min(BOWEL_MAX_MS, game.bowel.remainingMs + deltaMs));
-        if (game.digestMeter) game.digestMeter.remainingMs = game.bowel.remainingMs;
+        const next = game.bowel.remainingMs + deltaMs;
+        game.bowel.remainingMs = Math.max(0, Math.min(BOWEL_MAX_MS, next));
+        if (game.bowel.remainingMs > game.bowel.totalMs) game.bowel.totalMs = game.bowel.remainingMs;
+        if (game.digestMeter) {
+          game.digestMeter.remainingMs = game.bowel.remainingMs;
+          game.digestMeter.totalMs = game.bowel.totalMs;
+        }
         paintBowelMeter(note || "");
         if (game.bowel.remainingMs <= 0) finishBowelMovement();
         else persist();
         return;
       }
+      if (game.gone) return;
       const dm = game.digestMeter;
       if (!dm || !dm.active) return;
       dm.remainingMs = Math.max(0, Math.min(DIGEST_MAX_MS, dm.remainingMs + deltaMs));
@@ -8000,7 +8064,7 @@ Never copy SPEECH: or ACTION: into your reply. Reply only with MOMENT, SAY, SHOT
         // Digest-O / bowel meters react to this beat
         if (game.bowel && game.bowel.active) {
           applyBowelBeat(shot, moment, line, userText);
-        } else if (game.depth >= 3 && game.digestMeter && game.digestMeter.active && game.fate !== "digested") {
+        } else if (game.depth >= 3 && game.digestMeter && game.digestMeter.active && !(game.digestMeter.bowel)) {
           applyDigestBeat(shot, moment, line, userText);
         } else if (game.depth >= 3 && !game.gone && game.fate !== "digested") {
           if (!game.gutEnteredAt) game.gutEnteredAt = Date.now();
@@ -8587,6 +8651,7 @@ Never copy SPEECH: or ACTION: into your reply. Reply only with MOMENT, SAY, SHOT
       dmMinus.addEventListener("click", (e) => {
         e.preventDefault();
         e.stopPropagation();
+        if (e.stopImmediatePropagation) e.stopImmediatePropagation();
         nudgeDigestClock(-60 * 1000, "You lean into it (−1:00)");
         triggerDigestFx("growl");
       });
