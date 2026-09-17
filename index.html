@@ -2314,18 +2314,88 @@
       box-shadow: 0 0 16px rgba(255,60,40,.18);
     }
     #digestMeter.bowel {
-      border-color: rgba(196, 140, 72, .5);
-      background: linear-gradient(180deg, rgba(42, 28, 14, .9), rgba(18, 12, 8, .92));
+      border-color: rgba(168, 110, 36, .62);
+      background:
+        radial-gradient(120% 80% at 10% 120%, rgba(90, 70, 20, .45), transparent 55%),
+        radial-gradient(90% 60% at 90% 110%, rgba(70, 90, 20, .28), transparent 50%),
+        linear-gradient(180deg, rgba(48, 28, 10, .94), rgba(16, 10, 6, .96));
+      box-shadow: inset 0 -18px 28px rgba(80, 50, 10, .25);
     }
-    #digestMeter.bowel .dm-title { color: #e0b070; }
+    #digestMeter.bowel .dm-title { color: #e6b45a; }
+    #digestMeter.bowel .dm-who { color: #c4a070; }
+    #digestMeter.bowel .dm-clock { color: #f0d8a0; }
+    #digestMeter.bowel .dm-toast { color: #e8c878; }
+    #digestMeter.bowel .dm-stat { color: #b89860; }
+    #digestMeter.bowel .dm-track {
+      background:
+        radial-gradient(circle at 18% 60%, rgba(230, 210, 120, .28) 0 6%, transparent 14%),
+        radial-gradient(circle at 62% 40%, rgba(180, 160, 60, .2) 0 8%, transparent 16%),
+        rgba(20, 10, 4, .7);
+      box-shadow: inset 0 0 8px rgba(80, 40, 8, .55);
+    }
     #digestMeter.bowel .dm-fill {
-      background: linear-gradient(90deg, #c48438, #e8c078);
+      background: linear-gradient(90deg, #6a3a12, #c48a28 45%, #d8c050 78%, #8a9a28);
+      animation: bowelFoamSlide 2.8s linear infinite;
     }
     #digestMeter.bowel.hot .dm-fill {
-      background: linear-gradient(90deg, #b06020, #e0a050);
+      background: linear-gradient(90deg, #5a280c, #c07018 50%, #e0a830);
     }
     #digestMeter.bowel.critical .dm-fill {
-      background: linear-gradient(90deg, #8a3a14, #d07030);
+      background: linear-gradient(90deg, #3a1808, #a84810 40%, #d07020);
+      animation: digFillPulse .9s ease-in-out infinite, bowelFoamSlide 1.6s linear infinite;
+    }
+    #digestMeter.bowel .dm-adjust-label { color: #c4a060; }
+    #digestMeter.bowel #dmMinus {
+      border-color: rgba(180, 80, 30, .5);
+      background: color-mix(in srgb, var(--panel) 55%, #402010);
+      color: #f0b080;
+    }
+    #digestMeter.bowel #dmPlus {
+      border-color: rgba(180, 170, 40, .45);
+      background: color-mix(in srgb, var(--panel) 55%, #3a3810);
+      color: #e8e090;
+    }
+    @keyframes bowelFoamSlide {
+      0% { filter: brightness(1) saturate(1); }
+      50% { filter: brightness(1.12) saturate(1.15); }
+      100% { filter: brightness(1) saturate(1); }
+    }
+    html.bowel-mode #digestFx .fx-slime {
+      background:
+        radial-gradient(80% 50% at 50% 100%, rgba(90, 55, 16, .34), transparent 60%),
+        radial-gradient(50% 35% at 20% 85%, rgba(140, 110, 30, .22), transparent 55%),
+        radial-gradient(45% 30% at 80% 90%, rgba(70, 90, 20, .2), transparent 50%);
+    }
+    html.bowel-mode #digestFx .fx-acid {
+      background:
+        linear-gradient(180deg, transparent 0%, rgba(160, 140, 30, .12) 28%, rgba(110, 70, 16, .28) 68%, rgba(60, 32, 8, .42) 100%);
+    }
+    html.bowel-mode #digestFx .fx-foam {
+      background:
+        radial-gradient(circle at 18% 82%, rgba(230, 210, 130, .4) 0 8%, transparent 18%),
+        radial-gradient(circle at 48% 74%, rgba(180, 140, 50, .28) 0 11%, transparent 22%),
+        radial-gradient(circle at 78% 88%, rgba(120, 90, 30, .26) 0 8%, transparent 17%);
+      height: 38%;
+      opacity: .8;
+    }
+    html.bowel-mode #digestFx .fx-bubble {
+      background: radial-gradient(circle at 30% 30%, rgba(230, 200, 110, .55), rgba(90, 60, 16, .16) 55%, transparent 70%);
+    }
+    html.bowel-mode #digestFx .fx-drip {
+      background: linear-gradient(180deg, rgba(210, 170, 60, .7), rgba(80, 50, 16, .18));
+    }
+    html.bowel-mode #digestFx .fx-vignette {
+      box-shadow: inset 0 0 90px 24px rgba(40, 22, 4, .55);
+    }
+    html.bowel-mode #digestFx .fx-gurgle {
+      background:
+        radial-gradient(60% 40% at 50% 80%, rgba(160, 110, 30, .2), transparent 55%),
+        radial-gradient(40% 30% at 30% 60%, rgba(80, 50, 16, .16), transparent 50%);
+    }
+    html.bowel-hot #digestFx .fx-foam { height: 46%; opacity: .9; }
+    html.bowel-critical #digestFx .fx-foam { height: 58%; opacity: 1; }
+    html.bowel-critical #digestFx .fx-vignette {
+      box-shadow: inset 0 0 120px 36px rgba(50, 22, 4, .72);
     }
     #digestMeter .dm-head {
       display: flex; align-items: center; justify-content: space-between; gap: 8px;
@@ -2938,13 +3008,13 @@
       <div class="dm-track"><i class="dm-fill" id="dmFill"></i></div>
       <div class="dm-adjust">
         <button type="button" id="dmMinus" title="Give the chamber 1 minute">−1:00</button>
-        <span class="dm-adjust-label">nudge the clock</span>
+        <span class="dm-adjust-label" id="dmAdjustLabel">nudge the clock</span>
         <button type="button" id="dmPlus" title="Buy 1 minute">+1:00</button>
       </div>
       <div class="dm-stats">
-        <div class="dm-stat">Hunger <b id="dmHunger">—</b></div>
-        <div class="dm-stat">Fullness <b id="dmFull">—</b></div>
-        <div class="dm-stat">Intent <b id="dmIntent">—</b></div>
+        <div class="dm-stat"><span id="dmStatA">Hunger</span> <b id="dmHunger">—</b></div>
+        <div class="dm-stat"><span id="dmStatB">Fullness</span> <b id="dmFull">—</b></div>
+        <div class="dm-stat"><span id="dmStatC">Intent</span> <b id="dmIntent">—</b></div>
       </div>
       <div class="dm-toast" id="dmToast"></div>
     </div>
@@ -6848,7 +6918,7 @@ Once the speck is swallowed or already inside her stomach/gut (depth gut, SHOT i
       if (digestTimer) { clearInterval(digestTimer); digestTimer = null; }
       if (opts.clear && bowelTimer) { clearInterval(bowelTimer); bowelTimer = null; }
       const root = document.documentElement;
-      root.classList.remove("digest-hot", "digest-critical");
+      root.classList.remove("digest-hot", "digest-critical", "bowel-mode", "bowel-hot", "bowel-critical");
       root.style.setProperty("--digest-meter", "0px");
       const fx = document.getElementById("digestFx");
       const panel = document.getElementById("digestMeter");
@@ -6922,10 +6992,19 @@ Once the speck is swallowed or already inside her stomach/gut (depth gut, SHOT i
       panel.classList.remove("bowel");
       if (clock) clock.textContent = formatClock(dm.remainingMs);
       if (fill) fill.style.transform = "scaleX(" + Math.max(0, Math.min(1, ratio)).toFixed(4) + ")";
+      const sa = document.getElementById("dmStatA");
+      const sb = document.getElementById("dmStatB");
+      const sc = document.getElementById("dmStatC");
+      const adj = document.getElementById("dmAdjustLabel");
+      if (sa) sa.textContent = "Hunger";
+      if (sb) sb.textContent = "Fullness";
+      if (sc) sc.textContent = "Intent";
+      if (adj) adj.textContent = "nudge the clock";
       if (h) h.textContent = labelLevel(dm.factors.hunger);
       if (f) f.textContent = labelLevel(dm.factors.fullness);
       if (i) i.textContent = labelLevel(dm.factors.intent);
       panel.classList.add("show");
+      document.documentElement.classList.remove("bowel-mode", "bowel-hot", "bowel-critical");
       panel.classList.toggle("hot", ratio <= 0.4 && ratio > 0.18);
       panel.classList.toggle("critical", ratio <= 0.18);
       if (els.meter) els.meter.classList.add("digest-mode");
@@ -7100,18 +7179,28 @@ Once the speck is swallowed or already inside her stomach/gut (depth gut, SHOT i
       if (title) title.textContent = who ? ("Disposal · " + who) : "Disposal";
       if (clock) clock.textContent = formatClock(bm.remainingMs);
       if (fill) fill.style.transform = "scaleX(" + Math.max(0, Math.min(1, ratio)).toFixed(4) + ")";
+      const sa = document.getElementById("dmStatA");
+      const sb = document.getElementById("dmStatB");
+      const sc = document.getElementById("dmStatC");
+      const adj = document.getElementById("dmAdjustLabel");
+      if (sa) sa.textContent = "Pressure";
+      if (sb) sb.textContent = "Load";
+      if (sc) sc.textContent = "Urge";
+      if (adj) adj.textContent = "hurry it along";
       if (h) h.textContent = ratio > 0.55 ? "Building" : ratio > 0.25 ? "Urgent" : "Now";
-      if (f) f.textContent = "Passing";
-      if (i) i.textContent = ratio > 0.4 ? "Held" : "Letting go";
+      if (f) f.textContent = ratio > 0.5 ? "Heavy" : ratio > 0.22 ? "Moving" : "Letting go";
+      if (i) i.textContent = ratio > 0.4 ? "Held" : "Flushing";
       panel.classList.add("show", "bowel");
+      const rootB = document.documentElement;
+      rootB.classList.add("bowel-mode");
+      rootB.classList.remove("digest-hot", "digest-critical");
+      rootB.classList.toggle("bowel-hot", ratio <= 0.4 && ratio > 0.18);
+      rootB.classList.toggle("bowel-critical", ratio <= 0.18);
       panel.classList.toggle("hot", ratio <= 0.4 && ratio > 0.18);
       panel.classList.toggle("critical", ratio <= 0.18);
       if (els.meter) els.meter.classList.add("digest-mode");
       const fx = document.getElementById("digestFx");
       if (fx) fx.classList.add("on");
-      const root = document.documentElement;
-      root.classList.toggle("digest-hot", ratio <= 0.4);
-      root.classList.toggle("digest-critical", ratio <= 0.18);
       if (toastMsg) dmToast(toastMsg);
       paintGutPhase();
       paintActions();
@@ -8460,10 +8549,10 @@ Once the speck is swallowed or already inside her stomach/gut (depth gut, SHOT i
       const name = speakerName();
       if (game.bowel && game.bowel.active) {
         return {
-          look: { label: "Brace", text: "ACTION: I brace against the narrowing walls as her body starts to move me along." },
-          talk: { label: "Call out", text: "ACTION: I call up one last time.\nSPEECH: Wait—are you taking me to the bathroom?" },
-          hide: { label: "Hold still", text: "ACTION: I go limp and try not to fight the slow push." },
-          tease: { label: "Struggle", text: "ACTION: I kick and struggle even as she walks me toward a toilet." },
+          look: { label: "Brace", text: "ACTION: I brace in the tighter, foamy dark as acid and pressure shove me lower." },
+          talk: { label: "Gripe", text: "ACTION: I call up one last time through the churn.\nSPEECH: You're moving me. I can feel where this is going." },
+          hide: { label: "Go limp", text: "ACTION: I stop fighting the slow filthy push and let a fold carry me." },
+          tease: { label: "Kick", text: "ACTION: I kick in the narrowing tract even as the walls work me toward a bathroom." },
         };
       }
       const inGut = (game.depth || 0) >= 3 || (game.digestMeter && game.digestMeter.active);
@@ -8507,7 +8596,7 @@ Once the speck is swallowed or already inside her stomach/gut (depth gut, SHOT i
         const note = document.getElementById("goneNote");
         if (note) {
           note.textContent = disposing
-            ? "You're digested. Disposal is still running — keep going when you want."
+            ? "You're digested. Disposal is moving what's left — foam, pressure, the unglamorous bit. Continue when you want."
             : (n
               ? "You're gone. " + characterOf(game.characterId).name + " has carried on for " + n + (n === 1 ? " beat." : " beats.")
               : "You're digested. " + characterOf(game.characterId).name + " keeps going without you.");
