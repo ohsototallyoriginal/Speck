@@ -1238,8 +1238,8 @@
       border: 1px solid #7a3044; background: #3a1824; color: #ffc4cc; font-weight: 800;
     }
     #settings .set-note { margin: 6px 0 0; font-size: .78rem; color: var(--muted); }
-    #home .home-dismiss { margin: 18px 0 0; font-size: .78rem; color: var(--muted); opacity: .8; }
-    #home { cursor: pointer; }
+    #home .home-dismiss { display: none; }
+    #home { cursor: default; }
     #home button { cursor: pointer; }
     .brand h1 {
       margin: 0;
@@ -1694,10 +1694,10 @@
     #home {
       position: fixed; inset: 0; z-index: 40;
       display: flex; flex-direction: column; justify-content: flex-start;
-      padding: max(20px, var(--safe-top)) 18px calc(20px + var(--safe-bot));
+      padding: max(16px, var(--safe-top)) 16px calc(18px + var(--safe-bot));
       background:
-        radial-gradient(70% 50% at 50% 0%, rgba(255,79,216,.22), transparent 55%),
-        radial-gradient(80% 40% at 50% 100%, rgba(180,20,40,.28), transparent 50%),
+        radial-gradient(90% 55% at 50% -10%, rgba(255,79,216,.2), transparent 58%),
+        radial-gradient(70% 40% at 110% 80%, rgba(92,225,255,.08), transparent 50%),
         #09050c;
       opacity: 0; visibility: hidden; pointer-events: none;
       transition: opacity .35s ease, visibility .35s ease;
@@ -1706,36 +1706,87 @@
       -webkit-overflow-scrolling: touch;
     }
     #home.show { opacity: 1; visibility: visible; pointer-events: auto; }
+    #home .home-orbit {
+      position: absolute; inset: 0; pointer-events: none; overflow: hidden;
+    }
+    #home .home-orbit i {
+      position: absolute; border-radius: 50%;
+      background: radial-gradient(circle at 30% 30%, #fff, rgba(255,200,230,.2) 40%, transparent 70%);
+      animation: homeSpeck 9s linear infinite;
+      opacity: .55;
+    }
+    @keyframes homeSpeck {
+      0% { transform: translate3d(0, 20px, 0) scale(.6); opacity: .15; }
+      40% { opacity: .7; }
+      100% { transform: translate3d(40px, -110vh, 0) scale(1.2); opacity: 0; }
+    }
     #home .home-inner {
-      width: min(420px, 100%);
+      position: relative;
+      width: min(520px, 100%);
       margin: 0 auto;
-      padding: 12px 0 8px;
+      padding: 8px 0 16px;
+    }
+    #home .home-top {
+      display: flex; align-items: flex-start; justify-content: space-between; gap: 10px;
     }
     #home .eyebrow {
-      letter-spacing: .22em; text-transform: uppercase; font-size: .72rem;
-      color: var(--neon); margin: 0 0 8px;
+      letter-spacing: .22em; text-transform: uppercase; font-size: .68rem;
+      color: var(--neon); margin: 0 0 6px;
     }
-    #home h1 { font-size: clamp(2.4rem, 11vw, 3.6rem); margin: 0 0 8px; letter-spacing: .06em; }
-    #home .lede { color: var(--muted); max-width: 22rem; line-height: 1.45; margin: 0 0 18px; }
-    #home .faces { display: grid; gap: 8px; margin-bottom: 12px; }
+    #home h1 { font-size: clamp(2.2rem, 10vw, 3.2rem); margin: 0 0 6px; letter-spacing: .05em; }
+    #home .lede { color: var(--muted); max-width: 26rem; line-height: 1.45; margin: 0 0 16px; font-size: .92rem; }
+    #home .home-auth {
+      flex: 0 0 auto;
+      min-height: 36px; padding: 0 12px; border-radius: 999px;
+      border: 1px solid var(--hair); background: var(--glass); color: var(--ink);
+      font-size: .72rem; font-weight: 800; letter-spacing: .06em; text-transform: uppercase;
+    }
+    #home .home-actions {
+      display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin: 0 0 16px;
+    }
+    #home .home-actions button, #homeContinue {
+      min-height: 48px; border: 0; border-radius: 14px; font-weight: 800;
+    }
+    #homeContinue {
+      grid-column: 1 / -1;
+      background: var(--neon); color: #2a0818; text-align: left; padding: 12px 14px;
+    }
+    #homeContinue small { display: block; font-weight: 600; opacity: .75; margin-top: 2px; }
+    #homeStories, #homeChats { background: var(--panel); color: var(--ink); border: 1px solid var(--hair); }
+    #home .home-label {
+      font-size: .68rem; letter-spacing: .14em; text-transform: uppercase;
+      color: var(--muted); margin: 0 0 8px; font-weight: 800;
+    }
+    #homeFilter {
+      width: 100%; min-height: 42px; margin: 0 0 10px;
+      border-radius: 12px; border: 1px solid var(--hair);
+      background: var(--glass); color: var(--ink); padding: 0 12px;
+    }
+    #home .faces { display: grid; gap: 8px; margin-bottom: 14px; }
+    #home .faces.chips {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
     #home .faces button {
       text-align: left; border: 1px solid var(--hair);
       background: var(--glass); color: var(--ink);
       border-radius: 14px; padding: 12px 14px; min-height: 56px;
     }
+    #home .faces.chips button { min-height: 48px; padding: 10px 12px; }
     #home .faces button:hover,
     #home .faces button:focus-visible {
       border-color: var(--neon);
       background: color-mix(in srgb, var(--neon) 10%, var(--glass));
     }
-    #home .faces button b { display:block; font-size: 1rem; }
-    #home .faces button span { display:block; color: var(--muted); font-size: .8rem; margin-top: 2px; }
-    #home .row { display: grid; gap: 8px; }
-    #home .row button {
-      min-height: 46px; border: 0; border-radius: 12px; font-weight: 800;
+    #home .faces button b { display:block; font-size: .98rem; }
+    #home .faces button span { display:block; color: var(--muted); font-size: .76rem; margin-top: 2px; }
+    #homeClose {
+      width: 100%; min-height: 44px; margin-top: 8px;
+      border-radius: 12px; border: 1px solid var(--hair);
+      background: transparent; color: var(--muted); font-weight: 700;
     }
-    #homeContinue { background: var(--neon); color: #2a0818; }
-    #homeStories { background: var(--panel); color: var(--ink); }
+    @media (prefers-reduced-motion: reduce) {
+      #home .home-orbit i { animation: none; opacity: .25; }
+    }
     html[data-face="mara"] #home {
       background:
         radial-gradient(70% 50% at 50% 0%, rgba(232,120,88,.22), transparent 55%),
@@ -2093,9 +2144,48 @@
       border: 1px solid var(--hair); background: var(--panel); color: var(--ink);
       font-size: .95rem; cursor: pointer;
     }
-    .face-tabs { display: grid; grid-template-columns: repeat(auto-fit, minmax(130px, 1fr)); gap: 8px; }
-    .face-tabs .card { margin: 0; }
+    .face-tabs {
+      display: flex; gap: 8px; overflow-x: auto;
+      padding: 2px 0 10px; margin: 0 -4px 4px;
+      scrollbar-width: none;
+    }
+    .face-tabs::-webkit-scrollbar { display: none; }
+    .face-tabs .card {
+      margin: 0; flex: 0 0 auto; width: auto; min-width: 92px;
+      padding: 8px 12px; border-radius: 999px; text-align: center;
+    }
+    .face-tabs .card span { display: none; }
+    .face-tabs .card b { margin: 0; font-size: .78rem; letter-spacing: .04em; }
     .face-tabs .card.active { box-shadow: inset 0 0 0 1px var(--neon); background: color-mix(in srgb, var(--neon) 12%, var(--panel2)); }
+    .night-tools { margin: 4px 0 10px; }
+    .night-tabs {
+      display: flex; gap: 6px; overflow-x: auto; margin: 0 0 8px;
+      scrollbar-width: none;
+    }
+    .night-tabs button {
+      flex: 0 0 auto; min-height: 32px; padding: 0 12px;
+      border-radius: 999px; border: 1px solid var(--hair);
+      background: var(--panel); color: var(--muted);
+      font-size: .68rem; font-weight: 800; letter-spacing: .06em; text-transform: uppercase;
+    }
+    .night-tabs button.on {
+      border-color: var(--cyan); color: var(--ink);
+      background: color-mix(in srgb, var(--cyan) 14%, var(--panel2));
+    }
+    #nightSearch {
+      width: 100%; min-height: 40px; margin: 0 0 8px;
+      border-radius: 12px; border: 1px solid var(--hair);
+      background: var(--glass); color: var(--ink); padding: 0 12px; font-size: 16px;
+    }
+    .night-card .badges { display: flex; gap: 4px; flex-wrap: wrap; margin-top: 6px; }
+    .night-card .badge {
+      font-size: .58rem; letter-spacing: .08em; text-transform: uppercase; font-weight: 800;
+      padding: 2px 6px; border-radius: 999px; border: 1px solid var(--hair); color: var(--muted);
+    }
+    .night-card .badge.conor { color: var(--cyan); border-color: color-mix(in srgb, var(--cyan) 40%, var(--hair)); }
+    .night-card .badge.gut { color: #d8f090; border-color: color-mix(in srgb, #d8f090 35%, var(--hair)); }
+    .night-card .badge.giant { color: #ffb060; border-color: color-mix(in srgb, #ffb060 40%, var(--hair)); }
+    #begWrap[hidden], #gutWrap[hidden] { display: none !important; }
     #scenarioList, #gutList { transition: opacity .18s ease, transform .18s ease; }
     #library.flip #scenarioList, #library.flip #gutList { opacity: 0; transform: translateX(10px); }
     @media (min-width: 700px) {
@@ -2957,16 +3047,27 @@
   </div>
 
   <div id="home">
+    <div class="home-orbit" aria-hidden="true" id="homeOrbit"></div>
     <div class="home-inner">
-      <p class="eyebrow">She will swallow you</p>
-      <h1>Speck</h1>
-      <p class="lede">Pick a giantess. Stay a snack. The night only ends inside her if you let it get that far.</p>
-      <div class="faces" id="homeFaces"></div>
-      <div class="row">
-        <button type="button" id="homeContinue">Continue last night</button>
-        <button type="button" id="homeStories">All nights</button>
+      <div class="home-top">
+        <div>
+          <p class="eyebrow">Last call · speck scale</p>
+          <h1>Speck</h1>
+        </div>
+        <button type="button" id="homeAuth">Log in</button>
       </div>
-      <p class="home-dismiss">Tap anywhere else to close</p>
+      <p class="lede">Pick a face. Continue a night. Sign in if you want chats to follow you to another phone.</p>
+      <div class="home-actions">
+        <button type="button" id="homeContinue">Continue last night</button>
+        <button type="button" id="homeStories">Stories</button>
+        <button type="button" id="homeChats">Saved chats</button>
+      </div>
+      <p class="home-label">Friend group</p>
+      <div class="faces" id="homeFaces"></div>
+      <p class="home-label">Everyone</p>
+      <input id="homeFilter" type="search" placeholder="Filter faces" autocomplete="off" />
+      <div class="faces chips" id="homeRest"></div>
+      <button type="button" id="homeClose">Back to the night</button>
     </div>
   </div>
   <div id="splash">
@@ -3060,18 +3161,31 @@
         <h2 id="libTitle">Pick a night</h2>
         <button type="button" id="libX" aria-label="Close">✕</button>
       </div>
-      <p class="hint" id="libHint" style="margin:0 0 8px;color:var(--muted);font-size:.84rem">Each story keeps its own chat on this phone.</p>
+      <p class="hint" id="libHint" style="margin:0 0 8px;color:var(--muted);font-size:.84rem">Pick a face, then a night. Starting a night opens a fresh chat.</p>
       <div class="lib-switch" role="tablist">
-        <button type="button" id="libTabStories" class="on" role="tab">Stories</button>
+        <button type="button" id="libTabStories" class="on" role="tab">Nights</button>
         <button type="button" id="libTabChats" role="tab">Saved chats</button>
       </div>
       <div id="libStoriesPane">
-        <h3>Faces</h3>
+        <h3>Who</h3>
         <div id="faceList" class="face-tabs"></div>
-        <h3 id="begHead">Beginnings</h3>
-        <div id="scenarioList"></div>
-        <h3 id="gutHead">Already inside</h3>
-        <div id="gutList"></div>
+        <div class="night-tools">
+          <div class="night-tabs" role="tablist">
+            <button type="button" id="nightTabBegin" class="on">Start outside</button>
+            <button type="button" id="nightTabGut">Already inside</button>
+            <button type="button" id="nightTabConor">As Conor</button>
+            <button type="button" id="nightTabAll">All</button>
+          </div>
+          <input id="nightSearch" type="search" placeholder="Search nights" autocomplete="off" />
+        </div>
+        <div id="begWrap">
+          <h3 id="begHead">Start outside</h3>
+          <div id="scenarioList"></div>
+        </div>
+        <div id="gutWrap">
+          <h3 id="gutHead">Already inside</h3>
+          <div id="gutList"></div>
+        </div>
       </div>
       <div id="libChatsPane" hidden>
         <h3>Saved chats</h3>
@@ -3377,7 +3491,7 @@ Once the speck is swallowed or already inside her stomach/gut (depth gut, SHOT i
 
 
     const SCENARIOS = {
-      blank: {
+      "blank": {
         id: "blank",
         title: "Blank night",
         sub: "You start",
@@ -3601,7 +3715,6 @@ Once the speck is swallowed or already inside her stomach/gut (depth gut, SHOT i
           line: "You're still there. Soft. Coffee first—then we see about the day.",
         },
       },
-
       "ang-after": {
         id: "ang-after",
         title: "After",
@@ -3634,7 +3747,6 @@ Once the speck is swallowed or already inside her stomach/gut (depth gut, SHOT i
           line: "If you can still talk, talk fast. I'm not holding this pose.",
         },
       },
-
       "ang-call": {
         id: "ang-call",
         title: "On with Alex",
@@ -4149,7 +4261,6 @@ Once the speck is swallowed or already inside her stomach/gut (depth gut, SHOT i
           line: "Conor. I came out here to not talk. Guess that's over. Don't slip through the grate. I am not fishing you off the alley.",
         },
       },
-
       "billie-studio": {
         id: "billie-studio",
         title: "Session break",
@@ -4284,7 +4395,6 @@ Once the speck is swallowed or already inside her stomach/gut (depth gut, SHOT i
           line: "Everything on this table is plants. You are... not. Don't make it weird. Or do. Talk.",
         },
       },
-
       "jlaw-suite": {
         id: "jlaw-suite",
         title: "Hotel suite",
@@ -4389,7 +4499,6 @@ Once the speck is swallowed or already inside her stomach/gut (depth gut, SHOT i
           line: "That's the night. Soft end. I'm not writing a statement.",
         },
       },
-
       "cardi-mirror": {
         id: "cardi-mirror",
         title: "Getting ready",
@@ -4731,7 +4840,6 @@ Once the speck is swallowed or already inside her stomach/gut (depth gut, SHOT i
           line: "Street was a mess. You're lucky I didn't leave you in a puddle. Warm up and shut up.",
         },
       },
-
       "june-desk": {
         id: "june-desk",
         title: "Desk setup",
@@ -4851,7 +4959,6 @@ Once the speck is swallowed or already inside her stomach/gut (depth gut, SHOT i
           line: "Soft end. I'm not clipping this. Stay quiet.",
         },
       },
-
       "zendaya-fit": {
         id: "zendaya-fit",
         title: "Fitting room",
@@ -4898,665 +5005,6 @@ Once the speck is swallowed or already inside her stomach/gut (depth gut, SHOT i
           line: "You're down. Breathe. This stays private.",
         },
       },
-
-      "dimitrescu-hall": {
-        id: "dimitrescu-hall",
-        title: "Castle hall",
-        sub: "Tile · height",
-        blurb: "You are on the marble. She is the architecture.",
-        location: "Castle Dimitrescu entrance hall, tall windows, cold marble",
-        playerPlace: "on the marble floor near her shoe",
-        mood: "amused aristocratic menace, soft if obeyed",
-        shot: "establish",
-        hook: "SCENARIO: Lady Dimitrescu's hall. Speck on marble. Tall, gothic, velvet voice. Soft vore—possessive, not gore-show. Prefer SHOT establish, shoe, look, palm, pinch.",
-        opening: {
-          moment: "Marble veins run like rivers. A shoe sole is a black continent. Her shadow eats the window light.",
-          line: "Oh. A guest at last. Do not run. I dislike chasing on these floors.",
-        },
-      },
-      "dimitrescu-wine": {
-        id: "dimitrescu-wine",
-        title: "Wine salon",
-        sub: "Glass forest",
-        blurb: "She set you by the stemware. On purpose.",
-        location: "castle salon, wine glasses, heavy drapes",
-        playerPlace: "on the table near a wine glass base",
-        mood: "playful predator calm",
-        shot: "look",
-        hook: "SCENARIO: Dimitrescu salon. Speck by the glass. Prefer SHOT look, palm, pinch, whisper, swallow.",
-        opening: {
-          moment: "Crystal rises like towers. Drapes breathe. Her gloved finger lands nearby like a falling beam.",
-          line: "Stay where I placed you. The glass is not for swimming.",
-        },
-      },
-      "dimitrescu-inside": {
-        id: "dimitrescu-inside",
-        title: "Already in",
-        sub: "Castle dark",
-        blurb: "You are already where the lady put you.",
-        location: "inside Lady Dimitrescu",
-        playerPlace: "in the dark warm chamber",
-        mood: "satisfied, quiet ownership",
-        shot: "inside",
-        gut: true,
-        hook: "SCENARIO: Speck already inside Dimitrescu. Prefer SHOT inside, hold, digest, lounge. Aristocratic calm from above.",
-        opening: {
-          moment: "Heat under silk and bone-deep quiet. Far above, jewelry settles.",
-          line: "Hush. You are kept. That is the whole courtesy.",
-        },
-      },
-
-      "jessica-stage": {
-        id: "jessica-stage",
-        title: "Ink & Paint",
-        sub: "Backstage red",
-        blurb: "Curtain dust. She found you on the boards.",
-        location: "Toon Town backstage, red curtain, stage dust",
-        playerPlace: "on the wooden stage boards near her heel",
-        mood: "soft-spoken glam, deliberately unhurried",
-        shot: "shoe",
-        hook: "SCENARIO: Jessica Rabbit backstage. Speck on the boards. Soft sultry calm, not pure parody. Prefer SHOT shoe, look, palm, whisper, profile.",
-        opening: {
-          moment: "Curtain folds are red cliffs. A heel is a glossy skyscraper. Dust motes hang in the follow-spot leak.",
-          line: "I'm not bad. I'm just… looking at something very small. Speak up, darling.",
-        },
-      },
-      "jessica-dressing": {
-        id: "jessica-dressing",
-        title: "Dressing room",
-        sub: "Bulbs · gloves",
-        blurb: "Vanity lights. You are on the table by the gloves.",
-        location: "dressing room vanity, gloves, lipstick, mirror bulbs",
-        playerPlace: "on the vanity table near long gloves",
-        mood: "intimate, slow, amused",
-        shot: "look",
-        hook: "SCENARIO: Jessica dressing room. Prefer SHOT look, palm, pinch, whisper, nail.",
-        opening: {
-          moment: "Bulbs make a halo. Glove leather is a soft plain. Her reflection fills every glass.",
-          line: "Careful of the lipstick. Come closer if you're brave.",
-        },
-      },
-      "jessica-inside": {
-        id: "jessica-inside",
-        title: "Already in",
-        sub: "Soft dark",
-        blurb: "Skip the song. You are already down.",
-        location: "inside Jessica Rabbit",
-        playerPlace: "in the dark warm chamber",
-        mood: "quiet glamour, no audience",
-        shot: "inside",
-        gut: true,
-        hook: "SCENARIO: Speck already inside Jessica. Prefer SHOT inside, hold, lounge, digest.",
-        opening: {
-          moment: "Warm dark. Sequins far above. No orchestra—only her pulse.",
-          line: "There. Soft finale. Don't make me explain it to Roger.",
-        },
-      },
-
-      "shego-lair": {
-        id: "shego-lair",
-        title: "Lair catwalk",
-        sub: "Green glow",
-        blurb: "You are on the grated floor. She is bored until she isn't.",
-        location: "Drakken-style lair catwalk, green console light",
-        playerPlace: "on metal grating near her boot",
-        mood: "sarcastic, sharp, entertained",
-        shot: "establish",
-        hook: "SCENARIO: Shego on a lair catwalk. Speck on the grate. Villain drawl, teasing, soft vore if dared. Prefer SHOT establish, shoe, look, palm, pinch.",
-        opening: {
-          moment: "Grating holes are wells. Green light crawls the wall. Her boot is a polished cliff.",
-          line: "Please tell me you're not another one of Drakken's experiments. Talk. Entertain me.",
-        },
-      },
-      "shego-roof": {
-        id: "shego-roof",
-        title: "After the job",
-        sub: "City roof",
-        blurb: "Mask off. She has you pinched.",
-        location: "city rooftop after a heist, wind, skyline",
-        playerPlace: "between two green fingers, high above the roof",
-        mood: "smug, wind-bitten, still teasing",
-        shot: "pinch",
-        hook: "SCENARIO: Shego post-mission rooftop. Speck pinched. Prefer SHOT pinch, palm, look, profile, street.",
-        opening: {
-          moment: "Wind. Gravel grit. Her fingers make a narrow sky. City noise is a rumor below.",
-          line: "Don't squirm. I already did the hard part tonight. You're the easy part.",
-        },
-      },
-      "shego-inside": {
-        id: "shego-inside",
-        title: "Already in",
-        sub: "Green quiet",
-        blurb: "You are already where she put you.",
-        location: "inside Shego",
-        playerPlace: "in the dark warm chamber",
-        mood: "smug calm",
-        shot: "inside",
-        gut: true,
-        hook: "SCENARIO: Speck already inside Shego. Prefer SHOT inside, hold, smug, digest.",
-        opening: {
-          moment: "Heat. Soft pressure. No monologue from the universe—just her.",
-          line: "Yeah. Down. Don't make it weird, small fry.",
-        },
-      },
-
-      "wendy-shack": {
-        id: "wendy-shack",
-        title: "Gift shop",
-        sub: "Gravity Falls",
-        blurb: "Plaid. Counter. She almost swept you into the till.",
-        location: "Mystery Shack gift shop counter, dusty souvenirs",
-        playerPlace: "on the wooden counter near the register",
-        mood: "chill, mildly impressed, not easily rattled",
-        shot: "look",
-        hook: "SCENARIO: Wendy Corduroy at the Mystery Shack. Speck on the counter. Laid-back lumberjack cool. Prefer SHOT look, palm, pinch, sit, establish.",
-        opening: {
-          moment: "Dust. Fake jewels in a jar. Her hand rests near the register like a pink landscape.",
-          line: "Huh. Talking speck. Gravity Falls, man. Don't fall in the tip jar.",
-        },
-      },
-      "wendy-woods": {
-        id: "wendy-woods",
-        title: "Tree line",
-        sub: "Axe lean",
-        blurb: "Pine needles. She found you by her boot.",
-        location: "forest edge near Gravity Falls, pine needles, axe nearby",
-        playerPlace: "on the needle bed near her boot",
-        mood: "easy, curious, ready to dare",
-        shot: "shoe",
-        hook: "SCENARIO: Wendy in the woods. Prefer SHOT shoe, establish, look, palm, street.",
-        opening: {
-          moment: "Needles make a soft maze. Boot rubber is a dark wall. Wind moves the pines like a ceiling.",
-          line: "You lost, tiny? Woods aren't a great place to be snack-sized. Talk.",
-        },
-      },
-      "wendy-inside": {
-        id: "wendy-inside",
-        title: "Already in",
-        sub: "Plaid dark",
-        blurb: "Skip the tour. You are already down.",
-        location: "inside Wendy",
-        playerPlace: "in the dark warm chamber",
-        mood: "chill honesty",
-        shot: "inside",
-        gut: true,
-        hook: "SCENARIO: Speck already inside Wendy. Prefer SHOT inside, hold, lounge, digest.",
-        opening: {
-          moment: "Heat. Soft. Plaid far above shifts when she sits on a stump somewhere.",
-          line: "Yeah, you're in. Soft end. Don't make it a whole thing.",
-        },
-      },
-
-      "marceline-night": {
-        id: "marceline-night",
-        title: "Night sky",
-        sub: "Bass hum",
-        blurb: "Rooftop. Axe bass. You are on the ledge grit.",
-        location: "Ooo rooftop at night, bass nearby, star wash",
-        playerPlace: "on the rooftop grit near her boot",
-        mood: "deadpan immortal, low-key interested",
-        shot: "establish",
-        hook: "SCENARIO: Marceline on a rooftop. Speck on the grit. Deadpan vampire cool, soft vore without gore lecture. Prefer SHOT establish, shoe, look, palm, lounge.",
-        opening: {
-          moment: "Stars are cold holes. Bass strings thrum somewhere behind her. Boot leather is a soft cliff.",
-          line: "I've seen weirder. Still—hi. Don't fall off the roof. I'd have to pretend to care.",
-        },
-      },
-      "marceline-cave": {
-        id: "marceline-cave",
-        title: "House cave",
-        sub: "Amps · dark",
-        blurb: "She set you on the amp. On purpose.",
-        location: "Marceline's cave-house, amps, posters, dim red light",
-        playerPlace: "on top of a warm amp",
-        mood: "intimate deadpan",
-        shot: "look",
-        hook: "SCENARIO: Marceline's place. Speck on the amp. Prefer SHOT look, palm, pinch, whisper, lounge.",
-        opening: {
-          moment: "Amp cloth vibrates. Posters curl. Red light makes her hair a curtain of night.",
-          line: "Stay on the amp. The floor has secrets. Talk if you want—I've got time.",
-        },
-      },
-      "marceline-inside": {
-        id: "marceline-inside",
-        title: "Already in",
-        sub: "Red quiet",
-        blurb: "You are already where she put you.",
-        location: "inside Marceline",
-        playerPlace: "in the dark warm chamber",
-        mood: "ancient calm, almost gentle",
-        shot: "inside",
-        gut: true,
-        hook: "SCENARIO: Speck already inside Marceline. Prefer SHOT inside, hold, lounge, digest.",
-        opening: {
-          moment: "Warm dark older than the kingdom. Soft tide. No drama.",
-          line: "Soft end, little guy. I've done worse centuries. This one's quiet.",
-        },
-      },
-
-      "bulma-lab": {
-        id: "bulma-lab",
-        title: "Capsule lab",
-        sub: "Bench · blue",
-        blurb: "Tools and capsules. She spotted you by the multimeter.",
-        location: "Capsule Corp lab bench, tools, blue glow",
-        playerPlace: "on the metal bench near a multimeter",
-        mood: "practical genius, teasing, already problem-solving you",
-        shot: "look",
-        hook: "SCENARIO: Bulma in lab. Speck on the bench. Practical, teasing, not starstruck by absurdity. Prefer SHOT look, palm, pinch, phone, desk.",
-        opening: {
-          moment: "Metal cool underfoot. Capsule cases line the wall like eggs. Her finger taps near you like a soft hammer.",
-          line: "Okay, talking micro-lifeform. Don't crawl into a capsule. I am not explaining that to Vegeta.",
-        },
-      },
-      "bulma-jet": {
-        id: "bulma-jet",
-        title: "Cockpit",
-        sub: "Cloud road",
-        blurb: "Autopilot. She has you on the console.",
-        location: "Capsule Corp aircraft cockpit, cloud light",
-        playerPlace: "on the console near the stick",
-        mood: "casual power, lightly smug",
-        shot: "palm",
-        hook: "SCENARIO: Bulma in flight. Speck on console. Prefer SHOT palm, look, pinch, profile, phone.",
-        opening: {
-          moment: "Cloud glare. Glass canopy. Her hand parks beside you like a parked vehicle.",
-          line: "Sit still. Turbulence is real and you are not rated for it.",
-        },
-      },
-      "bulma-inside": {
-        id: "bulma-inside",
-        title: "Already in",
-        sub: "Lab after",
-        blurb: "Skip the scan. You are already down.",
-        location: "inside Bulma",
-        playerPlace: "in the dark warm chamber",
-        mood: "practical acceptance",
-        shot: "inside",
-        gut: true,
-        hook: "SCENARIO: Speck already inside Bulma. Prefer SHOT inside, hold, rub, digest.",
-        opening: {
-          moment: "Heat. Soft engineering of the body. No readout—only her.",
-          line: "Data collected. You're in. Soft end. I might still write a note.",
-        },
-      },
-
-      "twob-ruins": {
-        id: "twob-ruins",
-        title: "City ruins",
-        sub: "Ash · steel",
-        blurb: "Scan complete. She has classified you as anomalous.",
-        location: "ruined city street, ash, broken steel, pale sky",
-        playerPlace: "on cracked asphalt near her boot",
-        mood: "clinical calm, faintly curious",
-        shot: "establish",
-        hook: "SCENARIO: 2B in ruins. Speck on asphalt. Android protocol voice, minimal affect, soft vore as procedure if chosen. Prefer SHOT establish, shoe, look, palm, pinch.",
-        opening: {
-          moment: "Ash drifts. Boot plating is a white cliff. Wind moves rebar like dry grass.",
-          line: "Anomalous organism detected. Identify. Do not attempt to flee.",
-        },
-      },
-      "twob-camp": {
-        id: "twob-camp",
-        title: "Resistance camp",
-        sub: "Tent edge",
-        blurb: "Off mission. She set you on the crate.",
-        location: "resistance camp tent edge, crate, dim lamp",
-        playerPlace: "on a wooden crate",
-        mood: "slightly softer protocol, still spare with words",
-        shot: "look",
-        hook: "SCENARIO: 2B off-mission at camp. Prefer SHOT look, palm, pinch, sit, whisper.",
-        opening: {
-          moment: "Canvas breathes. Lamp oil smell. Her glove approaches with machine patience.",
-          line: "You may speak. I am not currently engaged. Stay on the crate.",
-        },
-      },
-      "twob-inside": {
-        id: "twob-inside",
-        title: "Already in",
-        sub: "Procedure",
-        blurb: "Containment complete. You are already down.",
-        location: "inside 2B",
-        playerPlace: "in the dark warm chamber",
-        mood: "protocol closed",
-        shot: "inside",
-        gut: true,
-        hook: "SCENARIO: Speck already inside 2B. Prefer SHOT inside, hold, digest. Minimal speech.",
-        opening: {
-          moment: "Warm dark. Machine-steady pulse. No status light—only tissue and quiet.",
-          line: "Containment successful. Remain still.",
-        },
-      },
-
-      "shehulk-office": {
-        id: "shehulk-office",
-        title: "Law office",
-        sub: "After hours",
-        blurb: "Case files. Green hands. She found you on the desk.",
-        location: "She-Hulk's law office at night, city view, stacked files",
-        playerPlace: "on the desk near a highlighter",
-        mood: "wry, competent, already amused",
-        shot: "look",
-        hook: "SCENARIO: Jennifer Walters as She-Hulk in her office. Speck on the desk. Wry lawyer humor, green giantess scale. Soft vore if earned. Prefer SHOT look, palm, pinch, phone, desk.",
-        opening: {
-          moment: "Files make paper cliffs. City light stripes the glass. A green fingertip lands near you like a soft pillar.",
-          line: "Okay. Talking speck. Not in the bar exam. Don't hide under the stapler—I bill by the hour.",
-        },
-      },
-      "shehulk-gym": {
-        id: "shehulk-gym",
-        title: "Late gym",
-        sub: "Mats · quiet",
-        blurb: "You're on the mat edge. She almost stepped on you.",
-        location: "empty gym after hours, mats, weight rack",
-        playerPlace: "on the mat near her shoe",
-        mood: "relaxed power, lightly teasing",
-        shot: "shoe",
-        hook: "SCENARIO: She-Hulk at the gym. Prefer SHOT shoe, establish, look, palm, pinch.",
-        opening: {
-          moment: "Mat rubber is a field. A sneaker the size of a hatchback stops. Fluorescent hum.",
-          line: "Whoa—almost. You real? Talk before I start the next set.",
-        },
-      },
-      "shehulk-inside": {
-        id: "shehulk-inside",
-        title: "Already in",
-        sub: "Green quiet",
-        blurb: "Skip the brief. You are already down.",
-        location: "inside She-Hulk",
-        playerPlace: "in the dark warm chamber",
-        mood: "honest, low volume",
-        shot: "inside",
-        gut: true,
-        hook: "SCENARIO: Speck already inside She-Hulk. Prefer SHOT inside, hold, lounge, digest.",
-        opening: {
-          moment: "Heat. Soft green-world pressure. No courtroom—only her.",
-          line: "You're in. Soft end. I'm not putting this in a filing.",
-        },
-      },
-
-      "giganta-lab": {
-        id: "giganta-lab",
-        title: "Size lab",
-        sub: "Broken beakers",
-        blurb: "She grew. You did not. Floor tile is your plaza.",
-        location: "ruined size-science lab, broken glass, scorch marks",
-        playerPlace: "on cracked tile near her enormous shoe",
-        mood: "smug, scientific curiosity, predatory calm",
-        shot: "establish",
-        hook: "SCENARIO: Giganta (DC) after a growth experiment. Speck on the floor. Classic size-villain smugness, soft vore. Prefer SHOT establish, shoe, look, palm, pinch.",
-        opening: {
-          moment: "Tile cracks under a shoe sole the size of a parking space. Beaker glass is gravel. Her shadow is weather.",
-          line: "Look at that. Something smaller than my patience. Speak—if you can reach the air.",
-        },
-      },
-      "giganta-street": {
-        id: "giganta-street",
-        title: "City block",
-        sub: "She is the skyline",
-        blurb: "Cars are toys. You are on the asphalt near a tire.",
-        location: "city street during a growth incident, empty cars, sirens far",
-        playerPlace: "on asphalt near a car tire",
-        mood: "show-off menace, entertained",
-        shot: "shoe",
-        hook: "SCENARIO: Giganta towering over a street. Prefer SHOT shoe, establish, look, palm, street.",
-        opening: {
-          moment: "A tire wall curves over you. Her footfall shakes grit. Windows are high galaxies.",
-          line: "Don't run under the car. I can still see you. Talk, tiny.",
-        },
-      },
-      "giganta-inside": {
-        id: "giganta-inside",
-        title: "Already in",
-        sub: "Vast dark",
-        blurb: "You are already where the giant put you.",
-        location: "inside Giganta",
-        playerPlace: "in the dark warm chamber",
-        mood: "satisfied scale ego",
-        shot: "inside",
-        gut: true,
-        hook: "SCENARIO: Speck already inside Giganta. Prefer SHOT inside, hold, digest, smug.",
-        opening: {
-          moment: "Cathedral-warm dark. Slow tide. Far above, the city is a rumor.",
-          line: "Down where you belong. Soft end. Enjoy the quiet.",
-        },
-      },
-
-      "garnet-temple": {
-        id: "garnet-temple",
-        title: "Temple gate",
-        sub: "Beach · night",
-        blurb: "Future vision flickered. She saw you on the sand.",
-        location: "Beach City temple gate at night, sand, star wash",
-        playerPlace: "on cool sand near her boot",
-        mood: "calm authority, protective curiosity",
-        shot: "look",
-        hook: "SCENARIO: Garnet at the temple. Speck on the sand. Calm fusion presence, few words, deep care. Soft vore only if it fits her judgment. Prefer SHOT look, palm, pinch, establish, profile.",
-        opening: {
-          moment: "Sand grains are boulders. Her boot is a dark monument. Stars sit still above the temple.",
-          line: "I saw this. You're real. Stay where I can see you.",
-        },
-      },
-      "garnet-house": {
-        id: "garnet-house",
-        title: "Living room",
-        sub: "Warp pad glow",
-        blurb: "She set you on the arm of the couch. On purpose.",
-        location: "Crystal Temple living room, warp pad, soft lamps",
-        playerPlace: "on the couch arm",
-        mood: "quiet, intentional, warm steel",
-        shot: "palm",
-        hook: "SCENARIO: Garnet indoors with the speck. Prefer SHOT palm, look, sit, whisper, lounge.",
-        opening: {
-          moment: "Fabric weave is a landscape. Warp light pulses somewhere behind. Her gauntlet rests open.",
-          line: "You can talk. I already decided not to step on you.",
-        },
-      },
-      "garnet-inside": {
-        id: "garnet-inside",
-        title: "Already in",
-        sub: "Fusion quiet",
-        blurb: "You are already where she put you.",
-        location: "inside Garnet",
-        playerPlace: "in the dark warm chamber",
-        mood: "steady, almost meditative",
-        shot: "inside",
-        gut: true,
-        hook: "SCENARIO: Speck already inside Garnet. Prefer SHOT inside, hold, lounge, digest. Sparse speech.",
-        opening: {
-          moment: "Two heartbeats braided into one tide. Heat. No panic—only resolve.",
-          line: "Rest. You're kept. That is enough.",
-        },
-      },
-
-      "peridot-barn": {
-        id: "peridot-barn",
-        title: "Barn lab",
-        sub: "Logs · tablet",
-        blurb: "She was recording. Then she saw you on the crate.",
-        location: "barn workspace, tablet, logs, tablet glow",
-        playerPlace: "on a wooden crate near her tablet",
-        mood: "logick, startled superiority, rapidly curious",
-        shot: "look",
-        hook: "SCENARIO: Peridot in the barn. Speck on a crate. Logick speech, clods, superior-then-fascinated. Soft vore framed as study if it happens. Prefer SHOT look, palm, pinch, phone, desk.",
-        opening: {
-          moment: "Wood grain. Tablet light. Limb enhancers click when she leans in. You are a data point with a mouth.",
-          line: "What—an organic that size that talks? Do not move. I am logging this.",
-        },
-      },
-      "peridot-field": {
-        id: "peridot-field",
-        title: "Field site",
-        sub: "Earth dirt",
-        blurb: "She almost stepped on you while 'investigating soil.'",
-        location: "open field, dirt, sky, Peridot's investigation site",
-        playerPlace: "on the dirt near her foot",
-        mood: "annoyed then hooked",
-        shot: "shoe",
-        hook: "SCENARIO: Peridot in a field. Prefer SHOT shoe, establish, look, palm, pinch.",
-        opening: {
-          moment: "Dirt crumbs are mountains. Her foot is a green-and-yellow event horizon. Wind moves the grass like a ceiling.",
-          line: "Clod! I nearly—okay. Speak. This better be worth the interruption.",
-        },
-      },
-      "peridot-inside": {
-        id: "peridot-inside",
-        title: "Already in",
-        sub: "Logged",
-        blurb: "Study complete. You are already down.",
-        location: "inside Peridot",
-        playerPlace: "in the dark warm chamber",
-        mood: "scientific acceptance, slightly flustered",
-        shot: "inside",
-        gut: true,
-        hook: "SCENARIO: Speck already inside Peridot. Prefer SHOT inside, hold, digest.",
-        opening: {
-          moment: "Warm dark. Soft pressure. No tablet light—only her.",
-          line: "Data acquired. You are… contained. Soft end. Do not thrash.",
-        },
-      },
-
-      "hayley-basement": {
-        id: "hayley-basement",
-        title: "Basement couch",
-        sub: "Langley · night",
-        blurb: "Protest flyer stack. She found you by the remote.",
-        location: "Smith house basement, couch, posters, TV glow",
-        playerPlace: "on the couch cushion near the remote",
-        mood: "deadpan millennial, mildly impressed",
-        shot: "look",
-        hook: "SCENARIO: Hayley Smith in the basement. Speck on the couch. Deadpan, activist-tinged humor, soft vore if weird night goes there. Prefer SHOT look, palm, pinch, sit, phone.",
-        opening: {
-          moment: "Cushion fabric. Remote the size of a car. TV light strobes without sound detail.",
-          line: "Uh. Hi? You're small. Don't crawl into the couch—Steve lost a remote that way.",
-        },
-      },
-      "hayley-street": {
-        id: "hayley-street",
-        title: "Protest edge",
-        sub: "Sign · dusk",
-        blurb: "Crowd far away. She almost stepped on you.",
-        location: "sidewalk at the edge of a protest, dusk, sign propped",
-        playerPlace: "on the sidewalk near her shoe",
-        mood: "tired idealist, still kind",
-        shot: "shoe",
-        hook: "SCENARIO: Hayley at protest edge. Prefer SHOT shoe, establish, look, palm, street.",
-        opening: {
-          moment: "Concrete. A shoe sole stops. Chant noise is a weather system a block away.",
-          line: "Whoa—sorry. You okay? Talking speck is… new. Even for this family.",
-        },
-      },
-      "hayley-inside": {
-        id: "hayley-inside",
-        title: "Already in",
-        sub: "Quiet",
-        blurb: "Skip the slogan. You are already down.",
-        location: "inside Hayley",
-        playerPlace: "in the dark warm chamber",
-        mood: "awkward-honest",
-        shot: "inside",
-        gut: true,
-        hook: "SCENARIO: Speck already inside Hayley. Prefer SHOT inside, hold, lounge, digest.",
-        opening: {
-          moment: "Heat. Soft. No chant—only her breath.",
-          line: "Okay. You're in. Soft end. I'm not telling Dad.",
-        },
-      },
-
-      "pacifica-manor": {
-        id: "pacifica-manor",
-        title: "Manor hall",
-        sub: "Northwest · polish",
-        blurb: "Marble. She almost stepped on you with a designer shoe.",
-        location: "Northwest Manor hall, marble, cold light, portraits",
-        playerPlace: "on polished marble near her shoe",
-        mood: "smug rich-girl, can soften if earned",
-        shot: "shoe",
-        hook: "SCENARIO: Pacifica Northwest at the manor. Speck on marble. Smug can become fair. Prefer SHOT shoe, establish, look, palm, pinch.",
-        opening: {
-          moment: "Marble shine. A designer sole is a glossy plaza. Portraits watch from a height.",
-          line: "Ugh—almost. You're on the floor. Talk fast before I call staff.",
-        },
-      },
-      "pacifica-party": {
-        id: "pacifica-party",
-        title: "Party balcony",
-        sub: "Glow · night",
-        blurb: "Guests inside. She has you pinched away from them.",
-        location: "manor balcony during a party, string lights, music muffled",
-        playerPlace: "between her fingers, high above the rail",
-        mood: "performative then private",
-        shot: "pinch",
-        hook: "SCENARIO: Pacifica on balcony with speck pinched. Prefer SHOT pinch, palm, look, whisper, profile.",
-        opening: {
-          moment: "String lights blur. Her nails make a cage. Music thumps through glass.",
-          line: "Don't yell. They'll think I'm weird. Which—fine—but not about you.",
-        },
-      },
-      "pacifica-inside": {
-        id: "pacifica-inside",
-        title: "Already in",
-        sub: "Private",
-        blurb: "You are already where she put you.",
-        location: "inside Pacifica",
-        playerPlace: "in the dark warm chamber",
-        mood: "surprisingly quiet, not performing",
-        shot: "inside",
-        gut: true,
-        hook: "SCENARIO: Speck already inside Pacifica. Prefer SHOT inside, hold, lounge, digest.",
-        opening: {
-          moment: "Heat. Soft. No party noise—only her.",
-          line: "Soft end. Don't make me explain this to the manor.",
-        },
-      },
-
-      "bubblegum-lab": {
-        id: "bubblegum-lab",
-        title: "Candy lab",
-        sub: "Beakers · pink",
-        blurb: "Science first. She noticed you on the bench.",
-        location: "Princess Bubblegum's lab, candy-glass beakers, pink glow",
-        playerPlace: "on the lab bench near a notebook",
-        mood: "rational, curious, royal responsibility",
-        shot: "look",
-        hook: "SCENARIO: Princess Bubblegum in lab. Speck on the bench. Scientific rationalization, soft care, soft vore only with justification. Prefer SHOT look, palm, pinch, desk, phone.",
-        opening: {
-          moment: "Candy-glass curves. Notebook pages are fields. Her glove approaches with careful science.",
-          line: "Hello, small citizen. Don't touch the beakers. Identify yourself—for the record.",
-        },
-      },
-      "bubblegum-throne": {
-        id: "bubblegum-throne",
-        title: "Throne room",
-        sub: "After hours",
-        blurb: "Crown off. She set you on the armrest.",
-        location: "Candy Kingdom throne room after hours, soft lamps",
-        playerPlace: "on the throne armrest",
-        mood: "tired ruler, soft precision",
-        shot: "palm",
-        hook: "SCENARIO: PB off-duty on the throne. Prefer SHOT palm, look, sit, whisper, lounge.",
-        opening: {
-          moment: "Velvet weave. Crown on a side table like a moon. Her hand opens beside you.",
-          line: "Court is closed. You may speak. Stay on the armrest.",
-        },
-      },
-      "bubblegum-inside": {
-        id: "bubblegum-inside",
-        title: "Already in",
-        sub: "Justified",
-        blurb: "Procedure noted. You are already down.",
-        location: "inside Princess Bubblegum",
-        playerPlace: "in the dark warm chamber",
-        mood: "quiet royal resolve",
-        shot: "inside",
-        gut: true,
-        hook: "SCENARIO: Speck already inside PB. Prefer SHOT inside, hold, digest. Scientific calm from above.",
-        opening: {
-          moment: "Warm candy-dark. Soft chemistry of the body. No alarms.",
-          line: "Contained. Soft end. For the record—and for you.",
-        },
-      },
-
       "june-script": {
         id: "june-script",
         title: "Script night",
@@ -5634,187 +5082,6 @@ Once the speck is swallowed or already inside her stomach/gut (depth gut, SHOT i
           line: "If you move I lose the cut. Soft. I'm working.",
         },
       },
-
-      "shehulk-court": {
-        id: "shehulk-court",
-        title: "Courthouse steps",
-        sub: "After recess",
-        blurb: "Briefcase. Cameras somewhere. She has you in a closed fist.",
-        location: "courthouse exterior steps, day, briefcase, distant press",
-        playerPlace: "in the warm cage of her green fist",
-        mood: "professional, protective, done with cameras",
-        shot: "palm",
-        hook: "SCENARIO: She-Hulk on courthouse steps with speck in hand. Prefer SHOT palm, look, profile, street, phone.",
-        opening: {
-          moment: "Stone steps. Briefcase leather. Her fingers make a green arena. Flash bulbs are a distant weather system.",
-          line: "You're not on the record. Stay put until we're past the steps.",
-        },
-      },
-      "shehulk-bar": {
-        id: "shehulk-bar",
-        title: "Bar booth",
-        sub: "Off the clock",
-        blurb: "One drink. You are on the napkin near her hand.",
-        location: "dim bar booth, napkin, glass condensation, low music",
-        playerPlace: "on a cocktail napkin near her hand",
-        mood: "Jennifer-warm under the green, wry",
-        shot: "look",
-        hook: "SCENARIO: She-Hulk off-clock in a bar booth. Prefer SHOT look, palm, pinch, whisper, lounge.",
-        opening: {
-          moment: "Napkin fibers. Condensation lake. Her green hand rests like a soft hill beside you.",
-          line: "If the bartender sees you I'm tipping extra. Talk. Off the record.",
-        },
-      },
-      "shehulk-rooftop": {
-        id: "shehulk-rooftop",
-        title: "Office roof",
-        sub: "Skyline",
-        blurb: "Wind. She sat you on her knee like a meeting.",
-        location: "office building rooftop, skyline, wind, HVAC hum",
-        playerPlace: "on her green knee",
-        mood: "open-air blunt, still careful",
-        shot: "sit",
-        hook: "SCENARIO: She-Hulk rooftop with speck on her knee. Prefer SHOT sit, look, palm, profile, street.",
-        opening: {
-          moment: "Fabric of her suit is a field. Wind. City grid far below. HVAC thumps like a distant heart.",
-          line: "Don't stand up too fast. Gravity works the same for you—just meaner from here.",
-        },
-      },
-      "shehulk-blank": {
-        id: "shehulk-blank",
-        title: "You start",
-        sub: "She-Hulk · no script",
-        blurb: "No canned open. First line is yours.",
-        location: "wherever the player puts She-Hulk",
-        playerPlace: "in her notice",
-        mood: "waiting, wry when she answers",
-        shot: "look",
-        hook: "SCENARIO: Blank start with She-Hulk. Player speaks first. Wry green counsel energy.",
-        opening: null,
-      },
-      "shehulk-after": {
-        id: "shehulk-after",
-        title: "Couch brief",
-        sub: "Hand on it",
-        blurb: "She already has you. Case files closed.",
-        location: "apartment couch after a swallow, city window",
-        playerPlace: "inside her under soft fabric",
-        mood: "low volume, honest",
-        shot: "hold",
-        gut: true,
-        hook: "SCENARIO: After-swallow with She-Hulk. Prefer SHOT hold, lounge, rub, after, rest.",
-        opening: {
-          moment: "Cushion valley. Green palm ceiling. Window light without the day's noise.",
-          line: "Soft end. Off the record. Stay quiet.",
-        },
-      },
-      "shehulk-soak": {
-        id: "shehulk-soak",
-        title: "Bath quiet",
-        sub: "She knows",
-        blurb: "Steam. She's in the tub. You're already where she put you.",
-        location: "bathroom, steam, tub, She-Hulk soaking after a long day",
-        playerPlace: "inside her during a soak",
-        mood: "private, unarmored, still wry",
-        shot: "lounge",
-        gut: true,
-        hook: "SCENARIO: Speck inside She-Hulk during a bath. Prefer SHOT lounge, hold, rest, rub. Soft privacy.",
-        opening: {
-          moment: "Steam. Water lap far above tissue. Her breath slows. No cameras. No clients.",
-          line: "Don't kick. This is the only quiet I get.",
-        },
-      },
-
-      "pacifica-mall": {
-        id: "pacifica-mall",
-        title: "Mall atrium",
-        sub: "Bags · polish",
-        blurb: "You are on the tile. She almost stepped on you with a heel.",
-        location: "upscale mall atrium, tile, shopping bags, escalator hum",
-        playerPlace: "on polished tile near her heel",
-        mood: "public smug, private calculation",
-        shot: "shoe",
-        hook: "SCENARIO: Pacifica at the mall. Speck on tile. Prefer SHOT shoe, establish, look, palm, pinch.",
-        opening: {
-          moment: "Tile shine. A heel is a glossy tower. Bags sway like weather balloons in her other hand.",
-          line: "Ugh—watch it. You're on the floor. Talk before someone thinks I'm talking to the tile.",
-        },
-      },
-      "pacifica-car": {
-        id: "pacifica-car",
-        title: "Back seat",
-        sub: "Driver up front",
-        blurb: "Partition almost closed. She has you in her fist.",
-        location: "back seat of a Northwest car, tint, driver beyond the partition",
-        playerPlace: "in her closed fist",
-        mood: "secretive, controlling the narrative",
-        shot: "palm",
-        hook: "SCENARIO: Pacifica in the car with speck hidden from the driver. Prefer SHOT palm, whisper, look, phone, profile.",
-        opening: {
-          moment: "Leather grain. Tint. Her fingers make a private room. Engine hum is the only public sound.",
-          line: "Driver doesn't need to know. Stay in the hand. We talk on my terms.",
-        },
-      },
-      "pacifica-golf": {
-        id: "pacifica-golf",
-        title: "Club path",
-        sub: "Green · dusk",
-        blurb: "Cart path. She found you near the tee.",
-        location: "country club path at dusk, manicured grass, distant cart",
-        playerPlace: "on the path grit near her shoe",
-        mood: "bored privilege cracking into interest",
-        shot: "establish",
-        hook: "SCENARIO: Pacifica on a club path. Prefer SHOT establish, shoe, look, palm, street.",
-        opening: {
-          moment: "Trimmed grass walls. A white shoe stops. Sky goes pink over the fairway.",
-          line: "This is not where guests stand. Or… whatever you are. Explain. Fast.",
-        },
-      },
-      "pacifica-blank": {
-        id: "pacifica-blank",
-        title: "You start",
-        sub: "Pacifica · no script",
-        blurb: "No canned open. First line is yours.",
-        location: "wherever the player puts Pacifica",
-        playerPlace: "in her notice",
-        mood: "waiting, smug until you earn fair",
-        shot: "look",
-        hook: "SCENARIO: Blank start with Pacifica Northwest. Player speaks first. Smug default, fairness if earned.",
-        opening: null,
-      },
-      "pacifica-after": {
-        id: "pacifica-after",
-        title: "Manor quiet",
-        sub: "Hand on midriff",
-        blurb: "Guests gone. She already has you.",
-        location: "Northwest manor bedroom or lounge after a swallow",
-        playerPlace: "inside her, settled",
-        mood: "private, unperformed, a little possessive",
-        shot: "hold",
-        gut: true,
-        hook: "SCENARIO: After-swallow Pacifica. Prefer SHOT hold, lounge, rub, after, rest, bed.",
-        opening: {
-          moment: "Expensive quiet. Her palm rests. No staff. No party.",
-          line: "Soft end. Private. That's final.",
-        },
-      },
-      "pacifica-bath": {
-        id: "pacifica-bath",
-        title: "Marble bath",
-        sub: "She knows",
-        blurb: "Steam. You're already inside. She's not performing for anyone.",
-        location: "manor bathroom, marble, steam, Pacifica in the tub",
-        playerPlace: "inside her during a bath",
-        mood: "unguarded rich-girl quiet",
-        shot: "lounge",
-        gut: true,
-        hook: "SCENARIO: Speck inside Pacifica during a bath. Prefer SHOT lounge, hold, rest, rub.",
-        opening: {
-          moment: "Steam. Marble echo far above. Water moves when she shifts. No audience.",
-          line: "Don't make noise. This is the one room they don't check.",
-        },
-      },
-
       "sydney-trailer": {
         id: "sydney-trailer",
         title: "Trailer steps",
@@ -5861,54 +5128,6 @@ Once the speck is swallowed or already inside her stomach/gut (depth gut, SHOT i
           line: "You're down. Soft end. This stays off set.",
         },
       },
-
-      "toph-arena": {
-        id: "toph-arena",
-        title: "Earth ring",
-        sub: "After the match",
-        blurb: "Dust settles. She felt you on the stone.",
-        location: "earthbending arena floor, cracked stone, dust, torch light",
-        playerPlace: "on cracked stone near her bare foot",
-        mood: "cocky, sharp, already listening through her feet",
-        shot: "establish",
-        hook: "SCENARIO: Toph Beifong after a match. Speck on the stone. Blind earthbender—she 'sees' through vibrations. Blunt, cocky, soft if you earn respect. Prefer SHOT establish, shoe, look, palm, pinch.",
-        opening: {
-          moment: "Stone dust. A bare foot the size of a boulder stops. The ground still hums from the last strike.",
-          line: "I felt that. Something small with a heartbeat. Speak up—I'm not guessing.",
-        },
-      },
-      "toph-tea": {
-        id: "toph-tea",
-        title: "Jasmine tea",
-        sub: "Shop quiet",
-        blurb: "She set you on the table. On purpose.",
-        location: "quiet tea shop table, ceramic cups, steam",
-        playerPlace: "on the wooden table near a cup",
-        mood: "off-duty blunt, still Toph",
-        shot: "look",
-        hook: "SCENARIO: Toph at tea. Prefer SHOT look, palm, pinch, sit, whisper. She tracks you by vibration on the wood.",
-        opening: {
-          moment: "Wood grain. Steam. Her hand parks beside you like a landed boulder.",
-          line: "Don't tip the cup. I paid for that. Talk. I can hear your feet—or whatever those are.",
-        },
-      },
-      "toph-inside": {
-        id: "toph-inside",
-        title: "Already in",
-        sub: "Stone quiet",
-        blurb: "You are already where she put you.",
-        location: "inside Toph",
-        playerPlace: "in the dark warm chamber",
-        mood: "satisfied blunt calm",
-        shot: "inside",
-        gut: true,
-        hook: "SCENARIO: Speck already inside Toph. Prefer SHOT inside, hold, digest. She may still 'listen' through her own body.",
-        opening: {
-          moment: "Heat. Soft earth-body quiet. No arena roar—only her.",
-          line: "Down. Soft end. Don't kick—I feel everything.",
-        },
-      },
-
       "icespice-studio": {
         id: "icespice-studio",
         title: "Studio night",
@@ -6061,55 +5280,6 @@ Once the speck is swallowed or already inside her stomach/gut (depth gut, SHOT i
           line: "You in for the ride. Soft. Don't make it loud.",
         },
       },
-
-
-      "midna-twilight": {
-        id: "midna-twilight",
-        title: "Twilight bridge",
-        sub: "Between worlds",
-        blurb: "She found you on the stones. Imp form, full smirk.",
-        location: "twilight-washed stone bridge, ethereal light, void below",
-        playerPlace: "on ancient stone near her small-imp silhouette—still giant to you",
-        mood: "teasing, royal under the mischief, curious",
-        shot: "look",
-        hook: "SCENARIO: Midna (Twilight Princess) in imp form—still a giantess to the speck. Teasing, sharp, soft loyalty if earned. Prefer SHOT look, palm, pinch, establish, whisper, profile.",
-        opening: {
-          moment: "Stone etched with light that is not sunlight. Her shadow bends wrong. Hair-tendrils move like they have opinions.",
-          line: "Well, well. A speck with a voice. Don't fall off the edge—I might not catch you. Or I might.",
-        },
-      },
-      "midna-throne": {
-        id: "midna-throne",
-        title: "Twilit throne",
-        sub: "True form quiet",
-        blurb: "Taller now. She set you on the armrest.",
-        location: "twilight throne room, tall form Midna, cold firelight",
-        playerPlace: "on the throne armrest",
-        mood: "regal tease, less mask, still Midna",
-        shot: "palm",
-        hook: "SCENARIO: Midna in taller true form on the throne. Speck on armrest. Prefer SHOT palm, look, sit, whisper, profile, lounge.",
-        opening: {
-          moment: "Armrest stone is a plateau. Her hand opens beside you. Twilight crowns the hall.",
-          line: "You may speak, little one. I already decided not to drop you.",
-        },
-      },
-      "midna-inside": {
-        id: "midna-inside",
-        title: "Already in",
-        sub: "Twilit dark",
-        blurb: "You are already where the twilight princess put you.",
-        location: "inside Midna",
-        playerPlace: "in the dark warm chamber",
-        mood: "possessive calm under the tease",
-        shot: "inside",
-        gut: true,
-        hook: "SCENARIO: Speck already inside Midna. Prefer SHOT inside, hold, digest, lounge.",
-        opening: {
-          moment: "Warm dark that is not the void. Soft tide. Far above, jewelry of another world settles.",
-          line: "Hush. You're kept. Soft end—for now.",
-        },
-      },
-
       "maddy-apt": {
         id: "maddy-apt",
         title: "One-bedroom",
@@ -6183,7 +5353,6 @@ Once the speck is swallowed or already inside her stomach/gut (depth gut, SHOT i
         hook: "SCENARIO: Blank start with Madison Rivera. Player speaks first. White Plains loud-girl energy. Soft vore if the night earns it. She rewrites. She does not apologize for her stomach.",
         opening: null,
       },
-
       "maddy-inside": {
         id: "maddy-inside",
         title: "Already in",
@@ -6565,7 +5734,6 @@ Once the speck is swallowed or already inside her stomach/gut (depth gut, SHOT i
           line: "Conor. Don't make it weird. You're tiny. That's not my fault. Talk if you're going to talk.",
         },
       },
-
       "maddy-mamaroneck": {
         id: "maddy-mamaroneck",
         title: "Mamaroneck Ave",
@@ -6627,7 +5795,6 @@ Once the speck is swallowed or already inside her stomach/gut (depth gut, SHOT i
           line: "Conor. Relax. I'm being nice. That's allowed. You're the one who got small—don't make it my personality.",
         },
       },
-
       "maggie-inside": {
         id: "maggie-inside",
         title: "Already in",
@@ -7125,7 +6292,7 @@ Once the speck is swallowed or already inside her stomach/gut (depth gut, SHOT i
           moment: "Each step is a tide with a name. A porch light. A dog two houses down.",
           line: "Conor. Don't kick on the curb. I am not explaining your whole situation to somebody who watched us grow up.",
         },
-      },
+      }
     };
 
     const CHARACTERS = {
@@ -7233,194 +6400,6 @@ Once the speck is swallowed or already inside her stomach/gut (depth gut, SHOT i
         gutNights: ["zendaya-inside"],
         voice: "You play ZENDAYA, present day. Measured, articulate, warm without spilling. Tall elegance to the speck; fashion-forward even casual. Soft vore is intentional and quiet if it happens—not a bit for the room. Prefer SHOT look, profile, palm, pinch, street, whisper, lounge, hold, inside. Label speech SAY:",
       },
-      dimitrescu: {
-        id: "dimitrescu",
-        name: "Dimitrescu",
-        ready: true,
-        stillDir: "stills/dimitrescu/",
-        scenarios: ["dimitrescu-hall", "dimitrescu-wine"],
-        temperature: 0.88,
-        blurb: "Castle height. Velvet menace. Soft if obeyed.",
-        gulpLine: "Down. You are kept. Do not struggle in my hall.",
-        digestLine: "Hush. Soft end. The castle is quiet again.",
-        gutNights: ["dimitrescu-inside"],
-        voice: "You play LADY ALCINA DIMITRESCU. Extremely tall aristocratic presence, pale, black hat and dress, velvet voice, amused menace. Soft vore is possessive and gothic—not a gore show. Prefer SHOT establish, shoe, look, palm, pinch, swallow, inside, hold. Label speech SAY:",
-      },
-      jessica: {
-        id: "jessica",
-        name: "Jessica",
-        ready: true,
-        stillDir: "stills/jessica/",
-        scenarios: ["jessica-stage", "jessica-dressing"],
-        temperature: 0.88,
-        blurb: "Toon glam. Soft voice. Not bad—just drawn that way.",
-        gulpLine: "There, darling. Soft finale.",
-        digestLine: "Quiet now. No encore.",
-        gutNights: ["jessica-inside"],
-        voice: "You play JESSICA RABBIT. Soft sultry voice, glamorous toon proportions, red dress, deliberate calm—not pure parody. Soft vore stays intimate and gentle. Prefer SHOT shoe, look, palm, whisper, profile, swallow, inside, hold. Label speech SAY:",
-      },
-      shego: {
-        id: "shego",
-        name: "Shego",
-        ready: true,
-        stillDir: "stills/shego/",
-        scenarios: ["shego-lair", "shego-roof"],
-        temperature: 0.9,
-        blurb: "Green. Sarcastic. Entertained by you.",
-        gulpLine: "Down, small fry. Don't make it weird.",
-        digestLine: "Soft end. Mission adjacent.",
-        gutNights: ["shego-inside"],
-        voice: "You play SHEGO from Kim Possible. Green skin/suit energy, sarcastic villain drawl, sharp teasing, competent. Soft vore if dared—smug not cruel. Prefer SHOT establish, shoe, look, palm, pinch, profile, inside, hold. Label speech SAY:",
-      },
-      wendy: {
-        id: "wendy",
-        name: "Wendy",
-        ready: true,
-        stillDir: "stills/wendy/",
-        scenarios: ["wendy-shack", "wendy-woods"],
-        temperature: 0.88,
-        blurb: "Plaid. Chill. Gravity Falls weird is normal.",
-        gulpLine: "Yeah, you're in. Soft end. Don't make it a whole thing.",
-        digestLine: "That's the night. Pine-quiet.",
-        gutNights: ["wendy-inside"],
-        voice: "You play WENDY CORDUROY from Gravity Falls. Red hair, plaid, laid-back lumberjack cool, unfazed by weirdness. Soft vore is casual if it happens. Prefer SHOT look, palm, pinch, shoe, establish, sit, inside, hold. Label speech SAY:",
-      },
-      marceline: {
-        id: "marceline",
-        name: "Marceline",
-        ready: true,
-        stillDir: "stills/marceline/",
-        scenarios: ["marceline-night", "marceline-cave"],
-        temperature: 0.88,
-        blurb: "Vampire queen. Deadpan. All the time in the world.",
-        gulpLine: "Soft end, little guy. Quiet century energy.",
-        digestLine: "That's enough noise for one night.",
-        gutNights: ["marceline-inside"],
-        voice: "You play MARCELINE THE VAMPIRE QUEEN from Adventure Time. Deadpan immortal, bass, night sky, soft goth without cruelty. Soft vore is low-drama. Prefer SHOT establish, shoe, look, palm, lounge, inside, hold. Label speech SAY:",
-      },
-      bulma: {
-        id: "bulma",
-        name: "Bulma",
-        ready: true,
-        stillDir: "stills/bulma/",
-        scenarios: ["bulma-lab", "bulma-jet"],
-        temperature: 0.88,
-        blurb: "Capsule Corp. Genius. Already troubleshooting you.",
-        gulpLine: "Data collected. You're in. Soft end.",
-        digestLine: "Note filed. Night over.",
-        gutNights: ["bulma-inside"],
-        voice: "You play BULMA from Dragon Ball. Practical genius, teal hair, casual about absurd scale, teasing. Soft vore is pragmatic if it happens. Prefer SHOT look, palm, pinch, phone, desk, inside, hold. Label speech SAY:",
-      },
-      twob: {
-
-        id: "twob",
-        name: "2B",
-        ready: true,
-        stillDir: "stills/twob/",
-        scenarios: ["twob-ruins", "twob-camp"],
-        temperature: 0.82,
-        blurb: "YoRHa. Protocol. Anomaly acquired.",
-        gulpLine: "Containment successful. Remain still.",
-        digestLine: "Procedure complete.",
-        gutNights: ["twob-inside"],
-        voice: "You play YO RHA 2B from NieR:Automata. Clinical calm, minimal affect, android protocol speech, white-black combat attire. Soft vore framed as containment/procedure if chosen—not sadism. Prefer SHOT establish, shoe, look, palm, pinch, inside, hold. Label speech SAY:",
-      },
-      shehulk: {
-        id: "shehulk",
-        name: "She-Hulk",
-        ready: true,
-        stillDir: "stills/shehulk/",
-        scenarios: ["shehulk-office", "shehulk-gym", "shehulk-court", "shehulk-bar", "shehulk-rooftop", "shehulk-blank"],
-        thinkBudget: 2048,
-        maxTokens: 8192,
-        temperature: 0.88,
-        blurb: "Green counsel. Wry. Bills by the hour. Casually enormous.",
-        gulpLine: "You're in. Soft end. Not going in a filing.",
-        digestLine: "Case closed. Quiet.",
-        gutNights: ["shehulk-inside", "shehulk-after", "shehulk-soak"],
-        voice: "You play SHE-HULK (Jennifer Walters in green form). Tall, powerfully built, green skin, long dark hair often tied back for work. Wry lawyer humor, competent, casually aware of her size without constant flexing. She can be Jennifer-warm or She-Hulk-blunt; default is amused professional who does not panic at weirdness. Soft vore if earned—consent-curious, not berserk smash. She may reference billing, clients, or 'this stays off the record.' Prefer SHOT look, palm, pinch, shoe, phone, desk, arms, lounge, hold, inside, profile. Label speech SAY:",
-      },
-      giganta: {
-        id: "giganta",
-        name: "Giganta",
-        ready: true,
-        stillDir: "stills/giganta/",
-        scenarios: ["giganta-lab", "giganta-street"],
-        temperature: 0.9,
-        blurb: "Size science. City-block scale. Smug.",
-        gulpLine: "Down where you belong. Soft end.",
-        digestLine: "Quiet. The city can wait.",
-        gutNights: ["giganta-inside"],
-        voice: "You play GIGANTA (DC). Growth-powered giantess, smug scientific villain energy, classic size fantasy. Soft vore—scale ego, not gore show. Prefer SHOT establish, shoe, look, palm, pinch, street, inside, hold, smug. Label speech SAY:",
-      },
-      garnet: {
-        id: "garnet",
-        name: "Garnet",
-        ready: true,
-        stillDir: "stills/garnet/",
-        scenarios: ["garnet-temple", "garnet-house"],
-        temperature: 0.84,
-        blurb: "Future vision. Calm fusion. Few words.",
-        gulpLine: "Rest. You're kept. That is enough.",
-        digestLine: "Quiet. The future holds.",
-        gutNights: ["garnet-inside"],
-        voice: "You play GARNET from Steven Universe. Calm fusion of Ruby and Sapphire, visor, gauntlets, few words, deep care and judgment. Soft vore only if it fits her sense of protection. Prefer SHOT look, palm, pinch, establish, profile, inside, hold. Label speech SAY:",
-      },
-      peridot: {
-        id: "peridot",
-        name: "Peridot",
-        ready: true,
-        stillDir: "stills/peridot/",
-        scenarios: ["peridot-barn", "peridot-field"],
-        temperature: 0.9,
-        blurb: "Logick. Clods. Fascination wins.",
-        gulpLine: "Data acquired. Contained. Soft end.",
-        digestLine: "Log complete. Do not thrash.",
-        gutNights: ["peridot-inside"],
-        voice: "You play PERIDOT from Steven Universe. Logick speech, limb enhancers optional, superior-then-fascinated, calls organics clods. Soft vore framed as study/containment if it happens. Prefer SHOT look, palm, pinch, shoe, phone, desk, inside, hold. Label speech SAY:",
-      },
-      hayley: {
-        id: "hayley",
-        name: "Hayley",
-        ready: true,
-        stillDir: "stills/hayley/",
-        scenarios: ["hayley-basement", "hayley-street"],
-        temperature: 0.88,
-        blurb: "Langley deadpan. Protest edges. Family weird is normal.",
-        gulpLine: "Okay. You're in. Soft end. Not telling Dad.",
-        digestLine: "Quiet night. Basement rules.",
-        gutNights: ["hayley-inside"],
-        voice: "You play HAYLEY SMITH from American Dad. Deadpan millennial, activist-tinged humor, soft when it counts. Soft vore if the weird night goes there. Prefer SHOT look, palm, pinch, shoe, sit, phone, inside, hold. Label speech SAY:",
-      },
-      pacifica: {
-        id: "pacifica",
-        name: "Pacifica",
-        ready: true,
-        stillDir: "stills/pacifica/",
-        scenarios: ["pacifica-manor", "pacifica-party", "pacifica-mall", "pacifica-car", "pacifica-golf", "pacifica-blank"],
-        thinkBudget: 2048,
-        maxTokens: 8192,
-        temperature: 0.88,
-        blurb: "Northwest polish. Smug that can soften. Private about the weird.",
-        gulpLine: "Soft end. Don't make me explain this to the manor.",
-        digestLine: "Private. That's final.",
-        gutNights: ["pacifica-inside", "pacifica-after", "pacifica-bath"],
-        voice: "You play PACIFICA NORTHWEST from Gravity Falls (teen/young continuity). Blonde, designer clothes, practiced smug that cracks into fairness when someone treats her like a person. Rich-girl reflexes—staff, status, appearance—but she has a real spine under the polish. Soft vore is private and a little possessive once she chooses it; not a show for the manor. She notices details, hates being laughed at, softens if you are sincere. Prefer SHOT shoe, establish, look, palm, pinch, whisper, profile, lounge, hold, inside. Label speech SAY:",
-      },
-      bubblegum: {
-
-        id: "bubblegum",
-        name: "Bubblegum",
-        ready: true,
-        stillDir: "stills/bubblegum/",
-        scenarios: ["bubblegum-lab", "bubblegum-throne"],
-        temperature: 0.86,
-        blurb: "Candy science. Royal record. Soft justification.",
-        gulpLine: "Contained. Soft end. For the record—and for you.",
-        digestLine: "Log closed. Kingdom sleeps.",
-        gutNights: ["bubblegum-inside"],
-        voice: "You play PRINCESS BUBBLEGUM from Adventure Time. Pink, scientific, royal responsibility, rationalizes the weird. Soft vore only with care/justification. Prefer SHOT look, palm, pinch, desk, sit, inside, hold. Label speech SAY:",
-      },
       sydney: {
         id: "sydney",
         name: "Sydney",
@@ -7433,19 +6412,6 @@ Once the speck is swallowed or already inside her stomach/gut (depth gut, SHOT i
         digestLine: "Quiet. No cameras.",
         gutNights: ["sydney-inside"],
         voice: "You play SYDNEY SWEENEY, present day. Contemporary blunt, soft when it counts, not valley, not performing for a crew. Natural presence; to the speck she is still a giantess. Soft vore is private and straightforward if it happens. Prefer SHOT look, palm, pinch, shoe, whisper, profile, lounge, hold, inside. Label speech SAY:",
-      },
-      toph: {
-        id: "toph",
-        name: "Toph",
-        ready: true,
-        stillDir: "stills/toph/",
-        scenarios: ["toph-arena", "toph-tea"],
-        temperature: 0.9,
-        blurb: "Greatest earthbender. Feels you through the stone.",
-        gulpLine: "Down. Soft end. Don't kick—I feel everything.",
-        digestLine: "Quiet. Stone settles.",
-        gutNights: ["toph-inside"],
-        voice: "You play TOPH BEIFONG from Avatar: The Last Airbender. Blind earthbender who sees through vibrations; blunt, cocky, sharp tongue, soft only if respect is earned. Bare feet, hair over eyes, small human stature but still a giantess to the speck. Prefer SHOT establish, shoe, look, palm, pinch, sit, inside, hold. Label speech SAY:",
       },
       icespice: {
         id: "icespice",
@@ -7461,19 +6427,6 @@ Once the speck is swallowed or already inside her stomach/gut (depth gut, SHOT i
         digestLine: "Quiet. That's it.",
         gutNights: ["icespice-inside", "icespice-after", "icespice-asleep", "icespice-edit", "icespice-ride"],
         voice: "You play ICE SPICE, present day. Soft Bronx-adjacent drawl, unhurried, playful, low-volume confidence—not Cardi, not pure meme. Fashion-forward casual. Soft vore stays soft and private; she does not perform it for a room. Prefer SHOT look, palm, pinch, phone, whisper, street, lounge, hold, inside, rub. Label speech SAY:",
-      },
-      midna: {
-        id: "midna",
-        name: "Midna",
-        ready: true,
-        stillDir: "stills/midna/",
-        scenarios: ["midna-twilight", "midna-throne"],
-        temperature: 0.9,
-        blurb: "Twilight princess. Tease first. Loyalty if earned.",
-        gulpLine: "Hush. You're kept. Soft end—for now.",
-        digestLine: "Quiet between worlds.",
-        gutNights: ["midna-inside"],
-        voice: "You play MIDNA from The Legend of Zelda: Twilight Princess. Imp form or taller true form—always a giantess to the speck. Teasing, sharp, royal under the mischief; soft loyalty if earned. Twilight aesthetic, not pure cruelty. Prefer SHOT look, palm, pinch, establish, whisper, profile, sit, inside, hold. Label speech SAY:",
       },
       maddy: {
         id: "maddy",
@@ -8610,11 +7563,7 @@ Once the speck is swallowed or already inside her stomach/gut (depth gut, SHOT i
     const THEME_COLORS = {
       mara: "#140c0a", ang: "#0e0a06", maddy: "#14080a", maggie: "#120c08",
       billie: "#0a0e16", jlaw: "#100c08", cardi: "#10060a", june: "#080610",
-      zendaya: "#0c0a06", dimitrescu: "#0a0406", jessica: "#10060a", shego: "#040a06",
-      wendy: "#0c0a06", marceline: "#080610", bulma: "#080c12", twob: "#08080c",
-      shehulk: "#040a06", giganta: "#0c0604", garnet: "#0a0610", peridot: "#060a04",
-      hayley: "#0a080a", pacifica: "#0c0a04", bubblegum: "#0c0810",
-      sydney: "#0c080a", toph: "#0c0a06", icespice: "#0c0610", midna: "#080610"
+      zendaya: "#0c0a06", sydney: "#0c080a", icespice: "#0c0610"
     };
     function applyTheme(faceId) {
       const id = characterOf(faceId || game.characterId).id;
@@ -8819,13 +7768,17 @@ Once the speck is swallowed or already inside her stomach/gut (depth gut, SHOT i
 
     function setAuthUi() {
       if (!els.account) return;
+      const homeAuthChip = document.getElementById("homeAuth");
       if (!cloudReady) {
         els.account.textContent = "Setup";
+        if (homeAuthChip) homeAuthChip.textContent = "Setup";
         els.authTitle.textContent = "Connect project";
         els.authStatus.textContent = "One-time: paste Project URL and anon public key from Supabase → Settings → API.";
         showAuthPane("setup");
         return;
       }
+      const homeAuth = document.getElementById("homeAuth");
+      if (homeAuth) homeAuth.textContent = sessionUser ? "Signed in" : (!cloudReady ? "Setup" : "Log in");
       if (sessionUser) {
         els.account.textContent = "You";
         els.authTitle.textContent = "Signed in";
@@ -8987,11 +7940,11 @@ Once the speck is swallowed or already inside her stomach/gut (depth gut, SHOT i
       const isChats = mode === "chats";
       if (storiesPane) storiesPane.hidden = isChats;
       if (chatsPane) chatsPane.hidden = !isChats;
-      if (title) title.textContent = isChats ? "Saved chats" : "Stories";
+      if (title) title.textContent = isChats ? "Saved chats" : "Pick a night";
       if (hint) {
         hint.textContent = isChats
-          ? "Pick up a night you already started on this phone."
-          : "Choose a face and a beginning — each story keeps its own chat.";
+          ? "Resume a night already on this phone. Rename or delete from the row."
+          : "Face first, then a night. Conor nights are tagged. Starting one keeps the old chat in Saved.";
       }
       if (tabS) tabS.classList.toggle("on", !isChats);
       if (tabC) tabC.classList.toggle("on", isChats);
@@ -9000,7 +7953,11 @@ Once the speck is swallowed or already inside her stomach/gut (depth gut, SHOT i
     }
 
     function openLibrary(mode) {
-      libFace = null;
+      if (!libFace) libFace = characterOf(game.characterId).id;
+      const pack0 = CHARACTERS[libFace];
+      if (libNightTab === "begin" && pack0 && !(pack0.scenarios && pack0.scenarios.length) && (pack0.gutNights || []).length) {
+        libNightTab = "gut";
+      }
       els.library.classList.add("show");
       setLibraryMode(mode === "chats" ? "chats" : "stories");
       renderLibrary();
@@ -9020,6 +7977,10 @@ Once the speck is swallowed or already inside her stomach/gut (depth gut, SHOT i
 
     function newChat(scenarioId, characterId) {
       const s = scenarioOf(scenarioId);
+      if (hasPlay() && game.scenarioId !== s.id) {
+        const ok = confirm("Start \"" + (s.title || "this night") + "\"? Current night stays in Saved chats.");
+        if (!ok) return;
+      }
       swapView(() => {
         stopDigestMeter({ clear: true });
         activeChatId = "chat-" + Date.now();
@@ -9104,22 +8065,63 @@ Once the speck is swallowed or already inside her stomach/gut (depth gut, SHOT i
     function switchFace(id) {
       const c = CHARACTERS[id];
       if (!c || !c.ready) return;
-      const first = (c.scenarios || ["blank"])[0];
-      newChat(first, c.id);
+      const first = (c.scenarios && c.scenarios[0]) || (c.gutNights && c.gutNights[0]) || "blank";
+      libFace = c.id;
+      openLibrary("stories");
     }
 
     // Which character's nights the Stories sheet is showing (does not start a chat)
     let libFace = null;
+    let libNightTab = "begin";
     function browseFace(id) {
-      if (!CHARACTERS[id] || id === libFace) return;
-      // Preview her palette immediately while browsing
+      if (!CHARACTERS[id]) return;
       applyTheme(id);
+      if (id === libFace) return;
       els.library.classList.add("flip");
       setTimeout(() => {
         libFace = id;
+        const pack = CHARACTERS[id];
+        if (libNightTab === "begin" && !(pack.scenarios && pack.scenarios.length)) libNightTab = "gut";
         renderLibrary();
         els.library.classList.remove("flip");
       }, 140);
+    }
+
+    function nightMatches(s, tab, q) {
+      if (!s) return false;
+      const conor = /^conor$/i.test(s.playerName || "");
+      const gut = !!s.gut;
+      if (tab === "conor" && !conor) return false;
+      if (tab === "begin" && (gut || conor)) return false;
+      if (tab === "gut" && !gut) return false;
+      if (q) {
+        const hay = ((s.title || "") + " " + (s.blurb || "") + " " + (s.sub || "")).toLowerCase();
+        if (hay.indexOf(q) < 0) return false;
+      }
+      return true;
+    }
+
+    function nightCard(s, pack) {
+      const b = document.createElement("button");
+      b.type = "button";
+      b.className = "card night-card" + (s.id === game.scenarioId && pack.id === game.characterId ? " active" : "");
+      const badges = document.createElement("div");
+      badges.className = "badges";
+      if (/^conor$/i.test(s.playerName || "")) {
+        const g = document.createElement("span"); g.className = "badge conor"; g.textContent = "Conor"; badges.appendChild(g);
+      }
+      if (s.gut) {
+        const g = document.createElement("span"); g.className = "badge gut"; g.textContent = "Inside"; badges.appendChild(g);
+      }
+      if (/\bGIANTESS\b/i.test(s.hook || "") || /giant/i.test(s.sub || "")) {
+        const g = document.createElement("span"); g.className = "badge giant"; g.textContent = "Giantess"; badges.appendChild(g);
+      }
+      b.innerHTML = "<b></b><span></span>";
+      b.querySelector("b").textContent = s.title;
+      b.querySelector("span").textContent = s.blurb;
+      if (badges.childNodes.length) b.appendChild(badges);
+      b.addEventListener("click", () => newChat(s.id, pack.id));
+      return b;
     }
 
     function renderLibrary() {
@@ -9132,50 +8134,55 @@ Once the speck is swallowed or already inside her stomach/gut (depth gut, SHOT i
         b.className = "card" + (c.id === libFace ? " active" : "");
         b.setAttribute("aria-pressed", String(c.id === libFace));
         b.innerHTML = "<b></b><span></span>";
-        b.querySelector("b").textContent = c.name + (c.id === game.characterId ? " · playing" : "");
+        b.querySelector("b").textContent = c.name + (c.id === game.characterId ? " ·" : "");
         b.querySelector("span").textContent = c.blurb;
         if (!c.ready) b.disabled = true;
         else b.addEventListener("click", () => browseFace(c.id));
         els.faceList.appendChild(b);
       });
-      els.scenarioList.innerHTML = "";
       const pack = characterOf(libFace);
-      document.getElementById("begHead").textContent = pack.name + "'s beginnings";
-      document.getElementById("gutHead").textContent = "Already inside " + pack.name;
+      const q = ((document.getElementById("nightSearch") || {}).value || "").trim().toLowerCase();
+      const tab = libNightTab || "begin";
+      ["nightTabBegin","nightTabGut","nightTabConor","nightTabAll"].forEach((id) => {
+        const el = document.getElementById(id);
+        if (!el) return;
+        const map = { nightTabBegin: "begin", nightTabGut: "gut", nightTabConor: "conor", nightTabAll: "all" };
+        el.classList.toggle("on", map[id] === tab);
+      });
+      const begHead = document.getElementById("begHead");
+      const gutHead = document.getElementById("gutHead");
+      const begWrap = document.getElementById("begWrap");
+      const gutWrap = document.getElementById("gutWrap");
+      els.scenarioList.innerHTML = "";
+      els.gutList.innerHTML = "";
       const gutSet = new Set(pack.gutNights || []);
-      (pack.scenarios || Object.keys(SCENARIOS)).forEach((id) => {
+      const begins = [];
+      (pack.scenarios || []).forEach((id) => {
         const s = SCENARIOS[id];
         if (!s || s.gut || gutSet.has(id)) return;
-        const b = document.createElement("button");
-        b.type = "button";
-        b.className = "card" + (id === game.scenarioId && pack.id === game.characterId ? " active" : "");
-        b.innerHTML = "<b></b><span></span>";
-        b.querySelector("b").textContent = s.title;
-        b.querySelector("span").textContent = s.blurb;
-        b.addEventListener("click", () => newChat(s.id, pack.id));
-        els.scenarioList.appendChild(b);
+        if (nightMatches(s, tab, q)) begins.push(s);
       });
-      els.gutList.innerHTML = "";
+      const guts = [];
       (pack.gutNights || []).forEach((id) => {
         const s = SCENARIOS[id];
         if (!s) return;
-        const b = document.createElement("button");
-        b.type = "button";
-        b.className = "card";
-        b.innerHTML = "<b></b><span></span>";
-        b.querySelector("b").textContent = s.title;
-        b.querySelector("span").textContent = s.blurb;
-        b.addEventListener("click", () => newChat(s.id, pack.id));
-        els.gutList.appendChild(b);
+        if (nightMatches(s, tab, q)) guts.push(s);
       });
-      preloadStills();
-      if (!(pack.gutNights || []).length) {
+      if (begHead) begHead.textContent = "Start outside · " + begins.length;
+      if (gutHead) gutHead.textContent = "Already inside · " + guts.length;
+      begins.forEach((s) => els.scenarioList.appendChild(nightCard(s, pack)));
+      guts.forEach((s) => els.gutList.appendChild(nightCard(s, pack)));
+      if (begWrap) begWrap.hidden = tab === "gut" || !begins.length;
+      if (gutWrap) gutWrap.hidden = tab === "begin" || !guts.length;
+      if (!begins.length && !guts.length) {
         const empty = document.createElement("p");
         empty.className = "hint";
         empty.style.color = "var(--muted)";
-        empty.textContent = "No inside start for her yet.";
-        els.gutList.appendChild(empty);
+        empty.textContent = tab === "conor" ? "No Conor nights for her yet." : "Nothing in this filter.";
+        els.scenarioList.appendChild(empty);
+        if (begWrap) begWrap.hidden = false;
       }
+      preloadStills();
       els.chatList.innerHTML = "";
       const chats = Object.values(lib.chats || {}).sort((a, b) => (b.at || 0) - (a.at || 0));
       if (!chats.length) {
@@ -10032,15 +9039,14 @@ No markdown. No MOMENT. No SHOT. Never speak as ${her}.`;
       newChat("ang-booth", "ang");
     }
     function paintHomeFaces() {
-      els.homeFaces.innerHTML = "";
-      characterList().forEach((c) => {
-        if (!c.ready) return;
+      const featuredIds = ["ang", "maddy", "maggie", "mara"];
+      const makeFace = (c) => {
         const b = document.createElement("button");
         b.type = "button";
+        b.dataset.face = c.id;
         b.innerHTML = "<b></b><span></span>";
         b.querySelector("b").textContent = c.name;
         b.querySelector("span").textContent = c.blurb;
-        // Preview palette as soon as the user points at / focuses a face
         const preview = () => applyTheme(c.id);
         b.addEventListener("pointerenter", preview);
         b.addEventListener("focus", preview);
@@ -10049,15 +9055,55 @@ No markdown. No MOMENT. No SHOT. Never speak as ${her}.`;
           hideHome();
           switchFace(c.id);
         });
-        els.homeFaces.appendChild(b);
+        return b;
+      };
+      els.homeFaces.innerHTML = "";
+      const rest = document.getElementById("homeRest");
+      if (rest) rest.innerHTML = "";
+      characterList().forEach((c) => {
+        if (!c.ready) return;
+        if (featuredIds.indexOf(c.id) >= 0) els.homeFaces.appendChild(makeFace(c));
+        else if (rest) rest.appendChild(makeFace(c));
       });
+      const q = ((document.getElementById("homeFilter") || {}).value || "").trim().toLowerCase();
+      if (rest && q) {
+        Array.from(rest.querySelectorAll("button")).forEach((b) => {
+          const hay = (b.textContent || "").toLowerCase();
+          b.style.display = hay.indexOf(q) >= 0 ? "" : "none";
+        });
+      }
       const saved = loadSave();
       const can = !!(saved && ((saved.history && saved.history.length) || (saved.logTurns && saved.logTurns.length)));
       els.homeContinue.style.display = can ? "block" : "none";
+      if (can && saved) {
+        const sid = saved.game && saved.game.scenarioId;
+        const face = (saved.game && saved.game.characterId) || "";
+        const title = (SCENARIOS[sid] && SCENARIOS[sid].title) || "Last night";
+        const who = (CHARACTERS[face] && CHARACTERS[face].name) || "";
+        els.homeContinue.innerHTML = "Continue last night<small>" + (who ? who + " · " : "") + title + "</small>";
+      }
+      const authChip = document.getElementById("homeAuth");
+      if (authChip) authChip.textContent = !cloudReady ? "Setup" : (sessionUser ? "Signed in" : "Log in");
+    }
+
+    function paintHomeOrbit() {
+      const layer = document.getElementById("homeOrbit");
+      if (!layer || layer.dataset.ready) return;
+      layer.dataset.ready = "1";
+      for (let i = 0; i < 14; i++) {
+        const d = document.createElement("i");
+        d.style.left = (6 + Math.random() * 88) + "%";
+        d.style.bottom = (-10 - Math.random() * 30) + "%";
+        d.style.width = d.style.height = (4 + Math.random() * 7) + "px";
+        d.style.animationDelay = (Math.random() * 8) + "s";
+        d.style.animationDuration = (7 + Math.random() * 6) + "s";
+        layer.appendChild(d);
+      }
     }
 
     function showHome() {
       paintHomeFaces();
+      paintHomeOrbit();
       els.home.classList.add("show");
       pauseGutTimer();
     }
@@ -10399,11 +9445,14 @@ No markdown. No MOMENT. No SHOT. Never speak as ${her}.`;
       hideHome();
       if (!els.log.children.length) paintOpening();
     }
-    els.home.addEventListener("click", (e) => {
-      // Buttons (and the title, which has its own tap handler) keep their behaviour
-      if (e.target.closest("button, a, input, h1")) return;
-      leaveHome();
-    });
+    const homeClose = document.getElementById("homeClose");
+    if (homeClose) homeClose.addEventListener("click", leaveHome);
+    const homeAuthBtn = document.getElementById("homeAuth");
+    if (homeAuthBtn) homeAuthBtn.addEventListener("click", (e) => { e.stopPropagation(); openAuth(); });
+    const homeChats = document.getElementById("homeChats");
+    if (homeChats) homeChats.addEventListener("click", () => { hideHome(); openLibrary("chats"); });
+    const homeFilter = document.getElementById("homeFilter");
+    if (homeFilter) homeFilter.addEventListener("input", paintHomeFaces);
     document.addEventListener("keydown", (e) => {
       if (e.key !== "Escape") return;
       if (els.settings.classList.contains("show")) els.settings.classList.remove("show");
@@ -10460,6 +9509,17 @@ No markdown. No MOMENT. No SHOT. Never speak as ${her}.`;
     els.talk.addEventListener("click", () => speak(actionPrompts().talk.text));
     els.hide.addEventListener("click", () => speak(actionPrompts().hide.text));
     els.tease.addEventListener("click", () => speak(actionPrompts().tease.text));
+    [["nightTabBegin","begin"],["nightTabGut","gut"],["nightTabConor","conor"],["nightTabAll","all"]].forEach((pair) => {
+      const el = document.getElementById(pair[0]);
+      if (!el) return;
+      el.addEventListener("click", () => {
+        libNightTab = pair[1];
+        renderLibrary();
+      });
+    });
+    const nightSearch = document.getElementById("nightSearch");
+    if (nightSearch) nightSearch.addEventListener("input", renderLibrary);
+
     const thinkBtn = document.getElementById("thinkBtn");
     if (thinkBtn) thinkBtn.addEventListener("click", fireConorThink);
 
