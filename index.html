@@ -2033,6 +2033,45 @@
     #meter[data-step="tongue"] .meter-labels span:nth-child(2) { color: #ff6f86; }
     #meter[data-step="gulp"] .meter-labels span:nth-child(3) { color: #ff4a64; }
     #meter[data-step="gut"] .meter-labels span:nth-child(4) { color: #b8f03a; text-shadow: 0 0 8px rgba(166,226,42,.6); }
+    .gut-settle {
+      display: none;
+      align-items: center;
+      gap: 8px;
+      margin-top: 8px;
+      padding: 6px 10px;
+      border-radius: 999px;
+      background: color-mix(in srgb, var(--panel2) 88%, #3a5020);
+      border: 1px solid rgba(180, 220, 80, .28);
+      width: fit-content;
+      max-width: 100%;
+    }
+    .gut-settle[hidden] { display: none !important; }
+    .gut-settle:not([hidden]) { display: inline-flex; }
+    .gut-settle.paused {
+      border-color: rgba(160,160,160,.3);
+      background: color-mix(in srgb, var(--panel2) 90%, #333);
+      opacity: .85;
+    }
+    .gut-settle .gs-label {
+      font-size: .62rem;
+      letter-spacing: .1em;
+      text-transform: uppercase;
+      font-weight: 800;
+      color: #c8f06a;
+    }
+    .gut-settle.paused .gs-label { color: var(--muted); }
+    .gut-settle .gs-clock {
+      font-variant-numeric: tabular-nums;
+      font-weight: 800;
+      font-size: .88rem;
+      color: var(--ink);
+      min-width: 2.6em;
+    }
+    .gut-settle .gs-hint {
+      font-size: .62rem;
+      color: var(--muted);
+      letter-spacing: .02em;
+    }
     @media (prefers-reduced-motion: reduce) { #meterFill::after { animation: none !important; } }
     #goneBanner {
       display: none;
@@ -2453,6 +2492,11 @@
   <div id="meter" data-step="palm">
     <div class="meter-labels"><span>Palm</span><span>Tongue</span><span>Gulp</span><span>Gut</span></div>
     <div class="meter-track"><i id="meterFill"></i></div>
+    <div id="gutSettle" class="gut-settle" hidden>
+      <span class="gs-label">Settling in</span>
+      <span class="gs-clock" id="gutSettleClock">2:00</span>
+      <span class="gs-hint" id="gutSettleHint">active time only</span>
+    </div>
     <p id="thumbHint">Tap the picture to enlarge</p>
   </div>
   </div>
@@ -5498,14 +5542,15 @@ This is vore. Swallow is on the table from the first look. Do not fade to fade-t
       // Shot-driven updates are absolute (supports regurgitation). Other callers may still climb-only.
       game.depth = opts.absolute ? next : Math.max(prev, next);
       paintMeter();
-      if (game.depth >= 3 && prev < 3 && !game.gone && game.fate !== "digested") {
-        if (!game.gutEnteredAt) game.gutEnteredAt = Date.now();
-        armDigestWatch();
+      if (game.depth >= 3 && !game.gone && game.fate !== "digested") {
+        ensureGutTimer();
+        syncGutTimer();
       }
-      // Regurgitated / moved back out of the gut — clear the Digest-O Meter
+      // Regurgitated / moved back out of the gut — clear meters and settle timer
       if (prev >= 3 && game.depth < 3 && !game.gone && game.fate !== "digested") {
         const wasActive = !!(game.digestMeter && game.digestMeter.active);
         stopDigestMeter({ clear: true });
+        clearGutTimer();
         game.fate = game.depth >= 2 ? "swallowed" : "";
         if (wasActive) {
           try { addNotice("She's let you back up. The Digest-O Meter cools off."); } catch {}
@@ -5514,11 +5559,11 @@ This is vore. Swallow is on the table from the first look. Do not fade to fade-t
     }
 
     /* ——— Digest-O Meter system ——— */
-    const GUT_ARM_MS = 2 * 60 * 1000;          // 2 min in gut before meter appears
+    const GUT_ARM_MS = 2 * 60 * 1000;          // 2 min of *active* gut time before meter appears
     const DIGEST_MIN_MS = 5 * 60 * 1000;       // 5 min floor
     const DIGEST_MAX_MS = 20 * 60 * 1000;      // 20 min ceiling
     let digestTimer = null;
-    let digestWatch = null;
+    let gutSettleTick = null;
     let digestToastTimer = null;
 
     function clamp01(n) { return Math.max(0, Math.min(1, n)); }
@@ -5569,19 +5614,172 @@ This is vore. Swallow is on the table from the first look. Do not fade to fade-t
       return Math.round(Math.max(DIGEST_MIN_MS, Math.min(DIGEST_MAX_MS, ms + jitter)));
     }
 
+    /* ——— Gut settle timer (2 min of *active* story time) ———
+       Accrues only while: depth>=3, tab visible, story focused (not home/library overlays).
+       Pausing the tab or leaving the chat freezes progress. */
+    function storyIsFocused() {
+      if (typeof document !== "undefined" && document.hidden) return false;
+      const home = document.getElementById("home");
+      const lib = document.getElementById("library");
+      const auth = document.getElementById("auth");
+      const settings = document.getElementById("settings");
+      if (home && home.classList.contains("show")) return false;
+      if (lib && lib.classList.contains("show")) return false;
+      if (auth && auth.classList.contains("show")) return false;
+      if (settings && settings.classList.contains("show")) return false;
+      return true;
+    }
+
+    function ensureGutTimer() {
+      if (!game.gutTimer) {
+        game.gutTimer = {
+          neededMs: GUT_ARM_MS,
+          accruedMs: 0,
+          runningSince: null,
+        };
+      }
+      if (!game.gutEnteredAt) game.gutEnteredAt = Date.now();
+      return game.gutTimer;
+    }
+
+    function gutAccruedNow() {
+      const gt = game.gutTimer;
+      if (!gt) return 0;
+      let ms = gt.accruedMs || 0;
+      if (gt.runningSince) ms += Math.max(0, Date.now() - gt.runningSince);
+      return ms;
+    }
+
+    function gutRemainingMs() {
+      const gt = game.gutTimer;
+      if (!gt) return GUT_ARM_MS;
+      return Math.max(0, (gt.neededMs || GUT_ARM_MS) - gutAccruedNow());
+    }
+
+    function pauseGutTimer() {
+      const gt = game.gutTimer;
+      if (!gt || !gt.runningSince) {
+        paintGutSettle();
+        return;
+      }
+      gt.accruedMs = Math.min(gt.neededMs || GUT_ARM_MS, (gt.accruedMs || 0) + Math.max(0, Date.now() - gt.runningSince));
+      gt.runningSince = null;
+      paintGutSettle();
+      persist();
+    }
+
+    function resumeGutTimer() {
+      if (game.gone || game.fate === "digested") return;
+      if (game.digestMeter && game.digestMeter.active) {
+        hideGutSettle();
+        return;
+      }
+      if ((game.depth || 0) < 3) {
+        hideGutSettle();
+        return;
+      }
+      if (!storyIsFocused()) {
+        pauseGutTimer();
+        return;
+      }
+      const gt = ensureGutTimer();
+      if (gutAccruedNow() >= (gt.neededMs || GUT_ARM_MS)) {
+        gt.runningSince = null;
+        gt.accruedMs = gt.neededMs || GUT_ARM_MS;
+        hideGutSettle();
+        startDigestMeter();
+        return;
+      }
+      if (!gt.runningSince) gt.runningSince = Date.now();
+      if (!gutSettleTick) {
+        gutSettleTick = setInterval(tickGutSettle, 1000);
+      }
+      paintGutSettle();
+    }
+
+    function syncGutTimer() {
+      // Central entry: decide pause vs resume based on current focus/depth
+      if (game.gone || game.fate === "digested" || (game.digestMeter && game.digestMeter.active)) {
+        pauseGutTimer();
+        hideGutSettle();
+        return;
+      }
+      if ((game.depth || 0) >= 3) resumeGutTimer();
+      else {
+        pauseGutTimer();
+        hideGutSettle();
+      }
+    }
+
+    function clearGutTimer() {
+      pauseGutTimer();
+      if (gutSettleTick) { clearInterval(gutSettleTick); gutSettleTick = null; }
+      game.gutTimer = null;
+      game.gutEnteredAt = null;
+      hideGutSettle();
+    }
+
+    function hideGutSettle() {
+      const el = document.getElementById("gutSettle");
+      if (el) el.hidden = true;
+    }
+
+    function paintGutSettle() {
+      const el = document.getElementById("gutSettle");
+      const clock = document.getElementById("gutSettleClock");
+      const hint = document.getElementById("gutSettleHint");
+      if (!el) return;
+      if (game.gone || game.fate === "digested" || (game.digestMeter && game.digestMeter.active) || (game.depth || 0) < 3 || !game.gutTimer) {
+        el.hidden = true;
+        return;
+      }
+      el.hidden = false;
+      const rem = gutRemainingMs();
+      if (clock) clock.textContent = formatClock(rem);
+      const running = !!(game.gutTimer.runningSince);
+      el.classList.toggle("paused", !running);
+      if (hint) hint.textContent = running ? "active time only" : "paused";
+    }
+
+    function tickGutSettle() {
+      if (!game.gutTimer || game.gone || (game.digestMeter && game.digestMeter.active)) {
+        if (gutSettleTick) { clearInterval(gutSettleTick); gutSettleTick = null; }
+        hideGutSettle();
+        return;
+      }
+      if ((game.depth || 0) < 3) {
+        pauseGutTimer();
+        hideGutSettle();
+        return;
+      }
+      // Auto-pause if focus was lost without an event
+      if (!storyIsFocused()) {
+        pauseGutTimer();
+        return;
+      }
+      // Ensure running if focused
+      if (!game.gutTimer.runningSince) game.gutTimer.runningSince = Date.now();
+      paintGutSettle();
+      if (gutRemainingMs() <= 0) {
+        pauseGutTimer();
+        hideGutSettle();
+        if (gutSettleTick) { clearInterval(gutSettleTick); gutSettleTick = null; }
+        startDigestMeter();
+      }
+    }
+
+    // Back-compat alias used by older call sites
     function armDigestWatch() {
-      if (digestWatch || game.gone || (game.digestMeter && game.digestMeter.active)) return;
-      const entered = game.gutEnteredAt || Date.now();
-      game.gutEnteredAt = entered;
-      const wait = Math.max(0, GUT_ARM_MS - (Date.now() - entered));
-      digestWatch = setTimeout(() => {
-        digestWatch = null;
-        if (!game.gone && game.depth >= 3 && game.fate !== "digested") startDigestMeter();
-      }, wait);
+      ensureGutTimer();
+      syncGutTimer();
     }
 
     function startDigestMeter(saved) {
       if (game.gone || game.fate === "digested") return;
+      // Settle timer is done once the digest meter is live
+      pauseGutTimer();
+      hideGutSettle();
+      if (gutSettleTick) { clearInterval(gutSettleTick); gutSettleTick = null; }
       const factors = (saved && saved.factors) || inferDigestFactors();
       const totalMs = (saved && saved.totalMs) || computeDigestDuration(factors);
       const remainingMs = (saved && typeof saved.remainingMs === "number")
@@ -5610,7 +5808,6 @@ This is vore. Swallow is on the table from the first look. Do not fade to fade-t
     function stopDigestMeter(opts) {
       opts = opts || {};
       if (digestTimer) { clearInterval(digestTimer); digestTimer = null; }
-      if (digestWatch) { clearTimeout(digestWatch); digestWatch = null; }
       const root = document.documentElement;
       root.classList.remove("digest-hot", "digest-critical");
       root.style.setProperty("--digest-meter", "0px");
@@ -5621,7 +5818,6 @@ This is vore. Swallow is on the table from the first look. Do not fade to fade-t
       if (game.digestMeter) game.digestMeter.active = false;
       if (opts.clear) {
         game.digestMeter = null;
-        game.gutEnteredAt = null;
       }
     }
 
@@ -5700,8 +5896,14 @@ This is vore. Swallow is on the table from the first look. Do not fade to fade-t
         paintDigestMeter();
         return;
       }
+      // Only burn digest time while the story is actively focused
+      if (!storyIsFocused()) {
+        dm.lastTick = Date.now();
+        paintDigestMeter();
+        return;
+      }
       const now = Date.now();
-      const dt = Math.min(5000, Math.max(0, now - (dm.lastTick || now)));
+      const dt = Math.min(2000, Math.max(0, now - (dm.lastTick || now)));
       dm.lastTick = now;
       dm.remainingMs = Math.max(0, dm.remainingMs - dt);
       paintDigestMeter();
@@ -5800,28 +6002,36 @@ This is vore. Swallow is on the table from the first look. Do not fade to fade-t
     function resumeDigestMeterFromSave() {
       if (game.gone || game.fate === "digested") {
         stopDigestMeter({ clear: true });
+        clearGutTimer();
         return;
       }
       if (game.digestMeter && game.digestMeter.active) {
-        // Account for time away
+        // Digest meter also only runs while focused — don't burn time offline
         const dm = game.digestMeter;
-        if (dm.lastTick) {
-          const away = Date.now() - dm.lastTick;
-          if (away > 0 && away < 6 * 60 * 60 * 1000) {
-            dm.remainingMs = Math.max(0, dm.remainingMs - away);
-          }
-        }
         dm.lastTick = Date.now();
         if (dm.remainingMs <= 0) {
           finishDigestMeter();
           return;
         }
-        startDigestTicker();
-        paintDigestMeter("Still in the chamber…");
+        if (storyIsFocused()) {
+          startDigestTicker();
+          paintDigestMeter("Still in the chamber…");
+        } else {
+          if (digestTimer) { clearInterval(digestTimer); digestTimer = null; }
+          paintDigestMeter("Paused while away");
+        }
+        hideGutSettle();
         return;
       }
-      if (game.depth >= 3 && game.gutEnteredAt) {
-        armDigestWatch();
+      // Migrate old saves that only had gutEnteredAt (wall-clock)
+      if ((game.depth || 0) >= 3) {
+        if (!game.gutTimer && game.gutEnteredAt) {
+          // Don't credit wall-clock offline time — start settle fresh from 0 accrued
+          game.gutTimer = { neededMs: GUT_ARM_MS, accruedMs: 0, runningSince: null };
+        }
+        syncGutTimer();
+      } else {
+        hideGutSettle();
       }
     }
 
@@ -5920,6 +6130,7 @@ This is vore. Swallow is on the table from the first look. Do not fade to fade-t
         afterPasses: 0,
         bathroomAfter: 0,
         gutEnteredAt: null,
+        gutTimer: null,
         digestMeter: null,
       };
     }
@@ -6221,6 +6432,7 @@ This is vore. Swallow is on the table from the first look. Do not fade to fade-t
     function closeLibrary() {
       els.library.classList.remove("show");
       applyTheme(game.characterId);
+      syncGutTimer();
     }
 
     function openLibrary() {
@@ -6229,6 +6441,7 @@ This is vore. Swallow is on the table from the first look. Do not fade to fade-t
       const sh = els.library.querySelector(".sheet");
       if (sh) sh.scrollTop = 0;
       els.library.classList.add("show");
+      pauseGutTimer();
     }
 
     function swapView(fn) {
@@ -6988,12 +7201,14 @@ Never copy SPEECH: or ACTION: into your reply. Reply only with MOMENT, SAY, SHOT
     function showHome() {
       paintHomeFaces();
       els.home.classList.add("show");
+      pauseGutTimer();
     }
 
     function hideHome() {
       els.home.classList.remove("show");
       // Snap palette back to whoever is actually in play
       applyTheme(game.characterId);
+      syncGutTimer();
     }
 
     async function boot() {
@@ -7415,6 +7630,19 @@ Never copy SPEECH: or ACTION: into your reply. Reply only with MOMENT, SAY, SHOT
       vv.addEventListener("resize", sync);
       vv.addEventListener("scroll", sync);
     }
+
+    // Gut settle + digest clocks only run while this story is actively focused
+    document.addEventListener("visibilitychange", () => {
+      if (document.hidden) pauseGutTimer();
+      else syncGutTimer();
+      // Keep digest meter in sync with focus too
+      if (game.digestMeter && game.digestMeter.active) {
+        game.digestMeter.lastTick = Date.now();
+        if (storyIsFocused() && !digestTimer) startDigestTicker();
+      }
+    });
+    window.addEventListener("focus", () => syncGutTimer());
+    window.addEventListener("blur", () => pauseGutTimer());
 
     boot();
   </script>
