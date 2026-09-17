@@ -1054,6 +1054,26 @@
       background: transparent;
       position: relative;
     }
+    /* Smooth face-theme shifts when browsing / switching characters */
+    html.theme-anim,
+    html.theme-anim body,
+    html.theme-anim header.top,
+    html.theme-anim .dock,
+    html.theme-anim #home,
+    html.theme-anim #library .sheet,
+    html.theme-anim #digestMeter,
+    html.theme-anim #world > i {
+      transition:
+        background .45s ease,
+        background-color .45s ease,
+        border-color .45s ease,
+        color .4s ease,
+        box-shadow .45s ease,
+        opacity .45s ease;
+    }
+    html.theme-anim {
+      transition: background-color .45s ease;
+    }
     #log, body {
       scrollbar-width: thin;
       scrollbar-color: var(--neon) var(--panel2);
@@ -1110,26 +1130,34 @@
     }
     .ornament { flex: 0 0 auto; width: 120px; height: 44px; line-height: 0; }
     .ornament svg { overflow: hidden; display: block; }
-    .orn-giant { fill: url(#ornGiant); }
-    .orn-looming { animation: ornBreathe 6s ease-in-out infinite; transform-origin: 84px -34px; }
-    .orn-rim { fill: none; stroke: var(--neon); stroke-width: 1.2; opacity: .9; stroke-dasharray: 2 4; animation: ornDash 12s linear infinite; }
+    .orn-girl { fill: var(--neon); opacity: .9; }
+    .orn-girl-line { fill: none; stroke: var(--neon); stroke-width: 1.1; opacity: .85; }
+    .orn-hair { fill: var(--cyan); opacity: .55; }
+    .orn-hand { fill: var(--neon); opacity: .95; }
+    .orn-chase { animation: ornReach 3.6s ease-in-out infinite; transform-origin: 78px 40px; }
     .orn-floor { stroke: var(--hair); stroke-width: 1; stroke-linecap: round; }
     .orn-mote { fill: var(--cyan); opacity: 0; animation: ornTwinkle 4.2s ease-in-out infinite; }
     .orn-mote.m2 { animation-delay: 1.4s; }
     .orn-mote.m3 { animation-delay: 2.8s; }
-    .orn-speck { animation: ornWander 7s ease-in-out infinite; }
+    .orn-speck { animation: ornFlee 3.6s ease-in-out infinite; }
     .orn-halo { fill: var(--cyan); opacity: .22; animation: ornPulse 2.2s ease-in-out infinite; transform-box: fill-box; transform-origin: center; }
     .orn-dot { fill: #eafcff; stroke: var(--cyan); stroke-width: .8; }
-    @keyframes ornBreathe { 0%,100% { transform: translateY(0) scale(1); } 50% { transform: translateY(3px) scale(1.05); } }
-    @keyframes ornDash { to { stroke-dashoffset: -64; } }
+    .orn-mouth { fill: #2a0810; stroke: var(--neon); stroke-width: .7; opacity: .9; }
+    @keyframes ornReach {
+      0%, 100% { transform: translate(0, 0) rotate(0deg); }
+      40% { transform: translate(-6px, 1px) rotate(-4deg); }
+      55% { transform: translate(-10px, 2px) rotate(-7deg); }
+      70% { transform: translate(-4px, 0) rotate(-2deg); }
+    }
     @keyframes ornTwinkle { 0%,100% { opacity: 0; } 50% { opacity: .9; } }
     @keyframes ornPulse { 0%,100% { transform: scale(.8); opacity: .15; } 50% { transform: scale(1.3); opacity: .35; } }
-    @keyframes ornWander {
-      0%   { transform: translate(14px, 0); }
-      30%  { transform: translate(40px, -3px); }
-      45%  { transform: translate(52px, 0); }
-      60%  { transform: translate(52px, 0); }
-      100% { transform: translate(14px, 0); }
+    @keyframes ornFlee {
+      0%   { transform: translate(8px, 0); }
+      35%  { transform: translate(28px, -3px); }
+      50%  { transform: translate(38px, -1px); }
+      65%  { transform: translate(22px, 1px); }
+      80%  { transform: translate(42px, -2px); }
+      100% { transform: translate(8px, 0); }
     }
     @media (prefers-reduced-motion: reduce) {
       .ornament *, .ornament { animation: none !important; }
@@ -1251,7 +1279,7 @@
       overflow-y: auto;
       -webkit-overflow-scrolling: touch;
       overscroll-behavior: contain;
-      padding: 10px 12px calc(var(--dock) + 8px);
+      padding: 10px 12px calc(var(--dock) + var(--digest-meter, 0px) + 8px);
     }
     .turn { margin: 0 0 16px; display: flex; flex-direction: column; gap: 8px; }
     .you {
@@ -2288,7 +2316,7 @@
       #log {
         flex: 1 1 0;
         min-height: 0;
-        padding: 12px 12px 12px;
+        padding: 12px 12px calc(12px + var(--digest-meter, 0px));
       }
 
       /* Controls sit in the layout (not on top of the text) */
@@ -2297,10 +2325,21 @@
         transform: none;
         width: auto;
         flex: 0 0 auto;
-        padding: 6px 10px 8px;
+        padding: 6px 10px calc(8px + var(--safe-bot));
         background: var(--panel2);
         border-top: 1px solid var(--hair);
       }
+      /* Digest-O Meter sits above the in-flow dock on phones */
+      #digestMeter {
+        position: fixed;
+        left: 12px;
+        right: 12px;
+        width: auto;
+        max-width: none;
+        transform: translateY(12px);
+        bottom: calc(var(--dock, 140px) + var(--kb, 0px));
+      }
+      #digestMeter.show { transform: translateY(0); }
       html.scene-gut .dock, html.scene-throat .dock, html.scene-mouth .dock { background: var(--panel2); }
       .actions { gap: 6px; margin-bottom: 6px; }
       .actions button { min-height: 40px; border-radius: 12px; box-shadow: none; font-size: .7rem; }
@@ -2363,24 +2402,33 @@
         <svg viewBox="0 0 120 44" width="120" height="44">
           <defs>
             <clipPath id="ornClip"><rect x="0" y="0" width="120" height="44" rx="10"/></clipPath>
-            <radialGradient id="ornGiant" cx="50%" cy="90%" r="70%">
-              <stop offset="0" stop-color="var(--neon)" stop-opacity=".75"/>
-              <stop offset="1" stop-color="var(--neon)" stop-opacity=".12"/>
-            </radialGradient>
           </defs>
           <g clip-path="url(#ornClip)">
-            <g class="orn-looming">
-              <circle class="orn-giant" cx="84" cy="-34" r="56"/>
-              <circle class="orn-rim" cx="84" cy="-34" r="56"/>
+            <!-- Giantess looming from the right, hand reaching for the speck -->
+            <g class="orn-chase">
+              <!-- hair cascade -->
+              <path class="orn-hair" d="M88 2c8 2 16 8 18 18 2 10-2 18-8 22l-6-4c4-4 6-10 5-16-1-7-6-12-12-14z"/>
+              <!-- head -->
+              <circle class="orn-girl" cx="96" cy="12" r="9"/>
+              <!-- playful open mouth -->
+              <ellipse class="orn-mouth" cx="92" cy="15" rx="2.4" ry="1.8"/>
+              <!-- shoulder / torso hint -->
+              <path class="orn-girl" d="M78 40c4-12 12-18 22-20 2 6 2 14 0 22H78z"/>
+              <!-- reaching hand -->
+              <g class="orn-hand">
+                <ellipse cx="64" cy="30" rx="7" ry="5.5"/>
+                <path d="M58 27c-3-1-5-3-6-5M59 31c-4 0-7-1-9-3M60 34c-3 1-6 1-8 0" class="orn-girl-line"/>
+              </g>
             </g>
-          </g>
-          <line class="orn-floor" x1="4" y1="38" x2="116" y2="38"/>
-          <circle class="orn-mote m1" cx="30" cy="14" r="1.2"/>
-          <circle class="orn-mote m2" cx="48" cy="24" r="1"/>
-          <circle class="orn-mote m3" cx="16" cy="28" r="1.1"/>
-          <g class="orn-speck">
-            <circle class="orn-halo" cx="0" cy="35" r="6"/>
-            <circle class="orn-dot" cx="0" cy="35" r="2.2"/>
+            <line class="orn-floor" x1="4" y1="40" x2="116" y2="40"/>
+            <circle class="orn-mote m1" cx="22" cy="12" r="1.2"/>
+            <circle class="orn-mote m2" cx="40" cy="20" r="1"/>
+            <circle class="orn-mote m3" cx="14" cy="26" r="1.1"/>
+            <!-- Speck fleeing left-to-right, almost caught -->
+            <g class="orn-speck">
+              <circle class="orn-halo" cx="0" cy="34" r="5.5"/>
+              <circle class="orn-dot" cx="0" cy="34" r="2"/>
+            </g>
           </g>
         </svg>
       </div>
@@ -5423,10 +5471,15 @@ This is vore. Swallow is on the table from the first look. Do not fade to fade-t
     }
 
     function depthFromShot(shot, fate) {
-      if (fate === "digested" || /^(inside|gut|pat|burp|lounge|rest|lift|cover|bed|smug|digest|full|rub|taut|sidegut|after|hold|uvula|belch|gape|throat|headback)$/.test(shot)) return 3;
-      if (fate === "swallowed" || shot === "swallow") return 2;
+      if (fate === "digested") return 3;
+      // Deep chamber / after-swallow body shots
+      if (/^(inside|gut|pat|burp|lounge|rest|lift|cover|bed|smug|digest|full|rub|taut|sidegut|after|hold)$/.test(shot)) return 3;
+      // Throat / swallow path
+      if (fate === "swallowed" || /^(swallow|throat|uvula|belch|gape|headback)$/.test(shot)) return 2;
       if (shot === "tongue") return 1;
       if (shot === "palm" || shot === "pinch") return 0;
+      // Outside / free shots — allow regurgitation back to surface
+      if (/^(look|wave|hide|shoe|street|door|subway|arms|point|nail|phone|profile|roof|cup|portrait|aisle|paint|desk|yoga|lace|kneel|sit|whisper|pocket|establish)$/.test(shot)) return 0;
       return game.depth || 0;
     }
 
@@ -5438,13 +5491,25 @@ This is vore. Swallow is on the table from the first look. Do not fade to fade-t
       els.goneBanner.classList.toggle("show", !!game.gone);
     }
 
-    function setDepth(n) {
+    function setDepth(n, opts) {
+      opts = opts || {};
       const prev = game.depth || 0;
-      game.depth = Math.max(prev, n);
+      const next = Math.max(0, Math.min(3, Number(n) || 0));
+      // Shot-driven updates are absolute (supports regurgitation). Other callers may still climb-only.
+      game.depth = opts.absolute ? next : Math.max(prev, next);
       paintMeter();
       if (game.depth >= 3 && prev < 3 && !game.gone && game.fate !== "digested") {
         if (!game.gutEnteredAt) game.gutEnteredAt = Date.now();
         armDigestWatch();
+      }
+      // Regurgitated / moved back out of the gut — clear the Digest-O Meter
+      if (prev >= 3 && game.depth < 3 && !game.gone && game.fate !== "digested") {
+        const wasActive = !!(game.digestMeter && game.digestMeter.active);
+        stopDigestMeter({ clear: true });
+        game.fate = game.depth >= 2 ? "swallowed" : "";
+        if (wasActive) {
+          try { addNotice("She's let you back up. The Digest-O Meter cools off."); } catch {}
+        }
       }
     }
 
@@ -5548,6 +5613,7 @@ This is vore. Swallow is on the table from the first look. Do not fade to fade-t
       if (digestWatch) { clearTimeout(digestWatch); digestWatch = null; }
       const root = document.documentElement;
       root.classList.remove("digest-hot", "digest-critical");
+      root.style.setProperty("--digest-meter", "0px");
       const fx = document.getElementById("digestFx");
       const panel = document.getElementById("digestMeter");
       if (fx) fx.classList.remove("on");
@@ -5613,6 +5679,9 @@ This is vore. Swallow is on the table from the first look. Do not fade to fade-t
       const root = document.documentElement;
       root.classList.toggle("digest-hot", ratio <= 0.4 && ratio > 0.18);
       root.classList.toggle("digest-critical", ratio <= 0.18);
+      // Reserve space so the log isn't clipped under the floating meter
+      const meterH = Math.ceil(panel.getBoundingClientRect().height || 120) + 12;
+      root.style.setProperty("--digest-meter", meterH + "px");
       // Intensify bubbles as time runs out
       const bubbleN = ratio > 0.55 ? 10 : ratio > 0.3 ? 16 : ratio > 0.15 ? 22 : 28;
       const host = document.getElementById("digestBubbles");
@@ -5654,6 +5723,7 @@ This is vore. Swallow is on the table from the first look. Do not fade to fade-t
     const RE_CALM = /\b(settle(s|d)?|gentle|soft hold|rub(s|bed|bing)?|pat(s|ted)?|lounge|rest(s|ing)?|asleep|keep(s|ing)? you|not yet)\b/i;
     const RE_FEED = /\b(just ate|full(er)?|stuffed|heavy meal|satisfied)\b/i;
     const RE_HUNGER = /\b(hungry|starving|empty|craving|needs? a snack)\b/i;
+    const RE_REGURG = /\b(regurgitat(e|es|ed|ing)|cough(s|ed|ing)? (you )?up|spit(s|ting)? (you )?out|hack(s|ed)? up|come back up|back (up|out) (her )?throat|onto her tongue|out of her mouth)\b/i;
 
     function applyDigestBeat(shot, moment, line, userText) {
       const dm = game.digestMeter;
@@ -5661,6 +5731,23 @@ This is vore. Swallow is on the table from the first look. Do not fade to fade-t
       const blob = [shot, moment, line, userText].join(" \n ");
       let delta = 0;
       let note = "";
+      // Reverse path: regurgitation buys a lot of time and can eject you
+      if (RE_REGURG.test(blob) || shot === "tongue" || shot === "palm") {
+        const gain = 50 + Math.floor(Math.random() * 55);
+        delta += gain * 1000;
+        note = "Coming back up (+" + gain + "s)";
+        dm.factors.intent = clamp01(dm.factors.intent - 0.12);
+        dm.remainingMs = Math.max(0, Math.min(DIGEST_MAX_MS, dm.remainingMs + delta));
+        if (dm.remainingMs > dm.totalMs) dm.totalMs = dm.remainingMs;
+        paintDigestMeter(note);
+        // Strong regurg language or surface shot → climb the depth meter in reverse
+        if (RE_REGURG.test(blob) || shot === "palm" || shot === "look") {
+          const target = shot === "palm" || shot === "look" || shot === "shoe" ? 0 : (shot === "tongue" ? 1 : 2);
+          setDepth(target, { absolute: true });
+        }
+        persist();
+        return;
+      }
       if (RE_BURP.test(blob) || shot === "burp" || shot === "belch") {
         // Critical hit
         const hit = 45 + Math.floor(Math.random() * 40); // 45–85s
@@ -5790,13 +5877,18 @@ This is vore. Swallow is on the table from the first look. Do not fade to fade-t
       hayley: "#0a080a", pacifica: "#0c0a04", bubblegum: "#0c0810",
       sydney: "#0c080a", toph: "#0c0a06", icespice: "#0c0610", midna: "#080610"
     };
-    function applyTheme() {
-      const id = characterOf(game.characterId).id;
-      document.documentElement.setAttribute("data-face", id);
+    function applyTheme(faceId) {
+      const id = characterOf(faceId || game.characterId).id;
+      const root = document.documentElement;
+      root.classList.add("theme-anim");
+      root.setAttribute("data-face", id);
       const meta = document.querySelector('meta[name="theme-color"]');
       if (meta) meta.setAttribute("content", THEME_COLORS[id] || "#120814");
       const c = characterOf(id);
       if (els.still) els.still.alt = c.name;
+      // Keep anim class briefly so CSS transitions can run
+      clearTimeout(applyTheme._t);
+      applyTheme._t = setTimeout(() => root.classList.remove("theme-anim"), 600);
     }
 
     function scenarioOf(id) {
@@ -6104,9 +6196,18 @@ This is vore. Swallow is on the table from the first look. Do not fade to fade-t
       writeLib(lib);
     }
 
+    function activeChatTitle() {
+      try {
+        const lib = readLib();
+        const chat = activeChatId && lib.chats[activeChatId];
+        if (chat && chat.title && String(chat.title).trim()) return String(chat.title).trim();
+      } catch {}
+      return scenarioOf(game.scenarioId).title;
+    }
+
     function applyPlace() {
       const s = scenarioOf(game.scenarioId);
-      els.placeTitle.textContent = s.title;
+      els.placeTitle.textContent = activeChatTitle();
       els.placeSub.textContent = s.sub;
       applyTheme();
       paintMeter();
@@ -6119,6 +6220,7 @@ This is vore. Swallow is on the table from the first look. Do not fade to fade-t
 
     function closeLibrary() {
       els.library.classList.remove("show");
+      applyTheme(game.characterId);
     }
 
     function openLibrary() {
@@ -6199,6 +6301,9 @@ This is vore. Swallow is on the table from the first look. Do not fade to fade-t
       writeLib(lib);
       pushChat(chat);
       renderLibrary();
+      if (id === activeChatId && els.placeTitle) {
+        els.placeTitle.textContent = name;
+      }
     }
 
     function deleteChat(id) {
@@ -6229,6 +6334,8 @@ This is vore. Swallow is on the table from the first look. Do not fade to fade-t
     let libFace = null;
     function browseFace(id) {
       if (!CHARACTERS[id] || id === libFace) return;
+      // Preview her palette immediately while browsing
+      applyTheme(id);
       els.library.classList.add("flip");
       setTimeout(() => {
         libFace = id;
@@ -6423,7 +6530,7 @@ This is vore. Swallow is on the table from the first look. Do not fade to fade-t
       const name = STILLS[key] ? key : "look";
       game.shot = name;
       els.shotchip.textContent = game.shot;
-      setDepth(depthFromShot(name, game.fate));
+      setDepth(depthFromShot(name, game.fate), { absolute: true });
       applyScene();
       const src = stillSrc(name);
       // Compare via data-src: img.src is always absolute and can diverge from relative path
@@ -6862,7 +6969,12 @@ Never copy SPEECH: or ACTION: into your reply. Reply only with MOMENT, SAY, SHOT
         b.innerHTML = "<b></b><span></span>";
         b.querySelector("b").textContent = c.name;
         b.querySelector("span").textContent = c.blurb;
+        // Preview palette as soon as the user points at / focuses a face
+        const preview = () => applyTheme(c.id);
+        b.addEventListener("pointerenter", preview);
+        b.addEventListener("focus", preview);
         b.addEventListener("click", () => {
+          applyTheme(c.id);
           hideHome();
           switchFace(c.id);
         });
@@ -6880,6 +6992,8 @@ Never copy SPEECH: or ACTION: into your reply. Reply only with MOMENT, SAY, SHOT
 
     function hideHome() {
       els.home.classList.remove("show");
+      // Snap palette back to whoever is actually in play
+      applyTheme(game.characterId);
     }
 
     async function boot() {
