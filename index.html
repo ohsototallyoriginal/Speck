@@ -1357,6 +1357,15 @@
       overscroll-behavior: contain;
       padding: 10px 12px calc(var(--dock) + var(--digest-meter, 0px) + 8px);
     }
+    .rp-empty {
+      margin: 12px 8px 28px;
+      padding: 18px 16px;
+      border: 1px dashed color-mix(in srgb, var(--hair) 80%, transparent);
+      border-radius: 16px;
+      background: color-mix(in srgb, var(--panel2) 70%, transparent);
+    }
+    .rp-empty b { display: block; font-size: 1.05rem; margin: 0 0 6px; }
+    .rp-empty span { display: block; color: var(--muted); font-size: .86rem; line-height: 1.45; }
     .turn { margin: 0 0 16px; display: flex; flex-direction: column; gap: 8px; }
     .you {
       align-self: flex-end;
@@ -1747,9 +1756,14 @@
     #home .home-actions button, #homeContinue {
       min-height: 48px; border: 0; border-radius: 14px; font-weight: 800;
     }
+    #homeNew {
+      grid-column: 1 / -1;
+      background: var(--neon); color: #2a0818;
+    }
     #homeContinue {
       grid-column: 1 / -1;
-      background: var(--neon); color: #2a0818; text-align: left; padding: 12px 14px;
+      background: var(--panel); color: var(--ink); text-align: left; padding: 12px 14px;
+      border: 1px solid var(--hair);
     }
     #homeContinue small { display: block; font-weight: 600; opacity: .75; margin-top: 2px; }
     #homeStories, #homeChats { background: var(--panel); color: var(--ink); border: 1px solid var(--hair); }
@@ -3065,8 +3079,9 @@
         </div>
         <button type="button" id="homeAuth">Log in</button>
       </div>
-      <p class="lede">Pick a face. Continue a night. Sign in if you want chats to follow you to another phone.</p>
+      <p class="lede">Open a chat and type. Stories are optional nights if you want a script.</p>
       <div class="home-actions">
+        <button type="button" id="homeNew">New chat</button>
         <button type="button" id="homeContinue">Continue last night</button>
         <button type="button" id="homeStories">Stories</button>
         <button type="button" id="homeChats">Saved chats</button>
@@ -3296,7 +3311,7 @@
       <button type="button" id="thinkBtn" disabled>Think</button>
     </div>
     <div class="composer">
-      <textarea id="input" rows="1" aria-describedby="composeHint" placeholder="Say something out loud…" disabled enterkeyhint="send"></textarea>
+      <textarea id="input" rows="1" aria-describedby="composeHint" placeholder="Type your response…" disabled enterkeyhint="send"></textarea>
       <button type="button" id="send" disabled>Send</button>
     </div>
     <p id="composeHint" aria-live="polite"></p>
@@ -8615,14 +8630,59 @@ Once the speck is swallowed or already inside her stomach/gut (depth gut, SHOT i
       return scenarioOf(game.scenarioId).title;
     }
 
+    function lastFaceId() {
+      try {
+        const id = localStorage.getItem("speckLastFace");
+        if (id && CHARACTERS[id] && CHARACTERS[id].ready) return id;
+      } catch {}
+      return "ang";
+    }
+    function rememberFace(id) {
+      if (id && CHARACTERS[id]) {
+        try { localStorage.setItem("speckLastFace", id); } catch {}
+      }
+    }
+    function blankScenarioId(face) {
+      const id = String(face || "") + "-blank";
+      return SCENARIOS[id] ? id : "blank";
+    }
+    function isOpenRp(scenarioId) {
+      const s = scenarioOf(scenarioId || game.scenarioId);
+      return !s.opening || s.id === "blank" || /-blank$/.test(s.id);
+    }
+    function startOpenChat(faceId) {
+      const face = (CHARACTERS[faceId] && CHARACTERS[faceId].ready) ? faceId : lastFaceId();
+      rememberFace(face);
+      stopDigestMeter({ clear: true });
+      activeChatId = "chat-" + Date.now();
+      game = freshGame(blankScenarioId(face), face);
+      history = [];
+      logTurns = [];
+      els.log.innerHTML = "";
+      setStill(game.shot || "look");
+      applyPlace();
+      paintOpening();
+      els.gulp.classList.remove("show");
+      els.digest.classList.remove("show");
+      paintThinkBtn();
+      if (els.input && !els.input.disabled) {
+        try { els.input.focus({ preventScroll: true }); } catch {}
+      }
+    }
+
     function applyPlace() {
       const s = scenarioOf(game.scenarioId);
       const c = characterOf(game.characterId);
-      els.placeTitle.textContent = activeChatTitle();
-      // Character name · scenario subtitle
-      const subBits = [c.name];
-      if (s.sub && String(s.sub).trim()) subBits.push(String(s.sub).trim());
-      els.placeSub.textContent = subBits.join(" · ");
+      rememberFace(c.id);
+      if (isOpenRp()) {
+        els.placeTitle.textContent = "Chat with " + c.name;
+        els.placeSub.textContent = "You start · no script";
+      } else {
+        els.placeTitle.textContent = activeChatTitle();
+        const subBits = [c.name];
+        if (s.sub && String(s.sub).trim()) subBits.push(String(s.sub).trim());
+        els.placeSub.textContent = subBits.join(" · ");
+      }
       applyTheme();
       paintMeter();
       if (composeReady) setBusy(busy);
@@ -8775,9 +8835,7 @@ Once the speck is swallowed or already inside her stomach/gut (depth gut, SHOT i
     function switchFace(id) {
       const c = CHARACTERS[id];
       if (!c || !c.ready) return;
-      const first = (c.scenarios && c.scenarios[0]) || (c.gutNights && c.gutNights[0]) || "blank";
-      libFace = c.id;
-      openLibrary("stories");
+      startOpenChat(c.id);
     }
 
     // Which character's nights the Stories sheet is showing (does not start a chat)
@@ -9740,9 +9798,21 @@ No markdown. No MOMENT. No SHOT. Never speak as ${her}.`;
       return { ios, ver: m ? Number(m[1]) : 0 };
     }
 
+    function paintChatEmpty() {
+      const c = characterOf(game.characterId);
+      const box = document.createElement("div");
+      box.className = "rp-empty";
+      box.innerHTML = "<b></b><span></span>";
+      box.querySelector("b").textContent = "Chat with " + c.name;
+      box.querySelector("span").textContent = "Type your response below. Pick Stories if you want a written night instead.";
+      els.log.appendChild(box);
+    }
     function paintOpening() {
       logTurns = [];
-      addTurn(openingOf());
+      els.log.innerHTML = "";
+      const open = openingOf();
+      if (open && (open.moment || open.line || open.you)) addTurn(open);
+      else paintChatEmpty();
       paintThinkBtn();
     }
 
@@ -9871,25 +9941,20 @@ No markdown. No MOMENT. No SHOT. Never speak as ${her}.`;
 
     async function boot() {
       const saved = loadSave();
-      if (saved && ((saved.history && saved.history.length) || (saved.logTurns && saved.logTurns.length > 1))) {
+      const leftOnChat = !!(saved && (
+        (saved.history && saved.history.length) ||
+        (saved.logTurns && saved.logTurns.length > 1)
+      ));
+      hideHome();
+      if (leftOnChat) {
         activeChatId = saved.id || activeChatId;
         restoreSave(saved);
         applyPlace();
       } else {
-        game = freshGame("mara-laundry", "mara");
-        setStill(game.shot);
-        applyPlace();
+        startOpenChat(lastFaceId());
       }
-      // restoreSave already resumes meter; cover fresh gut starts just in case
       if (!game.gone) resumeDigestMeterFromSave();
-      const first = !localStorage.getItem("speckHomeSeen");
-      if (first) {
-        localStorage.setItem("speckHomeSeen", "1");
-        showHome();
-      } else {
-        hideHome();
-        if (!els.log.children.length) paintOpening();
-      }
+      if (!els.log.children.length) paintOpening();
       preloadStills();
       setAuthUi();
       if (cloudReady) {
@@ -9969,10 +10034,10 @@ No markdown. No MOMENT. No SHOT. Never speak as ${her}.`;
       els.dock.dataset.mode = composeMode;
       if (!game.gone) {
         els.input.placeholder = composeMode === "say"
-          ? "Say something out loud…"
-          : "Describe what you do…";
+          ? "Type your response…"
+          : "What do you do?";
         els.composeHint.innerHTML = composeMode === "say"
-          ? "Speaking. Wrap an action in <b>*asterisks*</b> to do something too."
+          ? "Chat. Wrap an action in <b>*asterisks*</b> to do something too."
           : "Acting. Wrap words in <b>\"quotes\"</b> to say something too.";
       }
       if (keepFocus && !els.input.disabled) els.input.focus({ preventScroll: true });
@@ -10184,6 +10249,11 @@ No markdown. No MOMENT. No SHOT. Never speak as ${her}.`;
       paintMeter();
       persist();
       setBusy(false);
+    });
+    const homeNew = document.getElementById("homeNew");
+    if (homeNew) homeNew.addEventListener("click", () => {
+      hideHome();
+      startOpenChat(lastFaceId());
     });
     els.homeContinue.addEventListener("click", () => {
       hideHome();
