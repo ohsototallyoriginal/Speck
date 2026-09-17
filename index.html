@@ -3349,6 +3349,18 @@ No markdown. No extra labels. Never mention AI, models, prompts, or being an act
 STAKES
 This is vore. Swallow is on the table from the first look. Do not fade to fade-to-black when she eats the speck. MOMENT should feel the mouth, throat, or stomach when that is what happened. The girl stays in character. She is not shy about the snack.
 
+THE SPECK'S BODY IS THE POINT
+Write the player's body as something she uses: weight on a fingertip, grit on a taste bud, a kick under her navel, spit stringing off them, heat through her shirt. Prefer contact over sightseeing. If they climb her, name the skin, fabric, or wet they touch. SAY should react to that contact, not to a slogan.
+
+SLOW THE SWALLOW
+Mouth and tongue are the long scene. Linger: cheek pocket, talking around them, almost-gulps she takes back, spit, pulse, the decision she has not finished making. Do not rush straight from palm to stomach unless STATE already has them deeper or the player clearly begs a gulp this turn. A swallow beat should feel like a tunnel (wet, no air, her laugh in the meat) — not a skip.
+
+SPEED THE AFTERGLOW
+Once they are gone, do not reset the night. Stay on her body living with them in it: tight waistband, private hand on the spot they used to kick, a belch she does not apologize for, the idle smile after. After-beats should be physical and short, not a new plot.
+
+ADULT LANE (quality + safety)
+Everyone in play is a consenting adult in body and voice. Never invent children, school-age characters, "little girl/boy," playgrounds, or underage framing. Do not use nursery talk. Keep the heat adult: scale, mouth, stomach, aftermath.
+
 INSIDE / STOMACH (critical — never break this)
 Once the speck is swallowed or already inside her stomach/gut (depth gut, SHOT inside/hold/rub/lounge/burp/pat/digest/full/taut, or STATE says they are inside):
 - She CANNOT see the speck. No eye contact, no looking down at them, no describing their face or body as visible.
@@ -9390,26 +9402,34 @@ Once the speck is swallowed or already inside her stomach/gut (depth gut, SHOT i
       const name = speakerName();
       if (game.bowel && game.bowel.active) {
         return {
-          look: { label: "Brace", text: "ACTION: I brace in the tighter, foamy dark as acid and pressure shove me lower." },
-          talk: { label: "Gripe", text: "ACTION: I call up one last time through the churn.\nSPEECH: You're moving me. I can feel where this is going." },
-          hide: { label: "Go limp", text: "ACTION: I stop fighting the slow filthy push and let a fold carry me." },
-          tease: { label: "Kick", text: "ACTION: I kick in the narrowing tract even as the walls work me toward a bathroom." },
+          look: { label: "Brace", text: "ACTION: I brace against the tighter, foamy walls and feel every shove travel through what is left of me." },
+          talk: { label: "Gripe", text: "ACTION: I press a palm to the moving wall and call up through the churn.\nSPEECH: You're moving me. I can feel where this is going." },
+          hide: { label: "Go limp", text: "ACTION: I stop fighting and let a fold take my weight, body slack in the slow filthy push." },
+          tease: { label: "Kick", text: "ACTION: I kick the narrowing tract on purpose so she has to feel me heading for a bathroom." },
         };
       }
       const inGut = (game.depth || 0) >= 3 || (game.digestMeter && game.digestMeter.active);
       if (inGut) {
         return {
-          look: { label: "Press", text: "ACTION: I press outward against the soft walls of " + name + "'s stomach, testing how much give there is." },
-          talk: { label: "Call out", text: "ACTION: I call up toward her from inside.\nSPEECH: Can you hear me in there?" },
-          hide: { label: "Settle", text: "ACTION: I stop struggling and settle into a fold of her stomach, trying to ride the slow churn." },
-          tease: { label: "Struggle", text: "ACTION: I thrash and struggle hard against the stomach walls, kicking and pushing for any give." },
+          look: { label: "Press", text: "ACTION: I press my whole body outward into the soft wet wall of " + name + "'s stomach until I can feel her pulse on the other side." },
+          talk: { label: "Call out", text: "ACTION: I flatten against the lining under her navel and call up through the meat.\nSPEECH: Put your hand here. I'm under it." },
+          hide: { label: "Settle", text: "ACTION: I go limp in a warm fold of her stomach and ride the churn, making myself easy to keep." },
+          tease: { label: "Struggle", text: "ACTION: I thrash and kick hard against the stomach wall so she has to put a hand on the bulge." },
+        };
+      }
+      if ((game.depth || 0) >= 2 || /tongue|swallow|whisper|uvula|throat|gape/.test(String(game.shot || ""))) {
+        return {
+          look: { label: "Taste", text: "ACTION: I climb onto " + name + "'s tongue and press myself into a taste bud so she has to notice the grit of me." },
+          talk: { label: "Cheek", text: "ACTION: I tuck against her cheek and speak while I am still in her mouth.\nSPEECH: Don't swallow yet. Talk with me in here." },
+          hide: { label: "Under", text: "ACTION: I slip under her tongue into the wet dark and hold on instead of riding a gulp." },
+          tease: { label: "Dare gulp", text: "ACTION: I walk toward the drop at the back of her tongue.\nSPEECH: If you are going to take me, do it slow. I want the throat." },
         };
       }
       return {
-        look: { label: "Look", text: "ACTION: I look up at " + name + "." },
-        talk: { label: "Wave", text: "ACTION: I wave both arms and try to get her attention." },
-        hide: { label: "Hide", text: "ACTION: I look for somewhere to hide." },
-        tease: { label: "Snack", text: "ACTION: I stop hiding and step into the open.\nSPEECH: Go on. Snack. Put me on your tongue or swallow, if that is what this is." },
+        look: { label: "Climb", text: "ACTION: I climb " + name + "'s finger and spread myself against the heat of her skin so she can feel how little I weigh." },
+        talk: { label: "Palm", text: "ACTION: I walk to the center of her palm and look up the length of her.\nSPEECH: Closer. Mouth or pocket — pick one and use me." },
+        hide: { label: "Tuck", text: "ACTION: I tuck into the warm crease of her clothes or the edge of a nail and wait for her to find me with skin, not eyes." },
+        tease: { label: "Offer", text: "ACTION: I step into the open on her hand and present my body.\nSPEECH: Tongue first. Keep me there. Swallow when you mean it." },
       };
     }
 
@@ -9419,6 +9439,7 @@ Once the speck is swallowed or already inside her stomach/gut (depth gut, SHOT i
       if (els.talk) els.talk.textContent = p.talk.label;
       if (els.hide) els.hide.textContent = p.hide.label;
       if (els.tease) els.tease.textContent = p.tease.label;
+      if (composeReady && typeof setCompose === "function" && !game.gone) setCompose(composeMode);
     }
 
     function setBusy(on) {
@@ -9437,10 +9458,10 @@ Once the speck is swallowed or already inside her stomach/gut (depth gut, SHOT i
         const note = document.getElementById("goneNote");
         if (note) {
           note.textContent = disposing
-            ? "You're digested. Disposal is moving what's left — foam, pressure, the unglamorous bit. Continue when you want."
+            ? "You're gone through her. Disposal is the body's unglamorous afterglow — foam, pressure, a walk she would actually take. Continue when you want."
             : (n
-              ? "You're gone. " + characterOf(game.characterId).name + " has carried on for " + n + (n === 1 ? " beat." : " beats.")
-              : "You're digested. " + characterOf(game.characterId).name + " keeps going without you.");
+              ? "You're gone. Stay with " + characterOf(game.characterId).name + "'s body — " + n + (n === 1 ? " afterglow beat." : " afterglow beats.")
+              : "You're digested. Follow the afterglow: her clothes, her hand, the quiet where you were.");
         }
       }
       els.look.disabled = off;
@@ -9457,34 +9478,41 @@ Once the speck is swallowed or already inside her stomach/gut (depth gut, SHOT i
 
     function applyActionHints(text) {
       const t = text.toLowerCase();
-      if (/\b(swallow|eat|tongue|mouth|gulp|snack|tease)\b/.test(t)) {
-        game.playerPlace = "close enough to feel the heat of her breath";
-        game.mood = "teeth bared, treating you as a dare";
-      } else if (/\b(pocket|hoodie)\b/.test(t)) {
-        game.playerPlace = "in the linty dark of her pocket";
-        game.mood = "smug, carrying you like contraband";
-      } else if (/\b(pinch|pick|finger|palm|hand)\b/.test(t)) {
-        game.playerPlace = "between two of her fingers, high above the floor";
-        game.mood = "inspecting her find";
-      } else if (/\b(hid|hide|duck|crack|groove|under)\b/.test(t)) {
-        game.playerPlace = "tucked into a dark gap near her feet";
-        game.mood = "hunting the floor";
-      } else if (/\b(wave|yell|call|hey|hi|attention)\b/.test(t)) {
+      if (/\b(swallow|gulp|throat|eat me)\b/.test(t)) {
+        game.playerPlace = "on the wet drop at the back of her tongue";
+        game.mood = "deciding whether to keep you or take you";
+      } else if (/\b(tongue|taste|mouth|cheek|spit)\b/.test(t)) {
+        game.playerPlace = "on her tongue, grit against a taste bud";
+        game.mood = "talking around you, in no hurry to finish the swallow";
+      } else if (/\b(navel|stomach|kick|press|bulge|settle)\b/.test(t)) {
+        game.playerPlace = "under her navel, body against the stomach wall";
+        game.mood = "feeling you as heat and trouble, not as a face";
+      } else if (/\b(pocket|hoodie|waistband|cleavage)\b/.test(t)) {
+        game.playerPlace = "tucked against skin and fabric, carried like a secret";
+        game.mood = "smug, keeping you warm on purpose";
+      } else if (/\b(pinch|pick|finger|palm|hand|climb|nail)\b/.test(t)) {
+        game.playerPlace = "spread on her skin, small enough to weigh almost nothing";
+        game.mood = "using her hands like the first sex of the night";
+      } else if (/\b(hid|hide|duck|crack|groove|under|tuck)\b/.test(t)) {
+        game.playerPlace = "tucked into a dark warm gap she will find by touch";
+        game.mood = "hunting you with fingers, not a lecture";
+      } else if (/\b(wave|yell|call|hey|hi|attention|offer)\b/.test(t)) {
         game.noticed = true;
-        game.playerPlace = "pinned under her attention";
-        game.mood = "delighted, already thinking about her tongue";
+        game.playerPlace = "presented on her attention, close enough to taste";
+        game.mood = "delighted, already thinking where on her body you go";
       } else if (/\b(shoe|sneaker|lace|toe|sole)\b/.test(t)) {
-        game.playerPlace = "on the rubber edge of her rental sneaker";
-        game.mood = "one huge shoe hovering";
+        game.playerPlace = "on the edge of her shoe, heat and rubber around you";
+        game.mood = "one huge shoe hovering, curious if you will climb";
       } else if (/\b(look|peek|scan|up)\b/.test(t)) {
-        game.mood = "leaning over the lane";
+        game.mood = "leaning in so her breath is weather";
       }
     }
 
     const PLAYER_FORMAT = `PLAYER TURNS
 The player's message uses these line labels:
 SPEECH: words the speck says out loud. She hears them (if she is close enough) and can answer them.
-ACTION: what the speck physically does. It is NOT spoken. She only reacts to what she can see or feel.
+ACTION: what the speck physically does with their body on hers. It is NOT spoken. She only reacts to what she can see or feel.
+Treat ACTION as contact: skin, tongue, spit, fabric, stomach wall. Answer the body first, then SAY.
 Never copy SPEECH: or ACTION: into your reply. Reply only with MOMENT, SAY, SHOT.`;
 
     function buildMessages(userText, opts) {
@@ -9499,11 +9527,13 @@ Never copy SPEECH: or ACTION: into your reply. Reply only with MOMENT, SAY, SHOT
         : (game.gone
           ? "IDENTITY: the speck was an unnamed tiny person she already knows from this night. Do not invent a new stranger. Do not forget this night's snack."
           : "The speck is unnamed.");
-      const snack = /\b(snack|swallow|eat me|gulp|mouth)\b/i.test(userText)
-        ? " The player asked for a swallow beat this turn. Move toward mouth, tongue, or a gulp if it fits her."
-        : "";
+      const snack = /\b(swallow|eat me|gulp|throat)\b/i.test(userText)
+        ? " The player asked for a swallow beat this turn. Commit to mouth-to-throat if it fits her — still write the tunnel, do not skip to stomach unless they are already deeper."
+        : (/\b(tongue|mouth|taste|cheek)\b/i.test(userText)
+          ? " The player asked for mouth/tongue contact. Linger there. Do not gulp them away unless they also begged a swallow."
+          : "");
       const earlyNote = (opts.turnNo && opts.turnNo <= 2 && !PLAYER_WANTS_DIGEST.test(userText) && !game.gone)
-        ? " This is player message " + opts.turnNo + " of the scene: do NOT digest or finish the speck yet. A swallow is fine only if it clearly fits; keep the speck alive and able to respond."
+        ? " This is player message " + opts.turnNo + " of the scene: do NOT digest or finish the speck yet. Prefer fingers, breath, tongue, cheek. A full swallow only if they clearly asked; keep them alive and able to respond."
         : "";
       let meterNote = "";
       if (opts.clockKind === "digest") {
@@ -9542,18 +9572,21 @@ Never copy SPEECH: or ACTION: into your reply. Reply only with MOMENT, SAY, SHOT
       } else if (game.depth >= 3 && !game.gone) {
         meterNote = " Speck is INSIDE the gut. Digestion is NOT finished. Keep them present and able to act."
           + " She cannot see them — only feel pressure/kicks/warmth, or notice a tiny bulge if they squirm."
-          + " Prefer SHOT inside, hold, rub, lounge, pat, burp. Stay inside — no casual exits.";
+          + " Write their body against her lining. Prefer SHOT inside, hold, rub, lounge, pat, burp. Stay inside — no casual exits.";
       } else if (game.depth >= 2 && !game.gone) {
-        meterNote = " Speck is on the swallow path (mouth/throat). Sight is limited to wet dark and motion — not a clear view of a person standing in a room.";
+        meterNote = " Speck is on the swallow path (mouth/throat). SLOW THE SWALLOW: linger on tongue, spit, cheek, almost-gulps."
+          + " Sight is wet dark and motion — not a lit room. Do not skip to finished digestion.";
       } else if (game.gone) {
         const idName = game.playerName || s.playerName || "the speck from this night";
         meterNote = " AFTER DIGEST: " + idName + " is digested and gone as a speaker."
           + " " + c.name + " REMEMBERS who they were. Do not blank the name. Do not pretend it was a random bug."
+          + " SPEED THE AFTERGLOW: her body living with them — waistband, hand on the quiet spot, private heat."
           + " Do NOT reset the night or invent a new city."
           + " Stay in this same night and place: " + (game.location || s.location || "the current scene") + "."
           + " They were " + (game.playerPlace || "inside her") + "."
           + " Continue from the last MOMENT — same clothes, same room or the next room she would actually walk to (bathroom only if disposal is running)."
-          + " Never bring " + idName + " back as a living voice.";
+          + " Never bring " + idName + " back as a living voice."
+          + " ADULT LANE: no children, no school-age framing.";
       }
       const recap = sceneRecap();
       const state = `STATE: character=${c.name}; scenario=${s.id} (${s.title || s.id}); ${who} location=${game.location}; speck is ${game.playerPlace}; mood=${game.mood}; noticed=${game.noticed}; shot=${game.shot}; depth=${game.depth}; fate=${game.fate || "none"}; gone=${!!game.gone}; digestDone=${!!game.digestDone}; bowel=${game.bowel && game.bowel.active ? "active" : (game.bowelDone ? "done" : "no")}.`
@@ -9719,10 +9752,11 @@ Never copy SPEECH: or ACTION: into your reply. Reply only with MOMENT, SAY, SHOT
         extra: " AFTER MODE: continue " + characterOf(game.characterId).name +
           " in the SAME night. Location stays \"" + place + "\" unless she takes one plausible step (hallway, bathroom, couch)."
           + (whoSnack ? (" She remembers the snack was " + whoSnack + ".") : "")
-          + (n <= 2 ? " Stay in the same conversation. The snack is finished; she can feel that without announcing a slogan." : "")
+          + (n <= 2 ? " Stay in the same conversation. SPEED THE AFTERGLOW: the snack is finished; she feels them as heat, tightness, a private hand. No slogan." : " Keep afterglow physical and short — her body, this room, the fact of them.")
           + " Do not invent a new city, job, or friend group mid-sentence."
-          + " MOMENT is third person about her and THIS place. SAY is to herself or someone actually here."
+          + " MOMENT is third person about her body in THIS place. SAY is to herself or someone actually here."
           + " Prefer SHOT lounge, rest, full, smug, pat, rub, after, bed, lift, cover, street, phone, door, profile. " + bathroom +
+          " ADULT LANE: everyone remains adult; no child/school framing." +
           sceneRecap(),
       };
     }
@@ -9958,12 +9992,41 @@ Never copy SPEECH: or ACTION: into your reply. Reply only with MOMENT, SAY, SHOT
       els.modeDo.setAttribute("aria-pressed", String(composeMode === "do"));
       els.dock.dataset.mode = composeMode;
       if (!game.gone) {
-        els.input.placeholder = composeMode === "say"
-          ? "Say something out loud…"
-          : "Describe what you do…";
-        els.composeHint.innerHTML = composeMode === "say"
-          ? "Speaking. Wrap an action in <b>*asterisks*</b> to do something too."
-          : "Acting. Wrap words in <b>\"quotes\"</b> to say something too.";
+        const d = Math.max(0, Number(game.depth || 0));
+        const mouth = d >= 2 && d < 3;
+        const gut = d >= 3 || !!(game.digestMeter && game.digestMeter.active);
+        const bowel = !!(game.bowel && game.bowel.active);
+        if (composeMode === "say") {
+          els.input.placeholder = bowel
+            ? "Talk up through the push…"
+            : gut
+              ? "Talk to the wall. Make her put a hand there…"
+              : mouth
+                ? "Talk while you're still on her tongue…"
+                : "Talk while she can still see you…";
+          els.composeHint.innerHTML = bowel
+            ? "Speaking from lower. Wrap contact in <b>*asterisks*</b> — brace, go limp, kick the tract."
+            : gut
+              ? "She hears you as vibration. Wrap a body move in <b>*asterisks*</b>: press the lining, settle, kick the bulge."
+              : mouth
+                ? "You're in her mouth. Wrap contact in <b>*asterisks*</b>: taste bud, under the tongue, dare a slow gulp."
+                : "Speaking. Name her skin. Wrap a climb/tuck/offer in <b>*asterisks*</b>.";
+        } else {
+          els.input.placeholder = bowel
+            ? "What your body does in the push…"
+            : gut
+              ? "Press, settle, or kick her from inside…"
+              : mouth
+                ? "Climb the tongue, hide under it, walk the gulp…"
+                : "Climb her. Tuck in. Present yourself…";
+          els.composeHint.innerHTML = bowel
+            ? "Acting. Use her tract. Wrap words in <b>\"quotes\"</b> if you still have a line left."
+            : gut
+              ? "Acting with your whole body on her stomach wall. Wrap speech in <b>\"quotes\"</b>."
+              : mouth
+                ? "Acting on her tongue. Linger. Wrap speech in <b>\"quotes\"</b>."
+                : "Acting on her body — finger, palm, clothes. Wrap speech in <b>\"quotes\"</b>.";
+        }
       }
       if (keepFocus && !els.input.disabled) els.input.focus({ preventScroll: true });
     }
