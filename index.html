@@ -7199,18 +7199,34 @@ Once the speck is swallowed or already inside her stomach/gut (depth gut, SHOT i
       fireClockBeat("disposal");
     }
 
+    function snackName() {
+      return game.playerName || scenarioOf(game.scenarioId).playerName || "";
+    }
+
+    function digestAckNote() {
+      const who = snackName() || "the speck from this night";
+      const her = characterOf(game.characterId).name;
+      const place = game.location || scenarioOf(game.scenarioId).location || "this scene";
+      return " DIGESTION JUST FINISHED THIS BEAT. " + her + " finished digesting " + who + " in " + place + "."
+        + " She MUST acknowledge that in MOMENT and SAY. Do not skip it. Do not pretend it was gas."
+        + " Use the name " + who + " if they have one. React in her real voice — blunt, short, fair — but the fact has to land."
+        + " She can feel the weight change. She can mutter at her stomach. She does not talk as if " + who + " can still answer."
+        + " Do NOT make the whole line a bathroom errand. Disposal can start after she names what happened."
+        + " Prefer SHOT after, hold, full, smug, cover, rest.";
+    }
+
     const CLOCK_BEATS = {
       settle: {
         user: "[NARRATOR] Two minutes inside have passed. The chamber has settled. A digest clock starts on the speck.",
         extra: " The speck is still alive inside. React to the chamber waking up — pressure, heat, a first real squeeze. Do NOT finish them. SAY is a NEW line. Prefer SHOT inside, hold, taut, smug.",
       },
       digest: {
-        user: "[NARRATOR] The Digest-O Meter hits zero. Digestion finishes. Disposal begins; the speck is no longer a person in the stomach.",
-        extra: " Digest-O just hit zero. Start the disposal beat: she feels the shift lower, maybe walks toward a bathroom. The speck cannot hold a conversation. SAY is a NEW line. Prefer SHOT after, full, smug, cover, door.",
+        user: "[NARRATOR] Digest-O hits zero. Digestion of the speck finishes right now.",
+        extra: "",
       },
       disposal: {
         user: "[NARRATOR] The Disposal meter hits zero. Digestion and disposal are both finished. The speck is gone.",
-        extra: " AFTER MODE: both clocks are done. Skull-end. Continue her night without the speck. Never bring them back. SAY is a NEW line to herself or someone else. Prefer SHOT lounge, street, phone, door, smug, rest.",
+        extra: " AFTER MODE: both clocks are done. She already finished them. Continue her night without bringing them back. She may still mention who it was. SAY is a NEW line to herself or someone else. Prefer SHOT lounge, street, phone, door, smug, rest.",
       },
     };
 
@@ -7225,21 +7241,35 @@ Once the speck is swallowed or already inside her stomach/gut (depth gut, SHOT i
       while (busy && guard++ < 20) await wait();
       if (busy) { clockBeatKind = null; return; }
       const spec = CLOCK_BEATS[kind];
+      const who = snackName();
+      const her = characterOf(game.characterId).name;
+      let user = spec.user;
+      let extra = spec.extra;
+      if (kind === "digest") {
+        user = "[NARRATOR] Digest-O hits zero. " + her + " just finished digesting "
+          + (who || "the speck") + ". This beat is her reaction to that fact. Do not skip it.";
+        extra = digestAckNote();
+        game.digestAcked = true;
+      } else if (kind === "disposal") {
+        extra = spec.extra + (who ? (" She remembers it was " + who + ".") : "") + sceneRecap();
+      } else if (kind === "settle" && who) {
+        extra = spec.extra + " The speck is " + who + ". Use the name.";
+      }
       const typing = addTyping();
       setBusy(true);
       try {
-        const raw = await askActor(buildMessages(spec.user, { extra: spec.extra }));
+        const raw = await askActor(buildMessages(user, { extra: extra, clockKind: kind }));
         const parsed = parseActor(raw);
-        const shot = pickShot({ userText: spec.user, moment: parsed.moment, line: parsed.line, actorShot: parsed.actorShot });
+        const shot = pickShot({ userText: user, moment: parsed.moment, line: parsed.line, actorShot: parsed.actorShot });
         setStill(shot);
         typing.remove();
         addTurn({ moment: parsed.moment, line: parsed.line });
-        history.push({ role: "user", content: spec.user });
+        history.push({ role: "user", content: user });
         history.push({ role: "assistant", content: raw });
         if (kind === "digest" && game.bowel && game.bowel.active) {
-          applyBowelBeat(shot, parsed.moment, parsed.line, spec.user);
+          applyBowelBeat(shot, parsed.moment, parsed.line, user);
         } else if (kind === "settle" && game.digestMeter && game.digestMeter.active && !(game.bowel && game.bowel.active)) {
-          applyDigestBeat(shot, parsed.moment, parsed.line, spec.user);
+          applyDigestBeat(shot, parsed.moment, parsed.line, user);
         }
         persist();
       } catch (err) {
@@ -7590,6 +7620,7 @@ Once the speck is swallowed or already inside her stomach/gut (depth gut, SHOT i
         bowel: null,
         bowelDone: false,
         digestDone: false,
+        digestAcked: false,
         usedLines: [],
       };
     }
@@ -8544,17 +8575,24 @@ Never copy SPEECH: or ACTION: into your reply. Reply only with MOMENT, SAY, SHOT
         ? " This is player message " + opts.turnNo + " of the scene: do NOT digest or finish the speck yet. A swallow is fine only if it clearly fits; keep the speck alive and able to respond."
         : "";
       let meterNote = "";
-      if (game.bowel && game.bowel.active) {
+      if (opts.clockKind === "digest") {
+        meterNote = digestAckNote();
+      } else if (game.bowel && game.bowel.active) {
         const secs = Math.max(0, Math.ceil((game.bowel.remainingMs || 0) / 1000));
+        const who = whoName || "the speck";
         if (game.bowel.alive && !game.gone) {
-          meterNote = " SECRET PATH: the speck FORCED their way out of the stomach into the bowel while still conscious."
+          meterNote = " SECRET PATH: " + who + " FORCED their way out of the stomach into the bowel while still conscious."
             + " ~" + secs + "s on the bowel clock. They can still act a little. She feels them lower than the stomach."
             + " Do NOT pop them back into the stomach. SAY must be a NEW line every turn.";
         } else {
-          meterNote = " BOWEL MOVEMENT (dead path): the speck is already digested and gone."
+          meterNote = " BOWEL MOVEMENT (dead path): " + who + " is already digested."
+            + " She knows who that was. Mention " + who + " if it fits — do not blank the name."
             + " ~" + secs + "s until she finishes disposal."
-            + " She is heading to / using a bathroom if it fits. Keep it in-character."
-            + " SAY must be a NEW line every turn — never to the speck."
+            + (game.digestAcked
+              ? " She already named the finish. Disposal can move."
+              : " If she has not yet acknowledged the finish, she must do that first.")
+            + " Keep it in-character."
+            + " SAY must be a NEW line every turn — not as if " + who + " can answer."
             + " Prefer SHOT after, rest, lounge, smug, full, cover, door.";
         }
       } else if (game.digestMeter && game.digestMeter.active && !game.gone) {
@@ -8748,7 +8786,8 @@ Never copy SPEECH: or ACTION: into your reply. Reply only with MOMENT, SAY, SHOT
           + "Do not reset location or forget who they were. After-beat " + n + ".",
         extra: " AFTER MODE: continue " + characterOf(game.characterId).name +
           " in the SAME night. Location stays \"" + place + "\" unless she takes one plausible step (hallway, bathroom, couch)."
-          + (whoSnack ? (" She remembers the snack was " + whoSnack + " and may mention that name. She does not wait for a reply.") : "")
+          + (whoSnack ? (" She remembers the snack was " + whoSnack + ".") : "")
+          + (n <= 2 && !game.digestAcked ? digestAckNote() : (n <= 2 ? " She already finished them. A leftover reaction is fine. Do not pretend it did not happen." : ""))
           + " Do not invent a new city, job, or friend group mid-sentence."
           + " MOMENT is third person about her and THIS place. SAY is to herself or someone actually here."
           + " Prefer SHOT lounge, rest, full, smug, pat, rub, after, bed, lift, cover, street, phone, door, profile. " + bathroom +
