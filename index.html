@@ -1032,45 +1032,16 @@
     }
     #world .gut {
       background:
-        radial-gradient(120% 50% at 50% -8%, rgba(90,16,22,.9), transparent 52%),
-        radial-gradient(70% 38% at 18% 62%, rgba(140,36,28,.28), transparent 58%),
-        radial-gradient(62% 34% at 84% 58%, rgba(48,96,22,.32), transparent 55%),
-        radial-gradient(95% 48% at 50% 108%, rgba(70,170,40,.38), rgba(16,32,6,0) 48%),
-        linear-gradient(180deg, #2a0a10 0%, #3a1014 26%, #24180c 52%, #142208 78%, #0a1206 100%);
-      animation: gutIdle 7s ease-in-out infinite alternate;
-    }
-    #world .gut::before {
-      content: "";
-      position: absolute; inset: -12% -8%;
-      background:
-        repeating-radial-gradient(ellipse 88% 36% at 50% 58%,
-          rgba(90,18,16,0) 0 26px,
-          rgba(150,40,32,.18) 26px 32px,
-          rgba(36,72,18,.1) 32px 46px);
-      opacity: calc(0.32 + var(--gut-danger, 0) * 0.55);
-      animation: peristalsis calc(5.4s - var(--gut-danger, 0) * 2.6s) ease-in-out infinite;
-      mix-blend-mode: multiply;
+        radial-gradient(90% 45% at 50% 100%, rgba(90,220,70,.28), rgba(20,40,10,.0) 42%),
+        radial-gradient(80% 50% at 50% 0%, rgba(90,0,10,.55), transparent 50%),
+        linear-gradient(180deg, #1a0408 0%, #3a0a10 55%, #142208 100%);
     }
     #world .gut::after {
       content: "";
-      position: absolute; left: 0; right: 0; bottom: 0;
-      height: calc(30% + var(--gut-danger, 0) * 32%);
-      background:
-        radial-gradient(120% 80% at 50% 100%, rgba(90,200,40,.28), transparent 55%),
-        linear-gradient(180deg, transparent, rgba(70,180,40,.22) 40%, rgba(160,90,20,.34) 78%, rgba(40,80,16,.5) 100%);
-      filter: blur(7px);
-      animation: acid calc(4.6s - var(--gut-danger, 0) * 2.2s) ease-in-out infinite alternate;
-    }
-    html.digest-hot.scene-gut #world .gut {
-      filter: saturate(1.2) contrast(1.06) brightness(1.04);
-    }
-    html.digest-critical.scene-gut #world .gut {
-      filter: saturate(1.35) contrast(1.1) brightness(1.08);
-      animation: gutPanic 1.35s ease-in-out infinite;
-    }
-    html.dig-burp.scene-gut #world .gut,
-    html.dig-burp #world .gut {
-      filter: brightness(1.35) saturate(1.4) contrast(1.12);
+      position: absolute; left: 0; right: 0; bottom: 0; height: 34%;
+      background: linear-gradient(180deg, transparent, rgba(70,200,60,.18) 40%, rgba(40,160,50,.32));
+      filter: blur(8px);
+      animation: acid 4.5s ease-in-out infinite alternate;
     }
     /* One background per meter step: Palm=alley, Tongue=mouth, Gulp=throat, Gut=gut */
     html.scene-mouth #world .alley,
@@ -1105,25 +1076,10 @@
         linear-gradient(180deg, #2c1208 0%, #1c0a06 50%, #0e0603 100%);
     }
     @media (prefers-reduced-motion: reduce) {
-      #world .throat::after, #world .gut::after, #world .gut::before, #world .alley, #world .gut { animation: none; }
+      #world .throat::after, #world .gut::after, #world .alley { animation: none; }
     }
     @keyframes drift { to { filter: hue-rotate(18deg) brightness(1.08); } }
     @keyframes acid { from { transform: translateY(8px); opacity: .65; } to { transform: translateY(-6px); opacity: 1; } }
-    @keyframes peristalsis {
-      0% { transform: translateY(0) scaleY(1) scaleX(1); }
-      40% { transform: translateY(-3.5%) scaleY(1.05) scaleX(1.02); }
-      70% { transform: translateY(2%) scaleY(0.97) scaleX(0.99); }
-      100% { transform: translateY(0) scaleY(1) scaleX(1); }
-    }
-    @keyframes gutIdle {
-      from { filter: hue-rotate(0deg); }
-      to { filter: hue-rotate(12deg) brightness(1.06); }
-    }
-    @keyframes gutPanic {
-      0%, 100% { transform: scale(1); }
-      35% { transform: scale(1.018); }
-      70% { transform: scale(0.992); }
-    }
     body {
       display: flex;
       flex-direction: column;
@@ -2668,79 +2624,32 @@
       background: radial-gradient(circle at 50% 30%, rgba(255,220,160,.35), transparent 55%);
       opacity: 0;
     }
-    #digestFx .fx-walls {
-      position: absolute; inset: -8%;
-      background:
-        repeating-radial-gradient(ellipse 70% 28% at 50% 70%,
-          transparent 0 22px,
-          rgba(180,50,30,.07) 22px 26px,
-          rgba(60,120,30,.06) 26px 40px);
-      opacity: calc(0.25 + var(--gut-danger, 0) * 0.55);
-      animation: peristalsis calc(4.8s - var(--gut-danger, 0) * 2.2s) ease-in-out infinite;
-      mix-blend-mode: color-burn;
-    }
-    #digestFx .fx-belch {
-      position: absolute; left: 6%; right: 6%; bottom: 12%;
-      height: 62%;
-      background:
-        radial-gradient(ellipse 46% 36% at 50% 100%, rgba(255,210,90,.42), transparent 58%),
-        radial-gradient(ellipse 28% 48% at 48% 78%, rgba(200,90,40,.32), transparent 55%),
-        radial-gradient(ellipse 18% 30% at 54% 60%, rgba(230,230,180,.18), transparent 60%);
-      opacity: 0;
-      filter: blur(10px);
-      pointer-events: none;
-    }
-    html.scene-gut #digestFx .fx-walls { opacity: calc(0.4 + var(--gut-danger, 0) * 0.5); }
     html.digest-hot #digestFx .fx-foam { height: 36%; opacity: .75; }
     html.digest-hot #digestFx .fx-rings { opacity: .65; animation-duration: 1.8s; }
     html.digest-critical #digestFx .fx-foam { height: 48%; opacity: .95; }
     html.digest-critical #digestFx .fx-heat { opacity: .7; animation-duration: 1.2s; }
     html.digest-critical #digestFx .fx-rings { opacity: .9; animation-duration: 1.1s; }
 
-    /* Burst FX — burp slams the whole chrome, harder as --gut-danger rises */
-    html.dig-burp { animation: digBurpPage 1.05s cubic-bezier(.2,.7,.2,1); }
-    html.dig-burp #world,
+    /* Burst FX — burp slams the whole chrome */
+    html.dig-burp { animation: digBurpPage .7s cubic-bezier(.2,.7,.2,1); }
     html.dig-burp #stage,
     html.dig-burp #log,
     html.dig-burp #digestMeter,
     html.dig-burp header.top,
-    html.dig-burp .dock,
-    html.dig-burp body {
-      animation: digBurpShake 1.05s cubic-bezier(.12,.82,.18,1);
-    }
-    html.dig-burp-big #world,
-    html.dig-burp-big #stage,
-    html.dig-burp-big #log,
-    html.dig-burp-big #digestMeter,
-    html.dig-burp-big header.top,
-    html.dig-burp-big .dock,
-    html.dig-burp-big body {
-      animation: digBurpShakeBig 1.25s cubic-bezier(.1,.85,.15,1);
-    }
-    html.dig-burp #stage img {
-      animation: digBurchFace 1.05s cubic-bezier(.15,.8,.2,1);
-    }
-    html.dig-burp-big #stage img {
-      animation: digBurchFace 1.25s cubic-bezier(.15,.8,.2,1);
+    html.dig-burp .dock {
+      animation: digBurpShake .7s cubic-bezier(.15,.8,.2,1);
     }
     html.dig-burp #digestFx .fx-gurgle,
     html.dig-burp #digestFx .fx-slime {
       opacity: 1;
-      filter: brightness(1.7) saturate(1.6);
+      filter: brightness(1.6) saturate(1.5);
     }
     html.dig-burp #digestFx .fx-flash {
-      animation: digFlash .55s ease-out;
+      animation: digFlash .45s ease-out;
     }
     html.dig-burp #digestFx .fx-rings {
-      animation: digRingsHit .85s ease-out;
+      animation: digRingsHit .6s ease-out;
       opacity: 1;
-    }
-    html.dig-burp #digestFx .fx-belch {
-      animation: belchPlume .95s ease-out;
-    }
-    html.dig-burp-big #digestFx .fx-belch {
-      animation: belchPlume 1.15s ease-out;
-      filter: blur(6px) brightness(1.2);
     }
     html.dig-gurgle #stage,
     html.dig-gurgle #log,
@@ -2830,36 +2739,13 @@
     }
     @keyframes digBurpShake {
       0% { transform: translate(0, 0) rotate(0) scale(1); }
-      8% { transform: translate(-18px, 8px) rotate(-1.6deg) scale(1.03); }
-      18% { transform: translate(20px, -10px) rotate(1.8deg) scale(1.04); }
-      30% { transform: translate(-14px, 7px) rotate(-1.1deg) scale(1.02); }
-      44% { transform: translate(12px, -7px) rotate(0.9deg); }
-      58% { transform: translate(-8px, 4px) rotate(-0.45deg); }
-      74% { transform: translate(5px, -2px) rotate(0.2deg); }
+      8% { transform: translate(-14px, 6px) rotate(-1.2deg) scale(1.02); }
+      18% { transform: translate(16px, -8px) rotate(1.4deg) scale(1.03); }
+      30% { transform: translate(-12px, 5px) rotate(-0.9deg) scale(1.01); }
+      44% { transform: translate(10px, -6px) rotate(0.8deg); }
+      58% { transform: translate(-7px, 3px) rotate(-0.4deg); }
+      74% { transform: translate(4px, -2px) rotate(0.2deg); }
       100% { transform: translate(0, 0) rotate(0) scale(1); }
-    }
-    @keyframes digBurpShakeBig {
-      0% { transform: translate(0, 0) rotate(0) scale(1); }
-      6% { transform: translate(-28px, 14px) rotate(-2.4deg) scale(1.05); }
-      14% { transform: translate(30px, -16px) rotate(2.6deg) scale(1.07); }
-      24% { transform: translate(-22px, 12px) rotate(-1.8deg) scale(1.04); }
-      36% { transform: translate(18px, -10px) rotate(1.4deg) scale(1.03); }
-      50% { transform: translate(-12px, 7px) rotate(-0.8deg); }
-      66% { transform: translate(8px, -4px) rotate(0.4deg); }
-      82% { transform: translate(-4px, 2px) rotate(-0.15deg); }
-      100% { transform: translate(0, 0) rotate(0) scale(1); }
-    }
-    @keyframes digBurchFace {
-      0% { transform: scale(1) translateY(0); filter: brightness(1); }
-      12% { transform: scale(1.08) translateY(3%); filter: brightness(1.25); }
-      28% { transform: scale(1.03) translateY(-1%); filter: brightness(1.1); }
-      100% { transform: scale(1) translateY(0); filter: brightness(1); }
-    }
-    @keyframes belchPlume {
-      0% { opacity: 0; transform: translateY(28%) scale(.55); }
-      16% { opacity: .95; transform: translateY(4%) scale(1.12); }
-      55% { opacity: .55; transform: translateY(-18%) scale(1.28); }
-      100% { opacity: 0; transform: translateY(-46%) scale(1.5); }
     }
     @keyframes digGurgleShake {
       0%, 100% { transform: translate(0, 0) scaleY(1); }
@@ -2884,9 +2770,7 @@
       html.digest-critical #digestFx .fx-vignette,
       html.digest-critical #stage, html.digest-critical #log,
       html.dig-burp, html.dig-burp #stage, html.dig-burp #log, html.dig-burp #digestMeter,
-      html.dig-burp header.top, html.dig-burp .dock, html.dig-burp #world, html.dig-burp body,
-      html.dig-burp-big #stage, html.dig-burp-big #log, html.dig-burp-big body,
-      #digestFx .fx-walls, #digestFx .fx-belch, #world .gut::before,
+      html.dig-burp header.top, html.dig-burp .dock,
       html.dig-growl #log, html.dig-growl #stage,
       html.dig-gurgle #stage, html.dig-gurgle #log, html.dig-gurgle #digestMeter,
       #digestMeter.critical .dm-fill { animation: none !important; }
@@ -3140,14 +3024,12 @@
   <div id="goneBanner">You are gone. The log stays. She can keep going below, or start a new night.</div>
 
   <div id="digestFx" aria-hidden="true">
-    <div class="fx-walls"></div>
     <div class="fx-heat"></div>
     <div class="fx-slime"></div>
     <div class="fx-acid"></div>
     <div class="fx-foam"></div>
     <div class="fx-gurgle"></div>
     <div class="fx-rings"></div>
-    <div class="fx-belch"></div>
     <div class="fx-drips" id="digestDrips"></div>
     <div class="fx-bubbles" id="digestBubbles"></div>
     <div class="fx-flash"></div>
@@ -7532,100 +7414,22 @@ Once the speck is swallowed or already inside her stomach/gut (depth gut, SHOT i
       return localStorage.getItem("speckFx") !== "off";
     }
 
-    let gutAudioCtx = null;
-    function gutAudio() {
-      const AC = window.AudioContext || window.webkitAudioContext;
-      if (!AC) return null;
-      if (!gutAudioCtx) gutAudioCtx = new AC();
-      if (gutAudioCtx.state === "suspended") gutAudioCtx.resume().catch(function () {});
-      return gutAudioCtx;
-    }
-
-    function gutDanger() {
-      const dm = game && game.digestMeter;
-      const bm = game && game.bowel;
-      if (bm && bm.active) return 1 - Math.max(0, Math.min(1, (bm.remainingMs || 0) / Math.max(1, bm.totalMs || 1)));
-      if (dm && dm.active) return 1 - Math.max(0, Math.min(1, (dm.remainingMs || 0) / Math.max(1, dm.totalMs || 1)));
-      return Math.max(0, Math.min(1, ((game && game.depth) || 0) / 3 * 0.35));
-    }
-
-    function playGutSound(kind, power) {
-      if (!fxOn()) return;
-      const ctx = gutAudio();
-      if (!ctx) return;
-      const t = ctx.currentTime;
-      const p = Math.max(0.25, Math.min(1.2, power == null ? 0.55 : power));
-      try {
-        if (kind === "burp") {
-          const rumble = ctx.createOscillator();
-          const rumbleG = ctx.createGain();
-          const filter = ctx.createBiquadFilter();
-          rumble.type = "sawtooth";
-          rumble.frequency.setValueAtTime(78 + p * 18, t);
-          rumble.frequency.exponentialRampToValueAtTime(32, t + 0.55 + p * 0.25);
-          filter.type = "lowpass";
-          filter.frequency.setValueAtTime(220 + p * 180, t);
-          filter.frequency.exponentialRampToValueAtTime(90, t + 0.7);
-          rumbleG.gain.setValueAtTime(0.0001, t);
-          rumbleG.gain.exponentialRampToValueAtTime(0.16 + p * 0.14, t + 0.04);
-          rumbleG.gain.exponentialRampToValueAtTime(0.0001, t + 0.85 + p * 0.35);
-          rumble.connect(filter); filter.connect(rumbleG); rumbleG.connect(ctx.destination);
-          rumble.start(t); rumble.stop(t + 1.15 + p * 0.3);
-
-          const mid = ctx.createOscillator();
-          const midG = ctx.createGain();
-          mid.type = "triangle";
-          mid.frequency.setValueAtTime(140, t + 0.08);
-          mid.frequency.exponentialRampToValueAtTime(48, t + 0.42);
-          midG.gain.setValueAtTime(0.0001, t);
-          midG.gain.exponentialRampToValueAtTime(0.09 + p * 0.08, t + 0.1);
-          midG.gain.exponentialRampToValueAtTime(0.0001, t + 0.5);
-          mid.connect(midG); midG.connect(ctx.destination);
-          mid.start(t + 0.06); mid.stop(t + 0.55);
-
-          const n = ctx.createBufferSource();
-          const buf = ctx.createBuffer(1, ctx.sampleRate * 0.35, ctx.sampleRate);
-          const data = buf.getChannelData(0);
-          for (let i = 0; i < data.length; i++) data[i] = (Math.random() * 2 - 1) * (1 - i / data.length);
-          n.buffer = buf;
-          const nf = ctx.createBiquadFilter();
-          const ng = ctx.createGain();
-          nf.type = "bandpass";
-          nf.frequency.value = 380 + p * 120;
-          ng.gain.setValueAtTime(0.0001, t);
-          ng.gain.exponentialRampToValueAtTime(0.07 + p * 0.06, t + 0.05);
-          ng.gain.exponentialRampToValueAtTime(0.0001, t + 0.32);
-          n.connect(nf); nf.connect(ng); ng.connect(ctx.destination);
-          n.start(t + 0.04); n.stop(t + 0.4);
-        } else if (kind === "gurgle" || kind === "churn") {
-          const o = ctx.createOscillator();
-          const g = ctx.createGain();
-          o.type = "sine";
-          o.frequency.setValueAtTime(62, t);
-          o.frequency.linearRampToValueAtTime(48 + Math.random() * 20, t + 0.28);
-          g.gain.setValueAtTime(0.0001, t);
-          g.gain.exponentialRampToValueAtTime(0.05 + p * 0.04, t + 0.05);
-          g.gain.exponentialRampToValueAtTime(0.0001, t + 0.4);
-          o.connect(g); g.connect(ctx.destination);
-          o.start(t); o.stop(t + 0.42);
-        } else {
-          const o = ctx.createOscillator();
-          const g = ctx.createGain();
-          o.type = "sine";
-          o.frequency.setValueAtTime(kind === "gulp" ? 110 : 88, t);
-          o.frequency.exponentialRampToValueAtTime(40, t + 0.3);
-          g.gain.setValueAtTime(0.08, t);
-          g.gain.exponentialRampToValueAtTime(0.0001, t + 0.34);
-          o.connect(g); g.connect(ctx.destination);
-          o.start(t); o.stop(t + 0.36);
-        }
-      } catch {}
-    }
-
     function gulpFx() {
       if (!fxOn()) return;
       try { navigator.vibrate && navigator.vibrate([18, 40, 90, 30, 120]); } catch {}
-      playGutSound("gulp", 0.5);
+      try {
+        const ctx = new (window.AudioContext || window.webkitAudioContext)();
+        const o = ctx.createOscillator();
+        const g = ctx.createGain();
+        o.type = "sine";
+        o.frequency.value = 92;
+        g.gain.value = 0.07;
+        o.connect(g); g.connect(ctx.destination);
+        o.start();
+        o.frequency.exponentialRampToValueAtTime(42, ctx.currentTime + 0.28);
+        g.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.32);
+        o.stop(ctx.currentTime + 0.34);
+      } catch {}
     }
 
     function depthFromShot(shot, fate) {
@@ -7713,41 +7517,76 @@ Once the speck is swallowed or already inside her stomach/gut (depth gut, SHOT i
       return m + ":" + String(r).padStart(2, "0");
     }
 
-    function inferDigestFactors() {
-      const blob = history.slice(-12).map((m) => m.content || "").join(" ").toLowerCase();
-      let hunger = 0.45 + Math.random() * 0.2;
-      let fullness = 0.4 + Math.random() * 0.2;
-      let intent = 0.4 + Math.random() * 0.2;
-      if (/\b(starving|famished|ravenous|skipped (lunch|dinner)|empty stomach)\b/.test(blob)) hunger += 0.28;
-      if (/\b(hungry|peckish|snack|craving)\b/.test(blob)) hunger += 0.14;
-      if (/\b(full|stuffed|heavy|just ate|after dinner|after lunch|bloated)\b/.test(blob)) { fullness += 0.28; hunger -= 0.12; }
-      if (/\b(coffee|tea|salad|light)\b/.test(blob)) fullness -= 0.08;
-      if (/\b(want(s|ed)? you (gone|finished)|keep you|mine|soft end|digest)\b/.test(blob)) intent += 0.22;
-      if (/\b(careful|gentle|not yet|don't|hold|safe)\b/.test(blob)) intent -= 0.12;
-      if (/\b(burp|belch|churn)\b/.test(blob)) { hunger += 0.08; intent += 0.1; }
-      // Character temperament nudge
-      const id = game.characterId || "";
-      if (/dimitrescu|giganta|shego|cardi|icespice/.test(id)) intent += 0.08;
-      if (/zendaya|garnet|twob|june|sydney/.test(id)) intent -= 0.06;
-      if (/ang|mara/.test(id)) intent -= 0.04;
-      const named = game.playerName || scenarioOf(game.scenarioId).playerName || "";
-      if (named) {
-        // She knows who this is — slower to finish a friend
-        intent -= 0.12;
-        fullness += 0.06;
+    function normalizeFactors(raw) {
+      const f = raw || {};
+      if (f.mood == null && (f.hunger != null || f.intent != null)) {
+        return {
+          mood: clamp01((f.intent || 0.4) * 0.55 + (f.hunger || 0.4) * 0.15),
+          gut: clamp01(0.25 + (1 - (f.fullness || 0.45)) * 0.5 + (f.intent || 0.4) * 0.15),
+          heat: clamp01((f.hunger || 0.4) * 0.45 + (f.intent || 0.4) * 0.55),
+        };
       }
       return {
-        hunger: clamp01(hunger),
-        fullness: clamp01(fullness),
-        intent: clamp01(intent),
+        mood: clamp01(f.mood != null ? f.mood : 0.32),
+        gut: clamp01(f.gut != null ? f.gut : 0.38),
+        heat: clamp01(f.heat != null ? f.heat : 0.4),
       };
     }
 
+    function moodWord(v) {
+      if (v < 0.28) return "Sweet";
+      if (v < 0.52) return "Easy";
+      if (v < 0.75) return "Irked";
+      return "Pissed";
+    }
+    function gutWord(v) {
+      if (v < 0.28) return "Soft";
+      if (v < 0.52) return "Held";
+      if (v < 0.75) return "Working";
+      return "Clenched";
+    }
+    function heatWord(v) {
+      if (v < 0.28) return "Idle";
+      if (v < 0.52) return "Steady";
+      if (v < 0.75) return "Fast";
+      return "Burning";
+    }
+
+    function beatWeight(f) {
+      f = normalizeFactors(f);
+      return 0.52 + f.gut * 0.75 + f.heat * 0.55 + f.mood * 0.45;
+    }
+    function sootheWeight(f) {
+      f = normalizeFactors(f);
+      return 0.65 + (1 - f.gut) * 0.45 + (1 - f.mood) * 0.25;
+    }
+
+    function inferDigestFactors() {
+      const blob = history.slice(-12).map((m) => m.content || "").join(" ").toLowerCase();
+      let mood = 0.28 + Math.random() * 0.16;
+      let gut = 0.32 + Math.random() * 0.16;
+      let heat = 0.34 + Math.random() * 0.16;
+      if (/\b(starving|famished|ravenous|skipped (lunch|dinner)|empty stomach)\b/.test(blob)) { heat += 0.22; gut += 0.1; }
+      if (/\b(hungry|peckish|craving)\b/.test(blob)) heat += 0.1;
+      if (/\b(full|stuffed|heavy|just ate|after dinner|bloated)\b/.test(blob)) { heat -= 0.12; gut -= 0.08; }
+      if (/\b(want(s|ed)? you (gone|finished)|keep you|mine|digest)\b/.test(blob)) { heat += 0.16; mood += 0.06; }
+      if (/\b(careful|gentle|not yet|hold|safe|rub)\b/.test(blob)) { mood -= 0.1; gut -= 0.1; heat -= 0.08; }
+      if (/\b(kick|struggle|thrash|squirm)\b/.test(blob)) { mood += 0.14; gut += 0.16; heat += 0.1; }
+      if (/\b(tease|brat|dare|snack)\b/.test(blob)) { mood += 0.12; heat += 0.14; }
+      const id = game.characterId || "";
+      if (/dimitrescu|giganta|shego|cardi|icespice/.test(id)) { heat += 0.08; mood += 0.04; }
+      if (/zendaya|garnet|twob|june|sydney|mara|ang/.test(id)) { mood -= 0.06; heat -= 0.04; }
+      if (game.playerName || scenarioOf(game.scenarioId).playerName) {
+        mood -= 0.08;
+        heat -= 0.06;
+      }
+      return normalizeFactors({ mood, gut, heat });
+    }
+
     function computeDigestDuration(factors) {
-      // Hungrier + higher intent + emptier = shorter clock
-      const danger = factors.hunger * 0.4 + factors.intent * 0.4 + (1 - factors.fullness) * 0.2;
+      const f = normalizeFactors(factors);
+      const danger = f.heat * 0.5 + f.gut * 0.3 + f.mood * 0.2;
       const ms = DIGEST_MAX_MS - danger * (DIGEST_MAX_MS - DIGEST_MIN_MS);
-      // slight variance
       const jitter = (Math.random() - 0.5) * 60 * 1000;
       return Math.round(Math.max(DIGEST_MIN_MS, Math.min(DIGEST_MAX_MS, ms + jitter)));
     }
@@ -7919,7 +7758,7 @@ Once the speck is swallowed or already inside her stomach/gut (depth gut, SHOT i
       pauseGutTimer();
       hideGutSettle();
       if (gutSettleTick) { clearInterval(gutSettleTick); gutSettleTick = null; }
-      const factors = (saved && saved.factors) || inferDigestFactors();
+      const factors = normalizeFactors((saved && saved.factors) || inferDigestFactors());
       const totalMs = (saved && saved.totalMs) || computeDigestDuration(factors);
       const remainingMs = (saved && typeof saved.remainingMs === "number")
         ? saved.remainingMs
@@ -7956,7 +7795,6 @@ Once the speck is swallowed or already inside her stomach/gut (depth gut, SHOT i
       const root = document.documentElement;
       root.classList.remove("digest-hot", "digest-critical", "bowel-mode", "bowel-hot", "bowel-critical");
       root.style.setProperty("--digest-meter", "0px");
-      root.style.setProperty("--gut-danger", "0");
       const fx = document.getElementById("digestFx");
       const panel = document.getElementById("digestMeter");
       if (fx) fx.classList.remove("on");
@@ -8033,13 +7871,14 @@ Once the speck is swallowed or already inside her stomach/gut (depth gut, SHOT i
       const sb = document.getElementById("dmStatB");
       const sc = document.getElementById("dmStatC");
       const adj = document.getElementById("dmAdjustLabel");
-      if (sa) sa.textContent = "Hunger";
-      if (sb) sb.textContent = "Fullness";
-      if (sc) sc.textContent = "Intent";
+      dm.factors = normalizeFactors(dm.factors);
+      if (sa) sa.textContent = "Mood";
+      if (sb) sb.textContent = "Stomach";
+      if (sc) sc.textContent = "Pace";
       if (adj) adj.textContent = "nudge the clock";
-      if (h) h.textContent = labelLevel(dm.factors.hunger);
-      if (f) f.textContent = labelLevel(dm.factors.fullness);
-      if (i) i.textContent = labelLevel(dm.factors.intent);
+      if (h) h.textContent = moodWord(dm.factors.mood);
+      if (f) f.textContent = gutWord(dm.factors.gut);
+      if (i) i.textContent = heatWord(dm.factors.heat);
       panel.classList.add("show");
       document.documentElement.classList.remove("bowel-mode", "bowel-hot", "bowel-critical");
       panel.classList.toggle("hot", ratio <= 0.4 && ratio > 0.18);
@@ -8050,7 +7889,6 @@ Once the speck is swallowed or already inside her stomach/gut (depth gut, SHOT i
       root.classList.toggle("digest-hot", ratio <= 0.4 && ratio > 0.18);
       root.classList.toggle("digest-critical", ratio <= 0.18);
       root.style.setProperty("--digest-meter", "0px");
-      root.style.setProperty("--gut-danger", String((1 - ratio).toFixed(3)));
       // Intensify bubbles as time runs out
       const bubbleN = ratio > 0.55 ? 10 : ratio > 0.3 ? 16 : ratio > 0.15 ? 22 : 28;
       const host = document.getElementById("digestBubbles");
@@ -8081,15 +7919,14 @@ Once the speck is swallowed or already inside her stomach/gut (depth gut, SHOT i
       const now = Date.now();
       const dt = Math.min(2000, Math.max(0, now - (dm.lastTick || now)));
       dm.lastTick = now;
-      dm.remainingMs = Math.max(0, dm.remainingMs - dt);
+      dm.factors = normalizeFactors(dm.factors);
+      const burn = 0.62 + dm.factors.heat * 0.95 + dm.factors.gut * 0.28 + dm.factors.mood * 0.18;
+      dm.remainingMs = Math.max(0, dm.remainingMs - dt * burn);
       paintDigestMeter();
-      // Ambient chamber motion — more often / bigger as the clock runs out
+      // Ambient chamber motion — more often as the clock runs out
       const danger = 1 - Math.max(0, Math.min(1, dm.remainingMs / Math.max(1, dm.totalMs)));
-      if (fxOn() && Math.random() < 0.09 + danger * 0.24) {
-        const roll = Math.random();
-        const kind = (danger > 0.62 && roll < 0.22) ? "burp"
-          : (roll < 0.45 + danger * 0.15 ? "gurgle" : "growl");
-        triggerDigestFx(kind);
+      if (fxOn() && Math.random() < 0.08 + danger * 0.18) {
+        triggerDigestFx(Math.random() < 0.35 + danger * 0.2 ? "gurgle" : "growl");
       }
       if (dm.remainingMs <= 0) {
         finishDigestMeter();
@@ -8184,7 +8021,7 @@ Once the speck is swallowed or already inside her stomach/gut (depth gut, SHOT i
         totalMs,
         remainingMs: game.bowel.remainingMs,
         lastTick: Date.now(),
-        factors: (game.digestMeter && game.digestMeter.factors) || { hunger: 0.2, fullness: 0.75, intent: 0.7 },
+        factors: normalizeFactors((game.digestMeter && game.digestMeter.factors) || { mood: 0.35, gut: 0.55, heat: 0.55 }),
       };
       if (!silent) {
         addNotice("You're digested. Disposal is running — Continue her night whenever you want.");
@@ -8237,7 +8074,6 @@ Once the speck is swallowed or already inside her stomach/gut (depth gut, SHOT i
       rootB.classList.remove("digest-hot", "digest-critical");
       rootB.classList.toggle("bowel-hot", ratio <= 0.4 && ratio > 0.18);
       rootB.classList.toggle("bowel-critical", ratio <= 0.18);
-      rootB.style.setProperty("--gut-danger", String((1 - Math.max(0, Math.min(1, ratio))).toFixed(3)));
       panel.classList.toggle("hot", ratio <= 0.4 && ratio > 0.18);
       panel.classList.toggle("critical", ratio <= 0.18);
       if (els.meter) els.meter.classList.add("digest-mode");
@@ -8431,6 +8267,8 @@ Once the speck is swallowed or already inside her stomach/gut (depth gut, SHOT i
     const RE_CALM = /\b(settle(s|d)?|gentle|soft hold|rub(s|bed|bing)?|pat(s|ted)?|lounge|rest(s|ing)?|asleep|keep(s|ing)? you|not yet)\b/i;
     const RE_FEED = /\b(just ate|full(er)?|stuffed|heavy meal|satisfied)\b/i;
     const RE_HUNGER = /\b(hungry|starving|empty|craving|needs? a snack)\b/i;
+    const RE_TEASE = /\b(tease|brat|mock|dare you|lick (the|her) lining|kiss (the|her) wall|nibble|flirt)\b/i;
+    const RE_RUB = /\b(rub(s|bed|bing)?|stroke(s|d)?|pet(s|ted)?|soothe|massage|press(es|ed|ing)? (soft|gentle)|nuzzle)\b/i;
     // Strict: only clear, intentional regurgitation language — not mere tongue/palm shots
     const RE_REGURG = /\b(regurgitat(e|es|ed|ing)|cough(s|ed|ing)? (you )?up|spit(s|ting)? (you )?out|hack(s|ed)? (you )?up|forces? (you )?back up|brings? (you )?back up|lets? (you )?out (of|through) (her )?(mouth|throat))\b/i;
 
@@ -8478,24 +8316,16 @@ Once the speck is swallowed or already inside her stomach/gut (depth gut, SHOT i
     function triggerDigestFx(kind) {
       if (!fxOn()) return;
       const root = document.documentElement;
-      const danger = gutDanger();
-      root.classList.remove("dig-burp", "dig-burp-big", "dig-growl", "dig-gurgle");
+      root.classList.remove("dig-burp", "dig-growl", "dig-gurgle");
       void root.offsetWidth;
-      playGutSound(kind === "churn" ? "gurgle" : kind, 0.4 + danger * 0.8);
       if (kind === "burp") {
-        const big = danger >= 0.42;
         root.classList.add("dig-burp");
-        if (big) root.classList.add("dig-burp-big");
-        spawnBubbles(big ? 34 : 26);
-        spawnDrips(big ? 18 : 14);
-        try {
-          navigator.vibrate && navigator.vibrate(big
-            ? [40, 30, 90, 20, 140, 30, 200, 40, 260]
-            : [30, 30, 80, 30, 120, 40, 180]);
-        } catch {}
+        spawnBubbles(26);
+        spawnDrips(14);
+        try { navigator.vibrate && navigator.vibrate([30, 30, 80, 30, 120, 40, 180]); } catch {}
       } else if (kind === "gurgle" || kind === "churn") {
         root.classList.add("dig-gurgle");
-        spawnDrips(10 + Math.round(danger * 8));
+        spawnDrips(10);
         try { navigator.vibrate && navigator.vibrate([20, 40, 20, 60, 20, 40]); } catch {}
       } else if (kind === "growl") {
         root.classList.add("dig-growl");
@@ -8503,8 +8333,8 @@ Once the speck is swallowed or already inside her stomach/gut (depth gut, SHOT i
       }
       if (digFxTimer) clearTimeout(digFxTimer);
       digFxTimer = setTimeout(() => {
-        root.classList.remove("dig-burp", "dig-burp-big", "dig-growl", "dig-gurgle");
-      }, kind === "burp" ? (danger >= 0.42 ? 1300 : 1100) : 900);
+        root.classList.remove("dig-burp", "dig-growl", "dig-gurgle");
+      }, kind === "burp" ? 750 : 900);
     }
 
     function nudgeDigestClock(deltaMs, note) {
@@ -8535,21 +8365,25 @@ Once the speck is swallowed or already inside her stomach/gut (depth gut, SHOT i
     function applyDigestBeat(shot, moment, line, userText) {
       const dm = game.digestMeter;
       if (!dm || !dm.active || game.gone) return;
+      dm.factors = normalizeFactors(dm.factors);
+      const f = dm.factors;
       const blob = [shot, moment, line, userText].join(" \n ");
       const userBlob = String(userText || "");
+      const wHit = beatWeight(f);
+      const wSoft = sootheWeight(f);
       let delta = 0;
       let note = "";
 
-      // Reverse path: ONLY explicit regurgitation language (shots alone never eject)
       if (RE_REGURG.test(blob)) {
-        const gain = 35 + Math.floor(Math.random() * 40);
+        const gain = Math.round((35 + Math.floor(Math.random() * 40)) * wSoft);
         delta += gain * 1000;
         note = "Coming back up (+" + gain + "s)";
-        dm.factors.intent = clamp01(dm.factors.intent - 0.1);
+        f.mood = clamp01(f.mood - 0.08);
+        f.gut = clamp01(f.gut - 0.12);
+        f.heat = clamp01(f.heat - 0.1);
         dm.remainingMs = Math.max(0, Math.min(DIGEST_MAX_MS, dm.remainingMs + delta));
         if (dm.remainingMs > dm.totalMs) dm.totalMs = dm.remainingMs;
         paintDigestMeter(note);
-        // Eject only if the text is unmistakably letting them out
         if (/\b(spit(s|ting)? (you )?out|lets? (you )?out|onto her (tongue|palm|hand)|out of her mouth)\b/i.test(blob)) {
           setDepth(shot === "palm" || shot === "look" ? 0 : 1, { absolute: true, allowExit: true });
         }
@@ -8557,51 +8391,57 @@ Once the speck is swallowed or already inside her stomach/gut (depth gut, SHOT i
         return;
       }
 
-      // Harsh, time-scaled penalties (~210% harder than prior baseline)
-      // Burp: ~1.5 min → 9–15 min | Squirm: ~2.3 min → ~12 min | Churn: ~1.3 min → ~8 min
-      if (RE_BURP.test(blob) || shot === "burp" || shot === "belch") {
-        const hit = scaledHitSeconds(dm, 35, 150); // 35s → 2:30
+      if (RE_SQUIRM.test(userBlob) || RE_SQUIRM.test(blob)) {
+        f.mood = clamp01(f.mood + 0.14);
+        f.gut = clamp01(f.gut + 0.18);
+        f.heat = clamp01(f.heat + 0.1);
+        const hit = Math.round(scaledHitSeconds(dm, 28, 95) * beatWeight(f));
         delta -= hit * 1000;
-        note = formatHitNote("Burp — critical hit", hit);
-        triggerDigestFx("burp");
-        dm.factors.intent = clamp01(dm.factors.intent + 0.08);
-        dm.factors.hunger = clamp01(dm.factors.hunger + 0.05);
-      } else if (RE_SQUIRM.test(blob) || RE_SQUIRM.test(userBlob)) {
-        const hit = scaledHitSeconds(dm, 40, 120); // 40s → 2:00
-        delta -= hit * 1000;
-        note = formatHitNote("Struggle draws a squeeze", hit);
+        note = formatHitNote("Struggle — she's annoyed", hit);
         triggerDigestFx("growl");
-        dm.factors.intent = clamp01(dm.factors.intent + 0.08);
-      } else if (RE_CHURN.test(blob) || shot === "digest" || shot === "taut") {
-        const hit = scaledHitSeconds(dm, 22, 75); // 22s → 1:15
+      } else if (RE_TEASE.test(userBlob) || RE_TEASE.test(blob)) {
+        f.mood = clamp01(f.mood + 0.16);
+        f.heat = clamp01(f.heat + 0.18);
+        f.gut = clamp01(f.gut + 0.06);
+        const hit = Math.round(scaledHitSeconds(dm, 20, 70) * beatWeight(f));
         delta -= hit * 1000;
-        note = formatHitNote("Chamber works you", hit);
+        note = formatHitNote("Tease — mood down, pace up", hit);
         triggerDigestFx("gurgle");
-        dm.factors.intent = clamp01(dm.factors.intent + 0.04);
-      } else if (RE_CALM.test(blob) || shot === "lounge" || shot === "hold" || shot === "rub" || shot === "pat") {
-        const gain = 18 + Math.floor(Math.random() * 22);
+      } else if (RE_RUB.test(userBlob) || RE_CALM.test(userBlob) || shot === "rub" || shot === "pat" || shot === "hold" || shot === "lounge") {
+        f.mood = clamp01(f.mood - 0.14);
+        f.gut = clamp01(f.gut - 0.18);
+        f.heat = clamp01(f.heat - 0.12);
+        const gain = Math.round((16 + Math.floor(Math.random() * 22)) * sootheWeight(f));
         delta += gain * 1000;
-        note = "She settles (+" + gain + "s)";
-        dm.factors.intent = clamp01(dm.factors.intent - 0.04);
-      } else if (RE_FEED.test(blob)) {
-        const gain = 20 + Math.floor(Math.random() * 25);
-        delta += gain * 1000;
-        note = "Fullness helps (+" + gain + "s)";
-        dm.factors.fullness = clamp01(dm.factors.fullness + 0.1);
-        dm.factors.hunger = clamp01(dm.factors.hunger - 0.08);
-      } else if (RE_HUNGER.test(blob)) {
-        const hit = scaledHitSeconds(dm, 18, 55);
+        note = "Rub / settle — stomach eases (+" + gain + "s)";
+      } else if (RE_BURP.test(blob) || shot === "burp" || shot === "belch") {
+        f.gut = clamp01(f.gut + 0.08);
+        f.heat = clamp01(f.heat + 0.06);
+        const hit = Math.round(scaledHitSeconds(dm, 30, 130) * beatWeight(f));
         delta -= hit * 1000;
-        note = formatHitNote("Hunger spikes", hit);
-        dm.factors.hunger = clamp01(dm.factors.hunger + 0.1);
+        note = formatHitNote("Burp", hit);
+        triggerDigestFx("burp");
+      } else if (RE_CHURN.test(blob) || shot === "digest" || shot === "taut") {
+        f.gut = clamp01(f.gut + 0.08);
+        const hit = Math.round(scaledHitSeconds(dm, 16, 60) * beatWeight(f));
+        delta -= hit * 1000;
+        note = formatHitNote("Walls work you", hit);
+        triggerDigestFx("gurgle");
+      } else if (RE_FEED.test(blob)) {
+        f.heat = clamp01(f.heat - 0.1);
+        f.gut = clamp01(f.gut - 0.06);
+        const gain = Math.round((14 + Math.floor(Math.random() * 18)) * sootheWeight(f));
+        delta += gain * 1000;
+        note = "She's full. Pace drops (+" + gain + "s)";
+      } else if (RE_HUNGER.test(blob)) {
+        f.heat = clamp01(f.heat + 0.12);
+        const hit = Math.round(scaledHitSeconds(dm, 12, 40) * beatWeight(f));
+        delta -= hit * 1000;
+        note = formatHitNote("She's empty. Pace up", hit);
       } else {
-        const hit = scaledHitSeconds(dm, 6, 18);
+        const hit = Math.round(scaledHitSeconds(dm, 5, 16) * beatWeight(f));
         delta -= hit * 1000;
         note = formatHitNote("Slow burn", hit);
-      }
-
-      if (/\b(dare|snack|eat me|digest me|finish me)\b/i.test(userBlob)) {
-        dm.factors.intent = clamp01(dm.factors.intent + 0.08);
       }
 
       dm.remainingMs = Math.max(0, Math.min(DIGEST_MAX_MS, dm.remainingMs + delta));
@@ -9738,17 +9578,17 @@ Never copy SPEECH: or ACTION: into your reply. Reply only with MOMENT, SAY, SHOT
         }
       } else if (game.digestMeter && game.digestMeter.active && !game.gone) {
         const dm = game.digestMeter;
-        const secs = Math.max(0, Math.ceil(dm.remainingMs / 1000));
-        meterNote = " DIGEST-O METER is active: ~" + secs + "s left on the chamber clock."
-          + " Hunger=" + labelLevel(dm.factors.hunger)
-          + ", Fullness=" + labelLevel(dm.factors.fullness)
-          + ", Intent=" + labelLevel(dm.factors.intent)
-          + ". Do NOT finish/digest the speck unless the writing is extremely explicit about final digestion."
-          + " Burps/belches are intense (critical). Calm holds, rubs, and settling buy the speck time."
-          + " Prefer SHOT inside, hold, rub, pat, lounge, burp, belch, taut, full, smug."
-          + " Do NOT pick outside shots (look, palm, shoe, street) — they are still inside."
-          + " Do NOT regurgitate unless the player clearly begs out AND she agrees in-character."
-          + " INSIDE RULE: she cannot SEE the speck — only feel them (or a tiny bulge if they struggle).";
+        const f = normalizeFactors(dm.factors);
+        meterNote = " BODY: they are alive in her stomach."
+          + " Her mood is " + moodWord(f.mood).toLowerCase()
+          + "; the walls are " + gutWord(f.gut).toLowerCase()
+          + "; digestion is " + heatWord(f.heat).toLowerCase() + "."
+          + (f.mood >= 0.6 ? " She is short with them — annoyed, not playful." : f.mood < 0.35 ? " She can still sound fond." : " Even, private.")
+          + (f.gut >= 0.6 ? " Walls clenched; kicks make it worse." : f.gut < 0.35 ? " Soft hold; a rub would land." : "")
+          + (f.heat >= 0.6 ? " The work is faster than last beat." : f.heat < 0.35 ? " Pace is lazy." : "")
+          + " Struggle raises mood-heat-clench. Rubbing the lining eases her. Teasing stresses her and speeds the work."
+          + " Do NOT finish them unless STATE says the body has finished them."
+          + " Prefer SHOT inside, hold, rub, pat, lounge, burp, taut, smug. She cannot see them.";
       } else if (game.depth >= 3 && !game.gone) {
         meterNote = " Speck is INSIDE the gut. Digestion is NOT finished. Keep them present and able to act."
           + " She cannot see them — only feel pressure/kicks/warmth, or notice a tiny bulge if they squirm."
