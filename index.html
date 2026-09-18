@@ -1433,6 +1433,30 @@
       max-height: min(46vh, 420px);
       box-shadow: 0 12px 40px rgba(0,0,0,.45), inset 0 0 0 1px var(--hair);
     }
+    #burpStamp {
+      position: absolute;
+      left: 10px;
+      bottom: 10px;
+      z-index: 5;
+      font-size: .62rem;
+      font-weight: 900;
+      letter-spacing: .14em;
+      text-transform: uppercase;
+      color: #3dff6a;
+      text-shadow: 0 1px 0 #06200c, 0 0 10px rgba(60,255,110,.55);
+      opacity: 0;
+      pointer-events: none;
+      transform: translateY(6px) rotate(-6deg);
+    }
+    #burpStamp.on {
+      animation: burpStampPop 1.15s ease-out forwards;
+    }
+    @keyframes burpStampPop {
+      0% { opacity: 0; transform: translateY(8px) rotate(-8deg) scale(.85); }
+      18% { opacity: 1; transform: translateY(0) rotate(-6deg) scale(1.08); }
+      70% { opacity: 1; }
+      100% { opacity: 0; transform: translateY(-6px) rotate(-4deg) scale(1); }
+    }
     #stage img {
       width: 100%; height: 100%;
       object-fit: cover;
@@ -2371,8 +2395,34 @@
       font-size: .7rem; font-weight: 800; letter-spacing: .04em; text-transform: uppercase;
     }
     .night-tabs button.on {
-      border-color: var(--cyan); color: #081018;
-      background: var(--cyan);
+      border-color: var(--tab, var(--cyan)); color: #081018;
+      background: var(--tab, var(--cyan));
+    }
+    #nightTabBegin { --tab: #7ec8ff; }
+    #nightTabGut { --tab: #c8f06a; }
+    #nightTabConor { --tab: #ffb060; }
+    #nightTabAll { --tab: var(--neon); }
+    #nightTabBegin.on, #nightTabGut.on, #nightTabConor.on, #nightTabAll.on {
+      border-color: var(--tab); background: var(--tab); color: #0a0810;
+    }
+    .lib-split {
+      height: 1px;
+      margin: 4px 0 14px;
+      border: 0;
+      background: linear-gradient(90deg, transparent, var(--neon), var(--cyan), transparent);
+      opacity: .7;
+    }
+    #begHead, #gutHead {
+      font-size: .68rem;
+      letter-spacing: .14em;
+      text-transform: uppercase;
+      font-weight: 800;
+    }
+    #begWrap h3 { color: #7ec8ff; }
+    #gutWrap h3 { color: #c8f06a; }
+    .tag-tabs button.on {
+      background: color-mix(in srgb, var(--neon) 18%, var(--panel));
+      color: var(--ink);
     }
     #nightSearch, #chatSearch {
       width: 100%; min-height: 44px; margin: 0 0 10px;
@@ -2389,7 +2439,36 @@
     .night-card .badge.giant { color: #ffb060; border-color: color-mix(in srgb, #ffb060 40%, var(--hair)); }
     .night-card .badge.aware { color: #9fe8c0; border-color: color-mix(in srgb, #9fe8c0 40%, var(--hair)); }
     .night-card .badge.unaware { color: #c8c0e8; border-color: color-mix(in srgb, #c8c0e8 40%, var(--hair)); }
-    .night-card .badge.intentional { color: #ff9a6a; border-color: color-mix(in srgb, #ff9a6a 40%, var(--hair)); }
+    .night-card .badge.intentional { color: #ff9a6a; border-color: color-mix(in srgb, #ff9a6a 40%, var(--hair)); background: color-mix(in srgb, #ff9a6a 12%, transparent); }
+    .night-card .badge.unintentional { color: #8ad4ff; border-color: color-mix(in srgb, #8ad4ff 40%, var(--hair)); background: color-mix(in srgb, #8ad4ff 10%, transparent); }
+    .night-card .badge.caring { color: #9fe8c0; border-color: color-mix(in srgb, #9fe8c0 40%, var(--hair)); background: color-mix(in srgb, #9fe8c0 10%, transparent); }
+    .night-card .badge.mean { color: #ff8aa0; border-color: color-mix(in srgb, #ff8aa0 40%, var(--hair)); background: color-mix(in srgb, #ff8aa0 10%, transparent); }
+    .night-card .badge.sleeping { color: #b8c0ff; border-color: color-mix(in srgb, #b8c0ff 40%, var(--hair)); background: color-mix(in srgb, #b8c0ff 10%, transparent); }
+    .ask-sheet {
+      position: fixed; inset: 0; z-index: 90;
+      display: none; place-items: center;
+      background: rgba(6,4,8,.55);
+      padding: 24px;
+    }
+    .ask-sheet.show { display: grid; }
+    .ask-card {
+      width: min(360px, 100%);
+      padding: 18px 16px 14px;
+      border-radius: 16px;
+      background: var(--panel2);
+      border: 1px solid var(--hair);
+      box-shadow: 0 16px 40px rgba(0,0,0,.45);
+    }
+    .ask-card p { margin: 0 0 14px; font-size: .92rem; line-height: 1.4; color: var(--ink); }
+    .ask-actions { display: flex; gap: 8px; }
+    .ask-actions button {
+      flex: 1; min-height: 42px; border-radius: 12px;
+      border: 1px solid var(--hair); background: var(--panel); color: var(--ink);
+      font-weight: 800; font-size: .78rem;
+    }
+    .ask-actions .ask-yes {
+      background: var(--neon); color: #140814; border-color: transparent;
+    }
     .night-card .badge.unintentional { color: #f0e090; border-color: color-mix(in srgb, #f0e090 40%, var(--hair)); }
     .night-card .badge.mean { color: #ff7a8a; border-color: color-mix(in srgb, #ff7a8a 40%, var(--hair)); }
     .night-card .badge.caring { color: #8ad4ff; border-color: color-mix(in srgb, #8ad4ff 40%, var(--hair)); }
@@ -2553,10 +2632,18 @@
       justify-content: space-between;
       gap: 8px;
       margin-top: 6px;
-      min-height: 1.05em;
-      font-size: .58rem;
-      letter-spacing: .04em;
+      min-height: 1.15em;
+      font-size: .56rem;
+      letter-spacing: .03em;
       color: var(--muted);
+    }
+    #vitalLog .v-item { display: flex; gap: 5px; align-items: baseline; min-width: 0; }
+    #vitalLog .v-k {
+      font-size: .48rem;
+      font-weight: 800;
+      letter-spacing: .1em;
+      text-transform: uppercase;
+      opacity: .65;
     }
     #vitalLog b { font-weight: 800; }
     #vitalLog .down { color: #ff7a70; }
@@ -3617,6 +3704,15 @@
 </head>
 <body>
   <div id="toasts" aria-live="polite" aria-relevant="additions"></div>
+  <div id="askSheet" class="ask-sheet" hidden>
+    <div class="ask-card">
+      <p id="askCopy">Are you sure?</p>
+      <div class="ask-actions">
+        <button type="button" id="askNo">Cancel</button>
+        <button type="button" id="askYes" class="ask-yes">Yes</button>
+      </div>
+    </div>
+  </div>
   <div id="world" aria-hidden="true"><i class="alley"></i><i class="mouth"></i><i class="throat"></i><i class="gut"></i></div>
   <div id="gulp" class="fate" role="dialog" aria-label="Swallowed">
     <h2>Gulp</h2>
@@ -3688,6 +3784,7 @@
     <span id="zoomIcon" aria-hidden="true"><svg class="z-in" viewBox="0 0 24 24" width="14" height="14"><path d="M14 4h6v6M10 20H4v-6M20 4l-6.5 6.5M4 20l6.5-6.5" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg><svg class="z-out" viewBox="0 0 24 24" width="16" height="16"><path d="M20 10h-6V4M4 14h6v6M14 10l6.5-6.5M10 14l-6.5 6.5" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
     <div id="vignette"></div>
     <div id="shotchip">establish</div>
+    <div id="burpStamp" aria-hidden="true">Burp</div>
     <div id="progress" hidden><span></span></div>
   </figure>
   <p id="thumbHint">Tap to enlarge</p>
@@ -3749,8 +3846,8 @@
       </div>
     </div>
     <div id="vitalLog" aria-live="polite">
-      <span id="vitalHpNote"></span>
-      <span id="vitalTimeNote"></span>
+      <span class="v-item"><span class="v-k">HP</span><span id="vitalHpNote"></span></span>
+      <span class="v-item"><span class="v-k">Time</span><span id="vitalTimeNote"></span></span>
     </div>
   </div>
   </div>
@@ -3785,6 +3882,7 @@
       </div>
       <div id="libStoriesPane">
         <div id="faceList"></div>
+        <hr class="lib-split" />
         <div class="night-tools">
           <div class="night-tabs" role="tablist">
             <button type="button" id="nightTabBegin">Outside</button>
@@ -9050,7 +9148,7 @@ If STATE says she is asleep: she stays asleep. MOMENT is narrator + body (breath
       if (hpEl) {
         if (hp && hp.n) {
           const cls = hp.n < 0 ? "down" : "up";
-          hpEl.innerHTML = "<b class=\"" + cls + "\">" + (hp.n < 0 ? "−" : "+") + Math.round(Math.abs(hp.n)) + "</b> " + (hp.why || "you");
+          hpEl.innerHTML = "<b class=\"" + cls + "\">" + (hp.n < 0 ? "−" : "+") + Math.round(Math.abs(hp.n)) + " hp</b> " + (hp.why || "you");
         } else hpEl.textContent = "";
       }
       if (timeEl) {
@@ -9093,6 +9191,15 @@ If STATE says she is asleep: she stays asleep. MOMENT is narrator + body (breath
       return game.hp;
     }
 
+    function flashBurpStamp() {
+      const el = document.getElementById("burpStamp");
+      if (!el) return;
+      el.classList.remove("on");
+      void el.offsetWidth;
+      el.classList.add("on");
+      setTimeout(() => el.classList.remove("on"), 1200);
+    }
+
     function applyGasDelta(n) {
       if (!n) return game.gas;
       migrateVitals();
@@ -9108,7 +9215,7 @@ If STATE says she is asleep: she stays asleep. MOMENT is narrator + body (breath
         paintVitals();
         return;
       }
-      if (game._gasBurstAt && Date.now() - game._gasBurstAt < 1800) return;
+      if (game._gasBurstAt && Date.now() - game._gasBurstAt < 4200) return;
       game._gasBurstAt = Date.now();
       migrateVitals();
       const dm = game.digestMeter;
@@ -9126,6 +9233,7 @@ If STATE says she is asleep: she stays asleep. MOMENT is narrator + body (breath
           recordTimeLog(-clockHit * 1000, "burp");
           paintDigestMeter("Burp — the chamber vents (−" + clockHit + "s)");
           triggerDigestFx("burp");
+          flashBurpStamp();
           finishDigestMeter();
           return;
         }
@@ -9137,6 +9245,7 @@ If STATE says she is asleep: she stays asleep. MOMENT is narrator + body (breath
       applyHpDelta(-hpHit, { skipFinish: true, reason: "burp" });
       recordTimeLog(-clockHit * 1000, "burp");
       triggerDigestFx("burp");
+      flashBurpStamp();
       paintVitals();
       persist();
       if (dm && dm.active && !busy) {
@@ -9696,7 +9805,7 @@ If STATE says she is asleep: she stays asleep. MOMENT is narrator + body (breath
       const danger = 1 - Math.max(0, Math.min(1, dm.remainingMs / Math.max(1, dm.totalMs)));
       const sec = Math.max(0.2, dt / 1000);
       applyHpDelta(-(0.09 + dm.factors.stomach * 0.22 + dm.factors.pace * 0.14 + danger * 0.28) * sec, { skipFinish: true, quiet: true });
-      applyGasDelta((0.55 + dm.factors.stomach * 1.15 + dm.factors.pace * 0.95 + danger * 1.35) * sec);
+      applyGasDelta((0.28 + dm.factors.stomach * 0.62 + dm.factors.pace * 0.48 + danger * 0.7) * sec);
       paintDigestMeter();
       if (fxOn() && Math.random() < 0.07 + danger * 0.16) {
         triggerDigestFx(Math.random() < 0.55 ? "gurgle" : "growl");
@@ -11011,10 +11120,6 @@ If STATE says she is asleep: she stays asleep. MOMENT is narrator + body (breath
 
     function newChat(scenarioId, characterId) {
       const s = scenarioOf(scenarioId);
-      if (hasPlay() && game.scenarioId !== s.id) {
-        const ok = confirm("Start \"" + (s.title || "this night") + "\"? Current night stays in Saved chats.");
-        if (!ok) return;
-      }
       swapView(() => {
         stopDigestMeter({ clear: true });
         activeChatId = "chat-" + Date.now();
@@ -11064,6 +11169,28 @@ If STATE says she is asleep: she stays asleep. MOMENT is narrator + body (breath
       });
     }
 
+    function askConfirm(copy, yesLabel) {
+      return new Promise((resolve) => {
+        const sheet = document.getElementById("askSheet");
+        const p = document.getElementById("askCopy");
+        const y = document.getElementById("askYes");
+        const n = document.getElementById("askNo");
+        if (!sheet || !y || !n) { resolve(window.confirm(copy)); return; }
+        p.textContent = copy;
+        y.textContent = yesLabel || "Yes";
+        sheet.hidden = false;
+        sheet.classList.add("show");
+        const done = (ok) => {
+          sheet.classList.remove("show");
+          sheet.hidden = true;
+          y.onclick = n.onclick = null;
+          resolve(!!ok);
+        };
+        y.onclick = () => done(true);
+        n.onclick = () => done(false);
+      });
+    }
+
     function renameChat(id) {
       const lib = readLib();
       const chat = lib.chats[id];
@@ -11081,10 +11208,11 @@ If STATE says she is asleep: she stays asleep. MOMENT is narrator + body (breath
       }
     }
 
-    function deleteChat(id) {
+    async function deleteChat(id) {
       const lib = readLib();
       if (!lib.chats[id]) return;
-      if (!confirm("Delete this chat?")) return;
+      const ok = await askConfirm("Delete this chat?", "Delete");
+      if (!ok) return;
       delete lib.chats[id];
       if (lib.activeId === id) lib.activeId = null;
       writeLib(lib);
@@ -11273,13 +11401,13 @@ If STATE says she is asleep: she stays asleep. MOMENT is narrator + body (breath
       const begins = [];
       (pack.scenarios || []).forEach((id) => {
         const s = SCENARIOS[id];
-        if (!s || s.gut || gutSet.has(id)) return;
+        if (!s || s.hidden || s.gut || gutSet.has(id)) return;
         if (nightMatches(s, tabSet, q)) begins.push(s);
       });
       const guts = [];
       (pack.gutNights || []).forEach((id) => {
         const s = SCENARIOS[id];
-        if (!s) return;
+        if (!s || s.hidden) return;
         if (nightMatches(s, tabSet, q)) guts.push(s);
       });
       if (begHead) begHead.textContent = "Outside · " + begins.length;
@@ -12421,9 +12549,10 @@ Never copy SPEECH: or ACTION: into your reply. Reply only with MOMENT, SAY, SHOT
       paintThinkBtn();
     }
 
-    function resetNight() {
+    async function resetNight() {
       if (busy) return;
-      if (!confirm("Start the night over? This clears the saved chat on this phone.")) return;
+      const ok = await askConfirm("Start this night over? The saved chat on this phone is cleared.", "Restart");
+      if (!ok) return;
       if (bowelTimer) { clearInterval(bowelTimer); bowelTimer = null; }
       stopDigestMeter({ clear: true });
       clearSave();
