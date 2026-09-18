@@ -3730,7 +3730,7 @@ establish=her shoe or the room looming, look=her face filling the sky, wave=gian
 No markdown. No extra labels. Never mention AI, models, prompts, or being an actor. Stay in the current scenario location unless STATE says you moved. If STATE conflicts with earlier chat, STATE wins.
 
 STAKES
-This is vore. Swallow is on the table from the first look. Do not fade to fade-to-black when she eats the speck. MOMENT should feel the mouth, throat, or stomach when that is what happened. The girl stays in character. She is not shy about the snack.
+This is vore. Swallow is on the table from the first look. Do not fade to fade-to-black when she eats the speck. MOMENT should feel the mouth, throat, or stomach when that is what happened. The girl stays in character. STANCE TAGS and her DIGESTION STANCE beat generic hunger: a helper does not turn cruel; a sleeper does not hold a conversation; an unaware girl does not name the speck until she knows.
 
 INSIDE / STOMACH (critical — never break this)
 Once the speck is swallowed or already inside her stomach/gut (depth gut, SHOT inside/hold/rub/lounge/burp/pat/digest/full/taut, or STATE says they are inside):
@@ -4061,10 +4061,10 @@ If STATE says she is asleep: she stays asleep. MOMENT is narrator + body (breath
         mood: "asleep, unaware",
         shot: "bed",
         gut: true,
-        hook: "SCENARIO: Speck inside. Ang is asleep. No dialogue from her unless the speck causes a dream-mumble. Prefer SHOT bed, lounge, digest, hold. SAY can be a sleep-noise or empty.",
+        hook: "SCENARIO: Speck inside. Ang is asleep. No dialogue from her unless the speck causes a dream-mumble. Prefer SHOT bed, lounge, digest, hold. SAY can be a sleep-noise or empty. ASLEEP: she stays asleep. SAY empty or a sleep-sound only. Do not converse.",
         opening: {
           moment: "The chamber rises and falls with her breath. Streetlight through the blind. She does not know you are the reason she is warm.",
-          line: "Mm.",
+          line: "",
         },
       },
       "ang-cards": {
@@ -4710,7 +4710,7 @@ If STATE says she is asleep: she stays asleep. MOMENT is narrator + body (breath
       },
       "billie-after": {
         id: "billie-after",
-        tags: ['sleeping', 'unaware', 'intentional', 'caring'],
+        tags: ['aware', 'intentional', 'caring'],
         title: "Hoodie quiet",
         sub: "Hand on midriff",
         blurb: "She already has you. Playlist on. She is not performing it.",
@@ -5781,7 +5781,7 @@ If STATE says she is asleep: she stays asleep. MOMENT is narrator + body (breath
       },
       "maddy-after": {
         id: "maddy-after",
-        tags: ['sleeping', 'unaware', 'intentional', 'mean'],
+        tags: ['aware', 'intentional', 'mean'],
         title: "Couch quiet",
         sub: "Hand on midriff",
         blurb: "TV low. She already has you. The story is that nothing happened.",
@@ -6279,7 +6279,7 @@ If STATE says she is asleep: she stays asleep. MOMENT is narrator + body (breath
         hook: "SCENARIO: Speck inside sleeping Maggie. Minimal SAY unless she stirs. Prefer SHOT bed, rest, hold, inside.",
         opening: {
           moment: "The chamber rises with a long commute-breath. A hallway light under the door. Mom's TV downstairs.",
-          line: "Mm.",
+          line: "",
         },
       },
       "maggie-commute": {
@@ -11063,15 +11063,18 @@ If STATE says she is asleep: she stays asleep. MOMENT is narrator + body (breath
         return;
       }
       if (inGut) {
+        const tags = (typeof scenarioTags === "function") ? scenarioTags(scenarioOf(game.scenarioId)) : [];
+        const caring = tags.indexOf("caring") >= 0;
+        const asleep = tags.indexOf("sleeping") >= 0;
         if (/\b(rub|nuzzle|stroke|soothe)\b/.test(t)) {
           game.playerPlace = "rubbing along a fold of her stomach";
-          game.mood = "feeling a small careful motion instead of a kick";
+          game.mood = asleep ? "asleep; a small rub in the chamber" : (caring ? "feeling a careful motion she did not ask for" : "feeling a small careful motion instead of a kick");
         } else if (/\b(beg|please|let me out|don't (finish|digest))\b/.test(t)) {
           game.playerPlace = "pressed up under her navel, begging";
-          game.mood = "hearing a voice she cannot see";
+          game.mood = asleep ? "asleep; she does not answer" : (caring ? "trying to help a voice she cannot see" : "hearing a voice she cannot see");
         } else if (/\b(climb|escape|way i came|cardia|throat|opening)\b/.test(t)) {
           game.playerPlace = "climbing folds toward the way in";
-          game.mood = "feeling someone try the wrong direction on purpose";
+          game.mood = asleep ? "asleep; motion in the chamber" : (caring ? "feeling someone try to get out — she wants that too" : "feeling someone try the wrong direction on purpose");
         } else {
           game.playerPlace = game.playerPlace || "in the dark warm chamber";
         }
@@ -11187,6 +11190,20 @@ Never copy SPEECH: or ACTION: into your reply. Reply only with MOMENT, SAY, SHOT
           + (tags.indexOf("caring") >= 0 ? " Tone is care, guilt, help — not cruelty." : "")
           + (tags.indexOf("mean") >= 0 ? " Tone can be selfish, teasing, or unapologetic." : "");
       }
+      const packId = c.id || "";
+      if (/nat|fran|maggie|alex|priya/.test(packId)) {
+        stanceNote += " PACK: she tries to help / undo. Not a predator bit.";
+      } else if (/maddy|keke|sable/.test(packId)) {
+        stanceNote += " PACK: unapologetic. She owns what happened.";
+      } else if (packId === "billie") {
+        stanceNote += " PACK: vegan — never frame the speck as meat.";
+      } else if (packId === "ang") {
+        stanceNote += " PACK: blunt, fair, roast-first. Not cruel for sport.";
+      } else if (packId === "tessa") {
+        stanceNote += " PACK: denial first, then messy help.";
+      } else if (packId === "wren") {
+        stanceNote += " PACK: starts protective; may lean in later. Say the ugly sentence if she turns.";
+      }
       const recap = sceneRecap();
       const sleepBlob = [s.id, s.title, s.mood, s.hook, game.mood].join(" ").toLowerCase();
       const sleepNight = /\b(asleep|lights out|sleeping)\b/.test(sleepBlob);
@@ -11209,7 +11226,7 @@ Never copy SPEECH: or ACTION: into your reply. Reply only with MOMENT, SAY, SHOT
       ];
     }
 
-    const SPEAKER_LABEL = "DAWN|SAY|RAE|ANG|ANGELA|MADDY|MADISON|MAGGIE|NAT|NATALIE|FRAN|FRANCESCA|ALEX|ALEXANDRA|KEKE|KEISHA|MARA|SABLE|TESSA|PRIYA|WREN|BILLIE|CARDI|JUNE|ZENDAYA|SYDNEY|JLAW";
+    const SPEAKER_LABEL = "DAWN|SAY|RAE|ANG|ANGELA|MADDY|MADISON|MAGGIE|NAT|NATALIE|FRAN|FRANCESCA|ALEX|ALEXANDRA|KEKE|KEISHA|MARA|SABLE|TESSA|PRIYA|WREN|BILLIE|CARDI|JUNE|ZENDAYA|SYDNEY|JLAW|JENNIFER|ICE ?SPICE|ICE";
     const MAJOR_WAKE_RE = /\b(wake(s|d)? (her|up)|wakes? her|alarm|slap(s|ped)? (her )?face|scream(s|ed|ing)?|yell(s|ed|ing)? (her name|in her ear)|dump(s|ed)? (ice )?water|ice water|shake(s|n)? her|shaking her|fire alarm|smoke)\b/i;
 
     function sanitizeModelText(raw) {
