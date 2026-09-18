@@ -8972,7 +8972,12 @@ If STATE says she is asleep: she stays asleep. MOMENT is narrator + body (breath
       }
       startDigestTicker();
       persist();
-      if (!(saved && (saved.silent || saved.startedAt))) fireClockBeat("settle");
+      // Auto-skip from grace must NOT reboot the girl. Only a continuity beat, never a fresh intro.
+      if (!(saved && (saved.silent || saved.startedAt))) {
+        if (!game.location) game.location = scenarioOf(game.scenarioId).location;
+        if (!game.playerPlace) game.playerPlace = "in the dark warm chamber";
+        fireClockBeat("settle");
+      }
     }
 
     function startDigestTicker() {
@@ -9387,8 +9392,8 @@ If STATE says she is asleep: she stays asleep. MOMENT is narrator + body (breath
 
     const CLOCK_BEATS = {
       settle: {
-        user: "ACTION: I go still against the lining as the chamber wakes up around me.",
-        extra: " The speck is still alive inside. React to the chamber waking up — pressure, heat, a first real squeeze. Do NOT finish them. SAY is a NEW line. Prefer SHOT inside, hold, taut, smug.",
+        user: "ACTION: I stay where I already am. The chamber just gets more serious around me. Same room. Same night. Do not restart.",
+        extra: " CONTINUITY LOCK: this is NOT a new scene and NOT an introduction. Same girl, same room, same clothes, same last beat. She does not greet anyone, does not change location, does not forget who is inside. React only to the chamber tightening after the settle time. Do NOT finish them. If she is asleep, she stays asleep — no conversation. Prefer SHOT inside, hold, taut, full. SAY only if she is awake.",
       },
       digest: {
         user: "ACTION: The squeeze has a last long hold. I go quiet against the wall.",
@@ -9428,8 +9433,10 @@ If STATE says she is asleep: she stays asleep. MOMENT is narrator + body (breath
       setBusy(true);
       try {
         const raw = await askActor(buildMessages(user, { extra: extra, clockKind: kind }));
-        const parsed = parseActor(raw);
-        const shot = pickShot({ userText: user, moment: parsed.moment, line: parsed.line, actorShot: parsed.actorShot });
+        const parsed = applySleepGate(parseActor(raw), user);
+        if (!parsed.moment && !parsed.line) parsed.moment = "The chamber keeps the last beat. Nothing new to introduce.";
+        let shot = pickShot({ userText: user, moment: parsed.moment, line: parsed.line, actorShot: parsed.actorShot });
+        if (kind === "settle" && (game.depth || 0) >= 3 && /^(look|wave|establish|street|phone|whisper)$/.test(shot)) shot = "inside";
         setStill(shot);
         typing.remove();
         addTurn({ moment: parsed.moment, line: parsed.line });
@@ -10941,45 +10948,36 @@ If STATE says she is asleep: she stays asleep. MOMENT is narrator + body (breath
     }
 
     function actionPrompts() {
-      const name = speakerName();
       if (game.bowel && game.bowel.active) {
         return {
-          look: { label: "Brace", text: "ACTION: I brace in the tighter, foamy dark as acid and pressure shove me lower." },
-          talk: { label: "Gripe", text: "ACTION: I call up one last time through the churn.\nSPEECH: You're moving me. I can feel where this is going." },
-          hide: { label: "Go limp", text: "ACTION: I stop fighting the slow filthy push and let a fold carry me." },
-          tease: { label: "Kick", text: "ACTION: I kick in the narrowing tract even as the walls work me toward a bathroom." },
+          look: { label: "Brace", kind: "rub" },
+          talk: { label: "Gripe", kind: "beg" },
+          hide: { label: "Go limp", kind: "attempt" },
+          tease: { label: "Kick", kind: "struggle" },
         };
       }
       const inGut = (game.depth || 0) >= 3 || (game.digestMeter && game.digestMeter.active);
       if (inGut) {
         return {
-          look: { label: "Rub", kind: "rub", text: "ACTION: I rub along the inside of " + name + "'s stomach wall, slow, trying to ease her instead of kicking." },
-          talk: { label: "Beg", kind: "beg", text: "ACTION: I press up under her navel so she has to feel me.\nSPEECH: Please. Don't finish me. Get me out." },
-          hide: { label: "Attempt", kind: "attempt", text: "ACTION: I climb toward the way I came, looking for any lift or opening back toward her throat." },
-          tease: { label: "Struggle", text: "ACTION: I thrash and kick hard against the stomach walls so she has to notice the bulge." },
+          look: { label: "Rub", kind: "rub" },
+          talk: { label: "Beg", kind: "beg" },
+          hide: { label: "Attempt", kind: "attempt" },
+          tease: { label: "Struggle", kind: "struggle" },
         };
       }
-      if ((game.depth || 0) === 2) {
+      if ((game.depth || 0) >= 1) {
         return {
-          look: { label: "Taste", text: "ACTION: I hold onto a taste bud on " + name + "'s tongue and feel the spit string." },
-          talk: { label: "Cheek", text: "ACTION: I slip into her cheek while she talks.\nSPEECH: Don't swallow yet." },
-          hide: { label: "Under", text: "ACTION: I slide under her tongue into the wet dark." },
-          tease: { label: "Dare gulp", text: "ACTION: I crawl toward the back of her tongue.\nSPEECH: Do it. Gulp." },
-        };
-      }
-      if ((game.depth || 0) === 1) {
-        return {
-          look: { label: "Taste", text: "ACTION: I climb onto " + name + "'s tongue and press into the wet heat." },
-          talk: { label: "Cheek", text: "ACTION: I wave from her lower lip.\nSPEECH: You going to keep me here?" },
-          hide: { label: "Under", text: "ACTION: I hide under her tongue." },
-          tease: { label: "Offer", text: "ACTION: I present myself on the pad of her tongue.\nSPEECH: Your move." },
+          look: { label: "Hold on", kind: "rub" },
+          talk: { label: "Beg", kind: "beg" },
+          hide: { label: "Attempt", kind: "attempt" },
+          tease: { label: "Struggle", kind: "struggle" },
         };
       }
       return {
-        look: { label: "Climb", text: "ACTION: I climb " + name + "'s finger, using the print like a cliff." },
-        talk: { label: "Palm", text: "ACTION: I walk out onto her open palm and plant both hands on the skin." },
-        hide: { label: "Tuck", text: "ACTION: I tuck into the heat of her waistband / cleavage, against skin." },
-        tease: { label: "Offer", text: "ACTION: I step onto her fingertip and look up.\nSPEECH: Tongue or swallow. Your call." },
+        look: { label: "Rub", kind: "rub" },
+        talk: { label: "Beg", kind: "beg" },
+        hide: { label: "Attempt", kind: "attempt" },
+        tease: { label: "Struggle", kind: "struggle" },
       };
     }
 
@@ -11181,23 +11179,80 @@ Never copy SPEECH: or ACTION: into your reply. Reply only with MOMENT, SAY, SHOT
       ];
     }
 
+    const SPEAKER_LABEL = "DAWN|SAY|RAE|ANG|ANGELA|MADDY|MADISON|MAGGIE|NAT|NATALIE|FRAN|FRANCESCA|ALEX|ALEXANDRA|KEKE|KEISHA|MARA|SABLE|TESSA|PRIYA|WREN|BILLIE|CARDI|JUNE|ZENDAYA|SYDNEY|JLAW";
+    const MAJOR_WAKE_RE = /\b(wake(s|d)? (her|up)|wakes? her|alarm|slap(s|ped)? (her )?face|scream(s|ed|ing)?|yell(s|ed|ing)? (her name|in her ear)|dump(s|ed)? (ice )?water|ice water|shake(s|n)? her|shaking her|fire alarm|smoke)\b/i;
+
+    function sanitizeModelText(raw) {
+      let t = String(raw || "");
+      t = t.replace(/```[\s\S]*?```/g, "\n");
+      t = t.replace(/~~~[\s\S]*?~~~/g, "\n");
+      t = t.replace(/<\|?[\s\S]*?\|>/g, " ");
+      t = t.replace(/<\/?[^>\n]+>/g, " ");
+      t = t.replace(/\*\*(THINKING|REASONING|SYSTEM|PROMPT)\*\*[\s\S]*?(?=\n[A-Z]{3,}:|\n\n|$)/gi, "\n");
+      t = t.replace(/^(okay|sure|here(?:'s| is)|as requested|of course)[^\n]*\n/i, "");
+      const momentAt = t.search(/(?:^|\n)\s*MOMENT:/i);
+      if (momentAt > 0) t = t.slice(momentAt);
+      if (/you are the actor|STAKES\n|INSIDE \/ STOMACH|Never mention AI/i.test(t) && t.length > 900) {
+        const cut = t.search(/\n\s*MOMENT:/i);
+        if (cut >= 0) t = t.slice(cut);
+      }
+      return t.replace(/[ \t]+/g, " ").replace(/\n{3,}/g, "\n\n").trim();
+    }
+
+    function clampBeat(str, max) {
+      let t = String(str || "").replace(/\s+/g, " ").trim();
+      if (!t) return "";
+      if (t.length <= max) return t;
+      const cut = t.lastIndexOf(".", max);
+      return (cut > 40 ? t.slice(0, cut + 1) : t.slice(0, max)).trim();
+    }
+
+    function nightIsAsleep() {
+      const s = scenarioOf(game.scenarioId);
+      const tags = (typeof scenarioTags === "function") ? scenarioTags(s) : (s.tags || []);
+      if (tags.indexOf("sleeping") >= 0) return true;
+      return /\b(asleep|lights out|sleeping)\b/i.test([s.id, s.title, s.mood, game.mood].join(" "));
+    }
+
+    function applySleepGate(parsed, userText) {
+      parsed = parsed || { moment: "", line: "", actorShot: "" };
+      if (!nightIsAsleep() || game.gone) return parsed;
+      if (MAJOR_WAKE_RE.test(userText || "")) return parsed;
+      parsed.line = "";
+      let m = String(parsed.moment || "");
+      m = m.replace(/["“”][^"“”]{0,240}["“”]/g, " ");
+      m = m.replace(/\b(she (says|whispers|asks|laughs|mutters))\b[^.?!]{0,80}/gi, " ");
+      parsed.moment = clampBeat(m, 420) || "Breath. Heat. Cloth. The chamber works without her.";
+      if (!parsed.actorShot || /^(look|wave|whisper|phone|street|establish)$/.test(parsed.actorShot)) {
+        parsed.actorShot = "rest";
+      }
+      return parsed;
+    }
+
     function parseActor(raw) {
-      const text = String(raw || "").trim();
-      const momentMatch = text.match(/(?:^|\n)\s*MOMENT:\s*([\s\S]*?)(?=\n\s*(?:DAWN|SAY|RAE|ANG|ANGELA|SHOT):|$)/i);
-      const dawnMatch = text.match(/(?:^|\n)\s*(?:DAWN|SAY|RAE|ANG|ANGELA):\s*([\s\S]*?)(?=\n\s*SHOT:|$)/i);
+      const text = sanitizeModelText(raw);
+      const speakRe = new RegExp("(?:^|\\n)\\s*(?:" + SPEAKER_LABEL + "):\\s*([\\s\\S]*?)(?=\\n\\s*(?:SHOT|" + SPEAKER_LABEL + "):|$)", "i");
+      const momentMatch = text.match(new RegExp("(?:^|\\n)\\s*MOMENT:\\s*([\\s\\S]*?)(?=\\n\\s*(?:" + SPEAKER_LABEL + "|SHOT):|$)", "i"));
+      const dawnMatch = text.match(speakRe);
       const shotMatch = text.match(/(?:^|\n)\s*SHOT:\s*([a-z]+)/i);
       let moment = momentMatch ? momentMatch[1].trim() : "";
       let line = dawnMatch ? dawnMatch[1].trim() : "";
       const actorShot = shotMatch ? shotMatch[1].toLowerCase() : "";
       if (!moment && !line) {
-        const parts = text.split(/\n+/);
+        const cleaned = text.replace(/(?:^|\n)\s*SHOT:\s*[a-z]+.*$/i, "").trim();
+        const parts = cleaned.split(/\n+/).map((x) => x.replace(/^(MOMENT|SAY|DAWN):\s*/i, "").trim()).filter(Boolean);
         if (parts.length > 1) {
-          moment = parts[0].replace(/^MOMENT:\s*/i, "").trim();
-          line = parts.slice(1).join(" ").replace(/^DAWN:\s*/i, "").replace(/\nSHOT:.*$/i, "").trim();
-        } else {
-          line = text.replace(/\nSHOT:.*$/i, "").trim();
+          moment = parts[0];
+          const rest = parts.slice(1).join(" ");
+          if (rest.length < 280 && !/you are the actor|STATE:/i.test(rest)) line = rest;
+        } else if (cleaned.length && cleaned.length < 400) {
+          moment = cleaned;
         }
       }
+      moment = clampBeat(moment.replace(/^(MOMENT):\s*/i, ""), 520);
+      line = clampBeat(line.replace(/^(SAY|DAWN):\s*/i, ""), 280);
+      if (/you are the actor|Never mention AI|BODY CLOCK/i.test(moment)) moment = "";
+      if (/you are the actor|Never mention AI|BODY CLOCK/i.test(line)) line = "";
       return { moment, line, actorShot };
     }
 
@@ -11249,16 +11304,19 @@ Never copy SPEECH: or ACTION: into your reply. Reply only with MOMENT, SAY, SHOT
     const FORCE_BOWEL = /\b(force(d|ing)? (my |me |your )?way down|push(ed|ing)? (further |deeper )?down|into (her )?(bowel|intestines?|colon)|through (the |her )?pylorus|squeeze through (the )?(valve|pylorus)|further down (her )?(gut|tract|intestines?))\b/i;
 
     function parseConorThink(raw) {
-      const text = String(raw || "");
+      const text = sanitizeModelText(raw);
+      if (/^MOMENT:|^SHOT:|You are the actor/i.test(text)) {
+        return { think: "", say: "", act: "" };
+      }
       const think = (text.match(/THINK:\s*([\s\S]*?)(?=\n(?:SAY|DO|ACTION|SPEECH):|$)/i) || [])[1];
       const say = (text.match(/(?:SAY|SPEECH):\s*([\s\S]*?)(?=\n(?:THINK|DO|ACTION):|$)/i) || [])[1];
       const act = (text.match(/(?:DO|ACTION):\s*([\s\S]*?)(?=\n(?:THINK|SAY|SPEECH):|$)/i) || [])[1];
-      const clean = (s) => String(s || "").replace(/\s+/g, " ").trim();
+      const clean = (x) => clampBeat(x, 280);
       let thought = clean(think);
       let speech = clean(say);
       let doing = clean(act);
       if (!thought && !speech && !doing) {
-        thought = clean(text.replace(/^(THINK|SAY|DO|SPEECH|ACTION):/i, ""));
+        thought = clampBeat(text.replace(/^(THINK|SAY|DO|SPEECH|ACTION):/i, ""), 280);
       }
       return { think: thought, say: speech, act: doing };
     }
@@ -11285,30 +11343,52 @@ Never copy SPEECH: or ACTION: into your reply. Reply only with MOMENT, SAY, SHOT
         if (t.line) bits.push(her.toUpperCase() + ": " + String(t.line).replace(/\s+/g, " ").slice(0, 200));
         return bits.join(" | ");
       }).filter(Boolean).join("\n");
+      const tags = (typeof scenarioTags === "function") ? scenarioTags(s) : (s.tags || []);
+      const asleep = nightIsAsleep();
+      const depth = game.depth || 0;
+      const sceneLock = "SCENARIO LOCK: " + (s.title || s.id) + " — " + (s.blurb || "") + " Location stays " + loc + ". Speck is " + place + "."
+        + (s.playerName ? (" The speck IS " + s.playerName + ".") : "")
+        + (tags.length ? (" Tags: " + tags.join(", ") + ".") : "")
+        + (asleep ? " She is ASLEEP. Speak only if you want; she will not answer." : "")
+        + (tags.indexOf("unaware") >= 0 ? " She does not know a person is here." : "")
+        + (tags.indexOf("unintentional") >= 0 ? " She did not plan this." : "")
+        + (tags.indexOf("caring") >= 0 ? " She would rather help than keep you." : "")
+        + (tags.indexOf("mean") >= 0 ? " She is not sorry." : "");
+      const whereAct = bowelOn
+        ? "lower in the tract, foam and squeeze"
+        : (inside ? "inside her stomach, walls and heat" : (depth >= 1 ? "in her mouth / on the swallow path" : "outside on her skin, clothes, or the room"));
       const stance = {
-        think: "This beat is private thought first. SAY and DO may be blank if he stays still.",
-        rub: "This beat he RUBS the stomach lining — soothe, stroke, nuzzle the wall. Not kicking. SAY can be quiet and pleading or empty. DO must be a rub/nuzzle against her inside.",
-        beg: "This beat he BEGS her out loud to stop, let him out, not finish him. DO is small (press up under the navel, hold a fold). SAY is required and is begging in his voice, not a slogan.",
-        attempt: "This beat he ATTEMPTS ESCAPE toward the way he came (cardia / throat), climbing folds, looking for a lift. Not forcing into the bowel. SAY can be grit or a short ask for help. DO must be an escape try that can fail.",
-      }[kind] || "Respond in character.";
+        think: "Private thought first. SAY and DO may be blank.",
+        rub: inside
+          ? "RUB the lining — soothe, stroke, nuzzle. Not a kick. DO is the rub."
+          : (depth >= 1 ? "Hold on / rub a taste bud or cheek. Not climbing down her throat on purpose unless the night is already there." : "Rub or press into her skin where you actually are (finger, palm, thigh, stoop). Stay in this room."),
+        beg: asleep
+          ? "BEG out loud knowing she is asleep. SAY is required. DO is small. She will not answer."
+          : (inside ? "BEG her to stop / let you out. SAY is required in his voice. DO is press up under the navel." : "BEG her from where you are. SAY is required. Use her name. Stay in this scenario."),
+        attempt: inside
+          ? "ATTEMPT ESCAPE toward the way in (cardia/throat), climbing folds. Not the bowel. DO is the try. It can fail."
+          : (depth >= 1 ? "ATTEMPT to get off the tongue / out of the mouth before a gulp." : "ATTEMPT to get away from her hand or the spot you're stuck. Stay in this room."),
+        struggle: inside
+          ? "STRUGGLE — kick, thrash, make a bulge. DO is the fight. SAY optional."
+          : (depth >= 1 ? "STRUGGLE on the tongue so she has to notice." : "STRUGGLE in her grip or on the surface you're on. Stay in this scenario."),
+      }[kind] || "Respond in character as the speck.";
       const voice = conor
         ? ("You play CONOR, a young man from the White Plains / Yonkers friend group. First person as Conor only.\n"
           + "He is friends with Ang (blunt, leaving for MD, roast-first), Maddy (loud, rewrites nights, old messy closeness), Maggie (Yonkers, law school, sweet), Nat (mom-coded, will try to help), Fran (quiet, cursed-humor), Alex (nurse, dated him).\n"
           + "Voice: guy from this group, not a narrator, not poetic purple. Dry, a little defensive, can be funny. Use their names.")
         : ("You play the speck" + (who !== "the speck" ? (" named " + who) : "") + " in first person only. Sesame-seed small. Not a narrator. Short, physical, specific.");
       const system = voice + "\n"
-        + "Location: " + loc + ". They are " + place + ". "
-        + (inside ? ("They are INSIDE " + her + " and cannot be seen — only felt.") : ("They are still outside her body."))
-        + (bowelOn ? " Disposal has started." : "") + "\n"
+        + sceneLock + "\n"
+        + "Physical place this beat: " + whereAct + ".\n"
         + stance + "\n"
         + "Answer with EXACTLY:\n"
         + "THINK: <2–5 sentences private, not spoken>\n"
         + "SAY: <spoken this beat, or blank>\n"
-        + "DO: <one speck-scale physical action, or blank>\n"
-        + "No markdown. No MOMENT. No SHOT. Never speak as " + her + ".";
+        + "DO: <one speck-scale physical action that fits THIS scenario, or blank>\n"
+        + "No markdown. No MOMENT. No SHOT. Never speak as " + her + ". Do not invent a different room.";
       const ask = kind === "think"
-        ? ("Think as " + who + ", then optionally speak or move.")
-        : ("Play this beat as " + who + " — stance: " + kind + ".");
+        ? ("Think as " + who + " in this exact night, then optionally speak or move.")
+        : ("Play this beat as " + who + " — stance: " + kind + ". Stay inside this scenario.");
       return [
         { role: "system", content: system },
         { role: "user", content: "Latest beats:\n" + (recap || "(just started)") + "\n\n" + ask },
@@ -11333,9 +11413,10 @@ Never copy SPEECH: or ACTION: into your reply. Reply only with MOMENT, SAY, SHOT
         if (parsed.say) parts.push("SPEECH: " + parsed.say);
         let composed = parts.join("\n");
         if (!composed) {
-          if (kind === "rub") composed = "ACTION: I rub along the lining, trying to ease her.";
-          else if (kind === "beg") composed = "ACTION: I press up toward her voice.\nSPEECH: Please. Let me out.";
-          else if (kind === "attempt") composed = "ACTION: I climb the folds toward the way I came in.";
+          if (kind === "rub") composed = "ACTION: I rub where I actually am, trying to ease her.";
+          else if (kind === "beg") composed = "ACTION: I press toward her.\nSPEECH: Please. Don't do this.";
+          else if (kind === "attempt") composed = "ACTION: I try to get back the way I came.";
+          else if (kind === "struggle") composed = "ACTION: I kick and twist so she has to feel it.";
         }
         addTurn({ think: parsed.think || "…", you: composed });
         persist();
@@ -11361,9 +11442,8 @@ Never copy SPEECH: or ACTION: into your reply. Reply only with MOMENT, SAY, SHOT
     function clickAction(slot) {
       const p = actionPrompts()[slot];
       if (!p) return;
-      const inGut = (game.depth || 0) >= 3 || (game.digestMeter && game.digestMeter.active);
-      if (inGut && p.kind && !(game.bowel && game.bowel.active)) firePlayerAct(p.kind);
-      else speak(p.text);
+      if (p.kind) firePlayerAct(p.kind);
+      else if (p.text) speak(p.text);
     }
 
     async function speak(userText, opts) {
@@ -11382,7 +11462,11 @@ Never copy SPEECH: or ACTION: into your reply. Reply only with MOMENT, SAY, SHOT
       setBusy(true);
       try {
         const raw = await askActor(buildMessages(userText, { turnNo }));
-        const { moment, line, actorShot } = parseActor(raw);
+        const parsed = applySleepGate(parseActor(raw), userText);
+        let moment = parsed.moment;
+        let line = parsed.line;
+        const actorShot = parsed.actorShot;
+        if (!moment && !line) moment = "The room holds. She doesn't give you a clean sentence.";
         const shot = pickShot({ userText, moment, line, actorShot });
         setStill(shot);
         wrap.remove();
