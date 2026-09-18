@@ -1681,6 +1681,12 @@
       letter-spacing: .1em; text-transform: uppercase;
     }
     html.conor-play #thinkBtn { display: inline-flex; align-items: center; justify-content: center; }
+    html.scene-gut .actions #look,
+    html.scene-gut .actions #talk,
+    html.scene-gut .actions #hide {
+      border-color: color-mix(in srgb, var(--cyan) 40%, var(--hair));
+      letter-spacing: .06em;
+    }
     #thinkBtn:disabled { opacity: .38; }
     .dock[data-mode="do"] #input { border-color: var(--cyan); }
     .dock[data-mode="say"] #input:focus { border-color: var(--neon); }
@@ -10092,9 +10098,9 @@ Everyone on stage is an adult in body and voice. No children, school-age framing
       const inGut = (game.depth || 0) >= 3 || (game.digestMeter && game.digestMeter.active);
       if (inGut) {
         return {
-          look: { label: "Press", text: "ACTION: I press into a ridge of " + name + "'s stomach lining, palms on the wet heat." },
-          talk: { label: "Call out", text: "ACTION: I press up under her navel so she has to put a hand there.\nSPEECH: Feel that? That's me." },
-          hide: { label: "Settle", text: "ACTION: I go limp in a fold of her stomach and rub along the wall instead of kicking." },
+          look: { label: "Rub", kind: "rub", text: "ACTION: I rub along the inside of " + name + "'s stomach wall, slow, trying to ease her instead of kicking." },
+          talk: { label: "Beg", kind: "beg", text: "ACTION: I press up under her navel so she has to feel me.\nSPEECH: Please. Don't finish me. Get me out." },
+          hide: { label: "Attempt", kind: "attempt", text: "ACTION: I climb toward the way I came, looking for any lift or opening back toward her throat." },
           tease: { label: "Struggle", text: "ACTION: I thrash and kick hard against the stomach walls so she has to notice the bulge." },
         };
       }
@@ -10360,49 +10366,81 @@ Never copy SPEECH: or ACTION: into your reply. Reply only with MOMENT, SAY, SHOT
       return { think: thought, say: speech, act: doing };
     }
 
-    function buildConorMessages() {
+    function playerActorName() {
+      if (isConorPlay()) return "Conor";
+      return namedPlayer() || "the speck";
+    }
+
+    function buildPlayerActMessages(kind) {
       const her = speakerName();
       const s = scenarioOf(game.scenarioId);
       const place = game.playerPlace || s.playerPlace || "near her";
       const loc = game.location || s.location || "this night";
       const inside = (game.depth || 0) >= 3 || (game.digestMeter && game.digestMeter.active);
       const bowelOn = !!(game.bowel && game.bowel.active);
+      const who = playerActorName();
+      const conor = isConorPlay();
       const recap = (logTurns || []).slice(-4).map((t) => {
         const bits = [];
-        if (t.think) bits.push("CONOR THOUGHT: " + t.think);
-        if (t.you) bits.push("CONOR DID/SAID: " + String(t.you).replace(/\s+/g, " ").slice(0, 240));
+        if (t.think) bits.push((conor ? "CONOR" : "SPECK") + " THOUGHT: " + t.think);
+        if (t.you) bits.push((conor ? "CONOR" : "SPECK") + " DID/SAID: " + String(t.you).replace(/\s+/g, " ").slice(0, 240));
         if (t.moment) bits.push("BEAT: " + String(t.moment).replace(/\s+/g, " ").slice(0, 240));
         if (t.line) bits.push(her.toUpperCase() + ": " + String(t.line).replace(/\s+/g, " ").slice(0, 200));
         return bits.join(" | ");
       }).filter(Boolean).join("\n");
-      const system = `You play CONOR, a young man from the White Plains / Yonkers friend group. First person as Conor only.
-He is friends with Ang (blunt, leaving for MD, roast-first), Maddy (loud, rewrites nights, old messy closeness), and Maggie (Yonkers, law school, sweet, oldest-block history, brief middle-school dating that he botched).
-He is currently sesame-seed small. Location: ${loc}. He is ${place}. ${inside ? "He is INSIDE " + her + " and cannot be seen — only felt." : "He is still outside her body."}${bowelOn ? " Disposal has started. He is digested cargo." : ""}
-Voice: guy from this group, not a narrator, not poetic purple. Dry, a little defensive, can be funny. He knows these girls. Use their names.
-Answer with EXACTLY:
-THINK: <2–5 sentences of what Conor is actually thinking right now — private, not spoken>
-SAY: <what he says out loud this beat, or leave blank if he stays quiet>
-DO: <one physical action at speck scale, or leave blank>
-No markdown. No MOMENT. No SHOT. Never speak as ${her}.`;
+      const stance = {
+        think: "This beat is private thought first. SAY and DO may be blank if he stays still.",
+        rub: "This beat he RUBS the stomach lining — soothe, stroke, nuzzle the wall. Not kicking. SAY can be quiet and pleading or empty. DO must be a rub/nuzzle against her inside.",
+        beg: "This beat he BEGS her out loud to stop, let him out, not finish him. DO is small (press up under the navel, hold a fold). SAY is required and is begging in his voice, not a slogan.",
+        attempt: "This beat he ATTEMPTS ESCAPE toward the way he came (cardia / throat), climbing folds, looking for a lift. Not forcing into the bowel. SAY can be grit or a short ask for help. DO must be an escape try that can fail.",
+      }[kind] || "Respond in character.";
+      const voice = conor
+        ? ("You play CONOR, a young man from the White Plains / Yonkers friend group. First person as Conor only.\n"
+          + "He is friends with Ang (blunt, leaving for MD, roast-first), Maddy (loud, rewrites nights, old messy closeness), Maggie (Yonkers, law school, sweet), Nat (mom-coded, will try to help), Fran (quiet, cursed-humor), Alex (nurse, dated him).\n"
+          + "Voice: guy from this group, not a narrator, not poetic purple. Dry, a little defensive, can be funny. Use their names.")
+        : ("You play the speck" + (who !== "the speck" ? (" named " + who) : "") + " in first person only. Sesame-seed small. Not a narrator. Short, physical, specific.");
+      const system = voice + "\n"
+        + "Location: " + loc + ". They are " + place + ". "
+        + (inside ? ("They are INSIDE " + her + " and cannot be seen — only felt.") : ("They are still outside her body."))
+        + (bowelOn ? " Disposal has started." : "") + "\n"
+        + stance + "\n"
+        + "Answer with EXACTLY:\n"
+        + "THINK: <2–5 sentences private, not spoken>\n"
+        + "SAY: <spoken this beat, or blank>\n"
+        + "DO: <one speck-scale physical action, or blank>\n"
+        + "No markdown. No MOMENT. No SHOT. Never speak as " + her + ".";
+      const ask = kind === "think"
+        ? ("Think as " + who + ", then optionally speak or move.")
+        : ("Play this beat as " + who + " — stance: " + kind + ".");
       return [
         { role: "system", content: system },
-        { role: "user", content: "Latest beats:\n" + (recap || "(just started)") + "\n\nThink as Conor, then optionally speak or move." },
+        { role: "user", content: "Latest beats:\n" + (recap || "(just started)") + "\n\n" + ask },
       ];
     }
 
-    async function fireConorThink() {
-      if (busy || game.gone || !isConorPlay() || (!engine && !CLOUD_ACTOR_URL)) return;
+    function buildConorMessages() {
+      return buildPlayerActMessages("think");
+    }
+
+    async function firePlayerAct(kind) {
+      if (busy || game.gone || (!engine && !CLOUD_ACTOR_URL)) return;
+      if (kind === "think" && !isConorPlay()) return;
       const wrap = addTurn({ think: "…", pending: true });
       setBusy(true);
       try {
-        const raw = await askActor(buildConorMessages());
+        const raw = await askActor(buildPlayerActMessages(kind));
         const parsed = parseConorThink(raw);
         wrap.remove();
         const parts = [];
         if (parsed.act) parts.push("ACTION: " + parsed.act);
         if (parsed.say) parts.push("SPEECH: " + parsed.say);
-        const composed = parts.join("\n");
-        addTurn({ think: parsed.think || "…", you: composed || "" });
+        let composed = parts.join("\n");
+        if (!composed) {
+          if (kind === "rub") composed = "ACTION: I rub along the lining, trying to ease her.";
+          else if (kind === "beg") composed = "ACTION: I press up toward her voice.\nSPEECH: Please. Let me out.";
+          else if (kind === "attempt") composed = "ACTION: I climb the folds toward the way I came in.";
+        }
+        addTurn({ think: parsed.think || "…", you: composed });
         persist();
         setBusy(false);
         if (composed) await speak(composed, { silentYou: true });
@@ -10411,8 +10449,20 @@ No markdown. No MOMENT. No SHOT. Never speak as ${her}.`;
         wrap.remove();
         setBusy(false);
         paintThinkBtn();
-        addNotice(String(err && err.message ? err.message : "Conor couldn't think."), fireConorThink);
+        addNotice(String(err && err.message ? err.message : "Couldn't act."), () => firePlayerAct(kind));
       }
+    }
+
+    async function fireConorThink() {
+      return firePlayerAct("think");
+    }
+
+    function clickAction(slot) {
+      const p = actionPrompts()[slot];
+      if (!p) return;
+      const inGut = (game.depth || 0) >= 3 || (game.digestMeter && game.digestMeter.active);
+      if (inGut && p.kind && !(game.bowel && game.bowel.active)) firePlayerAct(p.kind);
+      else speak(p.text);
     }
 
     async function speak(userText, opts) {
@@ -11089,10 +11139,10 @@ No markdown. No MOMENT. No SHOT. Never speak as ${her}.`;
     els.digestOk.addEventListener("click", resetNight);
     document.getElementById("continueNight").addEventListener("click", continueNight);
     document.getElementById("newNight").addEventListener("click", resetNight);
-    els.look.addEventListener("click", () => speak(actionPrompts().look.text));
-    els.talk.addEventListener("click", () => speak(actionPrompts().talk.text));
-    els.hide.addEventListener("click", () => speak(actionPrompts().hide.text));
-    els.tease.addEventListener("click", () => speak(actionPrompts().tease.text));
+    els.look.addEventListener("click", () => clickAction("look"));
+    els.talk.addEventListener("click", () => clickAction("talk"));
+    els.hide.addEventListener("click", () => clickAction("hide"));
+    els.tease.addEventListener("click", () => clickAction("tease"));
     [["nightTabBegin","begin"],["nightTabGut","gut"],["nightTabConor","conor"],["nightTabAll","all"]].forEach((pair) => {
       const el = document.getElementById(pair[0]);
       if (!el) return;
