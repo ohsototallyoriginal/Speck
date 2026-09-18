@@ -1080,11 +1080,19 @@
     }
     html[data-face="ang"].scene-gut #world .gut {
       background:
-        radial-gradient(90% 45% at 50% 100%, rgba(180,160,40,.2), transparent 42%),
-        linear-gradient(180deg, #140808 0%, #3a1810 55%, #1a1408 100%);
+        radial-gradient(90% 45% at 50% 100%, rgba(255,204,0,.22), transparent 42%),
+        linear-gradient(180deg, #100800 0%, #2a1c00 55%, #070500 100%);
+    }
+    html[data-face="ang"].scene-mouth #world .mouth {
+      background:
+        radial-gradient(70% 50% at 50% 0%, rgba(255,204,0,.28), transparent 55%),
+        #1a1200;
     }
     html {
-      background: #08040a;
+      background: var(--panel2, #08040a);
+    }
+    html[data-face="ang"] {
+      background: #070500;
     }
     #world {
       position: fixed; inset: 0; z-index: -2; pointer-events: none;
@@ -11057,6 +11065,7 @@ If STATE says she is asleep: she stays asleep. MOMENT is narrator + body (breath
       paintMeter();
       paintVitals();
       paintSkullBar();
+      paintActions();
       if (composeReady) setBusy(busy);
     }
 
@@ -11849,10 +11858,10 @@ If STATE says she is asleep: she stays asleep. MOMENT is narrator + body (breath
         };
       }
       return {
-        look: { label: "Rub", kind: "rub" },
-        talk: { label: "Beg", kind: "beg" },
-        hide: { label: "Attempt", kind: "attempt" },
-        tease: { label: "Struggle", kind: "struggle" },
+        look: { label: "Look", kind: "look" },
+        talk: { label: "Talk", kind: "talk" },
+        hide: { label: "Hide", kind: "hide" },
+        tease: { label: "Tease", kind: "tease" },
       };
     }
 
@@ -12294,6 +12303,10 @@ Never copy SPEECH: or ACTION: into your reply. Reply only with MOMENT, SAY, SHOT
         struggle: inside
           ? "STRUGGLE — kick, thrash, make a bulge. DO is the fight. SAY optional."
           : (depth >= 1 ? "STRUGGLE on the tongue so she has to notice." : "STRUGGLE in her grip or on the surface you're on. Stay in this scenario."),
+        look: "LOOK at her from where you actually are. DO is eyes / turning. Not a swallow. Stay the scale of this night.",
+        talk: "TALK to her out loud. SAY is required. DO small. Not begging from a stomach unless you are in one.",
+        hide: "HIDE or duck where you actually are. Not climbing a throat.",
+        tease: "TEASE her from outside — a line or a poke. Not kicking a stomach wall.",
       }[kind] || "Respond in character as the speck.";
       const voice = conor
         ? ("You play CONOR, a young man from the White Plains / Yonkers friend group. First person as Conor only.\n"
@@ -12957,8 +12970,11 @@ Never copy SPEECH: or ACTION: into your reply. Reply only with MOMENT, SAY, SHOT
     });
     els.homeBtn.addEventListener("click", showHome);
     const brandMark = document.getElementById("brandMark");
+    if (brandMark) brandMark.src = "logo.png";
     const iconLink = document.querySelector('link[rel="icon"]');
-    if (brandMark && iconLink) brandMark.src = iconLink.href;
+    if (iconLink) iconLink.setAttribute("href", "logo.png");
+    const touch = document.querySelector('link[rel="apple-touch-icon"]');
+    if (touch) touch.setAttribute("href", "logo.png");
     const newChatBtn = document.getElementById("newChatBtn");
     if (newChatBtn) {
       newChatBtn.addEventListener("click", () => {
@@ -13071,6 +13087,22 @@ Never copy SPEECH: or ACTION: into your reply. Reply only with MOMENT, SAY, SHOT
       };
       head.addEventListener("pointerup", end);
       head.addEventListener("pointercancel", end);
+      let pull = 0;
+      sheet.addEventListener("touchstart", () => { pull = 0; }, { passive: true });
+      sheet.addEventListener("touchmove", (e) => {
+        if (sheet.scrollTop > 2) { pull = 0; return; }
+        const y = e.touches[0].clientY;
+        if (!sheet._ty) sheet._ty = y;
+        const dy = y - sheet._ty;
+        if (dy > 0) pull = dy;
+        else pull = 0;
+        if (pull > 88) {
+          sheet._ty = 0;
+          pull = 0;
+          closeLibrary();
+        }
+      }, { passive: true });
+      sheet.addEventListener("touchend", () => { sheet._ty = 0; pull = 0; }, { passive: true });
     })();
     document.addEventListener("keydown", (e) => {
       if (e.key === "Escape") closeLibrary();
