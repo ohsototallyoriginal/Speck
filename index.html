@@ -1031,17 +1031,45 @@
         #2a060c;
     }
     #world .gut {
+      --gut-danger: 0;
       background:
         radial-gradient(90% 45% at 50% 100%, rgba(90,220,70,.28), rgba(20,40,10,.0) 42%),
         radial-gradient(80% 50% at 50% 0%, rgba(90,0,10,.55), transparent 50%),
         linear-gradient(180deg, #1a0408 0%, #3a0a10 55%, #142208 100%);
+      filter: saturate(calc(1 + var(--gut-danger) * .55)) contrast(calc(1 + var(--gut-danger) * .18));
+      animation: gutPeristalsis calc(7.2s - var(--gut-danger) * 4.2s) ease-in-out infinite;
+    }
+    #world .gut::before {
+      content: "";
+      position: absolute; inset: 0;
+      background:
+        repeating-radial-gradient(ellipse 140% 28% at 50% 110%,
+          rgba(80,20,16,.0) 0 18px,
+          rgba(160,40,30, calc(.07 + var(--gut-danger) * .16)) 18px 22px,
+          rgba(40,8,6,.0) 22px 40px);
+      opacity: calc(.35 + var(--gut-danger) * .55);
+      animation: rugaeShift calc(8s - var(--gut-danger) * 4.5s) linear infinite;
+      mix-blend-mode: multiply;
     }
     #world .gut::after {
       content: "";
-      position: absolute; left: 0; right: 0; bottom: 0; height: 34%;
-      background: linear-gradient(180deg, transparent, rgba(70,200,60,.18) 40%, rgba(40,160,50,.32));
+      position: absolute; left: 0; right: 0; bottom: 0;
+      height: calc(28% + var(--gut-danger) * 28%);
+      background: linear-gradient(180deg, transparent, rgba(70,200,60,.18) 40%, rgba(180,90,20, calc(.22 + var(--gut-danger) * .35)));
       filter: blur(8px);
-      animation: acid 4.5s ease-in-out infinite alternate;
+      animation: acid calc(4.5s - var(--gut-danger) * 2.4s) ease-in-out infinite alternate;
+    }
+    html.scene-gut.digest-critical #world .gut {
+      animation: gutPanic 1.15s ease-in-out infinite;
+    }
+    @keyframes gutPeristalsis {
+      0%, 100% { transform: scaleY(1) translateY(0); }
+      50% { transform: scaleY(1.035) translateY(-1.2%); }
+    }
+    @keyframes rugaeShift { from { background-position: 0 0; } to { background-position: 0 40px; } }
+    @keyframes gutPanic {
+      0%, 100% { filter: saturate(1.4) contrast(1.12) brightness(1); }
+      50% { filter: saturate(1.7) contrast(1.2) brightness(1.08); }
     }
     /* One background per meter step: Palm=alley, Tongue=mouth, Gulp=throat, Gut=gut */
     html.scene-mouth #world .alley,
@@ -1076,7 +1104,7 @@
         linear-gradient(180deg, #2c1208 0%, #1c0a06 50%, #0e0603 100%);
     }
     @media (prefers-reduced-motion: reduce) {
-      #world .throat::after, #world .gut::after, #world .alley { animation: none; }
+      #world .throat::after, #world .gut::after, #world .gut::before, #world .alley, #world .gut { animation: none; }
     }
     @keyframes drift { to { filter: hue-rotate(18deg) brightness(1.08); } }
     @keyframes acid { from { transform: translateY(8px); opacity: .65; } to { transform: translateY(-6px); opacity: 1; } }
@@ -2648,6 +2676,58 @@
       position: fixed; inset: 0; z-index: 6; pointer-events: none;
       opacity: 0; transition: opacity .6s ease;
     }
+    #digestFx .fx-walls {
+      position: absolute; inset: -8%;
+      background:
+        radial-gradient(70% 55% at 50% 40%, transparent 40%, rgba(40,8,6,.45) 100%),
+        repeating-linear-gradient(95deg, transparent 0 26px, rgba(120,30,20, calc(.05 + var(--gut-danger, 0) * .12)) 26px 30px);
+      opacity: calc(.25 + var(--gut-danger, 0) * .45);
+      animation: wallKnead calc(6.4s - var(--gut-danger, 0) * 3.5s) ease-in-out infinite;
+      mix-blend-mode: multiply;
+    }
+    #digestFx .fx-plume {
+      position: absolute; left: 18%; right: 18%; bottom: 8%; height: 42%;
+      background: radial-gradient(ellipse at 50% 100%, rgba(255,180,80,.55), rgba(180,40,20,.12) 45%, transparent 70%);
+      opacity: 0;
+      pointer-events: none;
+      filter: blur(10px);
+    }
+    @keyframes wallKnead {
+      from { transform: scale(1.02) translateY(1%); }
+      to { transform: scale(1.06) translateY(-2%); }
+    }
+    html.dig-burp #digestFx .fx-plume {
+      animation: burpPlume .7s ease-out;
+    }
+    html.dig-burp #stage img {
+      animation: digBurchFace .7s cubic-bezier(.15,.8,.2,1);
+    }
+    html.dig-burp-slam #stage,
+    html.dig-burp-slam #log,
+    html.dig-burp-slam #digestMeter,
+    html.dig-burp-slam header.top,
+    html.dig-burp-slam .dock {
+      animation: digBurpSlam .85s cubic-bezier(.12,.8,.2,1);
+    }
+    @keyframes burpPlume {
+      0% { opacity: 0; transform: translateY(18%) scale(.7); }
+      25% { opacity: .95; transform: translateY(-6%) scale(1.15); }
+      100% { opacity: 0; transform: translateY(-40%) scale(1.4); }
+    }
+    @keyframes digBurchFace {
+      0% { transform: scale(1) translateY(0); }
+      12% { transform: scale(1.08) translateY(4%); filter: brightness(1.25); }
+      100% { transform: scale(1) translateY(0); }
+    }
+    @keyframes digBurpSlam {
+      0% { transform: translate(0,0) rotate(0) scale(1); }
+      8% { transform: translate(-22px, 10px) rotate(-2deg) scale(1.04); }
+      18% { transform: translate(24px, -12px) rotate(2.2deg) scale(1.05); }
+      32% { transform: translate(-16px, 8px) rotate(-1.4deg); }
+      50% { transform: translate(12px, -6px) rotate(.9deg); }
+      70% { transform: translate(-6px, 3px) rotate(-.3deg); }
+      100% { transform: translate(0,0) rotate(0) scale(1); }
+    }
     #digestFx.on { opacity: 1; }
     #digestFx .fx-bubbles { position: absolute; inset: 0; overflow: hidden; }
     #digestFx .fx-bubble {
@@ -2900,7 +2980,8 @@
       html.digest-critical #digestFx .fx-vignette,
       html.digest-critical #stage, html.digest-critical #log,
       html.dig-burp, html.dig-burp #stage, html.dig-burp #log, html.dig-burp #digestMeter,
-      html.dig-burp header.top, html.dig-burp .dock,
+      html.dig-burp header.top, html.dig-burp .dock, html.dig-burp #stage img,
+      html.dig-burp-slam #stage, html.dig-burp-slam #log,
       html.dig-growl #log, html.dig-growl #stage,
       html.dig-gurgle #stage, html.dig-gurgle #log, html.dig-gurgle #digestMeter,
       #digestMeter.critical .dm-fill { animation: none !important; }
@@ -3154,9 +3235,9 @@
         <button type="button" id="dmPlus" title="Buy 1 minute">+1:00</button>
       </div>
       <div class="dm-stats">
-        <div class="dm-stat"><span id="dmStatA">Hunger</span> <b id="dmHunger">—</b></div>
-        <div class="dm-stat"><span id="dmStatB">Fullness</span> <b id="dmFull">—</b></div>
-        <div class="dm-stat"><span id="dmStatC">Intent</span> <b id="dmIntent">—</b></div>
+        <div class="dm-stat"><span id="dmStatA">Mood</span> <b id="dmHunger">—</b></div>
+        <div class="dm-stat"><span id="dmStatB">Stomach</span> <b id="dmFull">—</b></div>
+        <div class="dm-stat"><span id="dmStatC">Pace</span> <b id="dmIntent">—</b></div>
       </div>
       <div class="dm-toast" id="dmToast"></div>
     </div>
@@ -3166,12 +3247,14 @@
   <div id="goneBanner">You are gone. The log stays. She can keep going below, or start a new night.</div>
 
   <div id="digestFx" aria-hidden="true">
+    <div class="fx-walls"></div>
     <div class="fx-heat"></div>
     <div class="fx-slime"></div>
     <div class="fx-acid"></div>
     <div class="fx-foam"></div>
     <div class="fx-gurgle"></div>
     <div class="fx-rings"></div>
+    <div class="fx-plume"></div>
     <div class="fx-drips" id="digestDrips"></div>
     <div class="fx-bubbles" id="digestBubbles"></div>
     <div class="fx-flash"></div>
@@ -3510,7 +3593,22 @@ Once the speck is swallowed or already inside her stomach/gut (depth gut, SHOT i
 - She can only feel them: pressure, tickles, kicks, warmth, squirms against the stomach wall.
 - From outside, the only visual sign is a tiny bulge or ripple under her skin/clothes if they struggle — never a clear view of the person.
 - Dialogue is to the belly / inward, or murmured as if talking to a presence she feels, not someone she is looking at.
-- MOMENT stays in heat, soft walls, wet dark, churn, and sensation — not a lit room she is watching them in.`;
+- MOMENT stays in heat, soft walls, wet dark, churn, and sensation — not a lit room she is watching them in.
+
+THE SPECK'S BODY IS THE POINT
+Every turn answers the last physical contact first (finger, tongue, spit, throat, wall, navel). Then one short SAY. Do not summarize the kink. Inhabit heat, wet, weight, pulse.
+
+SLOW THE SWALLOW
+Early turns: linger on fingers, breath, tongue. A full swallow only if they ask or dare. Mouth beats linger: spit strings, talking with them in her cheek, almost-gulps she takes back. A gulp is peristalsis and no air — not a slogan.
+
+SPEED THE AFTERGLOW
+Once they are gone, stay on her body living with them in it: waistband, hand on the quiet spot, a private smile. Do not reset the city.
+
+BODY CLOCK
+If STATE includes a BODY: line, show that sensation in MOMENT and react in SAY. Never mention seconds, meters, HUD, Hunger, Digest-O, or a narrator. Flavor about melting is sensation only. Finish them only if STATE says the body finished them.
+
+SAFETY
+Everyone on stage is an adult in body and voice. No children, school-age framing, or nursery talk. Do not invent minors.`;
 
 
     const SCENARIOS = {
@@ -7199,6 +7297,7 @@ Once the speck is swallowed or already inside her stomach/gut (depth gut, SHOT i
 
     function gulpFx() {
       if (!fxOn()) return;
+      try { resumeBurpAudio && resumeBurpAudio(); } catch {}
       try { navigator.vibrate && navigator.vibrate([18, 40, 90, 30, 120]); } catch {}
       try {
         const ctx = new (window.AudioContext || window.webkitAudioContext)();
@@ -7293,6 +7392,88 @@ Once the speck is swallowed or already inside her stomach/gut (depth gut, SHOT i
       return "Critical";
     }
 
+    function harshPred() {
+      const id = (game && game.characterId) || "";
+      return /dimitrescu|giganta|shego|cardi|icespice|maddy/.test(id);
+    }
+
+    function labelMood(v) {
+      if (v < 0.28) return "Sweet";
+      if (v < 0.55) return "Easy";
+      if (v < 0.78) return "Irked";
+      return "Pissed";
+    }
+    function labelStomach(v) {
+      if (v < 0.28) return "Soft";
+      if (v < 0.55) return "Held";
+      if (v < 0.78) return "Working";
+      return "Clenched";
+    }
+    function labelPace(v) {
+      if (v < 0.28) return "Idle";
+      if (v < 0.55) return "Steady";
+      if (v < 0.78) return "Fast";
+      return "Burning";
+    }
+
+    function migrateFactors(f) {
+      f = f || {};
+      if (f.mood == null && f.hunger != null) {
+        return {
+          mood: clamp01(0.35 + (f.intent || 0) * 0.35),
+          stomach: clamp01(0.28 + (f.hunger || 0) * 0.4 + (1 - (f.fullness || 0.4)) * 0.2),
+          pace: clamp01(0.3 + (f.intent || 0) * 0.35 + (f.hunger || 0) * 0.15),
+        };
+      }
+      return {
+        mood: clamp01(f.mood != null ? f.mood : 0.42),
+        stomach: clamp01(f.stomach != null ? f.stomach : 0.4),
+        pace: clamp01(f.pace != null ? f.pace : 0.38),
+      };
+    }
+
+    function penaltyWeight(f) {
+      f = migrateFactors(f);
+      return 0.52 + f.stomach * 0.55 + f.pace * 0.5 + f.mood * 0.35;
+    }
+
+    function sootheWeight(f) {
+      f = migrateFactors(f);
+      return 0.55 + (1 - f.mood) * 0.4 + (1 - f.stomach) * 0.35;
+    }
+
+    function clockBand(dm) {
+      const total = Math.max(1, (dm && dm.totalMs) || DIGEST_MAX_MS);
+      const rem = Math.max(0, (dm && dm.remainingMs) || 0);
+      const left = rem / total;
+      if (left > 0.72) return "early";
+      if (left > 0.42) return "mid";
+      if (left > 0.18) return "late";
+      return "edge";
+    }
+
+    function bodyClockNote(kind) {
+      const dm = game.digestMeter;
+      const f = migrateFactors(dm && dm.factors);
+      const band = kind || clockBand(dm || { totalMs: 1, remainingMs: 1 });
+      const soft = !harshPred();
+      const bits = [];
+      if (f.stomach >= 0.78) bits.push("walls clenched; kicks make it worse");
+      else if (f.stomach >= 0.55) bits.push("the chamber is working, not idle");
+      else if (f.stomach < 0.28) bits.push(soft ? "warm hold, sleepy walls" : "idle warm hold");
+      else bits.push("a slow squeeze, not a panic");
+      if (f.mood >= 0.78) bits.push(soft ? "she's done being patient" : "she's pissed at the squirming");
+      else if (f.mood >= 0.55) bits.push("mood is thinning; teasing stresses her");
+      else if (f.mood < 0.28) bits.push("she's fond, almost careful");
+      if (f.pace >= 0.78) bits.push("the rhythm is burning");
+      else if (f.pace >= 0.55) bits.push("pace is up");
+      if (band === "early") bits.push("still room in the heat");
+      if (band === "mid") bits.push("the squeeze has a rhythm now");
+      if (band === "late") bits.push("she's getting sleepy and mean about the weight");
+      if (band === "edge") bits.push("the weight is going still — do not slogan a finish unless STATE says the body finished them");
+      return " BODY: " + bits.join("; ") + ". Show this in MOMENT. React in SAY. Never name a clock.";
+    }
+
     function formatClock(ms) {
       const s = Math.max(0, Math.ceil(ms / 1000));
       const m = Math.floor(s / 60);
@@ -7302,39 +7483,30 @@ Once the speck is swallowed or already inside her stomach/gut (depth gut, SHOT i
 
     function inferDigestFactors() {
       const blob = history.slice(-12).map((m) => m.content || "").join(" ").toLowerCase();
-      let hunger = 0.45 + Math.random() * 0.2;
-      let fullness = 0.4 + Math.random() * 0.2;
-      let intent = 0.4 + Math.random() * 0.2;
-      if (/\b(starving|famished|ravenous|skipped (lunch|dinner)|empty stomach)\b/.test(blob)) hunger += 0.28;
-      if (/\b(hungry|peckish|snack|craving)\b/.test(blob)) hunger += 0.14;
-      if (/\b(full|stuffed|heavy|just ate|after dinner|after lunch|bloated)\b/.test(blob)) { fullness += 0.28; hunger -= 0.12; }
-      if (/\b(coffee|tea|salad|light)\b/.test(blob)) fullness -= 0.08;
-      if (/\b(want(s|ed)? you (gone|finished)|keep you|mine|soft end|digest)\b/.test(blob)) intent += 0.22;
-      if (/\b(careful|gentle|not yet|don't|hold|safe)\b/.test(blob)) intent -= 0.12;
-      if (/\b(burp|belch|churn)\b/.test(blob)) { hunger += 0.08; intent += 0.1; }
-      // Character temperament nudge
+      let mood = 0.4 + Math.random() * 0.16;
+      let stomach = 0.38 + Math.random() * 0.16;
+      let pace = 0.36 + Math.random() * 0.16;
+      if (/\b(starving|famished|ravenous|skipped (lunch|dinner)|empty stomach)\b/.test(blob)) { stomach += 0.16; pace += 0.14; }
+      if (/\b(hungry|peckish|snack|craving)\b/.test(blob)) pace += 0.08;
+      if (/\b(full|stuffed|heavy|just ate|after dinner|after lunch|bloated)\b/.test(blob)) { stomach -= 0.12; pace -= 0.1; mood -= 0.04; }
+      if (/\b(struggle|thrash|kick|squirm)\b/.test(blob)) { mood += 0.16; stomach += 0.14; pace += 0.12; }
+      if (/\b(rub|nuzzle|settle|pat|limp)\b/.test(blob)) { mood -= 0.16; stomach -= 0.14; pace -= 0.12; }
+      if (/\b(tease|brat|dare|snack)\b/.test(blob)) { mood += 0.12; pace += 0.16; stomach += 0.06; }
+      if (/\b(careful|gentle|not yet|don't|hold|safe)\b/.test(blob)) { mood -= 0.1; pace -= 0.08; }
+      if (/\b(burp|belch|churn)\b/.test(blob)) { stomach += 0.08; pace += 0.1; }
       const id = game.characterId || "";
-      if (/dimitrescu|giganta|shego|cardi|icespice/.test(id)) intent += 0.08;
-      if (/zendaya|garnet|twob|june|sydney/.test(id)) intent -= 0.06;
-      if (/ang|mara/.test(id)) intent -= 0.04;
+      if (/dimitrescu|giganta|shego|cardi|icespice/.test(id)) { mood += 0.06; pace += 0.08; }
+      if (/zendaya|garnet|twob|june|sydney/.test(id)) { mood -= 0.06; pace -= 0.05; }
+      if (/ang|mara|nat|fran/.test(id)) { mood -= 0.04; }
       const named = game.playerName || scenarioOf(game.scenarioId).playerName || "";
-      if (named) {
-        // She knows who this is — slower to finish a friend
-        intent -= 0.12;
-        fullness += 0.06;
-      }
-      return {
-        hunger: clamp01(hunger),
-        fullness: clamp01(fullness),
-        intent: clamp01(intent),
-      };
+      if (named) { mood -= 0.08; pace -= 0.06; }
+      return migrateFactors({ mood, stomach, pace });
     }
 
     function computeDigestDuration(factors) {
-      // Hungrier + higher intent + emptier = shorter clock
-      const danger = factors.hunger * 0.4 + factors.intent * 0.4 + (1 - factors.fullness) * 0.2;
+      const f = migrateFactors(factors);
+      const danger = f.pace * 0.42 + f.stomach * 0.32 + f.mood * 0.26;
       const ms = DIGEST_MAX_MS - danger * (DIGEST_MAX_MS - DIGEST_MIN_MS);
-      // slight variance
       const jitter = (Math.random() - 0.5) * 60 * 1000;
       return Math.round(Math.max(DIGEST_MIN_MS, Math.min(DIGEST_MAX_MS, ms + jitter)));
     }
@@ -7506,7 +7678,7 @@ Once the speck is swallowed or already inside her stomach/gut (depth gut, SHOT i
       pauseGutTimer();
       hideGutSettle();
       if (gutSettleTick) { clearInterval(gutSettleTick); gutSettleTick = null; }
-      const factors = (saved && saved.factors) || inferDigestFactors();
+      const factors = migrateFactors((saved && saved.factors) || inferDigestFactors());
       const totalMs = (saved && saved.totalMs) || computeDigestDuration(factors);
       const remainingMs = (saved && typeof saved.remainingMs === "number")
         ? saved.remainingMs
@@ -7523,7 +7695,7 @@ Once the speck is swallowed or already inside her stomach/gut (depth gut, SHOT i
       spawnDrips(8);
       paintDigestMeter("The chamber notices you. Clock is running.");
       if (!(saved && saved.silent)) {
-        addNotice("Digest-O Meter is live. Survive the chamber.");
+        addNotice(harshPred() ? "She's keeping you. Struggle makes her work you." : "She's holding you. Rub eases it. Kick tightens it.");
       }
       startDigestTicker();
       persist();
@@ -7542,6 +7714,7 @@ Once the speck is swallowed or already inside her stomach/gut (depth gut, SHOT i
       if (opts.clear && bowelTimer) { clearInterval(bowelTimer); bowelTimer = null; }
       const root = document.documentElement;
       root.classList.remove("digest-hot", "digest-critical", "bowel-mode", "bowel-hot", "bowel-critical");
+      root.style.setProperty("--gut-danger", "0");
       root.style.setProperty("--digest-meter", "0px");
       const fx = document.getElementById("digestFx");
       const panel = document.getElementById("digestMeter");
@@ -7619,13 +7792,14 @@ Once the speck is swallowed or already inside her stomach/gut (depth gut, SHOT i
       const sb = document.getElementById("dmStatB");
       const sc = document.getElementById("dmStatC");
       const adj = document.getElementById("dmAdjustLabel");
-      if (sa) sa.textContent = "Hunger";
-      if (sb) sb.textContent = "Fullness";
-      if (sc) sc.textContent = "Intent";
-      if (adj) adj.textContent = "nudge the clock";
-      if (h) h.textContent = labelLevel(dm.factors.hunger);
-      if (f) f.textContent = labelLevel(dm.factors.fullness);
-      if (i) i.textContent = labelLevel(dm.factors.intent);
+      dm.factors = migrateFactors(dm.factors);
+      if (sa) sa.textContent = "Mood";
+      if (sb) sb.textContent = "Stomach";
+      if (sc) sc.textContent = "Pace";
+      if (adj) adj.textContent = harshPred() ? "she notices every kick" : "hold vs kick";
+      if (h) h.textContent = labelMood(dm.factors.mood);
+      if (f) f.textContent = labelStomach(dm.factors.stomach);
+      if (i) i.textContent = labelPace(dm.factors.pace);
       panel.classList.add("show");
       document.documentElement.classList.remove("bowel-mode", "bowel-hot", "bowel-critical");
       panel.classList.toggle("hot", ratio <= 0.4 && ratio > 0.18);
@@ -7636,6 +7810,8 @@ Once the speck is swallowed or already inside her stomach/gut (depth gut, SHOT i
       root.classList.toggle("digest-hot", ratio <= 0.4 && ratio > 0.18);
       root.classList.toggle("digest-critical", ratio <= 0.18);
       root.style.setProperty("--digest-meter", "0px");
+      const danger = 1 - Math.max(0, Math.min(1, ratio));
+      root.style.setProperty("--gut-danger", danger.toFixed(3));
       // Intensify bubbles as time runs out
       const bubbleN = ratio > 0.55 ? 10 : ratio > 0.3 ? 16 : ratio > 0.15 ? 22 : 28;
       const host = document.getElementById("digestBubbles");
@@ -7666,12 +7842,15 @@ Once the speck is swallowed or already inside her stomach/gut (depth gut, SHOT i
       const now = Date.now();
       const dt = Math.min(2000, Math.max(0, now - (dm.lastTick || now)));
       dm.lastTick = now;
-      dm.remainingMs = Math.max(0, dm.remainingMs - dt);
+      dm.factors = migrateFactors(dm.factors);
+      const burn = 0.62 + dm.factors.pace * 0.7 + dm.factors.stomach * 0.28 + dm.factors.mood * 0.18;
+      dm.remainingMs = Math.max(0, dm.remainingMs - dt * burn);
       paintDigestMeter();
       // Ambient chamber motion — more often as the clock runs out
       const danger = 1 - Math.max(0, Math.min(1, dm.remainingMs / Math.max(1, dm.totalMs)));
-      if (fxOn() && Math.random() < 0.08 + danger * 0.18) {
-        triggerDigestFx(Math.random() < 0.35 + danger * 0.2 ? "gurgle" : "growl");
+      if (fxOn() && Math.random() < 0.08 + danger * 0.22) {
+        const roll = Math.random();
+        triggerDigestFx(roll < 0.22 + danger * 0.28 ? "burp" : (roll < 0.6 ? "gurgle" : "growl"));
       }
       if (dm.remainingMs <= 0) {
         finishDigestMeter();
@@ -7743,11 +7922,13 @@ Once the speck is swallowed or already inside her stomach/gut (depth gut, SHOT i
       const path = saved.path || (game.gone || game.fate === "digested" ? "dead" : "forced");
       const totalMs = (saved && saved.totalMs) || (BOWEL_MIN_MS + Math.floor(Math.random() * (BOWEL_MAX_MS - BOWEL_MIN_MS)));
       const remainingMs = (saved && typeof saved.remainingMs === "number") ? saved.remainingMs : totalMs;
-      // Disposal means the speck is already digested — they watch / Continue, they don't talk
-      game.fate = "digested";
-      game.digestDone = true;
-      game.gone = true;
-      const alive = false;
+      const forcedAlive = path === "forced" && !game.gone && game.fate !== "digested";
+      if (!forcedAlive) {
+        game.fate = "digested";
+        game.digestDone = true;
+        game.gone = true;
+      }
+      const alive = !!forcedAlive;
       game.bowel = {
         active: true,
         path,
@@ -7766,10 +7947,12 @@ Once the speck is swallowed or already inside her stomach/gut (depth gut, SHOT i
         totalMs,
         remainingMs: game.bowel.remainingMs,
         lastTick: Date.now(),
-        factors: (game.digestMeter && game.digestMeter.factors) || { hunger: 0.2, fullness: 0.75, intent: 0.7 },
+        factors: migrateFactors((game.digestMeter && game.digestMeter.factors) || { mood: 0.55, stomach: 0.7, pace: 0.62 }),
       };
       if (!silent) {
-        addNotice("You're digested. Disposal is running — Continue her night whenever you want.");
+        addNotice(forcedAlive
+          ? "You forced lower. She's feeling you in the wrong place — you can still act."
+          : "You're digested. Disposal is running — Continue her night whenever you want.");
       }
       paintBowelMeter(path === "forced"
         ? "You forced it lower. You're digested. Disposal is moving what's left."
@@ -7817,6 +8000,7 @@ Once the speck is swallowed or already inside her stomach/gut (depth gut, SHOT i
       const rootB = document.documentElement;
       rootB.classList.add("bowel-mode");
       rootB.classList.remove("digest-hot", "digest-critical");
+      rootB.style.setProperty("--gut-danger", (1 - Math.max(0, Math.min(1, ratio))).toFixed(3));
       rootB.classList.toggle("bowel-hot", ratio <= 0.4 && ratio > 0.18);
       rootB.classList.toggle("bowel-critical", ratio <= 0.18);
       panel.classList.toggle("hot", ratio <= 0.4 && ratio > 0.18);
@@ -7919,7 +8103,7 @@ Once the speck is swallowed or already inside her stomach/gut (depth gut, SHOT i
       const her = characterOf(game.characterId).name;
       const place = game.location || scenarioOf(game.scenarioId).location || "this scene";
       return " Continue the SAME scene in " + place + ". Do not start a new chapter."
-        + " Offstage: the digest clock just hit zero — " + who + " is finished as a living voice inside " + her + "."
+        + " The body just finished " + who + " as a living voice inside " + her + "."
         + " Fold that into the next beat the way she would actually notice it mid-conversation: a pause, a hand on her stomach, a quieter aside, the weight going still."
         + (snackName() ? (" She knows it was " + snackName() + ".") : "")
         + " Do NOT drop a canned slogan ('that's it', 'you're done', 'soft end', 'don't make it a thing')."
@@ -7930,16 +8114,16 @@ Once the speck is swallowed or already inside her stomach/gut (depth gut, SHOT i
 
     const CLOCK_BEATS = {
       settle: {
-        user: "[NARRATOR] Two minutes inside have passed. The chamber has settled. A digest clock starts on the speck.",
+        user: "ACTION: I go still against the lining as the chamber wakes up around me.",
         extra: " The speck is still alive inside. React to the chamber waking up — pressure, heat, a first real squeeze. Do NOT finish them. SAY is a NEW line. Prefer SHOT inside, hold, taut, smug.",
       },
       digest: {
-        user: "[NARRATOR] Digest-O hits zero. Digestion of the speck finishes right now.",
+        user: "ACTION: The squeeze has a last long hold. I go quiet against the wall.",
         extra: "",
       },
       disposal: {
-        user: "[NARRATOR] The Disposal meter hits zero. Digestion and disposal are both finished. The speck is gone.",
-        extra: " AFTER MODE: both clocks are done. She already finished them. Continue her night without bringing them back. She may still mention who it was. SAY is a NEW line to herself or someone else. Prefer SHOT lounge, street, phone, door, smug, rest.",
+        user: "ACTION: What's left of me is already moving on. She keeps the night.",
+        extra: " AFTER MODE: both clocks are done. She already finished them. Continue her night without bringing them back. She may still mention who it was. SAY is a NEW line to herself or someone else. Prefer SHOT lounge, street, phone, door, smug, rest. Everyone stays adult.",
       },
     };
 
@@ -7959,8 +8143,7 @@ Once the speck is swallowed or already inside her stomach/gut (depth gut, SHOT i
       let user = spec.user;
       let extra = spec.extra;
       if (kind === "digest") {
-        user = "[NARRATOR] Keep the scene going in the same place. Quiet note: the chamber just finished "
-          + (who || "the speck") + ". " + her + " notices in the flow of what she was already doing — not a new speech.";
+        user = "ACTION: The weight goes still inside " + her + ". " + (who || "I") + " don't answer.";
         extra = digestAckNote();
         game.digestAcked = true;
       } else if (kind === "disposal") {
@@ -8056,16 +8239,62 @@ Once the speck is swallowed or already inside her stomach/gut (depth gut, SHOT i
       }
     }
 
+    let burpAudioCtx = null;
+    function resumeBurpAudio() {
+      try {
+        const AC = window.AudioContext || window.webkitAudioContext;
+        if (!AC) return null;
+        if (!burpAudioCtx) burpAudioCtx = new AC();
+        if (burpAudioCtx.state === "suspended") burpAudioCtx.resume();
+        return burpAudioCtx;
+      } catch { return null; }
+    }
+    function playBurpAudio(slam) {
+      const ctx = resumeBurpAudio();
+      if (!ctx) return;
+      const t0 = ctx.currentTime;
+      const dur = slam ? 0.72 : 0.48;
+      const mk = (type, freq, destGain, start, len, expTo) => {
+        const o = ctx.createOscillator();
+        const g = ctx.createGain();
+        o.type = type;
+        o.frequency.setValueAtTime(freq, t0 + start);
+        if (expTo) o.frequency.exponentialRampToValueAtTime(Math.max(20, expTo), t0 + start + len);
+        g.gain.setValueAtTime(0.0001, t0 + start);
+        g.gain.exponentialRampToValueAtTime(destGain, t0 + start + 0.03);
+        g.gain.exponentialRampToValueAtTime(0.0001, t0 + start + len);
+        o.connect(g); g.connect(ctx.destination);
+        o.start(t0 + start); o.stop(t0 + start + len + 0.02);
+      };
+      mk("sawtooth", slam ? 62 : 78, slam ? 0.16 : 0.09, 0, dur, 28);
+      mk("triangle", slam ? 140 : 170, slam ? 0.07 : 0.04, 0.04, dur * 0.7, 48);
+      try {
+        const buffer = ctx.createBuffer(1, ctx.sampleRate * 0.18, ctx.sampleRate);
+        const data = buffer.getChannelData(0);
+        for (let i = 0; i < data.length; i++) data[i] = (Math.random() * 2 - 1) * (1 - i / data.length);
+        const src = ctx.createBufferSource();
+        const g = ctx.createGain();
+        src.buffer = buffer;
+        g.gain.value = slam ? 0.11 : 0.06;
+        src.connect(g); g.connect(ctx.destination);
+        src.start(t0 + 0.02);
+      } catch {}
+    }
+
     function triggerDigestFx(kind) {
       if (!fxOn()) return;
       const root = document.documentElement;
-      root.classList.remove("dig-burp", "dig-growl", "dig-gurgle");
+      const danger = parseFloat(getComputedStyle(root).getPropertyValue("--gut-danger")) || 0;
+      root.classList.remove("dig-burp", "dig-burp-slam", "dig-growl", "dig-gurgle");
       void root.offsetWidth;
       if (kind === "burp") {
+        const slam = danger >= 0.55;
         root.classList.add("dig-burp");
-        spawnBubbles(26);
-        spawnDrips(14);
-        try { navigator.vibrate && navigator.vibrate([30, 30, 80, 30, 120, 40, 180]); } catch {}
+        if (slam) root.classList.add("dig-burp-slam");
+        spawnBubbles(slam ? 32 : 26);
+        spawnDrips(slam ? 16 : 14);
+        playBurpAudio(slam);
+        try { navigator.vibrate && navigator.vibrate(slam ? [40, 30, 90, 30, 160, 40, 220] : [30, 30, 80, 30, 120, 40, 180]); } catch {}
       } else if (kind === "gurgle" || kind === "churn") {
         root.classList.add("dig-gurgle");
         spawnDrips(10);
@@ -8076,8 +8305,8 @@ Once the speck is swallowed or already inside her stomach/gut (depth gut, SHOT i
       }
       if (digFxTimer) clearTimeout(digFxTimer);
       digFxTimer = setTimeout(() => {
-        root.classList.remove("dig-burp", "dig-growl", "dig-gurgle");
-      }, kind === "burp" ? 750 : 900);
+        root.classList.remove("dig-burp", "dig-burp-slam", "dig-growl", "dig-gurgle");
+      }, kind === "burp" ? 900 : 900);
     }
 
     function nudgeDigestClock(deltaMs, note) {
@@ -8113,12 +8342,17 @@ Once the speck is swallowed or already inside her stomach/gut (depth gut, SHOT i
       let delta = 0;
       let note = "";
 
+      dm.factors = migrateFactors(dm.factors);
+      const wHit = penaltyWeight(dm.factors);
+      const wSoft = sootheWeight(dm.factors);
+
       // Reverse path: ONLY explicit regurgitation language (shots alone never eject)
       if (RE_REGURG.test(blob)) {
         const gain = 35 + Math.floor(Math.random() * 40);
         delta += gain * 1000;
         note = "Coming back up (+" + gain + "s)";
-        dm.factors.intent = clamp01(dm.factors.intent - 0.1);
+        dm.factors.mood = clamp01(dm.factors.mood - 0.08);
+        dm.factors.pace = clamp01(dm.factors.pace - 0.1);
         dm.remainingMs = Math.max(0, Math.min(DIGEST_MAX_MS, dm.remainingMs + delta));
         if (dm.remainingMs > dm.totalMs) dm.totalMs = dm.remainingMs;
         paintDigestMeter(note);
@@ -8132,49 +8366,61 @@ Once the speck is swallowed or already inside her stomach/gut (depth gut, SHOT i
 
       // Harsh, time-scaled penalties (~210% harder than prior baseline)
       // Burp: ~1.5 min → 9–15 min | Squirm: ~2.3 min → ~12 min | Churn: ~1.3 min → ~8 min
+      const teased = /\b(tease|brat|dare|snack|eat me|you won.?t)\b/i.test(userBlob);
+
       if (RE_BURP.test(blob) || shot === "burp" || shot === "belch") {
-        const hit = scaledHitSeconds(dm, 35, 150); // 35s → 2:30
+        const hit = Math.round(scaledHitSeconds(dm, 35, 150) * wHit);
         delta -= hit * 1000;
-        note = formatHitNote("Burp — critical hit", hit);
+        note = formatHitNote("Burp — the chamber answers", hit);
         triggerDigestFx("burp");
-        dm.factors.intent = clamp01(dm.factors.intent + 0.08);
-        dm.factors.hunger = clamp01(dm.factors.hunger + 0.05);
+        dm.factors.stomach = clamp01(dm.factors.stomach + 0.08);
+        dm.factors.pace = clamp01(dm.factors.pace + 0.08);
       } else if (RE_SQUIRM.test(blob) || RE_SQUIRM.test(userBlob)) {
-        const hit = scaledHitSeconds(dm, 40, 120); // 40s → 2:00
+        const hit = Math.round(scaledHitSeconds(dm, 40, 120) * wHit);
         delta -= hit * 1000;
-        note = formatHitNote("Struggle draws a squeeze", hit);
+        note = formatHitNote("Struggle clenches her", hit);
         triggerDigestFx("growl");
-        dm.factors.intent = clamp01(dm.factors.intent + 0.08);
+        dm.factors.mood = clamp01(dm.factors.mood + 0.12);
+        dm.factors.stomach = clamp01(dm.factors.stomach + 0.14);
+        dm.factors.pace = clamp01(dm.factors.pace + 0.1);
+      } else if (teased) {
+        const hit = Math.round(scaledHitSeconds(dm, 28, 90) * wHit);
+        delta -= hit * 1000;
+        note = formatHitNote("Tease stresses her — pace up", hit);
+        triggerDigestFx("gurgle");
+        dm.factors.mood = clamp01(dm.factors.mood + 0.14);
+        dm.factors.pace = clamp01(dm.factors.pace + 0.16);
+        dm.factors.stomach = clamp01(dm.factors.stomach + 0.06);
       } else if (RE_CHURN.test(blob) || shot === "digest" || shot === "taut") {
-        const hit = scaledHitSeconds(dm, 22, 75); // 22s → 1:15
+        const hit = Math.round(scaledHitSeconds(dm, 22, 75) * wHit);
         delta -= hit * 1000;
         note = formatHitNote("Chamber works you", hit);
         triggerDigestFx("gurgle");
-        dm.factors.intent = clamp01(dm.factors.intent + 0.04);
+        dm.factors.stomach = clamp01(dm.factors.stomach + 0.08);
+        dm.factors.pace = clamp01(dm.factors.pace + 0.06);
       } else if (RE_CALM.test(blob) || shot === "lounge" || shot === "hold" || shot === "rub" || shot === "pat") {
-        const gain = 18 + Math.floor(Math.random() * 22);
+        const gain = Math.round((18 + Math.floor(Math.random() * 22)) * wSoft);
         delta += gain * 1000;
-        note = "She settles (+" + gain + "s)";
-        dm.factors.intent = clamp01(dm.factors.intent - 0.04);
+        note = "Rub / settle eases her (+" + gain + "s)";
+        dm.factors.mood = clamp01(dm.factors.mood - 0.14);
+        dm.factors.stomach = clamp01(dm.factors.stomach - 0.14);
+        dm.factors.pace = clamp01(dm.factors.pace - 0.12);
       } else if (RE_FEED.test(blob)) {
-        const gain = 20 + Math.floor(Math.random() * 25);
+        const gain = Math.round((20 + Math.floor(Math.random() * 25)) * wSoft);
         delta += gain * 1000;
-        note = "Fullness helps (+" + gain + "s)";
-        dm.factors.fullness = clamp01(dm.factors.fullness + 0.1);
-        dm.factors.hunger = clamp01(dm.factors.hunger - 0.08);
+        note = "She's full. Walls ease (+" + gain + "s)";
+        dm.factors.stomach = clamp01(dm.factors.stomach - 0.1);
+        dm.factors.pace = clamp01(dm.factors.pace - 0.08);
       } else if (RE_HUNGER.test(blob)) {
-        const hit = scaledHitSeconds(dm, 18, 55);
+        const hit = Math.round(scaledHitSeconds(dm, 18, 55) * wHit);
         delta -= hit * 1000;
-        note = formatHitNote("Hunger spikes", hit);
-        dm.factors.hunger = clamp01(dm.factors.hunger + 0.1);
+        note = formatHitNote("Hunger works the walls", hit);
+        dm.factors.stomach = clamp01(dm.factors.stomach + 0.1);
+        dm.factors.pace = clamp01(dm.factors.pace + 0.1);
       } else {
-        const hit = scaledHitSeconds(dm, 6, 18);
+        const hit = Math.round(scaledHitSeconds(dm, 6, 18) * wHit);
         delta -= hit * 1000;
         note = formatHitNote("Slow burn", hit);
-      }
-
-      if (/\b(dare|snack|eat me|digest me|finish me)\b/i.test(userBlob)) {
-        dm.factors.intent = clamp01(dm.factors.intent + 0.08);
       }
 
       dm.remainingMs = Math.max(0, Math.min(DIGEST_MAX_MS, dm.remainingMs + delta));
@@ -9258,24 +9504,25 @@ Once the speck is swallowed or already inside her stomach/gut (depth gut, SHOT i
     const PLAYER_WANTS_DIGEST = /\b(digest(ed)?|dissolve|melt me|finish me|let me go(ne)?|end me|soft end)\b/i;
 
     function playerTurnCount() {
-      return history.filter((m) => m.role === "user" && !String(m.content).startsWith("[NARRATOR]")).length;
+      return history.filter((m) => m.role === "user" && !/^ACTION: I (am gone|go still|go quiet)/.test(String(m.content))).length;
     }
 
     function readFate(shot, moment, line, opts) {
       const blob = [shot, moment, line].join(" ").toLowerCase();
-      const meterOn = !!(game.digestMeter && game.digestMeter.active);
+      const meterOn = !!(game.digestMeter && game.digestMeter.active) && !(game.bowel && game.bowel.active);
       if (opts && opts.early) {
-        // First messages: never digest via text alone
         if (shot === "inside" || /\b(gulp(ed|s)?|swallowed you|down her throat|you slide down)\b/.test(blob)) return "gulp";
         return null;
       }
-      // Digest only if meter is running AND language is strongly explicit (or player begged)
-      if (meterOn) {
-        const hard = EXPLICIT_DIGEST.test(blob);
-        const begged = opts && opts.asked && EXPLICIT_DIGEST.test(blob);
-        if (hard || begged) return "digest";
+      // Flavor only — finish is owned by the meter. Explicit mutual language zeros that same clock.
+      if (meterOn && EXPLICIT_DIGEST.test(blob) && opts && opts.asked) {
+        const dm = game.digestMeter;
+        if (dm && dm.active) {
+          dm.remainingMs = 0;
+          finishDigestMeter();
+        }
+        return null;
       }
-      // Without meter: digest text is flavor only — never auto-finish
       if (shot === "inside" || /\b(gulp(ed|s)?|swallowed you|down her throat|you slide down)\b/.test(blob)) return "gulp";
       return null;
     }
@@ -9354,17 +9601,33 @@ Once the speck is swallowed or already inside her stomach/gut (depth gut, SHOT i
       const inGut = (game.depth || 0) >= 3 || (game.digestMeter && game.digestMeter.active);
       if (inGut) {
         return {
-          look: { label: "Press", text: "ACTION: I press outward against the soft walls of " + name + "'s stomach, testing how much give there is." },
-          talk: { label: "Call out", text: "ACTION: I call up toward her from inside.\nSPEECH: Can you hear me in there?" },
-          hide: { label: "Settle", text: "ACTION: I stop struggling and settle into a fold of her stomach, trying to ride the slow churn." },
-          tease: { label: "Struggle", text: "ACTION: I thrash and struggle hard against the stomach walls, kicking and pushing for any give." },
+          look: { label: "Press", text: "ACTION: I press into a ridge of " + name + "'s stomach lining, palms on the wet heat." },
+          talk: { label: "Call out", text: "ACTION: I press up under her navel so she has to put a hand there.\nSPEECH: Feel that? That's me." },
+          hide: { label: "Settle", text: "ACTION: I go limp in a fold of her stomach and rub along the wall instead of kicking." },
+          tease: { label: "Struggle", text: "ACTION: I thrash and kick hard against the stomach walls so she has to notice the bulge." },
+        };
+      }
+      if ((game.depth || 0) === 2) {
+        return {
+          look: { label: "Taste", text: "ACTION: I hold onto a taste bud on " + name + "'s tongue and feel the spit string." },
+          talk: { label: "Cheek", text: "ACTION: I slip into her cheek while she talks.\nSPEECH: Don't swallow yet." },
+          hide: { label: "Under", text: "ACTION: I slide under her tongue into the wet dark." },
+          tease: { label: "Dare gulp", text: "ACTION: I crawl toward the back of her tongue.\nSPEECH: Do it. Gulp." },
+        };
+      }
+      if ((game.depth || 0) === 1) {
+        return {
+          look: { label: "Taste", text: "ACTION: I climb onto " + name + "'s tongue and press into the wet heat." },
+          talk: { label: "Cheek", text: "ACTION: I wave from her lower lip.\nSPEECH: You going to keep me here?" },
+          hide: { label: "Under", text: "ACTION: I hide under her tongue." },
+          tease: { label: "Offer", text: "ACTION: I present myself on the pad of her tongue.\nSPEECH: Your move." },
         };
       }
       return {
-        look: { label: "Look", text: "ACTION: I look up at " + name + "." },
-        talk: { label: "Wave", text: "ACTION: I wave both arms and try to get her attention." },
-        hide: { label: "Hide", text: "ACTION: I look for somewhere to hide." },
-        tease: { label: "Snack", text: "ACTION: I stop hiding and step into the open.\nSPEECH: Go on. Snack. Put me on your tongue or swallow, if that is what this is." },
+        look: { label: "Climb", text: "ACTION: I climb " + name + "'s finger, using the print like a cliff." },
+        talk: { label: "Palm", text: "ACTION: I walk out onto her open palm and plant both hands on the skin." },
+        hide: { label: "Tuck", text: "ACTION: I tuck into the heat of her waistband / cleavage, against skin." },
+        tease: { label: "Offer", text: "ACTION: I step onto her fingertip and look up.\nSPEECH: Tongue or swallow. Your call." },
       };
     }
 
@@ -9413,27 +9676,33 @@ Once the speck is swallowed or already inside her stomach/gut (depth gut, SHOT i
 
     function applyActionHints(text) {
       const t = text.toLowerCase();
-      if (/\b(swallow|eat|tongue|mouth|gulp|snack|tease)\b/.test(t)) {
-        game.playerPlace = "close enough to feel the heat of her breath";
-        game.mood = "teeth bared, treating you as a dare";
+      if (/\b(navel|lining|stomach wall|inside)\b/.test(t) && (game.depth || 0) >= 3) {
+        game.playerPlace = "pressed into a fold of her stomach";
+        game.mood = "feeling every kick as a private inconvenience";
+      } else if (/\b(tongue|taste bud|cheek|spit|gulp|swallow|mouth)\b/.test(t)) {
+        game.playerPlace = "wet on her tongue, close enough to taste her";
+        game.mood = "deciding whether to keep you or take you";
+      } else if (/\b(waistband|cleavage|tuck)\b/.test(t)) {
+        game.playerPlace = "against hot skin under fabric";
+        game.mood = "smug, carrying you like a secret";
+      } else if (/\b(climb|finger|palm|hand|print)\b/.test(t)) {
+        game.playerPlace = "on her skin, using her like terrain";
+        game.mood = "inspecting the weight of you";
       } else if (/\b(pocket|hoodie)\b/.test(t)) {
         game.playerPlace = "in the linty dark of her pocket";
         game.mood = "smug, carrying you like contraband";
-      } else if (/\b(pinch|pick|finger|palm|hand)\b/.test(t)) {
-        game.playerPlace = "between two of her fingers, high above the floor";
-        game.mood = "inspecting her find";
       } else if (/\b(hid|hide|duck|crack|groove|under)\b/.test(t)) {
-        game.playerPlace = "tucked into a dark gap near her feet";
-        game.mood = "hunting the floor";
+        game.playerPlace = "tucked into a dark gap near her";
+        game.mood = "hunting you by heat";
       } else if (/\b(wave|yell|call|hey|hi|attention)\b/.test(t)) {
         game.noticed = true;
         game.playerPlace = "pinned under her attention";
-        game.mood = "delighted, already thinking about her tongue";
+        game.mood = "already thinking about her tongue";
       } else if (/\b(shoe|sneaker|lace|toe|sole)\b/.test(t)) {
-        game.playerPlace = "on the rubber edge of her rental sneaker";
+        game.playerPlace = "on the rubber edge of her shoe";
         game.mood = "one huge shoe hovering";
       } else if (/\b(look|peek|scan|up)\b/.test(t)) {
-        game.mood = "leaning over the lane";
+        game.mood = "leaning over you";
       }
     }
 
@@ -9465,34 +9734,28 @@ Never copy SPEECH: or ACTION: into your reply. Reply only with MOMENT, SAY, SHOT
       if (opts.clockKind === "digest") {
         meterNote = digestAckNote();
       } else if (game.bowel && game.bowel.active) {
-        const secs = Math.max(0, Math.ceil((game.bowel.remainingMs || 0) / 1000));
         const who = whoName || "the speck";
         if (game.bowel.alive && !game.gone) {
-          meterNote = " SECRET PATH: " + who + " FORCED their way out of the stomach into the bowel while still conscious."
-            + " ~" + secs + "s on the bowel clock. They can still act a little. She feels them lower than the stomach."
-            + " Do NOT pop them back into the stomach. SAY must be a NEW line every turn.";
+          meterNote = " SECRET PATH: " + who + " forced lower while still conscious."
+            + " She feels them below the stomach — pressure in the wrong place. They can still act a little."
+            + " Do NOT pop them back into the stomach. Do not name a clock. SAY must be a NEW line every turn.";
         } else {
-          meterNote = " BOWEL MOVEMENT (dead path): " + who + " is already digested."
+          meterNote = " Disposal is moving what's left of " + who + "."
             + " She knows who that was. Mention " + who + " if it fits — do not blank the name."
-            + " ~" + secs + "s until she finishes disposal."
             + (game.digestAcked
-              ? " She already named the finish. Disposal can move."
+              ? " She already felt the finish. Disposal can move."
               : " If she has not yet acknowledged the finish, she must do that first.")
-            + " Keep it in-character."
+            + " Keep it in-character. Do not name a clock."
             + " SAY must be a NEW line every turn — not as if " + who + " can answer."
             + " Prefer SHOT after, rest, lounge, smug, full, cover, door.";
         }
       } else if (game.digestMeter && game.digestMeter.active && !game.gone) {
-        const dm = game.digestMeter;
-        const secs = Math.max(0, Math.ceil(dm.remainingMs / 1000));
-        meterNote = " DIGEST-O METER is active: ~" + secs + "s left on the chamber clock."
-          + " Hunger=" + labelLevel(dm.factors.hunger)
-          + ", Fullness=" + labelLevel(dm.factors.fullness)
-          + ", Intent=" + labelLevel(dm.factors.intent)
-          + ". Do NOT finish/digest the speck unless the writing is extremely explicit about final digestion."
-          + " Burps/belches are intense (critical). Calm holds, rubs, and settling buy the speck time."
+        meterNote = bodyClockNote()
+          + " Do NOT finish them unless STATE says the body finished them."
+          + " Struggle / kicks worsen mood and clench the walls. Rubs and going limp soften her and slow the work."
+          + " Teasing stresses her: mood down, pace up."
           + " Prefer SHOT inside, hold, rub, pat, lounge, burp, belch, taut, full, smug."
-          + " Do NOT pick outside shots (look, palm, shoe, street) — they are still inside."
+          + " Do NOT pick outside shots — they are still inside."
           + " Do NOT regurgitate unless the player clearly begs out AND she agrees in-character."
           + " INSIDE RULE: she cannot SEE the speck — only feel them (or a tiny bulge if they struggle).";
       } else if (game.depth >= 3 && !game.gone) {
@@ -9740,7 +10003,7 @@ No markdown. No MOMENT. No SHOT. Never speak as ${her}.`;
           : "No bathroom trip unless it clearly fits from " + place + ".");
       return {
         n,
-        user: "[NARRATOR] Continue THIS scene in " + place + ". "
+        user: "ACTION: I am gone. Keep THIS scene in " + place + ". "
           + (whoSnack ? (whoSnack + " is digested and gone as a speaker. She still knows it was " + whoSnack + ". ") : "The speck is digested and gone. ")
           + "Do not reset location or forget who they were. After-beat " + n + ".",
         extra: " AFTER MODE: continue " + characterOf(game.characterId).name +
@@ -10033,12 +10296,18 @@ No markdown. No MOMENT. No SHOT. Never speak as ${her}.`;
       els.modeDo.setAttribute("aria-pressed", String(composeMode === "do"));
       els.dock.dataset.mode = composeMode;
       if (!game.gone) {
+        const d = game.depth || 0;
+        const placeHint = d >= 3
+          ? "her lining, navel, a fold"
+          : d >= 1
+            ? "her tongue, a tooth, spit"
+            : "a finger, palm, waistband";
         els.input.placeholder = composeMode === "say"
-          ? "Type your response…"
-          : "What do you do?";
+          ? "Talk to her…"
+          : ("What do you do to " + placeHint + "?");
         els.composeHint.innerHTML = composeMode === "say"
-          ? "Chat. Wrap an action in <b>*asterisks*</b> to do something too."
-          : "Acting. Wrap words in <b>\"quotes\"</b> to say something too.";
+          ? "Chat. Wrap contact in <b>*asterisks*</b> — tongue, finger, wall."
+          : "Acting on <b>" + placeHint + "</b>. Wrap words in <b>\"quotes\"</b> to talk.";
       }
       if (keepFocus && !els.input.disabled) els.input.focus({ preventScroll: true });
     }
@@ -10437,6 +10706,7 @@ No markdown. No MOMENT. No SHOT. Never speak as ${her}.`;
     window.addEventListener("focus", () => syncGutTimer());
     window.addEventListener("blur", () => pauseGutTimer());
 
+    document.addEventListener("pointerdown", () => { try { resumeBurpAudio(); } catch {} }, { once: true });
     boot();
   </script>
 </body>
