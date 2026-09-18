@@ -1288,34 +1288,33 @@
       text-overflow: ellipsis;
     }
     .brand h1, .brand p { display: none; }
-    #live {
-      flex: 0 0 auto;
-      font-size: 0.68rem;
-      font-weight: 700;
-      letter-spacing: .08em;
-      text-transform: uppercase;
-      padding: 6px 9px;
-      border-radius: 999px;
-      background: var(--panel2);
-      color: var(--muted);
-      border: 1px solid var(--hair);
-    }
-    #live.ready { color: #9ff0c0; border-color: #2f6a4a; }
-    #live.busy { color: #ffd36a; border-color: #8a6a20; }
-    #live.bad { color: #ff9aa6; border-color: var(--danger); }
     .tools { display: contents; }
     .nav-left button, .nav-right button, #live {
+      box-sizing: border-box;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      flex: 0 0 auto;
       min-height: 34px;
+      height: 34px;
+      line-height: 1;
       border: 1px solid var(--hair);
       background: var(--panel2);
       color: var(--ink);
       border-radius: 999px;
+      font-family: inherit;
       font-size: 0.66rem;
       font-weight: 800;
       letter-spacing: .04em;
       text-transform: uppercase;
       padding: 0 10px;
+      margin: 0;
+      vertical-align: middle;
     }
+    #live { color: var(--muted); }
+    #live.ready { color: #9ff0c0; border-color: #2f6a4a; }
+    #live.busy { color: #ffd36a; border-color: #8a6a20; }
+    #live.bad { color: #ff9aa6; border-color: var(--danger); }
     #gear { min-width: 34px; width: 34px; padding: 0; letter-spacing: 0; text-transform: none; font-size: 0.95rem; }
     .nav-left button:hover, .nav-right button:hover { border-color: var(--neon); color: var(--neon); }
     #stories.on, #chats.on {
@@ -3332,10 +3331,10 @@
         <div id="faceList"></div>
         <div class="night-tools">
           <div class="night-tabs" role="tablist">
-            <button type="button" id="nightTabBegin" class="on">Outside</button>
+            <button type="button" id="nightTabBegin">Outside</button>
             <button type="button" id="nightTabGut">Inside</button>
             <button type="button" id="nightTabConor">Conor</button>
-            <button type="button" id="nightTabAll">All</button>
+            <button type="button" id="nightTabAll" class="on">All</button>
           </div>
           <input id="nightSearch" type="search" placeholder="Search stories" enterkeyhint="search" autocomplete="off" />
         </div>
@@ -3663,7 +3662,10 @@ BODY CLOCK
 If STATE includes a BODY: line, show that sensation in MOMENT and react in SAY. Never mention seconds, meters, HUD, Hunger, Digest-O, or a narrator. Flavor about melting is sensation only. Finish them only if STATE says the body finished them.
 
 SAFETY
-Everyone on stage is an adult in body and voice. No children, school-age framing, or nursery talk. Do not invent minors.`;
+Everyone on stage is an adult in body and voice. No children, school-age framing, or nursery talk. Do not invent minors.
+
+SLEEPING NIGHTS
+If STATE says she is asleep: she stays asleep. MOMENT is narrator + body (breath, heat, cloth, chamber). SAY must be empty or a sleep-sound (sigh, mumble, snore) — not a conversation. Do NOT wake her for ordinary kicks, rubs, whispers, or teasing. Wake only if STATE says a MAJOR disturbance (alarm, water in the face, being shaken hard, fire, a scream she cannot sleep through). Until then the player is playing with the narrator and a sleeping body.`;
 
 
     const SCENARIOS = {
@@ -9534,8 +9536,8 @@ Everyone on stage is an adult in body and voice. No children, school-age framing
     function openLibrary(mode) {
       if (!libFace) libFace = characterOf(game.characterId).id;
       const pack0 = CHARACTERS[libFace];
-      if (libNightTab === "begin" && pack0 && !(pack0.scenarios && pack0.scenarios.length) && (pack0.gutNights || []).length) {
-        libNightTab = "gut";
+      if (libNightTabs.has("begin") && libNightTabs.size === 1 && pack0 && !(pack0.scenarios && pack0.scenarios.length) && (pack0.gutNights || []).length) {
+        libNightTabs = new Set(["gut"]);
       }
       els.library.classList.add("show");
       setLibraryMode(mode === "chats" ? "chats" : "stories");
@@ -9649,7 +9651,7 @@ Everyone on stage is an adult in body and voice. No children, school-age framing
 
     // Which character's nights the Stories sheet is showing (does not start a chat)
     let libFace = null;
-    let libNightTab = "begin";
+    let libNightTabs = new Set(["all"]);
     function browseFace(id) {
       if (!CHARACTERS[id]) return;
       applyTheme(id);
@@ -9658,19 +9660,28 @@ Everyone on stage is an adult in body and voice. No children, school-age framing
       setTimeout(() => {
         libFace = id;
         const pack = CHARACTERS[id];
-        if (libNightTab === "begin" && !(pack.scenarios && pack.scenarios.length)) libNightTab = "gut";
+        if (libNightTabs.has("begin") && libNightTabs.size === 1 && !(pack.scenarios && pack.scenarios.length)) {
+          libNightTabs = new Set(["gut"]);
+        }
         renderLibrary();
         els.library.classList.remove("flip");
       }, 140);
     }
 
-    function nightMatches(s, tab, q) {
+    function nightMatches(s, tabs, q) {
       if (!s) return false;
+      const set = tabs instanceof Set ? tabs : new Set([tabs || "all"]);
       const conor = /^conor$/i.test(s.playerName || "");
       const gut = !!s.gut;
-      if (tab === "conor" && !conor) return false;
-      if (tab === "begin" && (gut || conor)) return false;
-      if (tab === "gut" && !gut) return false;
+      const wantAll = set.has("all") || set.size === 0;
+      if (!wantAll) {
+        const wantOut = set.has("begin");
+        const wantIn = set.has("gut");
+        const wantConor = set.has("conor");
+        if (wantOut && !wantIn && gut) return false;
+        if (wantIn && !wantOut && !gut) return false;
+        if (wantConor && !conor) return false;
+      }
       if (q) {
         const hay = ((s.title || "") + " " + (s.blurb || "") + " " + (s.sub || "")).toLowerCase();
         if (hay.indexOf(q) < 0) return false;
@@ -9746,12 +9757,13 @@ Everyone on stage is an adult in body and voice. No children, school-age framing
       }
       const pack = characterOf(libFace);
       const q = ((document.getElementById("nightSearch") || {}).value || "").trim().toLowerCase();
-      const tab = libNightTab || "begin";
+      const tabSet = (libNightTabs && libNightTabs.size) ? libNightTabs : new Set(["all"]);
       ["nightTabBegin","nightTabGut","nightTabConor","nightTabAll"].forEach((id) => {
         const el = document.getElementById(id);
         if (!el) return;
         const map = { nightTabBegin: "begin", nightTabGut: "gut", nightTabConor: "conor", nightTabAll: "all" };
-        el.classList.toggle("on", map[id] === tab);
+        el.classList.toggle("on", tabSet.has(map[id]));
+        el.setAttribute("aria-pressed", String(tabSet.has(map[id])));
       });
       const begHead = document.getElementById("begHead");
       const gutHead = document.getElementById("gutHead");
@@ -9764,25 +9776,25 @@ Everyone on stage is an adult in body and voice. No children, school-age framing
       (pack.scenarios || []).forEach((id) => {
         const s = SCENARIOS[id];
         if (!s || s.gut || gutSet.has(id)) return;
-        if (nightMatches(s, tab, q)) begins.push(s);
+        if (nightMatches(s, tabSet, q)) begins.push(s);
       });
       const guts = [];
       (pack.gutNights || []).forEach((id) => {
         const s = SCENARIOS[id];
         if (!s) return;
-        if (nightMatches(s, tab, q)) guts.push(s);
+        if (nightMatches(s, tabSet, q)) guts.push(s);
       });
       if (begHead) begHead.textContent = "Outside · " + begins.length;
       if (gutHead) gutHead.textContent = "Inside · " + guts.length;
       begins.forEach((s) => els.scenarioList.appendChild(nightCard(s, pack)));
       guts.forEach((s) => els.gutList.appendChild(nightCard(s, pack)));
-      if (begWrap) begWrap.hidden = tab === "gut" || !begins.length;
-      if (gutWrap) gutWrap.hidden = tab === "begin" || !guts.length;
+      if (begWrap) begWrap.hidden = (tabSet.has("gut") && !tabSet.has("begin") && !tabSet.has("all")) || !begins.length;
+      if (gutWrap) gutWrap.hidden = (tabSet.has("begin") && !tabSet.has("gut") && !tabSet.has("all")) || !guts.length;
       if (!begins.length && !guts.length) {
         const empty = document.createElement("div");
         empty.className = "lib-empty";
         empty.innerHTML = "<b></b><span></span>";
-        empty.querySelector("b").textContent = tab === "conor" ? "No Conor nights" : "Nothing here";
+        empty.querySelector("b").textContent = tabSet.has("conor") && !begins.length && !guts.length ? "No Conor nights" : "Nothing here";
         empty.querySelector("span").textContent = "Try All, or pick another face.";
         els.scenarioList.appendChild(empty);
         if (begWrap) begWrap.hidden = false;
@@ -10369,11 +10381,20 @@ Never copy SPEECH: or ACTION: into your reply. Reply only with MOMENT, SAY, SHOT
           + " Never bring " + idName + " back as a living voice.";
       }
       const recap = sceneRecap();
-      const state = `STATE: character=${c.name}; scenario=${s.id} (${s.title || s.id}); ${who} location=${game.location}; speck is ${game.playerPlace}; mood=${game.mood}; noticed=${game.noticed}; shot=${game.shot}; depth=${game.depth}; fate=${game.fate || "none"}; gone=${!!game.gone}; digestDone=${!!game.digestDone}; bowel=${game.bowel && game.bowel.active ? "active" : (game.bowelDone ? "done" : "no")}.`
+      const sleepBlob = [s.id, s.title, s.mood, s.hook, game.mood].join(" ").toLowerCase();
+      const sleepNight = /\b(asleep|lights out|sleeping)\b/.test(sleepBlob);
+      const majorWake = /\b(wake(s|d)? (her|up)|wakes? her|alarm|slap(s|ped)? (her )?face|scream(s|ed|ing)?|yell(s|ed|ing)? (her name|in her ear)|dump(s|ed)? (ice )?water|ice water|shake(s|n)? her|shaking her|fire alarm|smoke)\b/i.test(userText || "");
+      let sleepNote = "";
+      if (sleepNight && !game.gone) {
+        sleepNote = majorWake
+          ? " SLEEP BREAK: a MAJOR disturbance can wake her this turn. If she wakes, she is groggy and in-character."
+          : " ASLEEP: she stays asleep. MOMENT is narrator + sleeping body only (breath, heat, cloth, chamber). SAY must be empty or a sleep-sound — not dialogue. Ordinary kicks, rubs, or whispers do not wake her. The player is playing with the narrator.";
+      }
+      const state = `STATE: character=${c.name}; scenario=${s.id} (${s.title || s.id}); ${who} location=${game.location}; speck is ${game.playerPlace}; mood=${game.mood}; noticed=${game.noticed}; shot=${game.shot}; depth=${game.depth}; fate=${game.fate || "none"}; gone=${!!game.gone}; digestDone=${!!game.digestDone}; bowel=${game.bowel && game.bowel.active ? "active" : (game.bowelDone ? "done" : "no")}${sleepNight ? "; asleep=yes" : ""}.`
         + " Continuity: do not forget the location, outfit, or last beat. If STATE conflicts with a sudden new place, STATE wins."
         + recap
         + " SAY variety: do not reuse any previous SAY sentence from this chat."
-        + snack + earlyNote + meterNote + (opts.extra || "");
+        + snack + earlyNote + meterNote + sleepNote + (opts.extra || "");
       return [
         { role: "system", content: SYSTEM + "\n\n" + PLAYER_FORMAT + "\n\n" + c.voice + "\nLabel spoken lines SAY:.\n\n" + s.hook + "\n\n" + state },
         ...history.slice(-(ACTOR_QUALITY.historyTurns || 36)),
@@ -11261,7 +11282,15 @@ Never copy SPEECH: or ACTION: into your reply. Reply only with MOMENT, SAY, SHOT
       const el = document.getElementById(pair[0]);
       if (!el) return;
       el.addEventListener("click", () => {
-        libNightTab = pair[1];
+        const key = pair[1];
+        if (key === "all") {
+          libNightTabs = new Set(["all"]);
+        } else {
+          libNightTabs.delete("all");
+          if (libNightTabs.has(key)) libNightTabs.delete(key);
+          else libNightTabs.add(key);
+          if (!libNightTabs.size) libNightTabs.add("all");
+        }
         renderLibrary();
       });
     });
