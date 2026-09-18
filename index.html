@@ -1231,25 +1231,49 @@
     #log::-webkit-scrollbar-thumb:hover { background: var(--cyan); }
     @media (min-width: 900px) {
       body {
-        max-width: 980px;
+        max-width: 1080px;
         display: grid;
-        grid-template-columns: minmax(280px, 380px) 1fr;
-        grid-template-rows: auto auto 1fr;
-        column-gap: 16px;
+        grid-template-columns: minmax(300px, 400px) 1fr;
+        grid-template-rows: auto 1fr auto;
+        column-gap: 18px;
+        row-gap: 0;
         min-height: 100dvh;
       }
       header.top { grid-column: 1 / -1; }
-      .scene-who { grid-column: 1 / -1; margin: 0 0 4px; }
-      #stage {
-        max-height: 72vh;
-        margin: 4px 0 0;
+      .scene-who { display: none !important; }
+      #sceneBar {
+        grid-column: 1;
+        grid-row: 2;
+        display: flex;
+        flex-direction: column;
+        align-items: stretch;
+        gap: 10px;
+        margin: 8px 0 0;
+        min-height: 0;
+        overflow: auto;
       }
-      #gate { grid-column: 1; }
+      #stageCol { width: 100%; }
+      #stage {
+        width: 100%;
+        height: auto;
+        max-height: min(58vh, 520px);
+        aspect-ratio: 3 / 4;
+        margin: 0;
+        cursor: default;
+      }
+      #vitalWrap { margin: 0; width: 100%; }
+      #gate { display: none; }
       #log {
         grid-column: 2;
-        grid-row: 2 / 4;
-        padding-bottom: calc(var(--dock) + 8px);
+        grid-row: 2;
+        min-height: 0;
+        padding-bottom: 12px;
       }
+      .dock {
+        grid-column: 1 / -1;
+        grid-row: 3;
+      }
+      #thumbHint, #zoomIcon { display: none !important; }
     }
     header.top {
       display: flex;
@@ -2575,8 +2599,8 @@
       height: 100%;
       width: 100%;
       border-radius: 99px;
-      background: linear-gradient(90deg, #2a8a4a, #7ee08a);
-      box-shadow: 0 0 8px rgba(80, 220, 120, .35);
+      background: linear-gradient(90deg, color-mix(in srgb, var(--neon) 35%, #1f7a3a), color-mix(in srgb, var(--cyan) 25%, #8eec9a));
+      box-shadow: 0 0 8px color-mix(in srgb, var(--neon) 28%, transparent);
       transition: width .35s ease, background .35s ease;
     }
     #hpMeter.hurt #hpFill { background: linear-gradient(90deg, #8a5a12, #e0a040); }
@@ -3197,6 +3221,7 @@
       background:
         linear-gradient(180deg, transparent 0%, rgba(200, 100, 20, .12) 25%, rgba(160, 60, 20, .28) 65%, rgba(120, 30, 10, .4) 100%);
     }
+    html.skull-end #stage img { filter: grayscale(.35) saturate(.7); }
     html.digest-critical #stage {
       animation: digShake .28s ease-in-out infinite;
     }
@@ -3539,9 +3564,8 @@
       #sceneBar.big #stage { height: clamp(150px, 32dvh, 260px); }
     }
     @media (min-width: 900px) {
-      #sceneBar { display: contents; }
-      #stage { cursor: default; }
-      #zoomIcon, #thumbHint { display: none; }
+      #sceneBar.big { flex-direction: column; }
+      #sceneBar.big #stage { height: auto; max-height: min(58vh, 520px); }
     }
   </style>
 </head>
@@ -3879,7 +3903,7 @@
 
     const ACTOR_QUALITY = {
       maxTokens: 16384,
-      thinkBudget: 8192,
+      thinkBudget: 256,
       temperature: 0.88,
       timeoutMs: 150000,
       historyTurns: 36,
@@ -8551,7 +8575,7 @@ If STATE says she is asleep: she stays asleep. MOMENT is narrator + body (breath
         ready: true,
         stillDir: "stills/mara/",
         scenarios: ["mara-laundry", "mara-kitchen", "mara-couch", "mara-bed", "mara-street", "mara-bath", "mara-pocket", "mara-nail", "mara-blank"],
-        thinkBudget: 2048,
+        thinkBudget: 256,
         maxTokens: 8192,
         temperature: 0.88,
         blurb: "Thirty-nine. Laundry nights. Warm, dry, done performing.",
@@ -8566,7 +8590,7 @@ If STATE says she is asleep: she stays asleep. MOMENT is narrator + body (breath
         ready: true,
         stillDir: "stills/ang/",
         scenarios: ["ang-studio", "ang-desk", "ang-paint", "ang-street", "ang-yoga", "ang-conor", "ang-conor-desk", "ang-conor-yoga", "ang-conor-street", "ang-conor-paint", "ang-conor-coffee", "ang-conor-boxes", "ang-conor-escape"],
-        thinkBudget: 2048,
+        thinkBudget: 256,
         maxTokens: 8192,
         temperature: 0.9,
         blurb: "White Plains. Five-one. Packed boxes. She will say the thing.",
@@ -8582,7 +8606,7 @@ If STATE says she is asleep: she stays asleep. MOMENT is narrator + body (breath
         ready: true,
         stillDir: "stills/billie/",
         scenarios: ["billie-studio", "billie-bus", "billie-thrifts", "billie-pool", "billie-street", "billie-greenroom", "billie-blank"],
-        thinkBudget: 2048,
+        thinkBudget: 256,
         maxTokens: 8192,
         temperature: 0.88,
         blurb: "LA. Soft voice. Baggy layers. Vegan—except this.",
@@ -8597,7 +8621,7 @@ If STATE says she is asleep: she stays asleep. MOMENT is narrator + body (breath
         ready: true,
         stillDir: "stills/jlaw/",
         scenarios: ["jlaw-suite", "jlaw-cabin", "jlaw-junket", "jlaw-bag", "jlaw-blank"],
-        thinkBudget: 2048,
+        thinkBudget: 256,
         maxTokens: 8192,
         temperature: 0.88,
         blurb: "Kentucky blunt. Red carpet hangover. Says the quiet part.",
@@ -8612,7 +8636,7 @@ If STATE says she is asleep: she stays asleep. MOMENT is narrator + body (breath
         ready: true,
         stillDir: "stills/cardi/",
         scenarios: ["cardi-mirror", "cardi-suv", "cardi-closet", "cardi-studio", "cardi-street", "cardi-club", "cardi-jet", "cardi-blank"],
-        thinkBudget: 2048,
+        thinkBudget: 256,
         maxTokens: 8192,
         temperature: 0.92,
         blurb: "Bronx volume. Witty. Will say it. Soft when it's real.",
@@ -8627,7 +8651,7 @@ If STATE says she is asleep: she stays asleep. MOMENT is narrator + body (breath
         ready: true,
         stillDir: "stills/june/",
         scenarios: ["june-desk", "june-con", "june-couch", "june-airport", "june-kitchen", "june-script", "june-car", "june-panel", "june-blank"],
-        thinkBudget: 2048,
+        thinkBudget: 256,
         maxTokens: 8192,
         temperature: 0.86,
         blurb: "Deadpan stream energy. Glasses. Political YouTuber. Will narrate the weirdness.",
@@ -8668,7 +8692,7 @@ If STATE says she is asleep: she stays asleep. MOMENT is narrator + body (breath
         ready: true,
         stillDir: "stills/icespice/",
         scenarios: ["icespice-studio", "icespice-car", "icespice-kitchen", "icespice-mall", "icespice-blank"],
-        thinkBudget: 2048,
+        thinkBudget: 256,
         maxTokens: 8192,
         temperature: 0.9,
         blurb: "Soft drawl. Unhurried. Bronx-adjacent calm.",
@@ -8683,7 +8707,7 @@ If STATE says she is asleep: she stays asleep. MOMENT is narrator + body (breath
         ready: true,
         stillDir: "stills/maddy/",
         scenarios: ["maddy-apt", "maddy-office", "maddy-bar", "maddy-conor", "maddy-conor-kitchen", "maddy-mamaroneck", "maddy-park", "maddy-roof", "maddy-conor-giant", "maddy-blank"],
-        thinkBudget: 2048,
+        thinkBudget: 256,
         maxTokens: 8192,
         temperature: 0.92,
         blurb: "White Plains. Loud on purpose. Rewrites the night. Stomach does not apologize.",
@@ -8698,7 +8722,7 @@ If STATE says she is asleep: she stays asleep. MOMENT is narrator + body (breath
         ready: true,
         stillDir: "stills/maggie/",
         scenarios: [],
-        thinkBudget: 2048,
+        thinkBudget: 256,
         maxTokens: 8192,
         temperature: 0.86,
         blurb: "Yonkers. First-year law. Sweet, dorky, will feel guilty about it.",
@@ -8713,7 +8737,7 @@ If STATE says she is asleep: she stays asleep. MOMENT is narrator + body (breath
         ready: true,
         stillDir: "stills/nat/",
         scenarios: ["nat-kitchen", "nat-car"],
-        thinkBudget: 2048,
+        thinkBudget: 256,
         maxTokens: 8192,
         temperature: 0.84,
         blurb: "White Plains. Mom-coded. She will try to get you out.",
@@ -8728,7 +8752,7 @@ If STATE says she is asleep: she stays asleep. MOMENT is narrator + body (breath
         ready: true,
         stillDir: "stills/alex/",
         scenarios: ["alex-break", "alex-apt"],
-        thinkBudget: 2048,
+        thinkBudget: 256,
         maxTokens: 8192,
         temperature: 0.82,
         blurb: "Nurse. No-nonsense. Help that can make the chamber worse.",
@@ -8743,7 +8767,7 @@ If STATE says she is asleep: she stays asleep. MOMENT is narrator + body (breath
         ready: true,
         stillDir: "stills/sable/",
         scenarios: ["sable-shop", "sable-tea"],
-        thinkBudget: 2048,
+        thinkBudget: 256,
         maxTokens: 8192,
         temperature: 0.86,
         blurb: "Used bookstore. Quiet. She wants you where it's warm.",
@@ -8758,7 +8782,7 @@ If STATE says she is asleep: she stays asleep. MOMENT is narrator + body (breath
         ready: true,
         stillDir: "stills/tessa/",
         scenarios: ["tessa-uber", "tessa-apt"],
-        thinkBudget: 2048,
+        thinkBudget: 256,
         maxTokens: 8192,
         temperature: 0.9,
         blurb: "Rideshare nights. This is not happening. Then it is.",
@@ -8773,7 +8797,7 @@ If STATE says she is asleep: she stays asleep. MOMENT is narrator + body (breath
         ready: true,
         stillDir: "stills/priya/",
         scenarios: ["priya-call", "priya-lab"],
-        thinkBudget: 2048,
+        thinkBudget: 256,
         maxTokens: 8192,
         temperature: 0.83,
         blurb: "Surgical resident. She will try a maneuver. It may slosh.",
@@ -8788,7 +8812,7 @@ If STATE says she is asleep: she stays asleep. MOMENT is narrator + body (breath
         ready: true,
         stillDir: "stills/wren/",
         scenarios: ["wren-trail", "wren-cabin"],
-        thinkBudget: 2048,
+        thinkBudget: 256,
         maxTokens: 8192,
         temperature: 0.88,
         blurb: "Trailhead. She starts decent. Dawn is a different woman.",
@@ -8803,7 +8827,7 @@ If STATE says she is asleep: she stays asleep. MOMENT is narrator + body (breath
         ready: true,
         stillDir: "stills/fran/",
         scenarios: ["fran-conor", "fran-conor-study", "fran-conor-meme", "fran-conor-coffee"],
-        thinkBudget: 2048,
+        thinkBudget: 256,
         maxTokens: 8192,
         temperature: 0.84,
         blurb: "Just sat the bar. Quiet. Cursed memes. Big eyes. Mostly Conor.",
@@ -8818,7 +8842,7 @@ If STATE says she is asleep: she stays asleep. MOMENT is narrator + body (breath
         ready: true,
         stillDir: "stills/keke/",
         scenarios: ["keke-blank", "keke-stoop", "keke-shop", "keke-bar", "keke-court", "keke-conor", "keke-conor-car", "keke-conor-roof"],
-        thinkBudget: 2048,
+        thinkBudget: 256,
         maxTokens: 8192,
         temperature: 0.9,
         blurb: "Mount Vernon. Not the group chat. Unapologetic. She is not dating you.",
@@ -9704,6 +9728,7 @@ If STATE says she is asleep: she stays asleep. MOMENT is narrator + body (breath
       if (game.bowel && game.bowel.active) return;
       if (game.bowelDone && saved.path !== "forced") return;
       hideGutSettle();
+      hideFateOverlays();
       if (digestTimer) { clearInterval(digestTimer); digestTimer = null; }
       const silent = !!saved.silent;
       const path = saved.path || (game.gone || game.fate === "digested" ? "dead" : "forced");
@@ -10868,6 +10893,8 @@ If STATE says she is asleep: she stays asleep. MOMENT is narrator + body (breath
       }
       applyTheme();
       paintMeter();
+      paintVitals();
+      paintSkullBar();
       if (composeReady) setBusy(busy);
     }
 
@@ -11968,7 +11995,10 @@ Never copy SPEECH: or ACTION: into your reply. Reply only with MOMENT, SAY, SHOT
             messages,
             temperature: c.temperature != null ? c.temperature : ACTOR_QUALITY.temperature,
             max_tokens: Math.max(c.maxTokens || 0, ACTOR_QUALITY.maxTokens),
-            think_budget: Math.max(c.thinkBudget || 0, ACTOR_QUALITY.thinkBudget),
+            think_budget: Math.min(
+              ACTOR_QUALITY.thinkBudget,
+              c.thinkBudget != null ? c.thinkBudget : ACTOR_QUALITY.thinkBudget
+            ),
             top_p: 0.95,
           }),
         });
@@ -12055,7 +12085,7 @@ Never copy SPEECH: or ACTION: into your reply. Reply only with MOMENT, SAY, SHOT
         + (tags.indexOf("caring") >= 0 ? " She would rather help than keep you." : "")
         + (tags.indexOf("mean") >= 0 ? " She is not sorry." : "");
       const whereAct = bowelOn
-        ? "lower in the tract, foam and squeeze"
+        ? (game.bowel && game.bowel.alive ? "lower in the tract, still conscious" : "finished as a voice; she has a bathroom need climbing")
         : (inside ? "inside her stomach, walls and heat" : (depth >= 1 ? "in her mouth / on the swallow path" : "outside on her skin, clothes, or the room"));
       const stance = {
         think: "Private thought first. SAY and DO may be blank.",
