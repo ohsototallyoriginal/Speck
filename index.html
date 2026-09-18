@@ -8966,6 +8966,7 @@ If STATE says she is asleep: she stays asleep. MOMENT is narrator + body (breath
       };
       spawnBubbles(10);
       spawnDrips(8);
+      if (!game.fate || game.fate === "") game.fate = "swallowed";
       paintDigestMeter("The chamber notices you. Clock is running.");
       if (!(saved && saved.silent)) {
         addNotice(harshPred() ? "She's keeping you. Struggle makes her work you." : "She's holding you. Rub eases it. Kick tightens it.");
@@ -9142,6 +9143,7 @@ If STATE says she is asleep: she stays asleep. MOMENT is narrator + body (breath
       game.digestDone = true;
       startBowelMovement({ path: "dead", silent: true });
       triggerDigestFx("burp");
+      showFate("digest");
       fireClockBeat("digest");
     }
 
@@ -9392,8 +9394,8 @@ If STATE says she is asleep: she stays asleep. MOMENT is narrator + body (breath
 
     const CLOCK_BEATS = {
       settle: {
-        user: "ACTION: I stay where I already am. The chamber just gets more serious around me. Same room. Same night. Do not restart.",
-        extra: " CONTINUITY LOCK: this is NOT a new scene and NOT an introduction. Same girl, same room, same clothes, same last beat. She does not greet anyone, does not change location, does not forget who is inside. React only to the chamber tightening after the settle time. Do NOT finish them. If she is asleep, she stays asleep — no conversation. Prefer SHOT inside, hold, taut, full. SAY only if she is awake.",
+        user: "[CLOCK] Active gut time ran out. The chamber's work is now on a clock. This is NOT the speck going limp, choosing to stay still, or giving up. Keep their last real move. Same room, same night.",
+        extra: " CLOCK BEAT only: the body clock started because time passed, not because they went still. Do not write them as limp unless their last ACTION was limp. Do not treat this as a new scene. Same girl, same clothes, same last beat. Do NOT finish them. If she is asleep, she stays asleep. Prefer SHOT inside, hold, taut, full. SAY only if she is awake.",
       },
       digest: {
         user: "ACTION: The squeeze has a last long hold. I go quiet against the wall.",
@@ -9427,7 +9429,7 @@ If STATE says she is asleep: she stays asleep. MOMENT is narrator + body (breath
       } else if (kind === "disposal") {
         extra = spec.extra + (who ? (" She remembers it was " + who + ".") : "") + sceneRecap();
       } else if (kind === "settle" && who) {
-        extra = spec.extra + " The speck is " + who + ". Use the name.";
+        extra = spec.extra + " The speck is " + who + ". Use the name. Do not invent that " + who + " stopped moving.";
       }
       const typing = addTyping();
       setBusy(true);
@@ -9872,8 +9874,8 @@ If STATE says she is asleep: she stays asleep. MOMENT is narrator + body (breath
         mood: s.mood,
         noticed: true,
         shot: s.shot,
-        fate: "",
-        depth: 0,
+        fate: s.gut ? "swallowed" : "",
+        depth: s.gut ? 3 : 0,
         gone: false,
         afterPasses: 0,
         bathroomAfter: 0,
@@ -9885,6 +9887,9 @@ If STATE says she is asleep: she stays asleep. MOMENT is narrator + body (breath
         digestDone: false,
         digestAcked: false,
         usedLines: [],
+        shownGulp: false,
+        shownDigest: false,
+        shownBowel: false,
       };
     }
     let game = freshGame("mara-laundry", "mara");
@@ -10272,6 +10277,7 @@ If STATE says she is asleep: she stays asleep. MOMENT is narrator + body (breath
       if (libNightTabs.has("begin") && libNightTabs.size === 1 && pack0 && !(pack0.scenarios && pack0.scenarios.length) && (pack0.gutNights || []).length) {
         libNightTabs = new Set(["gut"]);
       }
+      hideFateOverlays();
       els.library.classList.add("show");
       setLibraryMode(mode === "chats" ? "chats" : "stories");
       renderLibrary();
@@ -10308,8 +10314,9 @@ If STATE says she is asleep: she stays asleep. MOMENT is narrator + body (breath
         els.gulp.classList.remove("show");
         els.digest.classList.remove("show");
         // Gut-start scenarios arm the meter after 2 minutes inside
-        if (game.depth >= 3 || (s.gut || (s.shot === "inside"))) {
+        if (game.depth >= 3 || s.gut || /^(inside|hold|rest|digest|full|after|rub|taut|burp)$/.test(s.shot || "")) {
           game.depth = Math.max(game.depth || 0, 3);
+          game.fate = game.fate || "swallowed";
           game.gutEnteredAt = Date.now();
           paintMeter();
           armDigestWatch();
@@ -10827,29 +10834,50 @@ If STATE says she is asleep: she stays asleep. MOMENT is narrator + body (breath
       return scoreShot([moment, line, userText].join(" \n ")) || game.shot || "establish";
     }
 
+    function hideFateOverlays() {
+      if (els.gulp) els.gulp.classList.remove("show");
+      if (els.digest) els.digest.classList.remove("show");
+    }
+
+    function alreadySwallowed() {
+      if (game.fate === "swallowed" || game.fate === "digested") return true;
+      if ((game.depth || 0) >= 3) return true;
+      if (game.digestMeter && game.digestMeter.active) return true;
+      const s = scenarioOf(game.scenarioId);
+      return !!(s && s.gut);
+    }
+
     function showFate(kind) {
-      const pack = characterOf(game.characterId);
       const titleEl = document.getElementById("digestTitle");
       const stayBtn = document.getElementById("digestStay");
       if (kind === "gulp") {
+        if (alreadySwallowed() || game.shownGulp) return;
+        hideFateOverlays();
         els.gulpLine.textContent = pickFreshLine("gulp");
         els.gulp.classList.add("show");
+        game.shownGulp = true;
         game.fate = "swallowed";
-        setDepth(2);
+        setDepth(Math.max(game.depth || 0, 2));
         gulpFx();
       } else if (kind === "bowel") {
+        if (game.shownBowel) return;
+        hideFateOverlays();
         if (titleEl) titleEl.textContent = "Disposal";
         els.digestLine.textContent = pickFreshLine("bowel");
         if (stayBtn) stayBtn.textContent = "Stay with it";
         els.digest.classList.add("show");
+        game.shownBowel = true;
         if (!game.bowel || !game.bowel.alive) game.fate = "digested";
         setDepth(3);
         gulpFx();
       } else if (kind === "digest") {
+        if (game.shownDigest) return;
+        hideFateOverlays();
         if (titleEl) titleEl.textContent = "Soft end";
         els.digestLine.textContent = pickFreshLine("digest");
         if (stayBtn) stayBtn.textContent = "Stay gone";
         els.digest.classList.add("show");
+        game.shownDigest = true;
         game.fate = "digested";
         setDepth(3);
         gulpFx();
@@ -10867,14 +10895,10 @@ If STATE says she is asleep: she stays asleep. MOMENT is narrator + body (breath
     }
 
     function readFate(shot, moment, line, opts) {
+      opts = opts || {};
       const blob = [shot, moment, line].join(" ").toLowerCase();
       const meterOn = !!(game.digestMeter && game.digestMeter.active) && !(game.bowel && game.bowel.active);
-      if (opts && opts.early) {
-        if (shot === "inside" || /\b(gulp(ed|s)?|swallowed you|down her throat|you slide down)\b/.test(blob)) return "gulp";
-        return null;
-      }
-      // Flavor only — finish is owned by the meter. Explicit mutual language zeros that same clock.
-      if (meterOn && EXPLICIT_DIGEST.test(blob) && opts && opts.asked) {
+      if (meterOn && EXPLICIT_DIGEST.test(blob) && opts.asked) {
         const dm = game.digestMeter;
         if (dm && dm.active) {
           dm.remainingMs = 0;
@@ -10882,7 +10906,13 @@ If STATE says she is asleep: she stays asleep. MOMENT is narrator + body (breath
         }
         return null;
       }
-      if (shot === "inside" || /\b(gulp(ed|s)?|swallowed you|down her throat|you slide down)\b/.test(blob)) return "gulp";
+      if (alreadySwallowed()) return null;
+      const swallowShot = /^(swallow|throat|uvula|gape|headback)$/.test(shot);
+      const swallowText = /\b((she |just )?gulp(ed|s|ing)? (you|him|me|conor)\b|(she |just )?swallowed (you|him|me|conor)\b|down (her|the) throat|peristalsis (takes|has) you|you slide down her throat)\b/i.test(blob);
+      if (opts.early && !(swallowShot && swallowText) && shot !== "swallow") return null;
+      if (swallowShot && swallowText) return "gulp";
+      if (shot === "swallow" && /\b(gulp|swallow)/i.test(blob)) return "gulp";
+      if (swallowText && /^(swallow|throat|inside)$/.test(shot)) return "gulp";
       return null;
     }
 
@@ -11308,15 +11338,18 @@ Never copy SPEECH: or ACTION: into your reply. Reply only with MOMENT, SAY, SHOT
       if (/^MOMENT:|^SHOT:|You are the actor/i.test(text)) {
         return { think: "", say: "", act: "" };
       }
-      const think = (text.match(/THINK:\s*([\s\S]*?)(?=\n(?:SAY|DO|ACTION|SPEECH):|$)/i) || [])[1];
-      const say = (text.match(/(?:SAY|SPEECH):\s*([\s\S]*?)(?=\n(?:THINK|DO|ACTION):|$)/i) || [])[1];
-      const act = (text.match(/(?:DO|ACTION):\s*([\s\S]*?)(?=\n(?:THINK|SAY|SPEECH):|$)/i) || [])[1];
-      const clean = (x) => clampBeat(x, 280);
-      let thought = clean(think);
-      let speech = clean(say);
-      let doing = clean(act);
+      const stop = "(?:THINK|SAY|SPEECH|DO|ACTION|MOMENT|SHOT)";
+      const grab = (names) => {
+        const re = new RegExp("(?:^|\\n)\\s*(?:" + names + "):\\s*([\\s\\S]*?)(?=\\n\\s*" + stop + ":|$)", "i");
+        const m = text.match(re);
+        return m ? m[1] : "";
+      };
+      const strip = (x) => clampBeat(String(x || "").replace(/^(THINK|SAY|SPEECH|DO|ACTION):\s*/i, ""), 280);
+      let thought = strip(grab("THINK"));
+      let speech = strip(grab("SAY|SPEECH"));
+      let doing = strip(grab("DO|ACTION"));
       if (!thought && !speech && !doing) {
-        thought = clampBeat(text.replace(/^(THINK|SAY|DO|SPEECH|ACTION):/i, ""), 280);
+        thought = strip(text);
       }
       return { think: thought, say: speech, act: doing };
     }
@@ -11409,8 +11442,8 @@ Never copy SPEECH: or ACTION: into your reply. Reply only with MOMENT, SAY, SHOT
         const parsed = parseConorThink(raw);
         wrap.remove();
         const parts = [];
-        if (parsed.act) parts.push("ACTION: " + parsed.act);
-        if (parsed.say) parts.push("SPEECH: " + parsed.say);
+        if (parsed.act) parts.push("ACTION: " + parsed.act.replace(/^(ACTION|DO):\s*/i, ""));
+        if (parsed.say) parts.push("SPEECH: " + parsed.say.replace(/^(SPEECH|SAY):\s*/i, ""));
         let composed = parts.join("\n");
         if (!composed) {
           if (kind === "rub") composed = "ACTION: I rub where I actually am, trying to ease her.";
@@ -11876,11 +11909,18 @@ Never copy SPEECH: or ACTION: into your reply. Reply only with MOMENT, SAY, SHOT
     // Reads stored player text (new labelled format, or older saves) for display.
     function parsePlayer(stored) {
       const t = String(stored || "");
-      if (/^(SPEECH|ACTION):/m.test(t)) {
-        return t.split(/\n/).map((ln) => {
-          const m = ln.match(/^(SPEECH|ACTION):\s*(.*)$/);
-          return m ? { kind: m[1] === "SPEECH" ? "say" : "do", text: m[2] } : null;
-        }).filter((p) => p && p.text);
+      if (/^(SPEECH|ACTION|SAY|DO):/m.test(t)) {
+        const parts = [];
+        t.split(/\n/).forEach((ln) => {
+          const m = ln.match(/^(SPEECH|ACTION|SAY|DO):\s*(.*)$/i);
+          if (!m || !m[2].trim()) return;
+          const kind = /^(SPEECH|SAY)$/i.test(m[1]) ? "say" : "do";
+          const text = m[2].replace(/^(SPEECH|ACTION|SAY|DO):\s*/i, "").trim();
+          const prev = parts[parts.length - 1];
+          if (prev && prev.kind === kind && prev.text === text) return;
+          parts.push({ kind, text });
+        });
+        return parts;
       }
       let m = t.match(/^I say:\s*"([\s\S]*)"$/);
       if (m) return [{ kind: "say", text: m[1] }];
@@ -12133,8 +12173,10 @@ Never copy SPEECH: or ACTION: into your reply. Reply only with MOMENT, SAY, SHOT
     document.addEventListener("keydown", (e) => {
       if (e.key === "Escape") closeLibrary();
     });
-    els.gulpOk.addEventListener("click", () => els.gulp.classList.remove("show"));
+    els.gulpOk.addEventListener("click", () => hideFateOverlays());
     els.digestOk.addEventListener("click", resetNight);
+    if (els.gulp) els.gulp.addEventListener("click", (e) => { if (e.target === els.gulp) hideFateOverlays(); });
+    if (els.digest) els.digest.addEventListener("click", (e) => { if (e.target === els.digest) hideFateOverlays(); });
     document.getElementById("continueNight").addEventListener("click", continueNight);
     document.getElementById("newNight").addEventListener("click", resetNight);
     els.look.addEventListener("click", () => clickAction("look"));
