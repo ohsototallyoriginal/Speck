@@ -75,24 +75,25 @@
         #140c0a;
     }
     html[data-face="ang"] {
-      --skin-hi: #b07a55;
-      --skin: #7a4a2e;
-      --neon: #f0c43a;
-      --cyan: #ffe28a;
-      --you: #5a3c10;
-      --panel: #3a2c10;
-      --panel2: #120e06;
-      --linebg: #6a4a18;
-      --dawn: #2a1e08;
-      --muted: #f0e0b0;
-      --hair: rgba(240,196,58,.48);
-      --glass: rgba(14,10,4,.86);
+      --skin-hi: #c48a52;
+      --skin: #8a4e24;
+      --neon: #ffcc00;
+      --cyan: #fff3a0;
+      --you: #8a5a00;
+      --panel: #2a1c00;
+      --panel2: #070500;
+      --linebg: #c49200;
+      --dawn: #1a1200;
+      --muted: #f5e6a8;
+      --ink: #fff8d6;
+      --hair: rgba(255,204,0,.62);
+      --glass: rgba(8,6,0,.9);
     }
     html[data-face="ang"] #world .alley {
       background:
-        radial-gradient(55% 40% at 30% 18%, rgba(232,177,74,.2), transparent 55%),
-        radial-gradient(45% 30% at 80% 80%, rgba(90,50,20,.22), transparent 50%),
-        #120c08;
+        radial-gradient(55% 40% at 28% 16%, rgba(255,204,0,.28), transparent 55%),
+        radial-gradient(45% 30% at 80% 80%, rgba(40,20,0,.35), transparent 50%),
+        #070500;
     }
 
     html[data-face="maddy"] {
@@ -2345,10 +2346,18 @@
       min-height: 44px;
       padding: 10px 14px; border-radius: 999px; text-align: center;
       scroll-snap-align: start;
+      border-color: color-mix(in srgb, var(--chip, var(--neon)) 55%, var(--hair));
+      color: color-mix(in srgb, var(--chip, var(--neon)) 70%, var(--ink));
+      background: color-mix(in srgb, var(--chip, var(--neon)) 10%, var(--panel2));
     }
     .face-tabs .card span { display: none; }
-    .face-tabs .card b { margin: 0; font-size: .8rem; letter-spacing: .03em; }
-    .face-tabs .card.active { box-shadow: inset 0 0 0 1px var(--neon); background: color-mix(in srgb, var(--neon) 16%, var(--panel2)); }
+    .face-tabs .card b { margin: 0; font-size: .8rem; letter-spacing: .03em; color: inherit; }
+    .face-tabs .card.active {
+      box-shadow: inset 0 0 0 1px var(--chip, var(--neon)), 0 0 12px color-mix(in srgb, var(--chip, var(--neon)) 35%, transparent);
+      background: color-mix(in srgb, var(--chip, var(--neon)) 22%, var(--panel2));
+      color: var(--ink);
+      border-color: var(--chip, var(--neon));
+    }
     .night-tools { margin: 2px 0 12px; }
     .night-tabs {
       display: flex; gap: 6px; overflow-x: auto; margin: 0 0 10px;
@@ -2616,7 +2625,7 @@
     }
     .vital-body #meter { flex: 1 1 auto; min-width: 0; margin: 0; }
     #gasMeter {
-      flex: 0 0 18px;
+      flex: 0 0 22px;
       display: none;
       flex-direction: column;
       align-items: center;
@@ -2629,18 +2638,21 @@
       letter-spacing: .08em;
       text-transform: uppercase;
       font-weight: 800;
-      color: var(--muted);
+      color: #e8c86a;
       writing-mode: vertical-rl;
       transform: rotate(180deg);
-      opacity: .7;
+      opacity: .8;
     }
     .gas-track {
+      position: relative;
       flex: 1 1 auto;
-      width: 7px;
+      width: 11px;
       min-height: 52px;
       border-radius: 99px;
-      background: rgba(0,0,0,.42);
-      border: 1px solid rgba(180, 160, 80, .28);
+      background:
+        radial-gradient(circle at 50% 80%, rgba(255,220,120,.18), transparent 55%),
+        rgba(0,0,0,.48);
+      border: 1px solid rgba(230, 190, 70, .4);
       overflow: hidden;
       display: flex;
       align-items: flex-end;
@@ -2650,13 +2662,47 @@
       width: 100%;
       height: 0%;
       border-radius: 99px;
-      background: linear-gradient(180deg, #f0e080, #c4a028);
-      transition: height .3s ease, background .3s ease;
+      background:
+        radial-gradient(circle at 30% 20%, rgba(255,255,220,.55), transparent 36%),
+        radial-gradient(circle at 70% 55%, rgba(255,200,80,.4), transparent 40%),
+        linear-gradient(180deg, #fff4b0, #e0a028 70%, #c46a18);
+      transition: height .45s cubic-bezier(.2,.8,.2,1), background .35s ease;
+      animation: gasSimmer 1.6s ease-in-out infinite;
     }
-    #gasMeter.hot #gasFill { background: linear-gradient(180deg, #ffe08a, #e07820); }
+    @keyframes gasSimmer {
+      0%, 100% { filter: brightness(1); }
+      50% { filter: brightness(1.18); }
+    }
+    .gas-fizz, .gas-fizz::before, .gas-fizz::after {
+      content: "";
+      position: absolute;
+      left: 50%;
+      width: 4px; height: 4px;
+      border-radius: 50%;
+      background: rgba(255,248,200,.85);
+      box-shadow: 0 0 4px rgba(255,220,120,.8);
+      pointer-events: none;
+      animation: gasBubble 1.5s ease-in infinite;
+    }
+    .gas-fizz { bottom: 8%; margin-left: -2px; animation-duration: 1.35s; }
+    .gas-fizz::before { left: -3px; animation-duration: 1.8s; animation-delay: .2s; }
+    .gas-fizz::after { left: 2px; width: 3px; height: 3px; animation-duration: 1.15s; animation-delay: .45s; }
+    @keyframes gasBubble {
+      0% { transform: translateY(6px) scale(.6); opacity: 0; }
+      20% { opacity: .9; }
+      100% { transform: translateY(-28px) scale(1.15); opacity: 0; }
+    }
+    #gasMeter.hot #gasFill { background: linear-gradient(180deg, #fff3a0, #ff9a28 75%, #e05010); }
+    #gasMeter.hot .gas-fizz { animation-duration: .9s; }
     #gasMeter.ready #gasFill {
-      background: linear-gradient(180deg, #fff2a8, #ff8a40);
-      box-shadow: 0 0 8px rgba(255, 160, 60, .45);
+      background: linear-gradient(180deg, #fffce0, #ffb040 60%, #ff6a20);
+      box-shadow: 0 0 10px rgba(255, 170, 50, .55);
+      animation: gasBoil .7s ease-in-out infinite;
+    }
+    #gasMeter.ready .gas-track { box-shadow: 0 0 8px rgba(255,160,40,.35); }
+    @keyframes gasBoil {
+      0%, 100% { filter: brightness(1.05); transform: scaleY(1); }
+      50% { filter: brightness(1.25); transform: scaleY(1.04); }
     }
     #meter {
       margin: 0;
@@ -3699,7 +3745,7 @@
   </div>
       <div id="gasMeter" aria-label="Gas">
         <span class="gas-label">Gas</span>
-        <div class="gas-track"><i id="gasFill"></i></div>
+        <div class="gas-track"><i id="gasFill"></i><span class="gas-fizz" aria-hidden="true"></span></div>
       </div>
     </div>
     <div id="vitalLog" aria-live="polite">
@@ -10424,11 +10470,18 @@ If STATE says she is asleep: she stays asleep. MOMENT is narrator + body (breath
     }
 
     const THEME_COLORS = {
-      mara: "#140c0a", ang: "#120e06", maddy: "#120406", maggie: "#081018",
+      mara: "#140c0a", ang: "#070500", maddy: "#120406", maggie: "#081018",
       nat: "#0a0610", alex: "#060c10", sable: "#0c0a08", tessa: "#10080c",
       priya: "#0c0a10", wren: "#0a0c08", fran: "#10060c", keke: "#0a0804",
       billie: "#0a0e16", jlaw: "#100c08", cardi: "#10060a", june: "#080610",
       zendaya: "#0c0a06", sydney: "#0c080a", icespice: "#0c0610"
+    };
+    const FACE_ACCENT = {
+      mara: "#e87858", ang: "#ffcc00", maddy: "#ff2d3a", maggie: "#4aa3ff",
+      nat: "#b44cff", alex: "#5ce0c8", sable: "#c4a070", tessa: "#ff7ab0",
+      priya: "#a78bfa", wren: "#86efac", fran: "#ff6bb8", keke: "#ffb000",
+      billie: "#6eb6ff", jlaw: "#e8c090", cardi: "#ff4d8a", june: "#c4a0ff",
+      zendaya: "#e0b060", sydney: "#f0a0c0", icespice: "#d080ff"
     };
     function applyTheme(faceId) {
       const id = characterOf(faceId || game.characterId).id;
@@ -11144,6 +11197,8 @@ If STATE says she is asleep: she stays asleep. MOMENT is narrator + body (breath
         b.type = "button";
         b.className = "card" + (c.id === libFace ? " active" : "");
         b.setAttribute("aria-pressed", String(c.id === libFace));
+        b.dataset.face = c.id;
+        b.style.setProperty("--chip", FACE_ACCENT[c.id] || "var(--neon)");
         b.innerHTML = "<b></b><span></span>";
         b.querySelector("b").textContent = c.name + (c.id === game.characterId ? " ·" : "");
         b.querySelector("span").textContent = c.blurb;
@@ -12045,8 +12100,18 @@ Never copy SPEECH: or ACTION: into your reply. Reply only with MOMENT, SAY, SHOT
       let thought = strip(grab("THINK"));
       let speech = strip(grab("SAY|SPEECH"));
       let doing = strip(grab("DO|ACTION"));
+      const norm = (s) => String(s || "").replace(/^[\"“”']|[\"“”']$/g, "").replace(/\s+/g, " ").trim().toLowerCase();
       if (!thought && !speech && !doing) {
         thought = strip(text);
+      }
+      if (speech && doing && (norm(speech) === norm(doing) || norm(speech).includes(norm(doing)) || norm(doing).includes(norm(speech)))) {
+        speech = "";
+      }
+      if (thought && doing && (norm(thought).includes(norm(doing)) || norm(doing).includes(norm(thought).slice(-Math.min(norm(thought).length, 80))))) {
+        doing = "";
+      }
+      if (thought && speech && norm(thought).includes(norm(speech))) {
+        speech = "";
       }
       return { think: thought, say: speech, act: doing };
     }
@@ -12111,13 +12176,13 @@ Never copy SPEECH: or ACTION: into your reply. Reply only with MOMENT, SAY, SHOT
         + sceneLock + "\n"
         + "Physical place this beat: " + whereAct + ".\n"
         + stance + "\n"
-        + "Answer with EXACTLY:\n"
-        + "THINK: <2–5 sentences private, not spoken>\n"
-        + "SAY: <spoken this beat, or blank>\n"
-        + "DO: <one speck-scale physical action that fits THIS scenario, or blank>\n"
+        + "Answer with EXACTLY these three labels, each once:\n"
+        + "THINK: <2–5 sentences private, not spoken. Do not repeat this under SAY or DO.>\n"
+        + "SAY: <spoken this beat, or leave blank>\n"
+        + "DO: <one different physical action, or leave blank. Never copy THINK or SAY.>\n"
         + "No markdown. No MOMENT. No SHOT. Never speak as " + her + ". Do not invent a different room.";
       const ask = kind === "think"
-        ? ("Think as " + who + " in this exact night, then optionally speak or move.")
+        ? ("THINK only as " + who + " in this exact night. Leave SAY and DO blank unless you actually whisper or move, and those lines must not repeat THINK.")
         : ("Play this beat as " + who + " — stance: " + kind + ". Stay inside this scenario.");
       return [
         { role: "system", content: system },
@@ -12138,6 +12203,12 @@ Never copy SPEECH: or ACTION: into your reply. Reply only with MOMENT, SAY, SHOT
         const raw = await askActor(buildPlayerActMessages(kind));
         const parsed = parseConorThink(raw);
         wrap.remove();
+        if (kind === "think" && parsed.think && parsed.act && parsed.think.toLowerCase().includes(parsed.act.toLowerCase().slice(0, 48))) {
+          parsed.act = "";
+        }
+        if (kind === "think" && parsed.think && parsed.say && parsed.think.toLowerCase().includes(parsed.say.toLowerCase().slice(0, 48))) {
+          parsed.say = "";
+        }
         const parts = [];
         if (parsed.act) parts.push("ACTION: " + parsed.act.replace(/^(ACTION|DO):\s*/i, ""));
         if (parsed.say) parts.push("SPEECH: " + parsed.say.replace(/^(SPEECH|SAY):\s*/i, ""));
