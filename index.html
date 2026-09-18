@@ -2469,6 +2469,66 @@
     }
     #hpMeter {
       margin: 0 0 8px;
+      position: relative;
+      overflow: visible;
+    }
+    #hpMeter.slam .hp-track {
+      animation: hpSlam .42s cubic-bezier(.2,.8,.2,1);
+    }
+    #hpMeter.slam #hpFill {
+      background: linear-gradient(90deg, #6a1010, #ff3a3a 55%, #ff8a70) !important;
+      box-shadow: 0 0 12px rgba(255, 50, 40, .65);
+    }
+    #hpMeter.slam .hp-row b { color: #ff6a55; }
+    @keyframes hpSlam {
+      0% { transform: translateX(0); filter: brightness(1); }
+      18% { transform: translateX(-3px); filter: brightness(1.35); }
+      36% { transform: translateX(3px); }
+      54% { transform: translateX(-2px); }
+      100% { transform: translateX(0); filter: brightness(1); }
+    }
+    .hp-pop {
+      position: absolute;
+      left: 50%;
+      top: -2px;
+      font-size: .78rem;
+      font-weight: 900;
+      color: #ff4a4a;
+      text-shadow: 0 1px 0 #2a0404, 0 0 10px rgba(255,40,40,.55);
+      pointer-events: none;
+      animation: hpPop .85s ease-out forwards;
+      z-index: 4;
+    }
+    .hp-pop.heal { color: #7ee08a; text-shadow: 0 1px 0 #04200c, 0 0 8px rgba(80,220,120,.4); }
+    @keyframes hpPop {
+      0% { opacity: 0; transform: translate(-50%, 6px) scale(.8); }
+      18% { opacity: 1; transform: translate(-50%, -2px) scale(1.08); }
+      100% { opacity: 0; transform: translate(calc(-50% + var(--dx, 0px)), -18px) scale(.95); }
+    }
+    #vitalLog {
+      display: flex;
+      justify-content: space-between;
+      gap: 8px;
+      margin-top: 6px;
+      min-height: 1.05em;
+      font-size: .58rem;
+      letter-spacing: .04em;
+      color: var(--muted);
+    }
+    #vitalLog b { font-weight: 800; }
+    #vitalLog .down { color: #ff7a70; }
+    #vitalLog .up { color: #8adf6a; }
+    #stageCol { display: flex; flex-direction: column; align-items: center; flex: 0 0 auto; }
+    #thumbHint {
+      margin: 5px 0 0;
+      font-size: .52rem;
+      letter-spacing: .06em;
+      text-transform: uppercase;
+      font-weight: 700;
+      color: var(--muted);
+      opacity: .72;
+      text-align: center;
+      line-height: 1.2;
     }
     #hpMeter .hp-row {
       display: flex;
@@ -3388,9 +3448,10 @@
       #gasMeter { min-height: 0; }
       .gas-track { min-height: 44px; }
       .meter-labels { margin-bottom: 5px; font-size: .58rem; letter-spacing: .06em; }
-      #thumbHint { margin: 6px 0 0; font-size: .72rem; color: var(--muted); }
+      #thumbHint { margin: 4px 0 0; font-size: .48rem; letter-spacing: .08em; }
 
       /* Enlarged: the picture in its full form, chat still visible below */
+      #sceneBar.big #stageCol { width: 100%; }
       #sceneBar.big { flex-direction: column; align-items: stretch; gap: 8px; }
       #sceneBar.big #stage {
         width: 100%;
@@ -3517,6 +3578,7 @@
     <p id="placeSub">Character · scene</p>
   </div>
   <div id="sceneBar">
+  <div id="stageCol">
   <figure id="stage" role="button" tabindex="0" aria-expanded="false" aria-label="Scene image. Tap to enlarge.">
     <img id="still" alt="" />
     <span id="zoomIcon" aria-hidden="true"><svg class="z-in" viewBox="0 0 24 24" width="14" height="14"><path d="M14 4h6v6M10 20H4v-6M20 4l-6.5 6.5M4 20l6.5-6.5" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg><svg class="z-out" viewBox="0 0 24 24" width="16" height="16"><path d="M20 10h-6V4M4 14h6v6M14 10l6.5-6.5M10 14l-6.5 6.5" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
@@ -3524,6 +3586,8 @@
     <div id="shotchip">establish</div>
     <div id="progress" hidden><span></span></div>
   </figure>
+  <p id="thumbHint">Tap to enlarge</p>
+  </div>
   <div id="vitalWrap">
     <div id="hpMeter" aria-label="Your health">
       <div class="hp-row"><span>You</span><b id="hpLabel">100</b></div>
@@ -3570,12 +3634,15 @@
       </div>
       <div class="dm-toast" id="dmToast"></div>
     </div>
-    <p id="thumbHint">Tap the picture to enlarge</p>
   </div>
       <div id="gasMeter" aria-label="Gas">
         <span class="gas-label">Gas</span>
         <div class="gas-track"><i id="gasFill"></i></div>
       </div>
+    </div>
+    <div id="vitalLog" aria-live="polite">
+      <span id="vitalHpNote"></span>
+      <span id="vitalTimeNote"></span>
     </div>
   </div>
   </div>
@@ -8840,12 +8907,66 @@ If STATE says she is asleep: she stays asleep. MOMENT is narrator + body (breath
       if (gasFill) gasFill.style.height = Math.max(0, Math.min(100, game.gas)).toFixed(1) + "%";
     }
 
-    function flashHp() {
+    function flashHp(heavy) {
       const hpEl = document.getElementById("hpMeter");
       if (!hpEl) return;
       hpEl.classList.add("flash");
+      if (heavy) hpEl.classList.add("slam");
       if (hpFlashTimer) clearTimeout(hpFlashTimer);
-      hpFlashTimer = setTimeout(() => hpEl.classList.remove("flash"), 280);
+      hpFlashTimer = setTimeout(() => hpEl.classList.remove("flash", "slam"), heavy ? 480 : 280);
+    }
+
+    function popHpFloater(n) {
+      const hpEl = document.getElementById("hpMeter");
+      if (!hpEl) return;
+      const el = document.createElement("span");
+      el.className = "hp-pop" + (n > 0 ? " heal" : "");
+      el.textContent = n > 0 ? ("+" + Math.round(n)) : ("−" + Math.round(Math.abs(n)));
+      el.style.setProperty("--dx", ((Math.random() - 0.5) * 36).toFixed(1) + "px");
+      el.style.left = (46 + Math.random() * 18) + "%";
+      hpEl.appendChild(el);
+      setTimeout(() => el.remove(), 900);
+    }
+
+    function formatVitalSec(sec) {
+      const s = Math.round(Math.abs(sec));
+      if (s >= 60) {
+        const m = Math.floor(s / 60);
+        const r = s % 60;
+        return (sec < 0 ? "−" : "+") + m + ":" + String(r).padStart(2, "0");
+      }
+      return (sec < 0 ? "−" : "+") + s + "s";
+    }
+
+    function paintVitalLog() {
+      const hpEl = document.getElementById("vitalHpNote");
+      const timeEl = document.getElementById("vitalTimeNote");
+      const hp = game.lastHpLog;
+      const tm = game.lastTimeLog;
+      if (hpEl) {
+        if (hp && hp.n) {
+          const cls = hp.n < 0 ? "down" : "up";
+          hpEl.innerHTML = "<b class=\"" + cls + "\">" + (hp.n < 0 ? "−" : "+") + Math.round(Math.abs(hp.n)) + "</b> " + (hp.why || "you");
+        } else hpEl.textContent = "";
+      }
+      if (timeEl) {
+        if (tm && tm.sec) {
+          const cls = tm.sec < 0 ? "down" : "up";
+          timeEl.innerHTML = "<b class=\"" + cls + "\">" + formatVitalSec(tm.sec) + "</b> " + (tm.why || "clock");
+        } else timeEl.textContent = "";
+      }
+    }
+
+    function recordHpLog(n, why) {
+      if (!n || Math.abs(n) < 0.6) return;
+      game.lastHpLog = { n: n, why: why || (n < 0 ? "hit" : "ease"), at: Date.now() };
+      paintVitalLog();
+    }
+
+    function recordTimeLog(ms, why) {
+      if (!ms) return;
+      game.lastTimeLog = { sec: ms / 1000, why: why || "clock", at: Date.now() };
+      paintVitalLog();
     }
 
     function applyHpDelta(n, opts) {
@@ -8854,7 +8975,10 @@ If STATE says she is asleep: she stays asleep. MOMENT is narrator + body (breath
       migrateVitals();
       if (game.gone && n < 0) return game.hp;
       game.hp = Math.max(0, Math.min(100, game.hp + n));
-      if (n < 0) flashHp();
+      const heavy = n <= -3;
+      if (n < 0) flashHp(heavy);
+      if (heavy || n >= 2) popHpFloater(n);
+      if (!opts.quiet) recordHpLog(n, opts.reason);
       paintVitals();
       if (game.hp <= 0 && !game.gone && game.digestMeter && game.digestMeter.active && !(game.bowel && game.bowel.active)) {
         if (!opts.skipFinish) {
@@ -8894,7 +9018,8 @@ If STATE says she is asleep: she stays asleep. MOMENT is narrator + body (breath
         dm.factors.pace = clamp01(dm.factors.pace + 0.1);
         dm.remainingMs = Math.max(0, dm.remainingMs - clockHit * 1000);
         if (dm.remainingMs <= 0) {
-          applyHpDelta(-hpHit, { skipFinish: true });
+          applyHpDelta(-hpHit, { skipFinish: true, reason: "burp" });
+          recordTimeLog(-clockHit * 1000, "burp");
           paintDigestMeter("Burp — the chamber vents (−" + clockHit + "s)");
           triggerDigestFx("burp");
           finishDigestMeter();
@@ -8905,7 +9030,8 @@ If STATE says she is asleep: she stays asleep. MOMENT is narrator + body (breath
         game.bowel.remainingMs = Math.max(0, game.bowel.remainingMs - Math.round(clockHit * 0.45) * 1000);
         paintBowelMeter("A push of air (−" + Math.round(clockHit * 0.45) + "s)");
       }
-      applyHpDelta(-hpHit, { skipFinish: true });
+      applyHpDelta(-hpHit, { skipFinish: true, reason: "burp" });
+      recordTimeLog(-clockHit * 1000, "burp");
       triggerDigestFx("burp");
       paintVitals();
       persist();
@@ -9465,7 +9591,7 @@ If STATE says she is asleep: she stays asleep. MOMENT is narrator + body (breath
       dm.remainingMs = Math.max(0, dm.remainingMs - dt * rate);
       const danger = 1 - Math.max(0, Math.min(1, dm.remainingMs / Math.max(1, dm.totalMs)));
       const sec = Math.max(0.2, dt / 1000);
-      applyHpDelta(-(0.09 + dm.factors.stomach * 0.22 + dm.factors.pace * 0.14 + danger * 0.28) * sec, { skipFinish: true });
+      applyHpDelta(-(0.09 + dm.factors.stomach * 0.22 + dm.factors.pace * 0.14 + danger * 0.28) * sec, { skipFinish: true, quiet: true });
       applyGasDelta((0.55 + dm.factors.stomach * 1.15 + dm.factors.pace * 0.95 + danger * 1.35) * sec);
       paintDigestMeter();
       if (fxOn() && Math.random() < 0.07 + danger * 0.16) {
@@ -9478,6 +9604,7 @@ If STATE says she is asleep: she stays asleep. MOMENT is narrator + body (breath
       if (dm.remainingMs <= 0) {
         finishDigestMeter();
       }
+      persistSoon();
     }
 
     function finishDigestMeter() {
@@ -9973,6 +10100,7 @@ If STATE says she is asleep: she stays asleep. MOMENT is narrator + body (breath
       if (!dm || !dm.active) return;
       dm.remainingMs = Math.max(0, Math.min(DIGEST_MAX_MS, dm.remainingMs + deltaMs));
       if (dm.remainingMs > dm.totalMs) dm.totalMs = dm.remainingMs;
+      recordTimeLog(deltaMs, deltaMs < 0 ? "nudge" : "ease");
       paintDigestMeter(note || "");
       if (dm.remainingMs <= 0) finishDigestMeter();
       else persist();
@@ -10113,7 +10241,17 @@ If STATE says she is asleep: she stays asleep. MOMENT is narrator + body (breath
         gasHit = 3;
       }
 
-      if (hpHit) applyHpDelta(hpHit, { skipFinish: true });
+      const why = (RE_BURP.test(blob) || shot === "burp" || shot === "belch") ? "burp"
+        : escaping ? "escape"
+        : begging ? "beg"
+        : (RE_SQUIRM.test(blob) || RE_SQUIRM.test(userBlob)) ? "struggle"
+        : teased ? "tease"
+        : (RE_CHURN.test(blob) || shot === "digest" || shot === "taut") ? "churn"
+        : (RE_CALM.test(blob) || shot === "lounge" || shot === "hold" || shot === "rub" || shot === "pat") ? "rub"
+        : RE_FEED.test(blob) ? "full"
+        : RE_HUNGER.test(blob) ? "empty"
+        : "digest";
+      if (hpHit) applyHpDelta(hpHit, { skipFinish: true, reason: why });
       if (gasHit) {
         migrateVitals();
         game.gas = Math.max(0, Math.min(100, game.gas + gasHit));
@@ -10125,6 +10263,7 @@ If STATE says she is asleep: she stays asleep. MOMENT is narrator + body (breath
 
       dm.remainingMs = Math.max(0, Math.min(DIGEST_MAX_MS, dm.remainingMs + delta));
       if (dm.remainingMs > dm.totalMs) dm.totalMs = dm.remainingMs;
+      recordTimeLog(delta, why);
       paintDigestMeter(note);
       if (dm.remainingMs <= 0) finishDigestMeter();
       else persist();
@@ -10163,6 +10302,7 @@ If STATE says she is asleep: she stays asleep. MOMENT is narrator + body (breath
           paintDigestMeter("Paused while away");
         }
         hideGutSettle();
+        paintVitals();
         return;
       }
       // Migrate old saves that only had gutEnteredAt (wall-clock)
@@ -10536,26 +10676,89 @@ If STATE says she is asleep: she stays asleep. MOMENT is narrator + body (breath
       await supabase.from("chats").delete().eq("id", id);
     }
 
-    function persist() {
-      if (!history.length) return;
+    function cloneState(v) {
+      try { return JSON.parse(JSON.stringify(v)); } catch { return v; }
+    }
+
+    function snapshotGame() {
+      migrateVitals();
+      const snap = cloneState(game) || {};
+      snap.hp = Number(game.hp);
+      snap.gas = Number(game.gas);
+      snap.depth = game.depth || 0;
+      snap.fate = game.fate || "";
+      snap.gone = !!game.gone;
+      snap.digestMeter = game.digestMeter ? cloneState(game.digestMeter) : null;
+      snap.bowel = game.bowel ? cloneState(game.bowel) : null;
+      snap.gutTimer = game.gutTimer ? cloneState(game.gutTimer) : null;
+      snap.gutEnteredAt = game.gutEnteredAt || null;
+      return snap;
+    }
+
+    function hydrateGame(saved) {
+      const face = (saved && saved.characterId) || (saved && saved.game && saved.game.characterId) || game.characterId || "mara";
+      const sid = (saved && saved.game && saved.game.scenarioId) || (saved && saved.scenarioId) || game.scenarioId;
+      const base = freshGame(sid, face);
+      const fromGame = (saved && saved.game) || {};
+      const fromVitals = (saved && saved.vitals) || {};
+      Object.assign(game, base, fromGame, { characterId: face, scenarioId: sid });
+      if (fromVitals.hp != null) game.hp = fromVitals.hp;
+      if (fromVitals.gas != null) game.gas = fromVitals.gas;
+      if (fromVitals.digestMeter) game.digestMeter = fromVitals.digestMeter;
+      if (fromVitals.bowel) game.bowel = fromVitals.bowel;
+      if (fromVitals.gutTimer) game.gutTimer = fromVitals.gutTimer;
+      if (fromVitals.depth != null) game.depth = fromVitals.depth;
+      if (fromVitals.fate != null) game.fate = fromVitals.fate;
+      if (fromVitals.gone != null) game.gone = fromVitals.gone;
+      if (fromVitals.gutEnteredAt != null) game.gutEnteredAt = fromVitals.gutEnteredAt;
+      migrateVitals();
+      if (game.digestMeter && game.digestMeter.active) game.digestMeter.lastTick = Date.now();
+      if (game.bowel && game.bowel.active) game.bowel.lastTick = Date.now();
+      if (game.gutTimer) game.gutTimer.runningSince = null;
+    }
+
+    let persistTimer = null;
+    function persist(opts) {
+      opts = opts || {};
+      const hasStory = !!(history.length || (logTurns && logTurns.length) || (game && ((game.depth || 0) >= 2 || (game.digestMeter && game.digestMeter.active) || game.hp < 100 || game.gas > 0)));
+      if (!opts.force && !hasStory) return;
       const lib = readLib();
-      if (!activeChatId) {
-        activeChatId = "chat-" + Date.now();
-      }
+      if (!activeChatId) activeChatId = "chat-" + Date.now();
       const s = scenarioOf(game.scenarioId);
+      const snap = snapshotGame();
+      const prev = lib.chats[activeChatId] || {};
       lib.activeId = activeChatId;
       lib.chats[activeChatId] = {
         id: activeChatId,
         scenarioId: s.id,
         characterId: game.characterId || "mara",
-        title: (lib.chats[activeChatId] && lib.chats[activeChatId].title) || s.title,
-        game,
-        history,
-        logTurns,
+        title: prev.title || s.title,
+        game: snap,
+        vitals: {
+          hp: snap.hp,
+          gas: snap.gas,
+          depth: snap.depth,
+          fate: snap.fate,
+          gone: snap.gone,
+          digestMeter: snap.digestMeter,
+          bowel: snap.bowel,
+          gutTimer: snap.gutTimer,
+          gutEnteredAt: snap.gutEnteredAt,
+        },
+        history: cloneState(history) || [],
+        logTurns: cloneState(logTurns) || [],
         at: Date.now(),
       };
       writeLib(lib);
-      pushChat(lib.chats[activeChatId]);
+      if (!opts.quiet) pushChat(lib.chats[activeChatId]);
+    }
+
+    function persistSoon() {
+      if (persistTimer) return;
+      persistTimer = setTimeout(() => {
+        persistTimer = null;
+        persist({ quiet: true });
+      }, 400);
     }
 
     function loadSave() {
@@ -10738,7 +10941,7 @@ If STATE says she is asleep: she stays asleep. MOMENT is narrator + body (breath
         next.activeId = id;
         writeLib(next);
         const face = data.characterId || (data.game && data.game.characterId) || ownerOfScenario(data.scenarioId) || "mara";
-        Object.assign(game, freshGame(data.scenarioId || "mara-laundry", face), data.game || {}, { characterId: face });
+        hydrateGame(data);
         history = (data.history || []).slice();
         logTurns = [];
         els.log.innerHTML = "";
@@ -10749,6 +10952,7 @@ If STATE says she is asleep: she stays asleep. MOMENT is narrator + body (breath
         els.gulp.classList.remove("show");
         els.digest.classList.remove("show");
         resumeDigestMeterFromSave();
+        paintVitals();
       });
     }
 
@@ -12061,15 +12265,15 @@ Never copy SPEECH: or ACTION: into your reply. Reply only with MOMENT, SAY, SHOT
 
     function restoreSave(data) {
       stopDigestMeter({ clear: true });
-      const face = (data.game && data.game.characterId) || data.characterId || "mara";
-      Object.assign(game, freshGame(data.game && data.game.scenarioId, face), data.game || {}, { characterId: face });
-      history = data.history.slice();
+      hydrateGame(data);
+      history = (data.history || []).slice();
       logTurns = [];
       els.log.innerHTML = "";
       setStill(game.shot || "establish");
-      const turns = data.logTurns.length ? data.logTurns : [openingOf()];
+      const turns = (data.logTurns && data.logTurns.length) ? data.logTurns : [openingOf()];
       turns.forEach((turn) => addTurn(turn));
       resumeDigestMeterFromSave();
+      paintVitals();
       paintThinkBtn();
     }
 
@@ -12184,9 +12388,14 @@ Never copy SPEECH: or ACTION: into your reply. Reply only with MOMENT, SAY, SHOT
 
     async function boot() {
       const saved = loadSave();
+      const g = saved && (saved.game || saved.vitals || {});
       const leftOnChat = !!(saved && (
         (saved.history && saved.history.length) ||
-        (saved.logTurns && saved.logTurns.length > 1)
+        (saved.logTurns && saved.logTurns.length > 1) ||
+        (g.digestMeter && g.digestMeter.active) ||
+        (g.bowel && g.bowel.active) ||
+        (g.depth || 0) >= 3 ||
+        (typeof g.hp === "number" && g.hp < 100)
       ));
       hideHome();
       if (leftOnChat) {
@@ -12706,13 +12915,20 @@ Never copy SPEECH: or ACTION: into your reply. Reply only with MOMENT, SAY, SHOT
 
     // Gut settle + digest clocks only run while this story is actively focused
     document.addEventListener("visibilitychange", () => {
-      if (document.hidden) pauseGutTimer();
-      else syncGutTimer();
-      // Keep digest meter in sync with focus too
+      if (document.hidden) {
+        pauseGutTimer();
+        persist({ force: true, quiet: true });
+      } else {
+        syncGutTimer();
+      }
       if (game.digestMeter && game.digestMeter.active) {
         game.digestMeter.lastTick = Date.now();
         if (storyIsFocused() && !digestTimer) startDigestTicker();
       }
+      paintVitals();
+    });
+    window.addEventListener("beforeunload", () => {
+      try { persist({ force: true, quiet: true }); } catch {}
     });
     window.addEventListener("focus", () => syncGutTimer());
     window.addEventListener("blur", () => pauseGutTimer());
