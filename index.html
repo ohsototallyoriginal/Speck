@@ -2140,59 +2140,82 @@
     #library {
       display: flex; flex-direction: column; justify-content: flex-end;
       overflow: hidden;
-      padding: calc(56px + var(--safe-top)) 0 0;
+      padding: calc(10px + var(--safe-top)) 0 0;
       cursor: pointer;
     }
     #library .sheet {
       width: 100%;
-      max-height: 100%;
+      height: calc(100% - 8px);
+      max-height: none;
       overflow-y: auto;
       overscroll-behavior: contain;
-      border-radius: 20px 20px 0 0;
+      border-radius: 22px 22px 0 0;
       border-bottom: 0;
-      padding: 0 14px calc(16px + var(--safe-bot));
+      padding: 0 16px calc(20px + var(--safe-bot));
       cursor: auto;
-      transform: translateY(40px);
+      transform: translateY(28px);
+      background: color-mix(in srgb, var(--panel2) 92%, #000);
     }
     #library .sheet.dragging { transition: none; }
     .lib-head {
-      position: sticky; top: 0; z-index: 2;
-      display: flex; align-items: center; gap: 10px;
-      margin: 0 -14px 6px; padding: 18px 14px 10px;
-      background: var(--panel2);
+      position: sticky; top: 0; z-index: 3;
+      display: grid;
+      grid-template-columns: 1fr auto;
+      align-items: end;
+      gap: 8px 10px;
+      margin: 0 -16px 10px; padding: 16px 16px 12px;
+      background: color-mix(in srgb, var(--panel2) 94%, #000);
       border-bottom: 1px solid color-mix(in srgb, var(--hair) 45%, transparent);
       touch-action: none;
     }
     .lib-grip {
-      position: absolute; top: 7px; left: 50%; transform: translateX(-50%);
-      width: 40px; height: 4px; border-radius: 4px; background: var(--hair);
+      position: absolute; top: 8px; left: 50%; transform: translateX(-50%);
+      width: 36px; height: 4px; border-radius: 4px; background: var(--hair);
+    }
+    .lib-head h2 {
+      margin: 10px 0 0;
+      font-size: 1.28rem;
+      letter-spacing: .02em;
+      font-weight: 800;
+    }
+    #libHint {
+      grid-column: 1 / -1;
+      margin: 0;
+      color: var(--muted);
+      font-size: .8rem;
+      line-height: 1.35;
     }
     .lib-switch {
-      display: flex; gap: 8px; margin: 0 0 12px;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 4px;
+      margin: 0 0 14px;
+      padding: 4px;
+      border-radius: 16px;
+      background: color-mix(in srgb, var(--panel) 80%, #000);
+      border: 1px solid var(--hair);
     }
     .lib-switch button {
-      flex: 1;
-      min-height: 36px;
-      border-radius: 999px;
-      border: 1px solid var(--hair);
-      background: var(--panel);
+      min-height: 44px;
+      border-radius: 12px;
+      border: 0;
+      background: transparent;
       color: var(--muted);
-      font-size: .72rem;
+      font-size: .78rem;
       font-weight: 800;
-      letter-spacing: .08em;
+      letter-spacing: .06em;
       text-transform: uppercase;
     }
     .lib-switch button.on {
-      border-color: var(--neon);
-      color: var(--ink);
-      background: color-mix(in srgb, var(--neon) 14%, var(--panel2));
+      color: #1a0c10;
+      background: var(--neon);
     }
     #libX {
-      flex: 0 0 36px; height: 36px; border-radius: 50%;
+      flex: 0 0 40px; width: 40px; height: 40px; border-radius: 50%;
       border: 1px solid var(--hair); background: var(--panel); color: var(--ink);
-      font-size: .95rem; cursor: pointer;
+      font-size: 1rem; cursor: pointer;
     }
-    .face-group { margin: 0 0 12px; }
+    .face-group { margin: 0 0 10px; }
     .face-group h4 {
       margin: 0 0 6px;
       font-size: .62rem;
@@ -2203,36 +2226,40 @@
     }
     .face-tabs {
       display: flex; gap: 8px; overflow-x: auto;
-      padding: 2px 0 8px; margin: 0 -4px 0;
+      padding: 2px 0 10px; margin: 0 -4px 0;
       scrollbar-width: none;
+      scroll-snap-type: x proximity;
     }
     .face-tabs::-webkit-scrollbar { display: none; }
     .face-tabs .card {
-      margin: 0; flex: 0 0 auto; width: auto; min-width: 92px;
-      padding: 8px 12px; border-radius: 999px; text-align: center;
+      margin: 0; flex: 0 0 auto; width: auto; min-width: 72px;
+      min-height: 44px;
+      padding: 10px 14px; border-radius: 999px; text-align: center;
+      scroll-snap-align: start;
     }
     .face-tabs .card span { display: none; }
-    .face-tabs .card b { margin: 0; font-size: .78rem; letter-spacing: .04em; }
-    .face-tabs .card.active { box-shadow: inset 0 0 0 1px var(--neon); background: color-mix(in srgb, var(--neon) 12%, var(--panel2)); }
-    .night-tools { margin: 4px 0 10px; }
+    .face-tabs .card b { margin: 0; font-size: .8rem; letter-spacing: .03em; }
+    .face-tabs .card.active { box-shadow: inset 0 0 0 1px var(--neon); background: color-mix(in srgb, var(--neon) 16%, var(--panel2)); }
+    .night-tools { margin: 2px 0 12px; }
     .night-tabs {
-      display: flex; gap: 6px; overflow-x: auto; margin: 0 0 8px;
+      display: flex; gap: 6px; overflow-x: auto; margin: 0 0 10px;
       scrollbar-width: none;
+      padding-bottom: 2px;
     }
     .night-tabs button {
-      flex: 0 0 auto; min-height: 32px; padding: 0 12px;
+      flex: 0 0 auto; min-height: 40px; padding: 0 14px;
       border-radius: 999px; border: 1px solid var(--hair);
       background: var(--panel); color: var(--muted);
-      font-size: .68rem; font-weight: 800; letter-spacing: .06em; text-transform: uppercase;
+      font-size: .7rem; font-weight: 800; letter-spacing: .04em; text-transform: uppercase;
     }
     .night-tabs button.on {
-      border-color: var(--cyan); color: var(--ink);
-      background: color-mix(in srgb, var(--cyan) 14%, var(--panel2));
+      border-color: var(--cyan); color: #081018;
+      background: var(--cyan);
     }
-    #nightSearch {
-      width: 100%; min-height: 40px; margin: 0 0 8px;
-      border-radius: 12px; border: 1px solid var(--hair);
-      background: var(--glass); color: var(--ink); padding: 0 12px; font-size: 16px;
+    #nightSearch, #chatSearch {
+      width: 100%; min-height: 44px; margin: 0 0 10px;
+      border-radius: 14px; border: 1px solid var(--hair);
+      background: var(--glass); color: var(--ink); padding: 0 14px; font-size: 16px;
     }
     .night-card .badges { display: flex; gap: 4px; flex-wrap: wrap; margin-top: 6px; }
     .night-card .badge {
@@ -2245,16 +2272,39 @@
     #begWrap[hidden], #gutWrap[hidden] { display: none !important; }
     #scenarioList, #gutList { transition: opacity .18s ease, transform .18s ease; }
     #library.flip #scenarioList, #library.flip #gutList { opacity: 0; transform: translateX(10px); }
-    @media (min-width: 700px) {
-      #library { justify-content: center; align-items: center; padding: 24px; }
-      #library .sheet { max-width: 480px; max-height: 86vh; border-radius: 20px; border-bottom: 1px solid var(--hair); padding-bottom: 16px; }
+    @media (min-width: 720px) {
+      #library { justify-content: center; align-items: center; padding: 28px; }
+      #library .sheet {
+        max-width: 560px; height: auto; max-height: 88vh;
+        border-radius: 22px; border: 1px solid var(--hair);
+        padding-bottom: 18px;
+      }
     }
     #library h3 {
-      margin: 14px 0 8px;
+      margin: 4px 0 10px;
       font-size: 0.68rem;
       letter-spacing: .14em;
       text-transform: uppercase;
       color: var(--cyan);
+    }
+    .lib-empty {
+      text-align: center;
+      padding: 28px 12px;
+      color: var(--muted);
+      font-size: .9rem;
+      line-height: 1.45;
+    }
+    .lib-empty b { display: block; color: var(--ink); margin-bottom: 4px; font-size: 1rem; }
+    #libClose {
+      display: none;
+    }
+    @media (min-width: 720px) {
+      #libClose {
+        display: block;
+        width: 100%; min-height: 44px; margin-top: 8px;
+        border-radius: 14px; border: 1px solid var(--hair);
+        background: transparent; color: var(--muted); font-weight: 700;
+      }
     }
     .card, .iconbtn {
       transition: transform .18s ease, border-color .18s ease, box-shadow .18s ease, background .18s ease;
@@ -2284,17 +2334,35 @@
         background: #3a1824;
       }
     }
-    .card b { display: block; font-size: 0.92rem; margin-bottom: 3px; }
+    .card b { display: block; font-size: 0.95rem; margin-bottom: 3px; }
     .card span { color: var(--muted); font-size: 0.8rem; line-height: 1.35; }
     .card.active { border-color: var(--neon); }
-    .chatrow { display: flex; gap: 6px; align-items: stretch; margin: 0 0 8px; }
-    .chatrow .card { flex: 1; margin: 0; }
+    .night-card { min-height: 72px; padding: 12px 14px; border-radius: 16px; }
+    .chatrow {
+      display: grid;
+      grid-template-columns: 1fr auto auto;
+      gap: 6px;
+      align-items: stretch;
+      margin: 0 0 10px;
+    }
+    .chatrow .card { flex: 1; margin: 0; min-height: 68px; border-radius: 16px; padding: 12px 14px; }
+    .chatrow .card .who {
+      display: block;
+      font-size: .62rem;
+      letter-spacing: .1em;
+      text-transform: uppercase;
+      color: var(--cyan);
+      font-weight: 800;
+      margin-bottom: 2px;
+    }
     .iconbtn {
-      flex: 0 0 40px;
+      flex: 0 0 44px;
+      width: 44px;
+      min-height: 44px;
       border: 1px solid #4a2a4c;
       background: var(--panel2);
       color: var(--muted);
-      border-radius: 12px;
+      border-radius: 14px;
       font-size: 0.78rem;
       font-weight: 800;
     }
@@ -3271,36 +3339,36 @@
     <div class="sheet" role="dialog" aria-modal="true" aria-labelledby="libTitle">
       <div class="lib-head" id="libHead">
         <span class="lib-grip" aria-hidden="true"></span>
-        <h2 id="libTitle">Pick a night</h2>
+        <h2 id="libTitle">Stories</h2>
         <button type="button" id="libX" aria-label="Close">✕</button>
+        <p class="hint" id="libHint">Pick a face, then a night.</p>
       </div>
-      <p class="hint" id="libHint" style="margin:0 0 8px;color:var(--muted);font-size:.84rem">Pick a face, then a night. Starting a night opens a fresh chat.</p>
       <div class="lib-switch" role="tablist">
-        <button type="button" id="libTabStories" class="on" role="tab">Nights</button>
-        <button type="button" id="libTabChats" role="tab">Saved chats</button>
+        <button type="button" id="libTabStories" class="on" role="tab" aria-selected="true">Stories</button>
+        <button type="button" id="libTabChats" role="tab" aria-selected="false">Chats</button>
       </div>
       <div id="libStoriesPane">
         <div id="faceList"></div>
         <div class="night-tools">
           <div class="night-tabs" role="tablist">
-            <button type="button" id="nightTabBegin" class="on">Start outside</button>
-            <button type="button" id="nightTabGut">Already inside</button>
-            <button type="button" id="nightTabConor">As Conor</button>
+            <button type="button" id="nightTabBegin" class="on">Outside</button>
+            <button type="button" id="nightTabGut">Inside</button>
+            <button type="button" id="nightTabConor">Conor</button>
             <button type="button" id="nightTabAll">All</button>
           </div>
-          <input id="nightSearch" type="search" placeholder="Search nights" autocomplete="off" />
+          <input id="nightSearch" type="search" placeholder="Search stories" enterkeyhint="search" autocomplete="off" />
         </div>
         <div id="begWrap">
-          <h3 id="begHead">Start outside</h3>
+          <h3 id="begHead">Outside</h3>
           <div id="scenarioList"></div>
         </div>
         <div id="gutWrap">
-          <h3 id="gutHead">Already inside</h3>
+          <h3 id="gutHead">Inside</h3>
           <div id="gutList"></div>
         </div>
       </div>
       <div id="libChatsPane" hidden>
-        <h3>Saved chats</h3>
+        <input id="chatSearch" type="search" placeholder="Search chats" enterkeyhint="search" autocomplete="off" />
         <div id="chatList"></div>
       </div>
       <button type="button" id="libClose">Close</button>
@@ -9470,14 +9538,14 @@ Everyone on stage is an adult in body and voice. No children, school-age framing
       const isChats = mode === "chats";
       if (storiesPane) storiesPane.hidden = isChats;
       if (chatsPane) chatsPane.hidden = !isChats;
-      if (title) title.textContent = isChats ? "Saved chats" : "Pick a night";
+      if (title) title.textContent = isChats ? "Chats" : "Stories";
       if (hint) {
         hint.textContent = isChats
-          ? "Resume a night already on this phone. Rename or delete from the row."
-          : "Face first, then a night. Conor nights are tagged. Starting one keeps the old chat in Saved.";
+          ? "Resume a night on this phone."
+          : "Face, then a night. Starting one keeps the old chat.";
       }
-      if (tabS) tabS.classList.toggle("on", !isChats);
-      if (tabC) tabC.classList.toggle("on", isChats);
+      if (tabS) { tabS.classList.toggle("on", !isChats); tabS.setAttribute("aria-selected", String(!isChats)); }
+      if (tabC) { tabC.classList.toggle("on", isChats); tabC.setAttribute("aria-selected", String(isChats)); }
       if (els.stories) els.stories.classList.toggle("on", !isChats && els.library && els.library.classList.contains("show"));
       if (els.chats) els.chats.classList.toggle("on", isChats && els.library && els.library.classList.contains("show"));
     }
@@ -9723,28 +9791,37 @@ Everyone on stage is an adult in body and voice. No children, school-age framing
         if (!s) return;
         if (nightMatches(s, tab, q)) guts.push(s);
       });
-      if (begHead) begHead.textContent = "Start outside · " + begins.length;
-      if (gutHead) gutHead.textContent = "Already inside · " + guts.length;
+      if (begHead) begHead.textContent = "Outside · " + begins.length;
+      if (gutHead) gutHead.textContent = "Inside · " + guts.length;
       begins.forEach((s) => els.scenarioList.appendChild(nightCard(s, pack)));
       guts.forEach((s) => els.gutList.appendChild(nightCard(s, pack)));
       if (begWrap) begWrap.hidden = tab === "gut" || !begins.length;
       if (gutWrap) gutWrap.hidden = tab === "begin" || !guts.length;
       if (!begins.length && !guts.length) {
-        const empty = document.createElement("p");
-        empty.className = "hint";
-        empty.style.color = "var(--muted)";
-        empty.textContent = tab === "conor" ? "No Conor nights for her yet." : "Nothing in this filter.";
+        const empty = document.createElement("div");
+        empty.className = "lib-empty";
+        empty.innerHTML = "<b></b><span></span>";
+        empty.querySelector("b").textContent = tab === "conor" ? "No Conor nights" : "Nothing here";
+        empty.querySelector("span").textContent = "Try All, or pick another face.";
         els.scenarioList.appendChild(empty);
         if (begWrap) begWrap.hidden = false;
       }
       preloadStills();
       els.chatList.innerHTML = "";
-      const chats = Object.values(lib.chats || {}).sort((a, b) => (b.at || 0) - (a.at || 0));
+      const cq = ((document.getElementById("chatSearch") || {}).value || "").trim().toLowerCase();
+      const chats = Object.values(lib.chats || {}).sort((a, b) => (b.at || 0) - (a.at || 0)).filter((c) => {
+        if (!cq) return true;
+        const face = c.characterId || (c.game && c.game.characterId) || "";
+        const who = (CHARACTERS[face] && CHARACTERS[face].name) || "";
+        const hay = (who + " " + (c.title || "") + " " + (c.scenarioId || "")).toLowerCase();
+        return hay.indexOf(cq) >= 0;
+      });
       if (!chats.length) {
-        const empty = document.createElement("p");
-        empty.className = "hint";
-        empty.style.color = "var(--muted)";
-        empty.textContent = "No saved chats yet.";
+        const empty = document.createElement("div");
+        empty.className = "lib-empty";
+        empty.innerHTML = "<b></b><span></span>";
+        empty.querySelector("b").textContent = cq ? "No matching chats" : "No chats yet";
+        empty.querySelector("span").textContent = cq ? "Clear the search." : "Start a story and it will land here.";
         els.chatList.appendChild(empty);
       } else {
         const buckets = { friends: [], originals: [], celebs: [] };
@@ -9769,9 +9846,10 @@ Everyone on stage is an adult in body and voice. No children, school-age framing
             const when = c.at ? new Date(c.at).toLocaleString() : "";
             const face = c.characterId || (c.game && c.game.characterId) || "";
             const who = (CHARACTERS[face] && CHARACTERS[face].name) || "";
-            b.innerHTML = "<b></b><span></span>";
-            b.querySelector("b").textContent = (who ? who + " · " : "") + (c.title || "Chat");
-            b.querySelector("span").textContent = when + " · " + ((c.logTurns && c.logTurns.length) || 0) + " beats";
+            b.innerHTML = "<i class=\"who\"></i><b></b><span></span>";
+            b.querySelector(".who").textContent = who || "Chat";
+            b.querySelector("b").textContent = c.title || "Untitled night";
+            b.querySelector("span").textContent = (when ? when + " · " : "") + ((c.logTurns && c.logTurns.length) || 0) + " beats";
             b.addEventListener("click", () => openChat(c.id));
             const rn = document.createElement("button");
             rn.type = "button";
@@ -11196,6 +11274,8 @@ Never copy SPEECH: or ACTION: into your reply. Reply only with MOMENT, SAY, SHOT
     });
     const nightSearch = document.getElementById("nightSearch");
     if (nightSearch) nightSearch.addEventListener("input", renderLibrary);
+    const chatSearch = document.getElementById("chatSearch");
+    if (chatSearch) chatSearch.addEventListener("input", renderLibrary);
 
     const thinkBtn = document.getElementById("thinkBtn");
     if (thinkBtn) thinkBtn.addEventListener("click", fireConorThink);
