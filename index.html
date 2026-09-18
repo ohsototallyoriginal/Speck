@@ -1161,6 +1161,7 @@
         min-height: 100dvh;
       }
       header.top { grid-column: 1 / -1; }
+      .scene-who { grid-column: 1 / -1; margin: 0 0 4px; }
       #stage {
         max-height: 72vh;
         margin: 4px 0 0;
@@ -1176,36 +1177,45 @@
       display: flex;
       align-items: center;
       justify-content: space-between;
-      padding: 10px 14px 18px;
-      gap: 10px;
+      padding: calc(6px + var(--safe-top)) 10px 8px;
+      gap: 8px;
       position: relative;
       z-index: 8;
-      background: linear-gradient(180deg, var(--glass) 0%, color-mix(in srgb, var(--panel2) 55%, transparent) 70%, transparent 100%);
+      background: color-mix(in srgb, var(--panel2) 82%, transparent);
+      border-bottom: 1px solid color-mix(in srgb, var(--hair) 40%, transparent);
+    }
+    .nav-left, .nav-right {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      min-width: 0;
+    }
+    .nav-left { flex: 1 1 auto; }
+    .nav-right { flex: 0 0 auto; }
+    .brand-mark {
+      flex: 0 0 36px;
+      width: 36px; height: 36px;
+      padding: 0;
+      border-radius: 10px;
+      border: 1px solid var(--hair);
+      background: var(--panel2);
+      overflow: hidden;
+      display: grid; place-items: center;
+    }
+    .brand-mark img {
+      width: 100%; height: 100%;
+      object-fit: cover;
+      display: block;
     }
     .brand {
       min-width: 0;
       flex: 1 1 auto;
     }
     .brand-row {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      min-width: 0;
-      flex: 1 1 auto;
+      display: none;
     }
-    .brand-top {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      margin-bottom: 2px;
-    }
-    .site-name {
-      font-size: .72rem;
-      font-weight: 900;
-      letter-spacing: .16em;
-      text-transform: uppercase;
-      color: var(--neon);
-    }
+    .brand-top { display: none; }
+    .site-name { display: none; }
     .home-chip {
       border: 1px solid var(--hair);
       background: var(--panel2);
@@ -1236,25 +1246,7 @@
       overflow: hidden;
       text-overflow: ellipsis;
     }
-    .ornament {
-      flex: 0 0 auto;
-      width: 132px;
-      height: 40px;
-      line-height: 0;
-      border-radius: 8px;
-      overflow: hidden;
-      box-shadow:
-        0 0 0 1px color-mix(in srgb, var(--neon) 35%, transparent),
-        0 4px 14px rgba(0,0,0,.35);
-      background: var(--panel2);
-    }
-    .ornament img {
-      display: block;
-      width: 100%;
-      height: 100%;
-      object-fit: cover;
-      object-position: center;
-    }
+    .ornament { display: none !important; }
     @media (prefers-reduced-motion: reduce) {
       .ornament img { image-rendering: auto; }
     }
@@ -1269,9 +1261,13 @@
     #home .home-dismiss { display: none; }
     #home { cursor: default; }
     #home button { cursor: pointer; }
-    .brand h1 {
+    .scene-who {
+      margin: 2px 12px 4px;
+      min-width: 0;
+    }
+    .scene-who h1 {
       margin: 0;
-      font-size: 1.02rem;
+      font-size: .82rem;
       letter-spacing: 0;
       text-transform: none;
       color: var(--ink);
@@ -1281,12 +1277,17 @@
       overflow: hidden;
       text-overflow: ellipsis;
     }
-    .brand p {
-      margin: 2px 0 0;
-      font-size: 1.05rem;
-      font-weight: 700;
-      letter-spacing: -0.02em;
+    .scene-who p {
+      margin: 1px 0 0;
+      font-size: .7rem;
+      font-weight: 600;
+      color: var(--muted);
+      letter-spacing: 0;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
     }
+    .brand h1, .brand p { display: none; }
     #live {
       flex: 0 0 auto;
       font-size: 0.68rem;
@@ -1302,22 +1303,22 @@
     #live.ready { color: #9ff0c0; border-color: #2f6a4a; }
     #live.busy { color: #ffd36a; border-color: #8a6a20; }
     #live.bad { color: #ff9aa6; border-color: var(--danger); }
-    .tools { display: flex; gap: 6px; align-items: center; flex-wrap: wrap; justify-content: flex-end; }
-    .tools button, #homeBtn, #stories, #account, #gear {
-      min-height: 32px;
+    .tools { display: contents; }
+    .nav-left button, .nav-right button, #live {
+      min-height: 34px;
       border: 1px solid var(--hair);
       background: var(--panel2);
       color: var(--ink);
       border-radius: 999px;
-      font-size: 0.68rem;
-      font-weight: 700;
-      letter-spacing: .08em;
+      font-size: 0.66rem;
+      font-weight: 800;
+      letter-spacing: .04em;
       text-transform: uppercase;
-      padding: 6px 10px;
+      padding: 0 10px;
     }
-    #gear { min-width: 32px; font-size: 0.95rem; padding: 4px 8px; letter-spacing: 0; text-transform: none; }
-    .tools button:hover, #homeBtn:hover, #stories:hover, #chats:hover { border-color: var(--neon); color: var(--neon); }
-    .tools button.on {
+    #gear { min-width: 34px; width: 34px; padding: 0; letter-spacing: 0; text-transform: none; font-size: 0.95rem; }
+    .nav-left button:hover, .nav-right button:hover { border-color: var(--neon); color: var(--neon); }
+    #stories.on, #chats.on {
       border-color: var(--neon);
       color: var(--neon);
       background: color-mix(in srgb, var(--neon) 12%, var(--panel2));
@@ -3075,37 +3076,20 @@
         min-height: 0;
         max-width: 560px;
       }
-      /* Header: title row + one scrollable row of buttons, nothing overflows */
       header.top {
-        display: grid;
-        grid-template-columns: minmax(0, 1fr);
-        gap: 8px;
-        padding: 8px 12px 10px;
+        display: flex;
+        padding: calc(6px + var(--safe-top)) 8px 6px;
         flex: 0 0 auto;
       }
-      .brand h1, .brand p {
+      .nav-left { overflow-x: auto; scrollbar-width: none; -webkit-overflow-scrolling: touch; }
+      .nav-left::-webkit-scrollbar { display: none; }
+      .nav-left button, .nav-right button, #live {
+        flex: 0 0 auto;
         white-space: nowrap;
-        overflow: hidden;
-        text-overflow: ellipsis;
+        min-height: 32px;
+        padding: 0 9px;
+        font-size: .62rem;
       }
-      .brand p { font-size: 1rem; }
-      .ornament { width: 108px; height: 32px; margin-right: -2px; }
-      .tools {
-        flex-wrap: nowrap;
-        justify-content: flex-start;
-        overflow-x: auto;
-        scrollbar-width: none;
-        -webkit-overflow-scrolling: touch;
-        margin: 0 -12px;
-        padding: 0 12px 2px;
-      }
-      .tools::-webkit-scrollbar { display: none; }
-      .tools { gap: 5px; }
-      .tools > * { flex: 0 0 auto; white-space: nowrap; }
-      .tools button, #live { padding: 5px 9px; letter-spacing: .05em; }
-      #gear { padding: 4px 8px; }
-      #live { order: -1; }
-      #gear { margin-left: auto; }
 
       /* Scene bar: thumbnail + meter; tap the thumbnail to enlarge in place */
       #sceneBar {
@@ -3256,28 +3240,25 @@
     <div class="bar"><i></i></div>
   </div>
   <header class="top">
-    <div class="brand-row">
-      <div class="brand">
-        <div class="brand-top">
-          <span class="site-name">Speck</span>
-          <button type="button" id="homeBtn" class="home-chip" title="Home">Home</button>
-        </div>
-        <h1 id="placeTitle">Night counter</h1>
-        <p id="placeSub">Character · scene</p>
-      </div>
-      <div class="ornament" aria-hidden="true">
-        <img id="bannerGif" src="banner.gif" alt="" />
-      </div>
-    </div>
-    <div class="tools">
-      <button type="button" id="stories">Stories</button>
+    <div class="nav-left">
+      <button type="button" id="homeBtn" class="brand-mark" title="Home" aria-label="Home">
+        <img id="brandMark" alt="Speck" />
+      </button>
+      <button type="button" id="newChatBtn">New</button>
       <button type="button" id="chats">Chats</button>
-      <button type="button" id="account">Log in</button>
+      <button type="button" id="stories">Stories</button>
+    </div>
+    <div class="nav-right">
       <div id="live">Boot</div>
+      <button type="button" id="account">You</button>
       <button type="button" id="gear" aria-label="Settings">⚙</button>
     </div>
   </header>
 
+  <div class="scene-who">
+    <h1 id="placeTitle">Night</h1>
+    <p id="placeSub">Character · scene</p>
+  </div>
   <div id="sceneBar">
   <figure id="stage" role="button" tabindex="0" aria-expanded="false" aria-label="Scene image. Tap to enlarge.">
     <img id="still" alt="" />
@@ -11149,6 +11130,18 @@ Never copy SPEECH: or ACTION: into your reply. Reply only with MOMENT, SAY, SHOT
       els.setMsg.textContent = error ? error.message : "Password updated.";
     });
     els.homeBtn.addEventListener("click", showHome);
+    const brandMark = document.getElementById("brandMark");
+    const iconLink = document.querySelector('link[rel="icon"]');
+    if (brandMark && iconLink) brandMark.src = iconLink.href;
+    const newChatBtn = document.getElementById("newChatBtn");
+    if (newChatBtn) {
+      newChatBtn.addEventListener("click", () => {
+        const face = characterOf(game.characterId).id;
+        hideHome();
+        closeLibrary();
+        startOpenChat(face);
+      });
+    }
     els.stories.addEventListener("click", () => openLibrary("stories"));
     if (els.chats) els.chats.addEventListener("click", () => openLibrary("chats"));
     document.querySelector("#home h1").addEventListener("click", maybeBooth);
