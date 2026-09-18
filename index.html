@@ -1625,16 +1625,20 @@
       display: none;
       align-items: center;
       justify-content: center;
-      gap: 14px;
-      margin: 0 0 12px;
-      padding: 14px 16px;
+      gap: 12px;
+      margin: 8px 0 0;
+      padding: 16px 12px;
+      min-height: 72px;
       border-radius: 12px;
       background: #050505;
       border: 1px solid #1a1a1a;
       color: #f2f2f2;
       box-shadow: inset 0 0 24px rgba(0,0,0,.8);
+      width: 100%;
+      box-sizing: border-box;
     }
     #skullBar.show { display: flex; }
+    #meter.skull-mode #skullBar { display: flex; }
     #skullBar .skull {
       font-size: 1.8rem;
       line-height: 1;
@@ -1650,7 +1654,13 @@
     #meter.skull-mode .meter-track,
     #meter.skull-mode #digestMeter,
     #meter.skull-mode #gutSettle,
-    #meter.skull-mode #gutPhase { display: none !important; }
+    #meter.skull-mode #gutPhase,
+    #vitalWrap.skull-mode #hpMeter,
+    #vitalWrap.skull-mode #gasMeter,
+    #vitalWrap.skull-mode #vitalLog,
+    #vitalWrap.skull-mode .vital-body #meter .meter-labels,
+    .dock .gone-bar #skullBar { display: none !important; }
+    #vitalWrap.skull-mode .vital-body { display: block; }
     .dock.gone .actions, .dock.gone .compose-modes, .dock.gone .composer, .dock.gone #composeHint { display: none; }
     #goneNote { margin: 2px 4px 8px; font-size: .78rem; color: var(--muted); }
     .gone-actions { display: grid; grid-template-columns: 2fr 1fr; gap: 8px; }
@@ -2949,29 +2959,38 @@
     }
     #digestMeter .dm-factors {
       display: grid;
-      grid-template-columns: 1fr 1fr 1fr;
-      gap: 8px;
-      margin-top: 8px;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 6px;
+      margin-top: 7px;
     }
+    #digestMeter .dm-factor { min-width: 0; overflow: hidden; }
     #digestMeter .dm-factor-row {
       display: flex;
-      align-items: baseline;
-      justify-content: space-between;
-      gap: 4px;
+      flex-direction: column;
+      align-items: flex-start;
+      justify-content: flex-start;
+      gap: 1px;
       margin-bottom: 3px;
+      min-width: 0;
     }
     #digestMeter .dm-factor-row span {
-      font-size: .55rem;
-      letter-spacing: .08em;
+      font-size: .46rem;
+      letter-spacing: .07em;
       text-transform: uppercase;
       color: var(--muted);
       font-weight: 700;
+      line-height: 1.1;
     }
     #digestMeter .dm-factor-row b {
-      font-size: .68rem;
+      font-size: .58rem;
       color: var(--ink);
       font-weight: 800;
       letter-spacing: 0;
+      line-height: 1.15;
+      max-width: 100%;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
     }
     #digestMeter .dm-factor-bar {
       height: 4px;
@@ -3426,7 +3445,22 @@
         max-height: none;
         border-radius: 12px;
         cursor: zoom-in;
-        transition: width .32s cubic-bezier(.2,.8,.2,1), height .32s cubic-bezier(.2,.8,.2,1), opacity .28s ease, filter .28s ease, transform .28s ease;
+        transition:
+          width .48s cubic-bezier(.22,.82,.2,1),
+          height .48s cubic-bezier(.22,.82,.2,1),
+          border-radius .4s ease,
+          box-shadow .4s ease;
+        will-change: width, height;
+      }
+      #sceneBar {
+        transition: gap .4s ease, padding .4s ease;
+      }
+      #sceneBar.closing {
+        flex-direction: row;
+        align-items: center;
+      }
+      #sceneBar.closing #stageCol {
+        width: auto;
       }
       #stage img { object-position: center 30%; }
       #stage:focus-visible { outline: 2px solid var(--neon); outline-offset: 2px; }
@@ -3634,6 +3668,10 @@
       </div>
       <div class="dm-toast" id="dmToast"></div>
     </div>
+    <div id="skullBar" hidden>
+      <span class="skull" aria-hidden="true">☠</span>
+      <span class="skull-copy">Gone</span>
+    </div>
   </div>
       <div id="gasMeter" aria-label="Gas">
         <span class="gas-label">Gas</span>
@@ -3775,10 +3813,6 @@
 
   <div class="dock">
     <div class="gone-bar">
-      <div id="skullBar" hidden>
-        <span class="skull" aria-hidden="true">☠</span>
-        <span class="skull-copy">Gone</span>
-      </div>
       <p id="goneNote">You are gone. She keeps going.</p>
       <div class="gone-actions">
         <button type="button" id="continueNight">Continue her night</button>
@@ -9103,19 +9137,19 @@ If STATE says she is asleep: she stays asleep. MOMENT is narrator + body (breath
       if (v < 0.28) return "Sweet";
       if (v < 0.55) return "Easy";
       if (v < 0.78) return "Irked";
-      return "Pissed";
+      return "Mad";
     }
     function labelStomach(v) {
       if (v < 0.28) return "Soft";
       if (v < 0.55) return "Held";
-      if (v < 0.78) return "Working";
-      return "Clenched";
+      if (v < 0.78) return "Work";
+      return "Tight";
     }
     function labelPace(v) {
       if (v < 0.28) return "Idle";
-      if (v < 0.55) return "Steady";
+      if (v < 0.55) return "Even";
       if (v < 0.78) return "Fast";
-      return "Burning";
+      return "Burn";
     }
 
     function migrateFactors(f) {
@@ -9616,7 +9650,7 @@ If STATE says she is asleep: she stays asleep. MOMENT is narrator + body (breath
       game.gas = 0;
       startBowelMovement({ path: "dead", silent: true });
       triggerDigestFx("burp");
-      showFate("digest");
+      addNotice("She's full of what's left. Bathroom need is climbing.");
       fireClockBeat("digest");
     }
 
@@ -9738,20 +9772,20 @@ If STATE says she is asleep: she stays asleep. MOMENT is narrator + body (breath
       const whoElB = document.getElementById("dmWho");
       if (whoElB) { whoElB.hidden = true; whoElB.textContent = ""; }
       const phaseB = document.getElementById("dmPhase");
-      if (phaseB) phaseB.textContent = "Disposal";
+      if (phaseB) phaseB.textContent = ratio > 0.55 ? "Need" : ratio > 0.22 ? "Urgent" : "Gotta go";
       if (clock) clock.textContent = formatClock(bm.remainingMs);
       if (fill) fill.style.transform = "scaleX(" + Math.max(0, Math.min(1, ratio)).toFixed(4) + ")";
       const sa = document.getElementById("dmStatA");
       const sb = document.getElementById("dmStatB");
       const sc = document.getElementById("dmStatC");
       const adj = document.getElementById("dmAdjustLabel");
-      if (sa) sa.textContent = "Mood";
-      if (sb) sb.textContent = "Stomach";
-      if (sc) sc.textContent = "Pace";
-      if (adj) adj.textContent = "moving on";
-      if (h) h.textContent = ratio > 0.55 ? "Done" : ratio > 0.25 ? "Distant" : "Over";
-      if (f) f.textContent = ratio > 0.5 ? "Heavy" : ratio > 0.22 ? "Moving" : "Letting go";
-      if (i) i.textContent = ratio > 0.4 ? "Held" : "Flushing";
+      if (sa) sa.textContent = "Urge";
+      if (sb) sb.textContent = "Load";
+      if (sc) sc.textContent = "Need";
+      if (adj) adj.textContent = "bathroom need";
+      if (h) h.textContent = ratio > 0.62 ? "Low" : ratio > 0.32 ? "Rising" : "Now";
+      if (f) f.textContent = ratio > 0.5 ? "Heavy" : ratio > 0.22 ? "Moving" : "Ready";
+      if (i) i.textContent = ratio > 0.55 ? "Hold" : ratio > 0.22 ? "Soon" : "Go";
       [["dmMoodBar", ratio > 0.5 ? 0.35 : 0.2, "#c4a060"], ["dmGutBar", 1 - ratio, "#c48a28"], ["dmPaceBar", 1 - ratio, "#d8c050"]].forEach((row) => {
         const bar = document.getElementById(row[0]);
         if (!bar) return;
@@ -9843,17 +9877,11 @@ If STATE says she is asleep: she stays asleep. MOMENT is narrator + body (breath
       game.gone = true;
       game.fate = "digested";
       setDepth(3);
-      addTurn({
-        moment: wasAlive
-          ? "You forced the last stretch yourself. Heat, pressure, then air that isn't hers."
-          : "Digestion and disposal are finished. There is nothing left of you but the night she keeps.",
-        line: pickFreshLine("gone"),
-      });
       paintSkullBar();
       paintMeter();
       persist();
       setBusy(false);
-      addNotice("Disposal hit zero. You're gone.");
+      addNotice("She has to go.");
       fireClockBeat("disposal");
     }
 
@@ -9867,11 +9895,11 @@ If STATE says she is asleep: she stays asleep. MOMENT is narrator + body (breath
       const place = game.location || scenarioOf(game.scenarioId).location || "this scene";
       return " Continue the SAME scene in " + place + ". Do not start a new chapter."
         + " The body just finished " + who + " as a living voice inside " + her + "."
-        + " Fold that into the next beat the way she would actually notice it mid-conversation: a pause, a hand on her stomach, a quieter aside, the weight going still."
+        + " She feels the weight go still, then a low bathroom need start — pressure, not a toilet scene yet."
         + (snackName() ? (" She knows it was " + snackName() + ".") : "")
         + " Do NOT drop a canned slogan ('that's it', 'you're done', 'soft end', 'don't make it a thing')."
-        + " Do NOT jump to a bathroom errand as the whole beat."
-        + " SAY continues her voice from the last line — not a title card. She does not wait for " + who + " to answer."
+        + " Do NOT walk her into a stall this beat. The need is building. She stays where she is unless she already was headed there."
+        + " SAY is a NEW in-character line, not a title card. She does not wait for " + who + " to answer."
         + " Prefer SHOT after, hold, full, cover, rest, lounge.";
     }
 
@@ -9885,12 +9913,12 @@ If STATE says she is asleep: she stays asleep. MOMENT is narrator + body (breath
         extra: " CLOCK BEAT only: the body clock started because time passed, not because they went still. Do not write them as limp unless their last ACTION was limp. Do not treat this as a new scene. Same girl, same clothes, same last beat. Do NOT finish them. If she is asleep, she stays asleep. Prefer SHOT inside, hold, taut, full. SAY only if she is awake.",
       },
       digest: {
-        user: "ACTION: The squeeze has a last long hold. I go quiet against the wall.",
+        user: "[BODY] The speck goes still inside her. Digestion finished. A bathroom need starts climbing. Same room, same night. Not on the toilet yet.",
         extra: "",
       },
       disposal: {
-        user: "ACTION: What's left of me is already moving on. She keeps the night.",
-        extra: " AFTER MODE: both clocks are done. She already finished them. Continue her night without bringing them back. She may still mention who it was. SAY is a NEW line to herself or someone else. Prefer SHOT lounge, street, phone, door, smug, rest. Everyone stays adult.",
+        user: "[BODY] The bathroom need hit zero. She has to go now. Play the actual bathroom beat — door, stall or seat, sitting, the unglamorous release of what's left. Then she keeps the night. Do not slogan it.",
+        extra: " DISPOSAL BEAT: she uses the bathroom for real. MOMENT covers the room, the sit, the relief, what leaves her. SAY is a NEW in-character line after or during, not 'that's that'. Prefer SHOT cover, after, rest, door, lounge. Everyone stays adult. Do not bring the speck back as a voice.",
       },
     };
 
@@ -9933,9 +9961,7 @@ If STATE says she is asleep: she stays asleep. MOMENT is narrator + body (breath
         addTurn({ moment: parsed.moment, line: parsed.line });
         history.push({ role: "user", content: user });
         history.push({ role: "assistant", content: raw });
-        if (kind === "digest" && game.bowel && game.bowel.active) {
-          applyBowelBeat(shot, parsed.moment, parsed.line, user);
-        } else if (kind === "settle" && game.digestMeter && game.digestMeter.active && !(game.bowel && game.bowel.active)) {
+        if (kind === "settle" && game.digestMeter && game.digestMeter.active && !(game.bowel && game.bowel.active)) {
           applyDigestBeat(shot, parsed.moment, parsed.line, user);
         }
         persist();
@@ -9956,6 +9982,8 @@ If STATE says she is asleep: she stays asleep. MOMENT is narrator + body (breath
         bar.classList.toggle("show", done);
       }
       if (els.meter) els.meter.classList.toggle("skull-mode", done);
+      const wrap = document.getElementById("vitalWrap");
+      if (wrap) wrap.classList.toggle("skull-mode", done);
       document.documentElement.classList.toggle("skull-end", done);
     }
 
@@ -11751,14 +11779,17 @@ Never copy SPEECH: or ACTION: into your reply. Reply only with MOMENT, SAY, SHOT
             + " She feels them below the stomach — pressure in the wrong place. They can still act a little."
             + " Do NOT pop them back into the stomach. Do not name a clock. SAY must be a NEW line every turn.";
         } else {
-          meterNote = " Disposal is moving what's left of " + who + "."
-            + " She knows who that was. Mention " + who + " if it fits — do not blank the name."
-            + (game.digestAcked
-              ? " She already felt the finish. Disposal can move."
-              : " If she has not yet acknowledged the finish, she must do that first.")
-            + " Keep it in-character. Do not name a clock."
-            + " SAY must be a NEW line every turn — not as if " + who + " can answer."
-            + " Prefer SHOT after, rest, lounge, smug, full, cover, door.";
+          const ratio = game.bowel.totalMs ? game.bowel.remainingMs / game.bowel.totalMs : 0.5;
+          if (ratio > 0.35) {
+            meterNote = " BATHROOM NEED is climbing. " + who + " is already finished as a voice."
+              + " She feels pressure, fullness, the start of a need to go — she is NOT on the toilet yet unless she already walked there."
+              + " Mention " + who + " if it fits. Do not name a clock or a meter."
+              + " SAY is a NEW line. Prefer SHOT hold, full, cover, lounge, after.";
+          } else {
+            meterNote = " BATHROOM NEED is urgent. She is about to have to go."
+              + " She may start moving toward a bathroom. Still no slogan. Do not name a clock."
+              + " Prefer SHOT cover, door, after, rest.";
+          }
         }
       } else if (game.digestMeter && game.digestMeter.active && !game.gone) {
         meterNote = bodyClockNote()
@@ -11798,30 +11829,42 @@ Never copy SPEECH: or ACTION: into your reply. Reply only with MOMENT, SAY, SHOT
           + (tags.indexOf("mean") >= 0 ? " Tone can be selfish, teasing, or unapologetic." : "");
       }
       const packId = c.id || "";
-      if (/nat|fran|maggie|alex|priya/.test(packId)) {
-        stanceNote += " PACK: she tries to help / undo. Not a predator bit.";
-      } else if (/maddy|keke|sable/.test(packId)) {
+      const caringNight = tags.indexOf("caring") >= 0 || tags.indexOf("unintentional") >= 0;
+      if (caringNight && /nat|fran|maggie|alex|priya|ang|tessa|wren/.test(packId)) {
+        stanceNote += " PACK: help / undo first. Tags beat hunger.";
+      } else if (!caringNight && /maddy|keke|sable/.test(packId)) {
         stanceNote += " PACK: unapologetic. She owns what happened.";
       } else if (packId === "billie") {
         stanceNote += " PACK: vegan — never frame the speck as meat.";
-      } else if (packId === "ang") {
+      } else if (packId === "ang" && !caringNight) {
         stanceNote += " PACK: blunt, fair, roast-first. Not cruel for sport.";
-      } else if (packId === "tessa") {
+      } else if (packId === "tessa" && !caringNight) {
         stanceNote += " PACK: denial first, then messy help.";
-      } else if (packId === "wren") {
-        stanceNote += " PACK: starts protective; may lean in later. Say the ugly sentence if she turns.";
+      } else if (packId === "wren" && !caringNight) {
+        stanceNote += " PACK: starts protective; may lean in later.";
+      } else if (/nat|fran|maggie|alex|priya/.test(packId)) {
+        stanceNote += " PACK: she tries to help / undo. Not a predator bit.";
       }
       const recap = sceneRecap();
-      const sleepBlob = [s.id, s.title, s.mood, s.hook, game.mood].join(" ").toLowerCase();
-      const sleepNight = /\b(asleep|lights out|sleeping)\b/.test(sleepBlob);
-      const majorWake = /\b(wake(s|d)? (her|up)|wakes? her|alarm|slap(s|ped)? (her )?face|scream(s|ed|ing)?|yell(s|ed|ing)? (her name|in her ear)|dump(s|ed)? (ice )?water|ice water|shake(s|n)? her|shaking her|fire alarm|smoke)\b/i.test(userText || "");
+      const sleepNight = nightIsAsleep();
+      const majorWake = MAJOR_WAKE_RE.test(userText || "");
       let sleepNote = "";
       if (sleepNight && !game.gone) {
         sleepNote = majorWake
           ? " SLEEP BREAK: a MAJOR disturbance can wake her this turn. If she wakes, she is groggy and in-character."
           : " ASLEEP: she stays asleep. MOMENT is narrator + sleeping body only (breath, heat, cloth, chamber). SAY must be empty or a sleep-sound — not dialogue. Ordinary kicks, rubs, or whispers do not wake her. The player is playing with the narrator.";
       }
-      const state = `STATE: character=${c.name}; scenario=${s.id} (${s.title || s.id}); ${who} location=${game.location}; speck is ${game.playerPlace}; mood=${game.mood}; noticed=${game.noticed}; shot=${game.shot}; depth=${game.depth}; fate=${game.fate || "none"}; gone=${!!game.gone}; digestDone=${!!game.digestDone}; bowel=${game.bowel && game.bowel.active ? "active" : (game.bowelDone ? "done" : "no")}${sleepNight ? "; asleep=yes" : ""}.`
+      const bodyBits = [];
+      if (game.hp <= 0 || game.gone) bodyBits.push("speck has no fight left");
+      else if (game.hp < 28) bodyBits.push("speck is fading");
+      else if (game.hp < 55) bodyBits.push("speck is worn down");
+      if (game.gas >= 78) bodyBits.push("a burp is close");
+      else if (game.gas >= 48) bodyBits.push("air is building");
+      if (game.bowel && game.bowel.active && !game.bowel.alive) {
+        const r = game.bowel.totalMs ? game.bowel.remainingMs / game.bowel.totalMs : 0.5;
+        bodyBits.push(r > 0.35 ? "bathroom need rising" : "bathroom need urgent");
+      }
+      const state = `STATE: character=${c.name}; scenario=${s.id} (${s.title || s.id}); ${who} location=${game.location}; speck is ${game.playerPlace}; mood=${game.mood}; noticed=${game.noticed}; shot=${game.shot}; depth=${game.depth}; fate=${game.fate || "none"}; gone=${!!game.gone}; digestDone=${!!game.digestDone}; bowel=${game.bowel && game.bowel.active ? "need" : (game.bowelDone ? "done" : "no")}${sleepNight ? "; asleep=yes" : ""}${bodyBits.length ? "; body=" + bodyBits.join(", ") : ""}.`
         + " Continuity: do not forget the location, outfit, or last beat. If STATE conflicts with a sudden new place, STATE wins."
         + recap
         + " SAY variety: do not reuse any previous SAY sentence from this chat."
@@ -12876,10 +12919,35 @@ Never copy SPEECH: or ACTION: into your reply. Reply only with MOMENT, SAY, SHOT
 
     const sceneBar = document.getElementById("sceneBar");
     function setSceneBig(on) {
-      sceneBar.classList.toggle("big", on);
+      const stage = els.stage;
+      if (!on && sceneBar.classList.contains("big")) {
+        const r = stage.getBoundingClientRect();
+        stage.style.width = r.width + "px";
+        stage.style.height = r.height + "px";
+        sceneBar.classList.add("closing");
+        sceneBar.classList.remove("big");
+        void stage.offsetWidth;
+        requestAnimationFrame(() => {
+          stage.style.width = "";
+          stage.style.height = "";
+        });
+        const done = () => {
+          sceneBar.classList.remove("closing");
+          stage.style.width = "";
+          stage.style.height = "";
+          stage.removeEventListener("transitionend", done);
+        };
+        stage.addEventListener("transitionend", done);
+        setTimeout(done, 520);
+      } else if (on) {
+        sceneBar.classList.remove("closing");
+        sceneBar.classList.add("big");
+      } else {
+        sceneBar.classList.remove("big", "closing");
+      }
       els.stage.setAttribute("aria-expanded", String(on));
       els.stage.setAttribute("aria-label", on ? "Scene image. Tap to shrink." : "Scene image. Tap to enlarge.");
-      setTimeout(() => { els.log.scrollTop = els.log.scrollHeight; }, 340);
+      setTimeout(() => { els.log.scrollTop = els.log.scrollHeight; }, 480);
     }
     els.stage.addEventListener("click", () => {
       if (document.documentElement.classList.contains("kb-open")) {
