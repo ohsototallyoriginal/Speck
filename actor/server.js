@@ -5,6 +5,7 @@ const LOCATION = process.env.GOOGLE_CLOUD_LOCATION || "global";
 const MODEL = process.env.GEMINI_MODEL || "gemini-3.6-flash";
 const ALLOW_ORIGIN = process.env.ALLOW_ORIGIN || "*";
 const META = "http://metadata.google.internal/computeMetadata/v1";
+const MAX_THINK = Number(process.env.MAX_THINK_BUDGET || 512);
 
 function send(res, status, body) {
   res.writeHead(status, {
@@ -75,8 +76,19 @@ function toVertexBody(messages) {
 }
 
 function extractText(data) {
-  const parts = data?.candidates?.[0]?.content?.parts || [];
-  return parts.map((p) => p.text || "").join("").trim();
+  const cands = data?.candidates || [];
+  for (const cand of cands) {
+    const parts = cand?.content?.parts || [];
+    const chunks = [];
+    for (const p of parts) {
+      if (!p) continue;
+      if (p.thought) continue;
+      if (typeof p.text === "string" && p.text.trim()) chunks.push(p.text);
+    }
+    const text = chunks.join("").trim();
+    if (text) return text;
+  }
+  return "";
 }
 
 http
@@ -115,8 +127,10 @@ http
       }
       if (payload.temperature != null) body.generationConfig.temperature = payload.temperature;
       if (payload.max_tokens != null) body.generationConfig.maxOutputTokens = payload.max_tokens;
+      if (payload.top_p != null) body.generationConfig.topP = Number(payload.top_p);
       if (payload.think_budget != null) {
-        body.generationConfig.thinkingConfig = { thinkingBudget: Number(payload.think_budget) || 0 };
+        const n = Math.max(0, Math.min(MAX_THINK, Number(payload.think_budget) || 0));
+        body.generationConfig.thinkingConfig = { thinkingBudget: n };
       }
 
       const project = await projectId();
