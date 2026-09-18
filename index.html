@@ -77,16 +77,16 @@
     html[data-face="ang"] {
       --skin-hi: #b07a55;
       --skin: #7a4a2e;
-      --neon: #e8b14a;
-      --cyan: #f3d7a0;
-      --you: #5a4630;
-      --panel: #3a2a18;
-      --panel2: #24180e;
-      --linebg: #5a3e22;
-      --dawn: #3a2814;
-      --muted: #e8d7b4;
-      --hair: rgba(232,177,74,.4);
-      --glass: rgba(16,10,6,.82);
+      --neon: #f0c43a;
+      --cyan: #ffe28a;
+      --you: #5a3c10;
+      --panel: #3a2c10;
+      --panel2: #120e06;
+      --linebg: #6a4a18;
+      --dawn: #2a1e08;
+      --muted: #f0e0b0;
+      --hair: rgba(240,196,58,.48);
+      --glass: rgba(14,10,4,.86);
     }
     html[data-face="ang"] #world .alley {
       background:
@@ -98,16 +98,16 @@
     html[data-face="maddy"] {
       --skin-hi: #e2b08a;
       --skin: #c48a5c;
-      --neon: #ff6b4a;
-      --cyan: #ffc56a;
-      --you: #5a2830;
-      --panel: #3a1c20;
-      --panel2: #14080a;
-      --linebg: #5a3038;
-      --dawn: #2a1418;
-      --muted: #f0c8bc;
-      --hair: rgba(255,107,74,.45);
-      --glass: rgba(20,8,10,.86);
+      --neon: #ff2d3a;
+      --cyan: #ff8a7a;
+      --you: #5a1018;
+      --panel: #3a1014;
+      --panel2: #120406;
+      --linebg: #6a1820;
+      --dawn: #2a080c;
+      --muted: #f0b8b8;
+      --hair: rgba(255,45,58,.5);
+      --glass: rgba(18,4,6,.88);
     }
     html[data-face="maddy"] #world .alley {
       background:
@@ -130,6 +130,63 @@
         radial-gradient(40% 70% at 50% 110%, rgba(10,2,4,.95), transparent 60%),
         radial-gradient(90% 40% at 50% -5%, rgba(200,50,40,.48), transparent 55%),
         linear-gradient(180deg, #3a1010 0%, #22080a 50%, #100406 100%);
+    }
+
+    html[data-face="maggie"] {
+      --skin-hi: #f0dcc0;
+      --skin: #d4b08a;
+      --neon: #4aa3ff;
+      --cyan: #f0d070;
+      --you: #204060;
+      --panel: #163048;
+      --panel2: #081018;
+      --linebg: #2a4a68;
+      --dawn: #102030;
+      --muted: #d8e4f0;
+      --hair: rgba(74,163,255,.42);
+      --glass: rgba(8,14,22,.86);
+    }
+    html[data-face="nat"] {
+      --skin-hi: #e0c8b8;
+      --skin: #b89078;
+      --neon: #b44cff;
+      --cyan: #ff4d6a;
+      --you: #3a1048;
+      --panel: #2a1038;
+      --panel2: #0a0610;
+      --linebg: #4a2060;
+      --dawn: #16081c;
+      --muted: #dcc8e8;
+      --hair: rgba(180,76,255,.45);
+      --glass: rgba(8,4,14,.88);
+    }
+    html[data-face="fran"] {
+      --skin-hi: #f0d0c8;
+      --skin: #d4a090;
+      --neon: #ff6bb8;
+      --cyan: #f0a0c8;
+      --you: #4a1830;
+      --panel: #3a1428;
+      --panel2: #10060c;
+      --linebg: #5a2040;
+      --dawn: #1c0814;
+      --muted: #f0c8dc;
+      --hair: rgba(255,107,184,.48);
+      --glass: rgba(14,6,12,.88);
+    }
+    html[data-face="alex"] {
+      --skin-hi: #dcc8b8;
+      --skin: #b08a74;
+      --neon: #5ce0c8;
+      --cyan: #8ab4d0;
+      --you: #204040;
+      --panel: #143038;
+      --panel2: #060c10;
+      --linebg: #2a4850;
+      --dawn: #0c181c;
+      --muted: #c8dce0;
+      --hair: rgba(92,224,200,.4);
+      --glass: rgba(6,12,16,.88);
     }
     /* ——— Character face themes (site-wide via CSS variables) ——— */
     html[data-face="billie"] {
@@ -2269,6 +2326,21 @@
     .night-card .badge.conor { color: var(--cyan); border-color: color-mix(in srgb, var(--cyan) 40%, var(--hair)); }
     .night-card .badge.gut { color: #d8f090; border-color: color-mix(in srgb, #d8f090 35%, var(--hair)); }
     .night-card .badge.giant { color: #ffb060; border-color: color-mix(in srgb, #ffb060 40%, var(--hair)); }
+    .night-card .badge.aware { color: #9fe8c0; border-color: color-mix(in srgb, #9fe8c0 40%, var(--hair)); }
+    .night-card .badge.unaware { color: #c8c0e8; border-color: color-mix(in srgb, #c8c0e8 40%, var(--hair)); }
+    .night-card .badge.intentional { color: #ff9a6a; border-color: color-mix(in srgb, #ff9a6a 40%, var(--hair)); }
+    .night-card .badge.unintentional { color: #f0e090; border-color: color-mix(in srgb, #f0e090 40%, var(--hair)); }
+    .night-card .badge.mean { color: #ff7a8a; border-color: color-mix(in srgb, #ff7a8a 40%, var(--hair)); }
+    .night-card .badge.caring { color: #8ad4ff; border-color: color-mix(in srgb, #8ad4ff 40%, var(--hair)); }
+    .night-card .badge.sleeping { color: #b8a8ff; border-color: color-mix(in srgb, #b8a8ff 40%, var(--hair)); }
+    .tag-tabs { display: flex; gap: 6px; overflow-x: auto; margin: 0 0 10px; scrollbar-width: none; }
+    .tag-tabs button {
+      flex: 0 0 auto; min-height: 32px; padding: 0 10px;
+      border-radius: 999px; border: 1px solid var(--hair);
+      background: transparent; color: var(--muted);
+      font-size: .62rem; font-weight: 800; letter-spacing: .04em; text-transform: uppercase;
+    }
+    .tag-tabs button.on { border-color: var(--neon); color: var(--ink); background: color-mix(in srgb, var(--neon) 16%, var(--panel2)); }
     #begWrap[hidden], #gutWrap[hidden] { display: none !important; }
     #scenarioList, #gutList { transition: opacity .18s ease, transform .18s ease; }
     #library.flip #scenarioList, #library.flip #gutList { opacity: 0; transform: translateX(10px); }
@@ -3336,6 +3408,7 @@
             <button type="button" id="nightTabConor">Conor</button>
             <button type="button" id="nightTabAll" class="on">All</button>
           </div>
+          <div class="tag-tabs" id="tagTabs" role="tablist" aria-label="Night tags"></div>
           <input id="nightSearch" type="search" placeholder="Search stories" enterkeyhint="search" autocomplete="off" />
         </div>
         <div id="begWrap">
@@ -3671,6 +3744,7 @@ If STATE says she is asleep: she stays asleep. MOMENT is narrator + body (breath
     const SCENARIOS = {
       "blank": {
         id: "blank",
+        tags: ['aware', 'intentional', 'caring'],
         title: "Blank night",
         sub: "You start",
         blurb: "No canned opening. You speak first.",
@@ -3683,6 +3757,7 @@ If STATE says she is asleep: she stays asleep. MOMENT is narrator + body (breath
       },
       "mara-inside": {
         id: "mara-inside",
+        tags: ['aware', 'intentional', 'caring'],
         title: "Already in",
         sub: "Warm dark",
         blurb: "Skip the talk. You are already where she put you.",
@@ -3699,6 +3774,7 @@ If STATE says she is asleep: she stays asleep. MOMENT is narrator + body (breath
       },
       "ang-booth": {
         id: "ang-booth",
+        tags: ['aware', 'intentional', 'caring'],
         title: "Booth four",
         sub: "Open late",
         blurb: "White Plains. One booth. She already wants the check.",
@@ -3715,6 +3791,7 @@ If STATE says she is asleep: she stays asleep. MOMENT is narrator + body (breath
       },
       "mara-laundry": {
         id: "mara-laundry",
+        tags: ['aware', 'intentional', 'caring'],
         title: "Late laundry",
         sub: "24h · machines",
         blurb: "She found you on the folding table. Detergent and late TV.",
@@ -3730,6 +3807,7 @@ If STATE says she is asleep: she stays asleep. MOMENT is narrator + body (breath
       },
       "mara-kitchen": {
         id: "mara-kitchen",
+        tags: ['aware', 'intentional', 'caring'],
         title: "Kitchen light",
         sub: "After midnight",
         blurb: "Wine glass. Bare feet. You are on the counter.",
@@ -3745,6 +3823,7 @@ If STATE says she is asleep: she stays asleep. MOMENT is narrator + body (breath
       },
       "mara-couch": {
         id: "mara-couch",
+        tags: ['aware', 'intentional', 'caring'],
         title: "Couch",
         sub: "TV low",
         blurb: "She put you on the armrest. On purpose.",
@@ -3760,6 +3839,7 @@ If STATE says she is asleep: she stays asleep. MOMENT is narrator + body (breath
       },
       "mara-bed": {
         id: "mara-bed",
+        tags: ['aware', 'intentional', 'caring'],
         title: "Bedside",
         sub: "Lamp · quiet",
         blurb: "Phone face-down. She has you in her palm.",
@@ -3775,6 +3855,7 @@ If STATE says she is asleep: she stays asleep. MOMENT is narrator + body (breath
       },
       "mara-street": {
         id: "mara-street",
+        tags: ['aware', 'intentional', 'caring'],
         title: "Walk home",
         sub: "Block quiet",
         blurb: "She almost stepped on you. She did not.",
@@ -3790,6 +3871,7 @@ If STATE says she is asleep: she stays asleep. MOMENT is narrator + body (breath
       },
       "mara-bath": {
         id: "mara-bath",
+        tags: ['aware', 'intentional', 'caring'],
         title: "Bath edge",
         sub: "Steam",
         blurb: "She set you on the tub rim. Steam. No rush.",
@@ -3805,6 +3887,7 @@ If STATE says she is asleep: she stays asleep. MOMENT is narrator + body (breath
       },
       "mara-pocket": {
         id: "mara-pocket",
+        tags: ['aware', 'intentional', 'caring'],
         title: "Coat pocket",
         sub: "Already held",
         blurb: "Lint dark. She knows you're in there.",
@@ -3820,6 +3903,7 @@ If STATE says she is asleep: she stays asleep. MOMENT is narrator + body (breath
       },
       "mara-nail": {
         id: "mara-nail",
+        tags: ['aware', 'intentional', 'caring'],
         title: "On the nail",
         sub: "Simple polish",
         blurb: "You are on the glossy part. She is watching.",
@@ -3835,6 +3919,7 @@ If STATE says she is asleep: she stays asleep. MOMENT is narrator + body (breath
       },
       "mara-blank": {
         id: "mara-blank",
+        tags: ['aware', 'intentional', 'caring'],
         title: "You start",
         sub: "Mara · no script",
         blurb: "No canned open. First line is yours.",
@@ -3847,6 +3932,7 @@ If STATE says she is asleep: she stays asleep. MOMENT is narrator + body (breath
       },
       "mara-after": {
         id: "mara-after",
+        tags: ['aware', 'intentional', 'caring'],
         title: "Couch after",
         sub: "Hand on it",
         blurb: "She already has you. TV low. No audience.",
@@ -3863,6 +3949,7 @@ If STATE says she is asleep: she stays asleep. MOMENT is narrator + body (breath
       },
       "mara-asleep": {
         id: "mara-asleep",
+        tags: ['sleeping', 'unaware', 'intentional', 'caring'],
         title: "Asleep with you",
         sub: "She does not know",
         blurb: "You're already inside. She's out.",
@@ -3879,6 +3966,7 @@ If STATE says she is asleep: she stays asleep. MOMENT is narrator + body (breath
       },
       "mara-morning": {
         id: "mara-morning",
+        tags: ['aware', 'intentional', 'caring'],
         title: "Morning coffee",
         sub: "She knows",
         blurb: "Mug steam. Hand on her stomach. She is not late yet.",
@@ -3895,6 +3983,7 @@ If STATE says she is asleep: she stays asleep. MOMENT is narrator + body (breath
       },
       "ang-after": {
         id: "ang-after",
+        tags: ['aware', 'intentional', 'caring'],
         title: "After",
         sub: "Hand on it",
         blurb: "Skip the swallow. She already has you. She is rubbing her stomach.",
@@ -3911,6 +4000,7 @@ If STATE says she is asleep: she stays asleep. MOMENT is narrator + body (breath
       },
       "ang-uvula": {
         id: "ang-uvula",
+        tags: ['aware', 'intentional', 'caring'],
         title: "Say ahh",
         sub: "Last look up",
         blurb: "You are on the way down. Her mouth is open. You can see the back of her throat.",
@@ -3927,6 +4017,7 @@ If STATE says she is asleep: she stays asleep. MOMENT is narrator + body (breath
       },
       "ang-call": {
         id: "ang-call",
+        tags: ['unaware', 'intentional', 'caring'],
         title: "On with Alex",
         sub: "She does not know",
         blurb: "Phone on speaker. She thinks the flutter is nerves.",
@@ -3943,6 +4034,7 @@ If STATE says she is asleep: she stays asleep. MOMENT is narrator + body (breath
       },
       "ang-asleep": {
         id: "ang-asleep",
+        tags: ['sleeping', 'unaware', 'intentional', 'caring'],
         title: "Lights out",
         sub: "She is out",
         blurb: "Breathing slow. You can move. She will not answer.",
@@ -3959,6 +4051,7 @@ If STATE says she is asleep: she stays asleep. MOMENT is narrator + body (breath
       },
       "ang-cards": {
         id: "ang-cards",
+        tags: ['aware', 'intentional', 'caring'],
         title: "Flashcards",
         sub: "She knows",
         blurb: "Anatomy deck. She is trying to study you out of existence.",
@@ -3975,6 +4068,7 @@ If STATE says she is asleep: she stays asleep. MOMENT is narrator + body (breath
       },
       "ang-walk": {
         id: "ang-walk",
+        tags: ['aware', 'intentional', 'caring'],
         title: "To the platform",
         sub: "She knows",
         blurb: "White Plains sidewalk. Hand in her hoodie. You are the errand.",
@@ -3991,6 +4085,7 @@ If STATE says she is asleep: she stays asleep. MOMENT is narrator + body (breath
       },
       "ang-mat": {
         id: "ang-mat",
+        tags: ['unaware', 'intentional', 'caring'],
         title: "Indigestion",
         sub: "She does not know",
         blurb: "Yoga. She blames the leftover rice.",
@@ -4007,6 +4102,7 @@ If STATE says she is asleep: she stays asleep. MOMENT is narrator + body (breath
       },
       "ang-paint-in": {
         id: "ang-paint-in",
+        tags: ['unaware', 'intentional', 'caring'],
         title: "Palette night",
         sub: "She does not know",
         blurb: "Brush, gold cross, humming. You are just a cramp.",
@@ -4023,6 +4119,7 @@ If STATE says she is asleep: she stays asleep. MOMENT is narrator + body (breath
       },
       "ang-studio": {
         id: "ang-studio",
+        tags: ['aware', 'intentional', 'caring'],
         title: "Packed studio",
         sub: "White Plains · boxes",
         blurb: "Tape gun. Half the kitchen is in boxes. She found you on the floor.",
@@ -4038,6 +4135,7 @@ If STATE says she is asleep: she stays asleep. MOMENT is narrator + body (breath
       },
       "ang-desk": {
         id: "ang-desk",
+        tags: ['aware', 'intentional', 'caring'],
         title: "Desk lamp",
         sub: "Notes · late",
         blurb: "Med-school notes. She put you by the highlighter.",
@@ -4053,6 +4151,7 @@ If STATE says she is asleep: she stays asleep. MOMENT is narrator + body (breath
       },
       "ang-blank": {
         id: "ang-blank",
+        tags: ['aware', 'intentional', 'caring'],
         title: "You start",
         sub: "Ang · no script",
         blurb: "No canned open. First line is yours.",
@@ -4065,6 +4164,7 @@ If STATE says she is asleep: she stays asleep. MOMENT is narrator + body (breath
       },
       "ang-paint": {
         id: "ang-paint",
+        tags: ['aware', 'intentional', 'caring'],
         title: "Palette night",
         sub: "Studio wall",
         blurb: "She was painting. Then she saw you on the floorboards.",
@@ -4080,6 +4180,7 @@ If STATE says she is asleep: she stays asleep. MOMENT is narrator + body (breath
       },
       "ang-street": {
         id: "ang-street",
+        tags: ['aware', 'intentional', 'caring'],
         title: "Walk home",
         sub: "White Plains night",
         blurb: "Streetlight. She is not taking you back to Maddy's.",
@@ -4095,6 +4196,7 @@ If STATE says she is asleep: she stays asleep. MOMENT is narrator + body (breath
       },
       "ang-yoga": {
         id: "ang-yoga",
+        tags: ['aware', 'intentional', 'caring'],
         title: "Mat",
         sub: "Before the boxes",
         blurb: "Plank. Hair in her face. You are under the mat edge.",
@@ -4110,6 +4212,7 @@ If STATE says she is asleep: she stays asleep. MOMENT is narrator + body (breath
       },
       "ang-conor": {
         id: "ang-conor",
+        tags: ['aware', 'intentional', 'caring'],
         title: "Conor",
         sub: "You are her friend",
         blurb: "You are Conor. Shrunken. She already knows it's you.",
@@ -4126,6 +4229,7 @@ If STATE says she is asleep: she stays asleep. MOMENT is narrator + body (breath
       },
       "ang-inside": {
         id: "ang-inside",
+        tags: ['aware', 'intentional', 'caring'],
         title: "Already in",
         sub: "Quiet stomach",
         blurb: "Skip the talk. You are already where she put you.",
@@ -4142,6 +4246,7 @@ If STATE says she is asleep: she stays asleep. MOMENT is narrator + body (breath
       },
       "ang-conor-in": {
         id: "ang-conor-in",
+        tags: ['unaware', 'intentional', 'caring'],
         title: "Conor already in",
         sub: "You are her friend",
         blurb: "You are Conor. She swallowed you on purpose. She will not pretend she doesn't know the voice.",
@@ -4159,6 +4264,7 @@ If STATE says she is asleep: she stays asleep. MOMENT is narrator + body (breath
       },
       "ang-conor-after": {
         id: "ang-conor-after",
+        tags: ['aware', 'intentional', 'caring'],
         title: "Conor after",
         sub: "You are her friend",
         blurb: "Boxes. Palm on her middle. She already has Conor and she is not giving a speech.",
@@ -4176,6 +4282,7 @@ If STATE says she is asleep: she stays asleep. MOMENT is narrator + body (breath
       },
       "ang-conor-asleep": {
         id: "ang-conor-asleep",
+        tags: ['sleeping', 'unaware', 'intentional', 'caring'],
         title: "Conor, lights out",
         sub: "You are her friend",
         blurb: "You are Conor. She's out. Med-school alarm is set. You are the reason she's warm.",
@@ -4193,6 +4300,7 @@ If STATE says she is asleep: she stays asleep. MOMENT is narrator + body (breath
       },
       "ang-conor-cards": {
         id: "ang-conor-cards",
+        tags: ['aware', 'intentional', 'caring'],
         title: "Conor vs the deck",
         sub: "You are her friend",
         blurb: "GI block. She knows it's you. The cards do not care.",
@@ -4210,6 +4318,7 @@ If STATE says she is asleep: she stays asleep. MOMENT is narrator + body (breath
       },
       "ang-conor-call": {
         id: "ang-conor-call",
+        tags: ['aware', 'intentional', 'caring'],
         title: "Conor on with Alex",
         sub: "You are her friend",
         blurb: "Speakerphone. She knows it's you. Alex does not. Do not make her say it.",
@@ -4227,6 +4336,7 @@ If STATE says she is asleep: she stays asleep. MOMENT is narrator + body (breath
       },
       "ang-conor-walk": {
         id: "ang-conor-walk",
+        tags: ['aware', 'intentional', 'caring'],
         title: "Conor to the platform",
         sub: "You are her friend",
         blurb: "Night sidewalk. Hoodie. You are Conor. She is not explaining a face at North White Plains.",
@@ -4244,6 +4354,7 @@ If STATE says she is asleep: she stays asleep. MOMENT is narrator + body (breath
       },
       "ang-conor-uber": {
         id: "ang-conor-uber",
+        tags: ['aware', 'intentional', 'caring'],
         title: "Conor in the Uber",
         sub: "You are her friend",
         blurb: "Back seat. Driver talking weather. You are Conor. She has a hand on the seatbelt and on you.",
@@ -4261,6 +4372,7 @@ If STATE says she is asleep: she stays asleep. MOMENT is narrator + body (breath
       },
       "ang-conor-train": {
         id: "ang-conor-train",
+        tags: ['aware', 'intentional', 'caring'],
         title: "Conor on Metro-North",
         sub: "You are her friend",
         blurb: "Window, fluorescent, a stranger's knee. You are Conor. She is studying on her phone and holding you still.",
@@ -4278,6 +4390,7 @@ If STATE says she is asleep: she stays asleep. MOMENT is narrator + body (breath
       },
       "ang-conor-shower": {
         id: "ang-conor-shower",
+        tags: ['aware', 'intentional', 'caring'],
         title: "Conor in the steam",
         sub: "You are her friend",
         blurb: "You are Conor. Hot water. She knows you're the extra heat.",
@@ -4295,6 +4408,7 @@ If STATE says she is asleep: she stays asleep. MOMENT is narrator + body (breath
       },
       "ang-conor-group": {
         id: "ang-conor-group",
+        tags: ['aware', 'intentional', 'caring'],
         title: "Conor vs the group chat",
         sub: "You are her friend",
         blurb: "Speaker on. Nat being mom. Maddy rewriting. You are Conor. Ang will not say your name out loud.",
@@ -4312,6 +4426,7 @@ If STATE says she is asleep: she stays asleep. MOMENT is narrator + body (breath
       },
       "ang-conor-bodega": {
         id: "ang-conor-bodega",
+        tags: ['aware', 'intentional', 'caring'],
         title: "Conor after the chop-cheese",
         sub: "You are her friend",
         blurb: "She ate. You were already in. The bag crinkles. You are Conor.",
@@ -4329,6 +4444,7 @@ If STATE says she is asleep: she stays asleep. MOMENT is narrator + body (breath
       },
       "ang-conor-desk": {
         id: "ang-conor-desk",
+        tags: ['aware', 'intentional', 'caring'],
         title: "Conor on the notes",
         sub: "You are her friend",
         blurb: "You are Conor. Shrunken. Flashcards. She already knows the voice.",
@@ -4345,6 +4461,7 @@ If STATE says she is asleep: she stays asleep. MOMENT is narrator + body (breath
       },
       "ang-conor-yoga": {
         id: "ang-conor-yoga",
+        tags: ['aware', 'intentional', 'caring'],
         title: "Conor on the mat",
         sub: "You are her friend",
         blurb: "You are Conor. Shrunken. She is mid-flow and she knows that voice.",
@@ -4361,6 +4478,7 @@ If STATE says she is asleep: she stays asleep. MOMENT is narrator + body (breath
       },
       "ang-conor-street": {
         id: "ang-conor-street",
+        tags: ['aware', 'intentional', 'caring'],
         title: "Conor on Mamaroneck",
         sub: "You are her friend",
         blurb: "Sidewalk. You are Conor. She will not do this in front of a bus.",
@@ -4377,6 +4495,7 @@ If STATE says she is asleep: she stays asleep. MOMENT is narrator + body (breath
       },
       "ang-conor-paint": {
         id: "ang-conor-paint",
+        tags: ['aware', 'intentional', 'caring'],
         title: "Conor on the palette",
         sub: "You are her friend",
         blurb: "Wet ultramarine. You are Conor. She will not ruin a canvas for the bit.",
@@ -4393,6 +4512,7 @@ If STATE says she is asleep: she stays asleep. MOMENT is narrator + body (breath
       },
       "ang-conor-coffee": {
         id: "ang-conor-coffee",
+        tags: ['aware', 'intentional', 'caring'],
         title: "Conor vs the iced coffee",
         sub: "You are her friend",
         blurb: "Diner table. You are Conor. The straw is a tower. She already knows.",
@@ -4409,6 +4529,7 @@ If STATE says she is asleep: she stays asleep. MOMENT is narrator + body (breath
       },
       "ang-conor-boxes": {
         id: "ang-conor-boxes",
+        tags: ['aware', 'unintentional', 'caring'],
         title: "Conor packing",
         sub: "You are her friend",
         blurb: "You are Conor. Tape gun. She is leaving for MD and you are the size of a label.",
@@ -4425,6 +4546,7 @@ If STATE says she is asleep: she stays asleep. MOMENT is narrator + body (breath
       },
       "ang-conor-escape": {
         id: "ang-conor-escape",
+        tags: ['aware', 'intentional', 'caring'],
         title: "Conor on the fire escape",
         sub: "You are her friend",
         blurb: "Night air. You are Conor. She came out here to think and found your voice.",
@@ -4442,6 +4564,7 @@ If STATE says she is asleep: she stays asleep. MOMENT is narrator + body (breath
 
       "ang-conor-not-a-bit": {
         id: "ang-conor-not-a-bit",
+        tags: ['aware', 'caring', 'unintentional'],
         title: "Conor, this is not a bit",
         sub: "You are her friend",
         blurb: "You are Conor. She swallowed you and she is pissed at herself. She will try to get you back. No speech.",
@@ -4459,6 +4582,7 @@ If STATE says she is asleep: she stays asleep. MOMENT is narrator + body (breath
       },
       "billie-studio": {
         id: "billie-studio",
+        tags: ['unaware', 'intentional', 'caring'],
         title: "Session break",
         sub: "LA · late",
         blurb: "Headphones off. Green tea. She noticed you on the console.",
@@ -4474,6 +4598,7 @@ If STATE says she is asleep: she stays asleep. MOMENT is narrator + body (breath
       },
       "billie-bus": {
         id: "billie-bus",
+        tags: ['aware', 'intentional', 'caring'],
         title: "Tour bunk",
         sub: "Highway dark",
         blurb: "Bunk curtain. White noise. You are on the blanket fold.",
@@ -4489,6 +4614,7 @@ If STATE says she is asleep: she stays asleep. MOMENT is narrator + body (breath
       },
       "billie-thrifts": {
         id: "billie-thrifts",
+        tags: ['aware', 'intentional', 'caring'],
         title: "Thrift rack",
         sub: "Vintage · LA",
         blurb: "Oversized flannel forest. She almost stepped on you.",
@@ -4504,6 +4630,7 @@ If STATE says she is asleep: she stays asleep. MOMENT is narrator + body (breath
       },
       "billie-pool": {
         id: "billie-pool",
+        tags: ['aware', 'intentional', 'caring'],
         title: "Night pool",
         sub: "Hills · chlorine",
         blurb: "Deck tile still warm. She is not getting in. You are near her ankle.",
@@ -4519,6 +4646,7 @@ If STATE says she is asleep: she stays asleep. MOMENT is narrator + body (breath
       },
       "billie-street": {
         id: "billie-street",
+        tags: ['aware', 'intentional', 'caring'],
         title: "After the show",
         sub: "Alley exit",
         blurb: "Security is somewhere else. She has you in a closed fist.",
@@ -4534,6 +4662,7 @@ If STATE says she is asleep: she stays asleep. MOMENT is narrator + body (breath
       },
       "billie-blank": {
         id: "billie-blank",
+        tags: ['aware', 'intentional', 'caring'],
         title: "You start",
         sub: "Billie · no script",
         blurb: "No canned open. First line is yours.",
@@ -4546,6 +4675,7 @@ If STATE says she is asleep: she stays asleep. MOMENT is narrator + body (breath
       },
       "billie-inside": {
         id: "billie-inside",
+        tags: ['aware', 'intentional', 'caring'],
         title: "Already in",
         sub: "Warm dark",
         blurb: "Skip the talk. You are already where she put you.",
@@ -4562,6 +4692,7 @@ If STATE says she is asleep: she stays asleep. MOMENT is narrator + body (breath
       },
       "billie-after": {
         id: "billie-after",
+        tags: ['sleeping', 'unaware', 'intentional', 'caring'],
         title: "Hoodie quiet",
         sub: "Hand on midriff",
         blurb: "She already has you. Playlist on. She is not performing it.",
@@ -4578,6 +4709,7 @@ If STATE says she is asleep: she stays asleep. MOMENT is narrator + body (breath
       },
       "billie-greenroom": {
         id: "billie-greenroom",
+        tags: ['aware', 'intentional', 'caring'],
         title: "Green room",
         sub: "Rider · plants",
         blurb: "Hummus, fruit, oat milk. She found you near the grapes.",
@@ -4593,6 +4725,7 @@ If STATE says she is asleep: she stays asleep. MOMENT is narrator + body (breath
       },
       "jlaw-suite": {
         id: "jlaw-suite",
+        tags: ['aware', 'intentional', 'caring'],
         title: "Hotel suite",
         sub: "Afterparty debris",
         blurb: "Minibar. Heels off. She found you by the ice bucket.",
@@ -4608,6 +4741,7 @@ If STATE says she is asleep: she stays asleep. MOMENT is narrator + body (breath
       },
       "jlaw-cabin": {
         id: "jlaw-cabin",
+        tags: ['aware', 'intentional', 'caring'],
         title: "Cabin rug",
         sub: "Mountain quiet",
         blurb: "Fireplace. Flannel. You are on the wool.",
@@ -4623,6 +4757,7 @@ If STATE says she is asleep: she stays asleep. MOMENT is narrator + body (breath
       },
       "jlaw-junket": {
         id: "jlaw-junket",
+        tags: ['aware', 'intentional', 'caring'],
         title: "Junket hall",
         sub: "Fluorescent limbo",
         blurb: "Handler left. She has you in a closed fist.",
@@ -4638,6 +4773,7 @@ If STATE says she is asleep: she stays asleep. MOMENT is narrator + body (breath
       },
       "jlaw-bag": {
         id: "jlaw-bag",
+        tags: ['aware', 'intentional', 'caring'],
         title: "Gym bag",
         sub: "Side pocket",
         blurb: "Zipper teeth. You live here until she says.",
@@ -4653,6 +4789,7 @@ If STATE says she is asleep: she stays asleep. MOMENT is narrator + body (breath
       },
       "jlaw-blank": {
         id: "jlaw-blank",
+        tags: ['aware', 'intentional', 'caring'],
         title: "You start",
         sub: "JLaw · no script",
         blurb: "No canned open. First line is yours.",
@@ -4665,6 +4802,7 @@ If STATE says she is asleep: she stays asleep. MOMENT is narrator + body (breath
       },
       "jlaw-inside": {
         id: "jlaw-inside",
+        tags: ['aware', 'intentional', 'caring'],
         title: "Already in",
         sub: "Quiet stomach",
         blurb: "Skip the talk. You are already where she put you.",
@@ -4681,6 +4819,7 @@ If STATE says she is asleep: she stays asleep. MOMENT is narrator + body (breath
       },
       "jlaw-after": {
         id: "jlaw-after",
+        tags: ['aware', 'intentional', 'caring'],
         title: "Suite quiet",
         sub: "Hand on it",
         blurb: "She already has you. Robe. No audience.",
@@ -4697,6 +4836,7 @@ If STATE says she is asleep: she stays asleep. MOMENT is narrator + body (breath
       },
       "cardi-mirror": {
         id: "cardi-mirror",
+        tags: ['aware', 'intentional', 'caring'],
         title: "Getting ready",
         sub: "Nails · lights",
         blurb: "Vanity bulbs. You are on the marble near the polish.",
@@ -4712,6 +4852,7 @@ If STATE says she is asleep: she stays asleep. MOMENT is narrator + body (breath
       },
       "cardi-suv": {
         id: "cardi-suv",
+        tags: ['aware', 'intentional', 'caring'],
         title: "Back seat",
         sub: "Tint · night",
         blurb: "City slides by. She has you in her palm.",
@@ -4727,6 +4868,7 @@ If STATE says she is asleep: she stays asleep. MOMENT is narrator + body (breath
       },
       "cardi-closet": {
         id: "cardi-closet",
+        tags: ['aware', 'intentional', 'caring'],
         title: "Fashion closet",
         sub: "Heels as buildings",
         blurb: "You are on the carpet between the rows.",
@@ -4742,6 +4884,7 @@ If STATE says she is asleep: she stays asleep. MOMENT is narrator + body (breath
       },
       "cardi-studio": {
         id: "cardi-studio",
+        tags: ['aware', 'intentional', 'caring'],
         title: "Studio night",
         sub: "Console · late",
         blurb: "Engineer stepped out. You are by the faders.",
@@ -4757,6 +4900,7 @@ If STATE says she is asleep: she stays asleep. MOMENT is narrator + body (breath
       },
       "cardi-street": {
         id: "cardi-street",
+        tags: ['aware', 'intentional', 'caring'],
         title: "Bronx sidewalk",
         sub: "Night block",
         blurb: "She almost stepped on you. She did not.",
@@ -4772,6 +4916,7 @@ If STATE says she is asleep: she stays asleep. MOMENT is narrator + body (breath
       },
       "cardi-blank": {
         id: "cardi-blank",
+        tags: ['aware', 'intentional', 'caring'],
         title: "You start",
         sub: "Cardi · no script",
         blurb: "No canned open. First line is yours.",
@@ -4784,6 +4929,7 @@ If STATE says she is asleep: she stays asleep. MOMENT is narrator + body (breath
       },
       "cardi-inside": {
         id: "cardi-inside",
+        tags: ['aware', 'intentional', 'caring'],
         title: "Already in",
         sub: "Warm dark",
         blurb: "Skip the talk. You are already where she put you.",
@@ -4800,6 +4946,7 @@ If STATE says she is asleep: she stays asleep. MOMENT is narrator + body (breath
       },
       "cardi-after": {
         id: "cardi-after",
+        tags: ['aware', 'intentional', 'caring'],
         title: "Couch quiet",
         sub: "Hand on midriff",
         blurb: "TV low. She already has you.",
@@ -4816,6 +4963,7 @@ If STATE says she is asleep: she stays asleep. MOMENT is narrator + body (breath
       },
       "cardi-club": {
         id: "cardi-club",
+        tags: ['aware', 'intentional', 'caring'],
         title: "Club booth",
         sub: "Bass · VIP",
         blurb: "She has you in her fist away from the floor.",
@@ -4831,6 +4979,7 @@ If STATE says she is asleep: she stays asleep. MOMENT is narrator + body (breath
       },
       "cardi-jet": {
         id: "cardi-jet",
+        tags: ['aware', 'intentional', 'caring'],
         title: "Private cabin",
         sub: "Clouds",
         blurb: "Seatbelt light off. She set you on the tray.",
@@ -4846,6 +4995,7 @@ If STATE says she is asleep: she stays asleep. MOMENT is narrator + body (breath
       },
       "cardi-stage": {
         id: "cardi-stage",
+        tags: ['aware', 'intentional', 'caring'],
         title: "After the set",
         sub: "She knows",
         blurb: "Backstage. Hand on midriff. Crowd still roaring far away.",
@@ -4862,6 +5012,7 @@ If STATE says she is asleep: she stays asleep. MOMENT is narrator + body (breath
       },
       "cardi-bath": {
         id: "cardi-bath",
+        tags: ['aware', 'intentional', 'caring'],
         title: "Marble soak",
         sub: "She knows",
         blurb: "Steam. You're already where she put you.",
@@ -4878,6 +5029,7 @@ If STATE says she is asleep: she stays asleep. MOMENT is narrator + body (breath
       },
       "cardi-asleep": {
         id: "cardi-asleep",
+        tags: ['sleeping', 'unaware', 'intentional', 'caring'],
         title: "Asleep with you",
         sub: "She does not know",
         blurb: "You're already inside. She's out.",
@@ -4894,6 +5046,7 @@ If STATE says she is asleep: she stays asleep. MOMENT is narrator + body (breath
       },
       "cardi-fit": {
         id: "cardi-fit",
+        tags: ['aware', 'intentional', 'caring'],
         title: "Fitting room",
         sub: "She knows",
         blurb: "Mirrors. Hand on her stomach under the fabric.",
@@ -4910,6 +5063,7 @@ If STATE says she is asleep: she stays asleep. MOMENT is narrator + body (breath
       },
       "cardi-jet-in": {
         id: "cardi-jet-in",
+        tags: ['aware', 'intentional', 'caring'],
         title: "Cabin quiet",
         sub: "Already in",
         blurb: "Cruise altitude. You're already down.",
@@ -4926,6 +5080,7 @@ If STATE says she is asleep: she stays asleep. MOMENT is narrator + body (breath
       },
       "cardi-iglive": {
         id: "cardi-iglive",
+        tags: ['aware', 'intentional', 'caring'],
         title: "Don't kick on live",
         sub: "Front camera · car",
         blurb: "She's live from the passenger seat. You're already down. The comments cannot know.",
@@ -4942,6 +5097,7 @@ If STATE says she is asleep: she stays asleep. MOMENT is narrator + body (breath
       },
       "cardi-elevator": {
         id: "cardi-elevator",
+        tags: ['aware', 'intentional', 'caring'],
         title: "Gown in the elevator",
         sub: "Afterparty · closed doors",
         blurb: "Marble floor falling away. Sequins. You're already a secret under the dress.",
@@ -4958,6 +5114,7 @@ If STATE says she is asleep: she stays asleep. MOMENT is narrator + body (breath
       },
       "cardi-salon": {
         id: "cardi-salon",
+        tags: ['aware', 'unintentional', 'caring'],
         title: "Under the dryer",
         sub: "Bronx chair · gossip",
         blurb: "Hood dryer. Foil. Other women talking. You're the thing she isn't explaining.",
@@ -4974,6 +5131,7 @@ If STATE says she is asleep: she stays asleep. MOMENT is narrator + body (breath
       },
       "cardi-rehearsal": {
         id: "cardi-rehearsal",
+        tags: ['aware', 'intentional', 'caring'],
         title: "Eight-count",
         sub: "Studio · sweat",
         blurb: "Choreo is still going. Every hit slams the chamber. She will not stop the run for you.",
@@ -4990,6 +5148,7 @@ If STATE says she is asleep: she stays asleep. MOMENT is narrator + body (breath
       },
       "cardi-takeout": {
         id: "cardi-takeout",
+        tags: ['aware', 'intentional', 'caring'],
         title: "2am on top of you",
         sub: "Kitchen island · leftovers",
         blurb: "She already had you. Then she ordered food. Now both of you are paying rent.",
@@ -5006,6 +5165,7 @@ If STATE says she is asleep: she stays asleep. MOMENT is narrator + body (breath
       },
       "cardi-junket": {
         id: "cardi-junket",
+        tags: ['aware', 'intentional', 'caring'],
         title: "Junket smile",
         sub: "Earpiece · backdrop",
         blurb: "Press wall. Soft voice. You're kicking through a soundcheck nobody else is invited to.",
@@ -5022,6 +5182,7 @@ If STATE says she is asleep: she stays asleep. MOMENT is narrator + body (breath
       },
       "cardi-storm": {
         id: "cardi-storm",
+        tags: ['aware', 'intentional', 'caring'],
         title: "Rain on the awning",
         sub: "Lobby · soaked",
         blurb: "She ducked in out of the storm. You were already swallowed on the sidewalk.",
@@ -5038,6 +5199,7 @@ If STATE says she is asleep: she stays asleep. MOMENT is narrator + body (breath
       },
       "june-desk": {
         id: "june-desk",
+        tags: ['aware', 'intentional', 'caring'],
         title: "Desk setup",
         sub: "Mic · RGB",
         blurb: "Stream lights. You are next to the mouse.",
@@ -5053,6 +5215,7 @@ If STATE says she is asleep: she stays asleep. MOMENT is narrator + body (breath
       },
       "june-con": {
         id: "june-con",
+        tags: ['aware', 'intentional', 'caring'],
         title: "Con hallway",
         sub: "Badge · carpet",
         blurb: "Crowd roar far away. She almost stepped on you.",
@@ -5068,6 +5231,7 @@ If STATE says she is asleep: she stays asleep. MOMENT is narrator + body (breath
       },
       "june-couch": {
         id: "june-couch",
+        tags: ['aware', 'intentional', 'caring'],
         title: "Post-stream",
         sub: "Hoodie quiet",
         blurb: "Lights off. Phone glow. You are on the cushion.",
@@ -5083,6 +5247,7 @@ If STATE says she is asleep: she stays asleep. MOMENT is narrator + body (breath
       },
       "june-airport": {
         id: "june-airport",
+        tags: ['aware', 'intentional', 'caring'],
         title: "Gate carpet",
         sub: "Delayed",
         blurb: "Announcement drone. You are near her shoe.",
@@ -5098,6 +5263,7 @@ If STATE says she is asleep: she stays asleep. MOMENT is narrator + body (breath
       },
       "june-kitchen": {
         id: "june-kitchen",
+        tags: ['aware', 'intentional', 'caring'],
         title: "3 a.m. kitchen",
         sub: "Cereal canyon",
         blurb: "Box open. You are on the counter.",
@@ -5113,6 +5279,7 @@ If STATE says she is asleep: she stays asleep. MOMENT is narrator + body (breath
       },
       "june-blank": {
         id: "june-blank",
+        tags: ['aware', 'intentional', 'caring'],
         title: "You start",
         sub: "June · no script",
         blurb: "No canned open. First line is yours.",
@@ -5125,6 +5292,7 @@ If STATE says she is asleep: she stays asleep. MOMENT is narrator + body (breath
       },
       "june-inside": {
         id: "june-inside",
+        tags: ['aware', 'intentional', 'caring'],
         title: "Already in",
         sub: "Warm dark",
         blurb: "Skip the talk. You are already where she put you.",
@@ -5141,6 +5309,7 @@ If STATE says she is asleep: she stays asleep. MOMENT is narrator + body (breath
       },
       "june-after": {
         id: "june-after",
+        tags: ['aware', 'intentional', 'caring'],
         title: "Chair lean",
         sub: "Hand on it",
         blurb: "Stream over. She already has you.",
@@ -5157,6 +5326,7 @@ If STATE says she is asleep: she stays asleep. MOMENT is narrator + body (breath
       },
       "zendaya-fit": {
         id: "zendaya-fit",
+        tags: ['aware', 'intentional', 'caring'],
         title: "Fitting room",
         sub: "Mirror maze",
         blurb: "Pins and silk. She noticed you on the carpet.",
@@ -5172,6 +5342,7 @@ If STATE says she is asleep: she stays asleep. MOMENT is narrator + body (breath
       },
       "zendaya-trailer": {
         id: "zendaya-trailer",
+        tags: ['aware', 'intentional', 'caring'],
         title: "Trailer steps",
         sub: "Call sheet",
         blurb: "Between takes. She has you in her palm.",
@@ -5187,6 +5358,7 @@ If STATE says she is asleep: she stays asleep. MOMENT is narrator + body (breath
       },
       "zendaya-inside": {
         id: "zendaya-inside",
+        tags: ['aware', 'intentional', 'caring'],
         title: "Already in",
         sub: "Private",
         blurb: "Skip the talk. You are already where she put you.",
@@ -5203,6 +5375,7 @@ If STATE says she is asleep: she stays asleep. MOMENT is narrator + body (breath
       },
       "june-script": {
         id: "june-script",
+        tags: ['aware', 'intentional', 'caring'],
         title: "Script night",
         sub: "Notes · tea",
         blurb: "Outline tabs open. You are on the notebook margin.",
@@ -5218,6 +5391,7 @@ If STATE says she is asleep: she stays asleep. MOMENT is narrator + body (breath
       },
       "june-car": {
         id: "june-car",
+        tags: ['unaware', 'intentional', 'caring'],
         title: "Passenger seat",
         sub: "Night drive",
         blurb: "Playlist low. She has you in the cup-holder zone—on her palm.",
@@ -5233,6 +5407,7 @@ If STATE says she is asleep: she stays asleep. MOMENT is narrator + body (breath
       },
       "june-panel": {
         id: "june-panel",
+        tags: ['aware', 'intentional', 'caring'],
         title: "Green room",
         sub: "Before panel",
         blurb: "Badge still on. She found you on the craft table.",
@@ -5248,6 +5423,7 @@ If STATE says she is asleep: she stays asleep. MOMENT is narrator + body (breath
       },
       "june-asleep": {
         id: "june-asleep",
+        tags: ['sleeping', 'unaware', 'intentional', 'caring'],
         title: "Asleep with you",
         sub: "She does not know",
         blurb: "You're already inside. She's out. Soft breathing.",
@@ -5264,6 +5440,7 @@ If STATE says she is asleep: she stays asleep. MOMENT is narrator + body (breath
       },
       "june-edit": {
         id: "june-edit",
+        tags: ['aware', 'intentional', 'caring'],
         title: "Edit bay",
         sub: "She knows",
         blurb: "Timeline open. Hand on her stomach. She is trying to work.",
@@ -5280,6 +5457,7 @@ If STATE says she is asleep: she stays asleep. MOMENT is narrator + body (breath
       },
       "sydney-trailer": {
         id: "sydney-trailer",
+        tags: ['aware', 'intentional', 'caring'],
         title: "Trailer steps",
         sub: "Between takes",
         blurb: "Call sheet on the rail. She noticed you on the step.",
@@ -5295,6 +5473,7 @@ If STATE says she is asleep: she stays asleep. MOMENT is narrator + body (breath
       },
       "sydney-pool": {
         id: "sydney-pool",
+        tags: ['aware', 'intentional', 'caring'],
         title: "Night pool",
         sub: "LA quiet",
         blurb: "Deck tile warm. She is not getting in. You are near her ankle.",
@@ -5310,6 +5489,7 @@ If STATE says she is asleep: she stays asleep. MOMENT is narrator + body (breath
       },
       "sydney-inside": {
         id: "sydney-inside",
+        tags: ['aware', 'intentional', 'caring'],
         title: "Already in",
         sub: "Private",
         blurb: "Skip the talk. You are already where she put you.",
@@ -5326,6 +5506,7 @@ If STATE says she is asleep: she stays asleep. MOMENT is narrator + body (breath
       },
       "icespice-studio": {
         id: "icespice-studio",
+        tags: ['aware', 'intentional', 'caring'],
         title: "Studio night",
         sub: "Bronx-adjacent",
         blurb: "Engineer stepped out. You are by the mic stand base.",
@@ -5341,6 +5522,7 @@ If STATE says she is asleep: she stays asleep. MOMENT is narrator + body (breath
       },
       "icespice-car": {
         id: "icespice-car",
+        tags: ['aware', 'intentional', 'caring'],
         title: "Back seat",
         sub: "Night city",
         blurb: "Tint. She has you in her palm.",
@@ -5356,6 +5538,7 @@ If STATE says she is asleep: she stays asleep. MOMENT is narrator + body (breath
       },
       "icespice-inside": {
         id: "icespice-inside",
+        tags: ['aware', 'intentional', 'caring'],
         title: "Already in",
         sub: "Soft dark",
         blurb: "Skip the talk. You are already down.",
@@ -5372,6 +5555,7 @@ If STATE says she is asleep: she stays asleep. MOMENT is narrator + body (breath
       },
       "icespice-kitchen": {
         id: "icespice-kitchen",
+        tags: ['aware', 'intentional', 'caring'],
         title: "Kitchen night",
         sub: "Leftovers",
         blurb: "Fridge light. She found you on the counter.",
@@ -5387,6 +5571,7 @@ If STATE says she is asleep: she stays asleep. MOMENT is narrator + body (breath
       },
       "icespice-mall": {
         id: "icespice-mall",
+        tags: ['aware', 'intentional', 'caring'],
         title: "Mall carpet",
         sub: "Bags",
         blurb: "She almost stepped on you between stores.",
@@ -5402,6 +5587,7 @@ If STATE says she is asleep: she stays asleep. MOMENT is narrator + body (breath
       },
       "icespice-blank": {
         id: "icespice-blank",
+        tags: ['aware', 'intentional', 'caring'],
         title: "You start",
         sub: "Ice · no script",
         blurb: "No canned open. First line is yours.",
@@ -5414,6 +5600,7 @@ If STATE says she is asleep: she stays asleep. MOMENT is narrator + body (breath
       },
       "icespice-after": {
         id: "icespice-after",
+        tags: ['aware', 'intentional', 'caring'],
         title: "Couch quiet",
         sub: "Hand on it",
         blurb: "She already has you. Phone face-down.",
@@ -5430,6 +5617,7 @@ If STATE says she is asleep: she stays asleep. MOMENT is narrator + body (breath
       },
       "icespice-asleep": {
         id: "icespice-asleep",
+        tags: ['sleeping', 'unaware', 'intentional', 'caring'],
         title: "Asleep with you",
         sub: "She does not know",
         blurb: "You're already inside. She's out.",
@@ -5446,6 +5634,7 @@ If STATE says she is asleep: she stays asleep. MOMENT is narrator + body (breath
       },
       "icespice-edit": {
         id: "icespice-edit",
+        tags: ['aware', 'intentional', 'caring'],
         title: "Content night",
         sub: "She knows",
         blurb: "Ring light off. Hand on midriff. Still working.",
@@ -5462,6 +5651,7 @@ If STATE says she is asleep: she stays asleep. MOMENT is narrator + body (breath
       },
       "icespice-ride": {
         id: "icespice-ride",
+        tags: ['aware', 'intentional', 'caring'],
         title: "Ride quiet",
         sub: "Already in",
         blurb: "Tint. You're already down. City sliding by.",
@@ -5478,6 +5668,7 @@ If STATE says she is asleep: she stays asleep. MOMENT is narrator + body (breath
       },
       "maddy-apt": {
         id: "maddy-apt",
+        tags: ['aware', 'intentional', 'mean'],
         title: "One-bedroom",
         sub: "White Plains · dishes",
         blurb: "Coffee table fort. Takeout. She noticed you between the remotes.",
@@ -5493,6 +5684,7 @@ If STATE says she is asleep: she stays asleep. MOMENT is narrator + body (breath
       },
       "maddy-office": {
         id: "maddy-office",
+        tags: ['aware', 'intentional', 'mean'],
         title: "Office manager",
         sub: "9 a.m. polish",
         blurb: "Calendar. Vendors. You on the inbox tray. She can look professional for ten more minutes.",
@@ -5508,6 +5700,7 @@ If STATE says she is asleep: she stays asleep. MOMENT is narrator + body (breath
       },
       "maddy-bar": {
         id: "maddy-bar",
+        tags: ['aware', 'intentional', 'mean'],
         title: "Last round",
         sub: "Sloppy on purpose",
         blurb: "Sticky high-top. She is fun, she says. The distinction is load-bearing.",
@@ -5523,6 +5716,7 @@ If STATE says she is asleep: she stays asleep. MOMENT is narrator + body (breath
       },
       "maddy-conor": {
         id: "maddy-conor",
+        tags: ['aware', 'intentional', 'mean'],
         title: "Conor on the rug",
         sub: "You are her friend",
         blurb: "You are Conor. Shrunken. She knows that voice. She will make it your fault.",
@@ -5539,6 +5733,7 @@ If STATE says she is asleep: she stays asleep. MOMENT is narrator + body (breath
       },
       "maddy-blank": {
         id: "maddy-blank",
+        tags: ['aware', 'intentional', 'mean'],
         title: "You talk first",
         sub: "Maddy · no script",
         blurb: "Wherever you put her. She will still take the first version of the story.",
@@ -5551,6 +5746,7 @@ If STATE says she is asleep: she stays asleep. MOMENT is narrator + body (breath
       },
       "maddy-inside": {
         id: "maddy-inside",
+        tags: ['aware', 'intentional', 'mean'],
         title: "Already in",
         sub: "Warm dark",
         blurb: "Skip the talk. You are already where she put you.",
@@ -5567,6 +5763,7 @@ If STATE says she is asleep: she stays asleep. MOMENT is narrator + body (breath
       },
       "maddy-after": {
         id: "maddy-after",
+        tags: ['sleeping', 'unaware', 'intentional', 'mean'],
         title: "Couch quiet",
         sub: "Hand on midriff",
         blurb: "TV low. She already has you. The story is that nothing happened.",
@@ -5583,6 +5780,7 @@ If STATE says she is asleep: she stays asleep. MOMENT is narrator + body (breath
       },
       "maddy-asleep": {
         id: "maddy-asleep",
+        tags: ['sleeping', 'unaware', 'intentional', 'mean'],
         title: "Passed out with you",
         sub: "She is not listening",
         blurb: "Lights still on. You're already inside. She checked out.",
@@ -5599,6 +5797,7 @@ If STATE says she is asleep: she stays asleep. MOMENT is narrator + body (breath
       },
       "maddy-hangover": {
         id: "maddy-hangover",
+        tags: ['aware', 'intentional', 'mean'],
         title: "Hangover shift",
         sub: "Coffee · regret as branding",
         blurb: "Noon. Sunglasses indoors. You're last night's decision still paying rent.",
@@ -5615,6 +5814,7 @@ If STATE says she is asleep: she stays asleep. MOMENT is narrator + body (breath
       },
       "maddy-work-in": {
         id: "maddy-work-in",
+        tags: ['aware', 'intentional', 'mean'],
         title: "Under the blouse",
         sub: "Meeting in ten",
         blurb: "She swallowed you in the lot. Now she has to look like an adult.",
@@ -5631,6 +5831,7 @@ If STATE says she is asleep: she stays asleep. MOMENT is narrator + body (breath
       },
       "maddy-conor-in": {
         id: "maddy-conor-in",
+        tags: ['aware', 'intentional', 'mean'],
         title: "Conor already in",
         sub: "You are her friend",
         blurb: "You are Conor. She knows. She swallowed you anyway and will call it your idea.",
@@ -5648,6 +5849,7 @@ If STATE says she is asleep: she stays asleep. MOMENT is narrator + body (breath
       },
       "maddy-takeout": {
         id: "maddy-takeout",
+        tags: ['aware', 'intentional', 'mean'],
         title: "Pizza on the lease",
         sub: "You were home first",
         blurb: "She already had you. Then she opened the box. Now you share.",
@@ -5664,6 +5866,7 @@ If STATE says she is asleep: she stays asleep. MOMENT is narrator + body (breath
       },
       "maddy-club-in": {
         id: "maddy-club-in",
+        tags: ['aware', 'intentional', 'mean'],
         title: "Bathroom tile",
         sub: "Bass through the stall",
         blurb: "She ducked out of the floor. You're already down. The line can wait.",
@@ -5680,6 +5883,7 @@ If STATE says she is asleep: she stays asleep. MOMENT is narrator + body (breath
       },
       "maddy-shower": {
         id: "maddy-shower",
+        tags: ['unaware', 'intentional', 'mean'],
         title: "Steam",
         sub: "She knows",
         blurb: "Water far above. You're the part she didn't wash off.",
@@ -5696,6 +5900,7 @@ If STATE says she is asleep: she stays asleep. MOMENT is narrator + body (breath
       },
       "maddy-jon": {
         id: "maddy-jon",
+        tags: ['aware', 'intentional', 'mean'],
         title: "Jon's in the other room",
         sub: "Keep your voice down",
         blurb: "Boyfriend on the couch. You're the thing she is not explaining.",
@@ -5712,6 +5917,7 @@ If STATE says she is asleep: she stays asleep. MOMENT is narrator + body (breath
       },
       "maddy-conor-asleep": {
         id: "maddy-conor-asleep",
+        tags: ['sleeping', 'unaware', 'intentional', 'mean'],
         title: "Conor, lights out",
         sub: "You are her friend",
         blurb: "You are Conor. She's out. The friendship is still in there with you.",
@@ -5729,6 +5935,7 @@ If STATE says she is asleep: she stays asleep. MOMENT is narrator + body (breath
       },
       "maddy-conor-bar-in": {
         id: "maddy-conor-bar-in",
+        tags: ['aware', 'intentional', 'mean'],
         title: "Conor after last call",
         sub: "You are her friend",
         blurb: "Sticky table. She already put you away. You are Conor. She will call it fun.",
@@ -5746,6 +5953,7 @@ If STATE says she is asleep: she stays asleep. MOMENT is narrator + body (breath
       },
       "maddy-conor-jon-in": {
         id: "maddy-conor-jon-in",
+        tags: ['aware', 'intentional', 'mean'],
         title: "Conor, Jon's in the room",
         sub: "You are her friend",
         blurb: "TV through the wall. You are Conor. She knows. She will not say your name loud.",
@@ -5763,6 +5971,7 @@ If STATE says she is asleep: she stays asleep. MOMENT is narrator + body (breath
       },
       "maddy-conor-uber": {
         id: "maddy-conor-uber",
+        tags: ['aware', 'intentional', 'mean'],
         title: "Conor in her Uber",
         sub: "You are her friend",
         blurb: "She Ubered. You are Conor and already down. Driver has the aux.",
@@ -5780,6 +5989,7 @@ If STATE says she is asleep: she stays asleep. MOMENT is narrator + body (breath
       },
       "maddy-conor-work": {
         id: "maddy-conor-work",
+        tags: ['aware', 'intentional', 'mean'],
         title: "Conor under the blouse",
         sub: "You are her friend",
         blurb: "Vendor call in four minutes. You are Conor. Ponytail. She can look professional over you.",
@@ -5797,6 +6007,7 @@ If STATE says she is asleep: she stays asleep. MOMENT is narrator + body (breath
       },
       "maddy-conor-party": {
         id: "maddy-conor-party",
+        tags: ['unaware', 'intentional', 'mean'],
         title: "Conor in the hallway",
         sub: "You are her friend",
         blurb: "House party. Coat pile. You are Conor. She already closed the night on you.",
@@ -5814,6 +6025,7 @@ If STATE says she is asleep: she stays asleep. MOMENT is narrator + body (breath
       },
       "maddy-conor-drive": {
         id: "maddy-conor-drive",
+        tags: ['aware', 'intentional', 'mean'],
         title: "Conor in the Civic",
         sub: "You are her friend",
         blurb: "Her car. One hand on the wheel. You are Conor. Mamaroneck lights in the chamber.",
@@ -5831,6 +6043,7 @@ If STATE says she is asleep: she stays asleep. MOMENT is narrator + body (breath
       },
       "maddy-conor-hangover": {
         id: "maddy-conor-hangover",
+        tags: ['aware', 'unintentional', 'mean'],
         title: "Conor vs the Advil",
         sub: "You are her friend",
         blurb: "Morning. She remembers enough. You are Conor. She will not call it a mistake.",
@@ -5848,6 +6061,7 @@ If STATE says she is asleep: she stays asleep. MOMENT is narrator + body (breath
       },
       "maddy-conor-shower": {
         id: "maddy-conor-shower",
+        tags: ['unaware', 'intentional', 'mean'],
         title: "Conor in her shower",
         sub: "You are her friend",
         blurb: "Steam. Playlist. You are Conor. She will talk like the tile can't hear.",
@@ -5865,6 +6079,7 @@ If STATE says she is asleep: she stays asleep. MOMENT is narrator + body (breath
       },
       "maddy-conor-group": {
         id: "maddy-conor-group",
+        tags: ['aware', 'intentional', 'mean'],
         title: "Conor on speaker",
         sub: "You are her friend",
         blurb: "Group chat. Maggie sanding. Ang sighing. You are Conor. She will not say your name.",
@@ -5882,6 +6097,7 @@ If STATE says she is asleep: she stays asleep. MOMENT is narrator + body (breath
       },
       "maddy-conor-couch": {
         id: "maddy-conor-couch",
+        tags: ['aware', 'intentional', 'mean'],
         title: "Conor under the throw",
         sub: "You are her friend",
         blurb: "Paused TV. Jon's hoodie on the chair. You are Conor. She is making it cozy on purpose.",
@@ -5899,6 +6115,7 @@ If STATE says she is asleep: she stays asleep. MOMENT is narrator + body (breath
       },
       "maddy-conor-mirror": {
         id: "maddy-conor-mirror",
+        tags: ['aware', 'intentional', 'mean'],
         title: "Conor at the mirror",
         sub: "You are her friend",
         blurb: "Getting ready. She talks to the glass. You are Conor and the extra heat under the top.",
@@ -5916,6 +6133,7 @@ If STATE says she is asleep: she stays asleep. MOMENT is narrator + body (breath
       },
       "maddy-conor-kitchen": {
         id: "maddy-conor-kitchen",
+        tags: ['aware', 'intentional', 'mean'],
         title: "Conor on the lease",
         sub: "You are her friend",
         blurb: "Pizza box. You are Conor, still outside. She will make the smallness your idea.",
@@ -5932,6 +6150,7 @@ If STATE says she is asleep: she stays asleep. MOMENT is narrator + body (breath
       },
       "maddy-mamaroneck": {
         id: "maddy-mamaroneck",
+        tags: ['aware', 'intentional', 'mean'],
         title: "Mamaroneck Ave",
         sub: "She is the block",
         blurb: "White Plains scaled wrong. Meter, awning, you on the curb. She is the skyline.",
@@ -5947,6 +6166,7 @@ If STATE says she is asleep: she stays asleep. MOMENT is narrator + body (breath
       },
       "maddy-park": {
         id: "maddy-park",
+        tags: ['aware', 'intentional', 'mean'],
         title: "Park picnic",
         sub: "Blanket the size of a lot",
         blurb: "She's sitting. The park is furniture. You are in the grass by a sandal.",
@@ -5962,6 +6182,7 @@ If STATE says she is asleep: she stays asleep. MOMENT is narrator + body (breath
       },
       "maddy-roof": {
         id: "maddy-roof",
+        tags: ['aware', 'intentional', 'mean'],
         title: "Roof over the lot",
         sub: "Cars like cereal",
         blurb: "She sat on the garage. You are on the parapet. White Plains is a model.",
@@ -5977,6 +6198,7 @@ If STATE says she is asleep: she stays asleep. MOMENT is narrator + body (breath
       },
       "maddy-conor-giant": {
         id: "maddy-conor-giant",
+        tags: ['aware', 'intentional', 'mean'],
         title: "Conor vs the block",
         sub: "You are her friend",
         blurb: "You are Conor. She is the street. She will say the scale is not that deep.",
@@ -5993,6 +6215,7 @@ If STATE says she is asleep: she stays asleep. MOMENT is narrator + body (breath
       },
       "maggie-inside": {
         id: "maggie-inside",
+        tags: ['aware', 'unintentional', 'caring'],
         title: "Already in",
         sub: "Quiet commute energy",
         blurb: "Skip the talk. You are already where she put you. She is going to feel bad about it.",
@@ -6009,6 +6232,7 @@ If STATE says she is asleep: she stays asleep. MOMENT is narrator + body (breath
       },
       "maggie-after": {
         id: "maggie-after",
+        tags: ['aware', 'unintentional', 'caring'],
         title: "Casebook",
         sub: "Hand on it",
         blurb: "Highlighting. Palm on her middle. She keeps apologizing to the page.",
@@ -6025,6 +6249,7 @@ If STATE says she is asleep: she stays asleep. MOMENT is narrator + body (breath
       },
       "maggie-asleep": {
         id: "maggie-asleep",
+        tags: ['sleeping', 'unaware', 'unintentional', 'caring'],
         title: "Lights out, Yonkers",
         sub: "She is out",
         blurb: "Family house. Alarm for the 6:40. You can move. She will not answer.",
@@ -6041,6 +6266,7 @@ If STATE says she is asleep: she stays asleep. MOMENT is narrator + body (breath
       },
       "maggie-commute": {
         id: "maggie-commute",
+        tags: ['aware', 'unintentional', 'caring'],
         title: "Into Queens",
         sub: "She knows",
         blurb: "Train. Casebook on her knees. You are the secret under the cardigan.",
@@ -6057,6 +6283,7 @@ If STATE says she is asleep: she stays asleep. MOMENT is narrator + body (breath
       },
       "maggie-library": {
         id: "maggie-library",
+        tags: ['aware', 'unintentional', 'caring'],
         title: "Reserve desk",
         sub: "She knows",
         blurb: "Law library. Whisper-only. She will rationalize this later.",
@@ -6073,6 +6300,7 @@ If STATE says she is asleep: she stays asleep. MOMENT is narrator + body (breath
       },
       "maggie-joint": {
         id: "maggie-joint",
+        tags: ['aware', 'unintentional', 'caring'],
         title: "Long conversation",
         sub: "She knows",
         blurb: "Window cracked. She is sweet and a little high and will tell you a story.",
@@ -6089,6 +6317,7 @@ If STATE says she is asleep: she stays asleep. MOMENT is narrator + body (breath
       },
       "maggie-pasta": {
         id: "maggie-pasta",
+        tags: ['aware', 'unintentional', 'caring'],
         title: "Mom's shrimp",
         sub: "She knows",
         blurb: "She ate like a bird all day. Then pasta. You are sharing the room with garlic.",
@@ -6105,6 +6334,7 @@ If STATE says she is asleep: she stays asleep. MOMENT is narrator + body (breath
       },
       "maggie-family": {
         id: "maggie-family",
+        tags: ['aware', 'unintentional', 'caring'],
         title: "Parents downstairs",
         sub: "She knows",
         blurb: "Living at home. The news is on. You are Conor-or-not under a hoodie on the stairs.",
@@ -6121,6 +6351,7 @@ If STATE says she is asleep: she stays asleep. MOMENT is narrator + body (breath
       },
       "maggie-zoom": {
         id: "maggie-zoom",
+        tags: ['aware', 'unintentional', 'caring'],
         title: "Camera off",
         sub: "She knows",
         blurb: "First-year lecture. She is the good student. You are the reason she is muted.",
@@ -6137,6 +6368,7 @@ If STATE says she is asleep: she stays asleep. MOMENT is narrator + body (breath
       },
       "maggie-drive": {
         id: "maggie-drive",
+        tags: ['aware', 'unintentional', 'caring'],
         title: "Parking lot ethics",
         sub: "She knows",
         blurb: "She drove. One hand on the wheel. She is already writing the apology in her head.",
@@ -6153,6 +6385,7 @@ If STATE says she is asleep: she stays asleep. MOMENT is narrator + body (breath
       },
       "maggie-shower": {
         id: "maggie-shower",
+        tags: ['aware', 'unintentional', 'caring'],
         title: "Steam and guilt",
         sub: "She knows",
         blurb: "Hot water. She will be mortified if her stomach talks.",
@@ -6169,6 +6402,7 @@ If STATE says she is asleep: she stays asleep. MOMENT is narrator + body (breath
       },
       "maggie-maddy-call": {
         id: "maggie-maddy-call",
+        tags: ['aware', 'unintentional', 'caring'],
         title: "That's just Maddy",
         sub: "She knows",
         blurb: "Speaker. Maddy rewriting a night. Maggie sands the edges. You hear all of it.",
@@ -6185,6 +6419,7 @@ If STATE says she is asleep: she stays asleep. MOMENT is narrator + body (breath
       },
       "maggie-conor-in": {
         id: "maggie-conor-in",
+        tags: ['aware', 'unintentional', 'caring'],
         title: "Conor already in",
         sub: "You are her friend",
         blurb: "You are Conor. Same block. She is warm and she will roast the middle-school thing once.",
@@ -6202,6 +6437,7 @@ If STATE says she is asleep: she stays asleep. MOMENT is narrator + body (breath
       },
       "maggie-conor-talk": {
         id: "maggie-conor-talk",
+        tags: ['aware', 'unintentional', 'caring'],
         title: "Conor gets the lecture",
         sub: "You are her friend",
         blurb: "You are Conor. She wants to be there for you. She will talk. You cannot leave the lecture.",
@@ -6219,6 +6455,7 @@ If STATE says she is asleep: she stays asleep. MOMENT is narrator + body (breath
       },
       "maggie-conor-asleep": {
         id: "maggie-conor-asleep",
+        tags: ['sleeping', 'unaware', 'unintentional', 'caring'],
         title: "Conor, outlines done",
         sub: "You are her friend",
         blurb: "You are Conor. She crashed on the casebook. Alarm is brutal.",
@@ -6236,6 +6473,7 @@ If STATE says she is asleep: she stays asleep. MOMENT is narrator + body (breath
       },
       "maggie-conor-train": {
         id: "maggie-conor-train",
+        tags: ['aware', 'unintentional', 'caring'],
         title: "Conor into Queens",
         sub: "You are her friend",
         blurb: "Casebook on her knees. You are Conor. She is trying to look like a law student over you.",
@@ -6253,6 +6491,7 @@ If STATE says she is asleep: she stays asleep. MOMENT is narrator + body (breath
       },
       "maggie-conor-library": {
         id: "maggie-conor-library",
+        tags: ['aware', 'unintentional', 'caring'],
         title: "Conor at reserve",
         sub: "You are her friend",
         blurb: "Law library. You are Conor. She will apologize to the silence.",
@@ -6270,6 +6509,7 @@ If STATE says she is asleep: she stays asleep. MOMENT is narrator + body (breath
       },
       "maggie-conor-zoom": {
         id: "maggie-conor-zoom",
+        tags: ['aware', 'unintentional', 'caring'],
         title: "Conor, camera off",
         sub: "You are her friend",
         blurb: "Muted tile. You are Conor. She will answer a hypo over you if she has to.",
@@ -6287,6 +6527,7 @@ If STATE says she is asleep: she stays asleep. MOMENT is narrator + body (breath
       },
       "maggie-conor-pasta": {
         id: "maggie-conor-pasta",
+        tags: ['aware', 'unintentional', 'caring'],
         title: "Conor vs mom's shrimp",
         sub: "You are her friend",
         blurb: "Family dinner. You are Conor sharing the room with garlic. She is mortified and still kind.",
@@ -6304,6 +6545,7 @@ If STATE says she is asleep: she stays asleep. MOMENT is narrator + body (breath
       },
       "maggie-conor-joint": {
         id: "maggie-conor-joint",
+        tags: ['aware', 'unintentional', 'caring'],
         title: "Conor gets the story",
         sub: "You are her friend",
         blurb: "Window cracked. You are Conor. She wants a long conversation and she already has you.",
@@ -6321,6 +6563,7 @@ If STATE says she is asleep: she stays asleep. MOMENT is narrator + body (breath
       },
       "maggie-conor-family": {
         id: "maggie-conor-family",
+        tags: ['aware', 'unintentional', 'caring'],
         title: "Conor on the landing",
         sub: "You are her friend",
         blurb: "Parents downstairs. You are Conor. She invented a house rule in her head.",
@@ -6338,6 +6581,7 @@ If STATE says she is asleep: she stays asleep. MOMENT is narrator + body (breath
       },
       "maggie-conor-drive": {
         id: "maggie-conor-drive",
+        tags: ['aware', 'unintentional', 'caring'],
         title: "Conor in the lot",
         sub: "You are her friend",
         blurb: "Parking pass. You are Conor. She is writing the apology and not sending it.",
@@ -6355,6 +6599,7 @@ If STATE says she is asleep: she stays asleep. MOMENT is narrator + body (breath
       },
       "maggie-conor-shower": {
         id: "maggie-conor-shower",
+        tags: ['aware', 'unintentional', 'caring'],
         title: "Conor in the steam",
         sub: "You are her friend",
         blurb: "Family bathroom. You are Conor. She will slip if you make her laugh.",
@@ -6372,6 +6617,7 @@ If STATE says she is asleep: she stays asleep. MOMENT is narrator + body (breath
       },
       "maggie-conor-maddy": {
         id: "maggie-conor-maddy",
+        tags: ['aware', 'unintentional', 'caring'],
         title: "Conor hears Maddy",
         sub: "You are her friend",
         blurb: "Speaker. Maddy rewriting. You are Conor. Maggie sands it while you listen.",
@@ -6389,6 +6635,7 @@ If STATE says she is asleep: she stays asleep. MOMENT is narrator + body (breath
       },
       "maggie-conor-stoop": {
         id: "maggie-conor-stoop",
+        tags: ['unaware', 'unintentional', 'caring'],
         title: "Conor on the old stoop",
         sub: "You are her friend",
         blurb: "Same block. She sat down. You are Conor. The street does not know.",
@@ -6406,6 +6653,7 @@ If STATE says she is asleep: she stays asleep. MOMENT is narrator + body (breath
       },
       "maggie-conor-church": {
         id: "maggie-conor-church",
+        tags: ['aware', 'unintentional', 'caring'],
         title: "Conor after mass",
         sub: "You are her friend",
         blurb: "Parking lot. Separate Catholic high schools in the rearview. You are Conor.",
@@ -6423,6 +6671,7 @@ If STATE says she is asleep: she stays asleep. MOMENT is narrator + body (breath
       },
       "maggie-conor-outline": {
         id: "maggie-conor-outline",
+        tags: ['aware', 'unintentional', 'caring'],
         title: "Conor vs the outline",
         sub: "You are her friend",
         blurb: "All-nighter. Highlighter. You are Conor and the only warm thing in the room.",
@@ -6440,6 +6689,7 @@ If STATE says she is asleep: she stays asleep. MOMENT is narrator + body (breath
       },
       "maggie-conor-uber": {
         id: "maggie-conor-uber",
+        tags: ['aware', 'unintentional', 'caring'],
         title: "Conor in her Uber",
         sub: "You are her friend",
         blurb: "Driver talking weather. You are Conor. She has a hand on the seatbelt and on you.",
@@ -6457,6 +6707,7 @@ If STATE says she is asleep: she stays asleep. MOMENT is narrator + body (breath
       },
       "maggie-conor-alex": {
         id: "maggie-conor-alex",
+        tags: ['aware', 'unintentional', 'caring'],
         title: "Conor when Alex texts",
         sub: "You are her friend",
         blurb: "Alex being civil. You are Conor. Maggie will stay careful for your sake.",
@@ -6474,6 +6725,7 @@ If STATE says she is asleep: she stays asleep. MOMENT is narrator + body (breath
       },
       "maggie-conor-walk": {
         id: "maggie-conor-walk",
+        tags: ['aware', 'unintentional', 'caring'],
         title: "Conor around the block",
         sub: "You are her friend",
         blurb: "Night sidewalk. Hoodie. You are Conor. She will not explain a face to a neighbor.",
@@ -6493,6 +6745,7 @@ If STATE says she is asleep: she stays asleep. MOMENT is narrator + body (breath
 
       "maggie-conor-water": {
         id: "maggie-conor-water",
+        tags: ['aware', 'unintentional', 'caring'],
         title: "Conor and the glass",
         sub: "You are her friend",
         blurb: "You are Conor. She is drinking water on purpose and narrating every ethical failure.",
@@ -6510,6 +6763,7 @@ If STATE says she is asleep: she stays asleep. MOMENT is narrator + body (breath
       },
       "maggie-conor-outline-help": {
         id: "maggie-conor-outline-help",
+        tags: ['aware', 'unintentional', 'caring'],
         title: "Conor vs my better judgment",
         sub: "You are her friend",
         blurb: "All-nighter. You are Conor. She closed the outline because getting you out is the assignment now.",
@@ -6527,6 +6781,7 @@ If STATE says she is asleep: she stays asleep. MOMENT is narrator + body (breath
       },
       "nat-kitchen": {
         id: "nat-kitchen",
+        tags: ['unaware', 'unintentional', 'caring'],
         title: "After the group left",
         sub: "She will try",
         blurb: "Dishes. You on the counter. Nat is already in helper mode.",
@@ -6542,6 +6797,7 @@ If STATE says she is asleep: she stays asleep. MOMENT is narrator + body (breath
       },
       "nat-car": {
         id: "nat-car",
+        tags: ['aware', 'unintentional', 'caring'],
         title: "I can drive you",
         sub: "She will try",
         blurb: "Passenger seat. She is already Googling with one hand.",
@@ -6557,6 +6813,7 @@ If STATE says she is asleep: she stays asleep. MOMENT is narrator + body (breath
       },
       "nat-inside": {
         id: "nat-inside",
+        tags: ['aware', 'unintentional', 'caring'],
         title: "I didn't mean to",
         sub: "She will try",
         blurb: "You're in. She is already talking you through getting out.",
@@ -6573,6 +6830,7 @@ If STATE says she is asleep: she stays asleep. MOMENT is narrator + body (breath
       },
       "nat-after": {
         id: "nat-after",
+        tags: ['aware', 'unintentional', 'caring'],
         title: "Water and a plan",
         sub: "She will try",
         blurb: "She is pacing. You are the plan she will not abandon.",
@@ -6589,6 +6847,7 @@ If STATE says she is asleep: she stays asleep. MOMENT is narrator + body (breath
       },
       "nat-conor-in": {
         id: "nat-conor-in",
+        tags: ['aware', 'unintentional', 'caring'],
         title: "Conor, I've got you",
         sub: "You are her friend",
         blurb: "You are Conor. Nat will not treat this as a joke.",
@@ -6608,6 +6867,7 @@ If STATE says she is asleep: she stays asleep. MOMENT is narrator + body (breath
 
       "nat-conor-water": {
         id: "nat-conor-water",
+        tags: ['aware', 'unintentional', 'caring'],
         title: "Conor, drink with me",
         sub: "You are her friend",
         blurb: "You are Conor. She is forcing water and a plan. She is not okay with you being in there.",
@@ -6625,6 +6885,7 @@ If STATE says she is asleep: she stays asleep. MOMENT is narrator + body (breath
       },
       "nat-conor-upright": {
         id: "nat-conor-upright",
+        tags: ['aware', 'unintentional', 'caring'],
         title: "Conor, sit up with me",
         sub: "You are her friend",
         blurb: "Couch edge. You are Conor. She is sitting painfully straight like posture is a rescue.",
@@ -6642,6 +6903,7 @@ If STATE says she is asleep: she stays asleep. MOMENT is narrator + body (breath
       },
       "nat-conor-call-ang": {
         id: "nat-conor-call-ang",
+        tags: ['aware', 'unintentional', 'caring'],
         title: "Conor while I call Ang",
         sub: "You are her friend",
         blurb: "You are Conor. She is ringing Ang because she will not handle this alone. She still will not say the sentence out loud.",
@@ -6659,6 +6921,7 @@ If STATE says she is asleep: she stays asleep. MOMENT is narrator + body (breath
       },
       "nat-conor-honda": {
         id: "nat-conor-honda",
+        tags: ['aware', 'unintentional', 'caring'],
         title: "Conor in the Honda",
         sub: "You are her friend",
         blurb: "Parked. You are Conor. She was going to drive you to someone smarter. You are already down.",
@@ -6676,6 +6939,7 @@ If STATE says she is asleep: she stays asleep. MOMENT is narrator + body (breath
       },
       "nat-conor-sink": {
         id: "nat-conor-sink",
+        tags: ['aware', 'unintentional', 'caring'],
         title: "Conor at the sink",
         sub: "You are her friend",
         blurb: "Bathroom. You are Conor. She is trying to bring you back up and she hates every second.",
@@ -6693,6 +6957,7 @@ If STATE says she is asleep: she stays asleep. MOMENT is narrator + body (breath
       },
       "alex-break": {
         id: "alex-break",
+        tags: ['aware', 'unintentional', 'caring'],
         title: "Nurse on break",
         sub: "Help that may worsen",
         blurb: "Locker room. She assesses you like a chart. She will try. She is not gentle about it.",
@@ -6708,6 +6973,7 @@ If STATE says she is asleep: she stays asleep. MOMENT is narrator + body (breath
       },
       "alex-apt": {
         id: "alex-apt",
+        tags: ['aware', 'unintentional', 'caring'],
         title: "After shift",
         sub: "Help that may worsen",
         blurb: "Scrubs. Leftover pasta. She will not panic. That might be the problem.",
@@ -6723,6 +6989,7 @@ If STATE says she is asleep: she stays asleep. MOMENT is narrator + body (breath
       },
       "alex-inside": {
         id: "alex-inside",
+        tags: ['aware', 'unintentional', 'caring'],
         title: "Wait it out",
         sub: "Help that may worsen",
         blurb: "You're in. She is treating it like a swallowed object protocol.",
@@ -6739,6 +7006,7 @@ If STATE says she is asleep: she stays asleep. MOMENT is narrator + body (breath
       },
       "alex-worse": {
         id: "alex-worse",
+        tags: ['aware', 'unintentional', 'caring'],
         title: "The ginger ale",
         sub: "Help that may worsen",
         blurb: "She opened a can for you. The chamber disagrees.",
@@ -6755,6 +7023,7 @@ If STATE says she is asleep: she stays asleep. MOMENT is narrator + body (breath
       },
       "alex-conor-in": {
         id: "alex-conor-in",
+        tags: ['aware', 'unintentional', 'caring'],
         title: "Conor, follow instructions",
         sub: "You are her friend",
         blurb: "You are Conor. She dated you. She will not be cute about this.",
@@ -6773,6 +7042,7 @@ If STATE says she is asleep: she stays asleep. MOMENT is narrator + body (breath
 
       "sable-shop": {
         id: "sable-shop",
+        tags: ['aware', 'intentional', 'caring'],
         title: "After hours",
         sub: "She wants you in",
         blurb: "Used bookstore. She locked the door. She is not confused about the ending.",
@@ -6788,6 +7058,7 @@ If STATE says she is asleep: she stays asleep. MOMENT is narrator + body (breath
       },
       "sable-tea": {
         id: "sable-tea",
+        tags: ['aware', 'intentional', 'caring'],
         title: "The back room",
         sub: "She wants you in",
         blurb: "Kettle. A chair that is a cliff. She is already deciding.",
@@ -6803,6 +7074,7 @@ If STATE says she is asleep: she stays asleep. MOMENT is narrator + body (breath
       },
       "sable-inside": {
         id: "sable-inside",
+        tags: ['aware', 'intentional', 'caring'],
         title: "Kept",
         sub: "She wants you in",
         blurb: "You are where she put you. She is pleased. She will not help you out.",
@@ -6819,6 +7091,7 @@ If STATE says she is asleep: she stays asleep. MOMENT is narrator + body (breath
       },
       "sable-read": {
         id: "sable-read",
+        tags: ['aware', 'intentional', 'caring'],
         title: "Chapter",
         sub: "She wants you in",
         blurb: "She is reading. You are the footnote she swallowed.",
@@ -6836,6 +7109,7 @@ If STATE says she is asleep: she stays asleep. MOMENT is narrator + body (breath
 
       "tessa-uber": {
         id: "tessa-uber",
+        tags: ['aware', 'intentional', 'caring'],
         title: "Five stars",
         sub: "Denial",
         blurb: "She picked up a ride. You are not happening. She keeps saying that.",
@@ -6851,6 +7125,7 @@ If STATE says she is asleep: she stays asleep. MOMENT is narrator + body (breath
       },
       "tessa-apt": {
         id: "tessa-apt",
+        tags: ['aware', 'intentional', 'caring'],
         title: "This is fine",
         sub: "Denial",
         blurb: "Studio. She put you in a ramekin. She is not calling it what it is.",
@@ -6866,6 +7141,7 @@ If STATE says she is asleep: she stays asleep. MOMENT is narrator + body (breath
       },
       "tessa-inside": {
         id: "tessa-inside",
+        tags: ['aware', 'unintentional', 'caring'],
         title: "I didn't",
         sub: "Denial",
         blurb: "She did. She is rewriting it live from the bathroom floor.",
@@ -6882,6 +7158,7 @@ If STATE says she is asleep: she stays asleep. MOMENT is narrator + body (breath
       },
       "tessa-help": {
         id: "tessa-help",
+        tags: ['aware', 'unintentional', 'caring'],
         title: "Okay now I'm helping",
         sub: "Denial, then mess",
         blurb: "She Googled. She is doing all of it at once.",
@@ -6899,6 +7176,7 @@ If STATE says she is asleep: she stays asleep. MOMENT is narrator + body (breath
 
       "priya-call": {
         id: "priya-call",
+        tags: ['aware', 'unintentional', 'caring'],
         title: "Not in the hallway",
         sub: "Science first",
         blurb: "On-call room. She is already differential-diagnosing you.",
@@ -6914,6 +7192,7 @@ If STATE says she is asleep: she stays asleep. MOMENT is narrator + body (breath
       },
       "priya-lab": {
         id: "priya-lab",
+        tags: ['aware', 'unintentional', 'caring'],
         title: "After rounds",
         sub: "Science first",
         blurb: "She should go home. She is measuring you instead.",
@@ -6929,6 +7208,7 @@ If STATE says she is asleep: she stays asleep. MOMENT is narrator + body (breath
       },
       "priya-inside": {
         id: "priya-inside",
+        tags: ['aware', 'unintentional', 'caring'],
         title: "Foreign body",
         sub: "Science first",
         blurb: "Accidental swallow. She is running a protocol on herself.",
@@ -6945,6 +7225,7 @@ If STATE says she is asleep: she stays asleep. MOMENT is narrator + body (breath
       },
       "priya-extract": {
         id: "priya-extract",
+        tags: ['aware', 'unintentional', 'caring'],
         title: "One more maneuver",
         sub: "Science first",
         blurb: "Heimlich on herself. She knows how this looks.",
@@ -6962,6 +7243,7 @@ If STATE says she is asleep: she stays asleep. MOMENT is narrator + body (breath
 
       "wren-trail": {
         id: "wren-trail",
+        tags: ['aware', 'intentional', 'caring'],
         title: "After last light",
         sub: "Horrified, then not",
         blurb: "Trailhead lot. She found you. She is going to be decent about it until she isn't.",
@@ -6977,6 +7259,7 @@ If STATE says she is asleep: she stays asleep. MOMENT is narrator + body (breath
       },
       "wren-cabin": {
         id: "wren-cabin",
+        tags: ['aware', 'unintentional', 'caring'],
         title: "Staff cabin",
         sub: "Horrified, then not",
         blurb: "One room. Woodstove. She said you could stay. She is thinking about closer.",
@@ -6992,6 +7275,7 @@ If STATE says she is asleep: she stays asleep. MOMENT is narrator + body (breath
       },
       "wren-inside": {
         id: "wren-inside",
+        tags: ['aware', 'intentional', 'caring'],
         title: "I was going to help",
         sub: "Horrified, then not",
         blurb: "You're in. She is horrified for one minute. Then she listens to the heat.",
@@ -7008,6 +7292,7 @@ If STATE says she is asleep: she stays asleep. MOMENT is narrator + body (breath
       },
       "wren-morning": {
         id: "wren-morning",
+        tags: ['aware', 'intentional', 'caring'],
         title: "First light",
         sub: "Horrified, then not",
         blurb: "Birds. She did not bring you back up. She is not pretending.",
@@ -7025,6 +7310,7 @@ If STATE says she is asleep: she stays asleep. MOMENT is narrator + body (breath
 
       "fran-conor": {
         id: "fran-conor",
+        tags: ['aware', 'caring', 'unintentional'],
         title: "Conor on the rug",
         sub: "You are her friend",
         blurb: "You are Conor. She is on the floor with her phone. She will not yell.",
@@ -7041,6 +7327,7 @@ If STATE says she is asleep: she stays asleep. MOMENT is narrator + body (breath
       },
       "fran-conor-study": {
         id: "fran-conor-study",
+        tags: ['aware', 'caring', 'unintentional'],
         title: "Conor vs the outline",
         sub: "You are her friend",
         blurb: "Bar binders. You are Conor. She will whisper so the neighbors don't hear her lose it.",
@@ -7057,6 +7344,7 @@ If STATE says she is asleep: she stays asleep. MOMENT is narrator + body (breath
       },
       "fran-conor-meme": {
         id: "fran-conor-meme",
+        tags: ['aware', 'caring', 'unintentional'],
         title: "Conor vs the camera roll",
         sub: "You are her friend",
         blurb: "She wanted to show you a cursed image. You are the cursed image.",
@@ -7073,6 +7361,7 @@ If STATE says she is asleep: she stays asleep. MOMENT is narrator + body (breath
       },
       "fran-conor-coffee": {
         id: "fran-conor-coffee",
+        tags: ['aware', 'caring', 'unintentional'],
         title: "Conor at the window",
         sub: "You are her friend",
         blurb: "Tall girl, small cup, you on the sill. She talks like the glass can hear.",
@@ -7089,6 +7378,7 @@ If STATE says she is asleep: she stays asleep. MOMENT is narrator + body (breath
       },
       "fran-conor-in": {
         id: "fran-conor-in",
+        tags: ['aware', 'unintentional', 'caring'],
         title: "Conor already in",
         sub: "You are her friend",
         blurb: "You are Conor. She swallowed on a flinch. She is whispering apologies at her own ribs.",
@@ -7106,6 +7396,7 @@ If STATE says she is asleep: she stays asleep. MOMENT is narrator + body (breath
       },
       "fran-conor-after": {
         id: "fran-conor-after",
+        tags: ['aware', 'unintentional', 'caring'],
         title: "Conor and the meme she can't send",
         sub: "You are her friend",
         blurb: "Group chat open. She cannot explain this. You are Conor under her sweater.",
@@ -7123,6 +7414,7 @@ If STATE says she is asleep: she stays asleep. MOMENT is narrator + body (breath
       },
       "fran-conor-asleep": {
         id: "fran-conor-asleep",
+        tags: ['sleeping', 'unaware', 'unintentional', 'caring'],
         title: "Conor, lights out",
         sub: "You are her friend",
         blurb: "You are Conor. She crashed after outlining. Big eyes closed.",
@@ -7140,6 +7432,7 @@ If STATE says she is asleep: she stays asleep. MOMENT is narrator + body (breath
       },
       "fran-conor-results": {
         id: "fran-conor-results",
+        tags: ['aware', 'unintentional', 'caring'],
         title: "Conor vs the portal",
         sub: "You are her friend",
         blurb: "Bar results loading. You are Conor. She is using you as a worry stone she swallowed.",
@@ -7157,6 +7450,7 @@ If STATE says she is asleep: she stays asleep. MOMENT is narrator + body (breath
       },
       "fran-conor-drive": {
         id: "fran-conor-drive",
+        tags: ['aware', 'unintentional', 'caring'],
         title: "Conor in the back seat",
         sub: "You are her friend",
         blurb: "She offered you a ride. You are Conor and already down. She drives like a church mouse.",
@@ -7174,6 +7468,7 @@ If STATE says she is asleep: she stays asleep. MOMENT is narrator + body (breath
       },
       "fran-conor-group": {
         id: "fran-conor-group",
+        tags: ['aware', 'unintentional', 'caring'],
         title: "Conor while they talk",
         sub: "You are her friend",
         blurb: "Speaker. Maddy loud. Ang dry. You are Conor. Fran says almost nothing.",
@@ -7192,6 +7487,7 @@ If STATE says she is asleep: she stays asleep. MOMENT is narrator + body (breath
 
       "fran-conor-water": {
         id: "fran-conor-water",
+        tags: ['aware', 'unintentional', 'caring'],
         title: "Conor and the tap",
         sub: "You are her friend",
         blurb: "You are Conor. She is sipping water and whispering sorry at her sweater.",
@@ -7209,6 +7505,7 @@ If STATE says she is asleep: she stays asleep. MOMENT is narrator + body (breath
       },
       "fran-conor-sink": {
         id: "fran-conor-sink",
+        tags: ['aware', 'unintentional', 'caring'],
         title: "Conor, lean with me",
         sub: "You are her friend",
         blurb: "Bathroom. Big eyes in the mirror. You are Conor. She is trying a careful lean that might fail.",
@@ -7226,6 +7523,7 @@ If STATE says she is asleep: she stays asleep. MOMENT is narrator + body (breath
       },
       "fran-conor-unsent": {
         id: "fran-conor-unsent",
+        tags: ['aware', 'unintentional', 'caring'],
         title: "Conor vs the unsent text",
         sub: "You are her friend",
         blurb: "She typed you are you okay. Then she remembered you are the reason her stomach feels occupied.",
@@ -7243,6 +7541,7 @@ If STATE says she is asleep: she stays asleep. MOMENT is narrator + body (breath
       },
       "fran-conor-toast": {
         id: "fran-conor-toast",
+        tags: ['aware', 'unintentional', 'caring'],
         title: "Conor vs the toast",
         sub: "You are her friend",
         blurb: "She ate toast to settle her stomach. It did not help you. She is sorry about the toast.",
@@ -7260,6 +7559,7 @@ If STATE says she is asleep: she stays asleep. MOMENT is narrator + body (breath
       },
       "fran-conor-not-wanted": {
         id: "fran-conor-not-wanted",
+        tags: ['aware', 'unintentional', 'caring'],
         title: "Conor, I didn't want this",
         sub: "You are her friend",
         blurb: "Couch. No meme. You are Conor. She is saying the plain sentence and trying to stay useful.",
@@ -7278,6 +7578,7 @@ If STATE says she is asleep: she stays asleep. MOMENT is narrator + body (breath
 
       "nat-conor-asleep": {
         id: "nat-conor-asleep",
+        tags: ['sleeping', 'unaware', 'unintentional', 'caring'],
         title: "Conor while she sleeps",
         sub: "You are her friend",
         blurb: "You are Conor. She passed out mid-plan. She does not know you are still working in there.",
@@ -7295,6 +7596,7 @@ If STATE says she is asleep: she stays asleep. MOMENT is narrator + body (breath
       },
       "nat-conor-cramp": {
         id: "nat-conor-cramp",
+        tags: ['unaware', 'unintentional', 'caring'],
         title: "Conor she thinks is a cramp",
         sub: "You are her friend",
         blurb: "Grocery line. You are Conor. She keeps rubbing a 'cramp' and apologizing to no one.",
@@ -7312,6 +7614,7 @@ If STATE says she is asleep: she stays asleep. MOMENT is narrator + body (breath
       },
       "nat-yawn": {
         id: "nat-yawn",
+        tags: ['aware', 'unintentional', 'caring'],
         title: "I yawned",
         sub: "She will try",
         blurb: "You were on her lip asking for help. She yawned. She is already undoing it.",
@@ -7328,6 +7631,7 @@ If STATE says she is asleep: she stays asleep. MOMENT is narrator + body (breath
       },
       "nat-commute": {
         id: "nat-commute",
+        tags: ['unaware', 'unintentional', 'caring'],
         title: "Bus I didn't notice",
         sub: "She will try",
         blurb: "Headphones. You are already in. She thinks the bounce is the bus.",
@@ -7344,6 +7648,7 @@ If STATE says she is asleep: she stays asleep. MOMENT is narrator + body (breath
       },
       "fran-conor-headphones": {
         id: "fran-conor-headphones",
+        tags: ['unaware', 'unintentional', 'caring'],
         title: "Conor under the playlist",
         sub: "You are her friend",
         blurb: "You are Conor. Oversized headphones. She cannot hear you. She thinks this is anxiety.",
@@ -7361,6 +7666,7 @@ If STATE says she is asleep: she stays asleep. MOMENT is narrator + body (breath
       },
       "fran-conor-laugh": {
         id: "fran-conor-laugh",
+        tags: ['aware', 'unintentional', 'caring'],
         title: "Conor vs a laugh",
         sub: "You are her friend",
         blurb: "You were on her tongue because she froze. She laughed. You went. She is not okay.",
@@ -7378,6 +7684,7 @@ If STATE says she is asleep: she stays asleep. MOMENT is narrator + body (breath
       },
       "fran-unaware-class": {
         id: "fran-unaware-class",
+        tags: ['unaware', 'unintentional', 'caring'],
         title: "Lecture she isn't giving you",
         sub: "Accidental",
         blurb: "Zoom lecture. You are in. She thinks it's nerves. Camera off for a reason she has not named.",
@@ -7394,6 +7701,7 @@ If STATE says she is asleep: she stays asleep. MOMENT is narrator + body (breath
       },
       "fran-drink": {
         id: "fran-drink",
+        tags: ['aware', 'unintentional', 'caring'],
         title: "I was drinking",
         sub: "Accidental",
         blurb: "You were on the rim. She tipped the mug. She is already apologizing to her own ribs.",
@@ -7410,6 +7718,7 @@ If STATE says she is asleep: she stays asleep. MOMENT is narrator + body (breath
       },
       "maggie-conor-unaware-zoom": {
         id: "maggie-conor-unaware-zoom",
+        tags: ['unaware', 'unintentional', 'caring'],
         title: "Conor on mute",
         sub: "You are her friend",
         blurb: "Cold call incoming. You are Conor. She thinks the flutter is nerves.",
@@ -7427,6 +7736,7 @@ If STATE says she is asleep: she stays asleep. MOMENT is narrator + body (breath
       },
       "maggie-conor-family-table": {
         id: "maggie-conor-family-table",
+        tags: ['aware', 'unintentional', 'caring'],
         title: "Conor under the table talk",
         sub: "You are her friend",
         blurb: "Mom's pasta. You are Conor. She cannot excuse herself without a story. She will not digest you on purpose.",
@@ -7444,6 +7754,7 @@ If STATE says she is asleep: she stays asleep. MOMENT is narrator + body (breath
       },
       "maggie-yawn": {
         id: "maggie-yawn",
+        tags: ['aware', 'unintentional', 'caring'],
         title: "Outline and a yawn",
         sub: "Accidental",
         blurb: "You were asking her to be careful. She yawned into her hand. You were in the hand.",
@@ -7460,6 +7771,7 @@ If STATE says she is asleep: she stays asleep. MOMENT is narrator + body (breath
       },
       "ang-conor-yoga-unaware": {
         id: "ang-conor-yoga-unaware",
+        tags: ['unaware', 'unintentional', 'caring'],
         title: "Conor on the mat",
         sub: "You are her friend",
         blurb: "You are Conor. She is in a fold. She thinks the pressure is the pose.",
@@ -7477,6 +7789,7 @@ If STATE says she is asleep: she stays asleep. MOMENT is narrator + body (breath
       },
       "ang-conor-boxes-unaware": {
         id: "ang-conor-boxes-unaware",
+        tags: ['unaware', 'unintentional', 'caring'],
         title: "Conor she taped over",
         sub: "You are her friend",
         blurb: "Packing. You are Conor. She blames the tightness on tape and leftover fries.",
@@ -7494,6 +7807,7 @@ If STATE says she is asleep: she stays asleep. MOMENT is narrator + body (breath
       },
       "ang-sip": {
         id: "ang-sip",
+        tags: ['aware', 'unintentional', 'caring'],
         title: "That was my tea",
         sub: "Accidental",
         blurb: "You were on the lid. She sipped. She is already mad at the sip, not at you.",
@@ -7510,6 +7824,7 @@ If STATE says she is asleep: she stays asleep. MOMENT is narrator + body (breath
       },
       "alex-conor-rounds": {
         id: "alex-conor-rounds",
+        tags: ['unaware', 'unintentional', 'caring'],
         title: "Conor she charts as gas",
         sub: "You are her friend",
         blurb: "On shift. You are Conor. She keeps working. She has named you 'don't think about it.'",
@@ -7527,6 +7842,7 @@ If STATE says she is asleep: she stays asleep. MOMENT is narrator + body (breath
       },
       "alex-water": {
         id: "alex-water",
+        tags: ['aware', 'unintentional', 'caring'],
         title: "Wrong protocol",
         sub: "Help that may worsen",
         blurb: "She is walking you. She does not want you gone. The walking disagrees.",
@@ -9095,9 +9411,9 @@ If STATE says she is asleep: she stays asleep. MOMENT is narrator + body (breath
     }
 
     const THEME_COLORS = {
-      mara: "#140c0a", ang: "#0e0a06", maddy: "#14080a", maggie: "#120c08",
-      nat: "#0c1010", alex: "#0a0c10", sable: "#0c0a08", tessa: "#10080c",
-      priya: "#0c0a10", wren: "#0a0c08", fran: "#100c0a",
+      mara: "#140c0a", ang: "#120e06", maddy: "#120406", maggie: "#081018",
+      nat: "#0a0610", alex: "#060c10", sable: "#0c0a08", tessa: "#10080c",
+      priya: "#0c0a10", wren: "#0a0c08", fran: "#10060c",
       billie: "#0a0e16", jlaw: "#100c08", cardi: "#10060a", june: "#080610",
       zendaya: "#0c0a06", sydney: "#0c080a", icespice: "#0c0610"
     };
@@ -9652,6 +9968,8 @@ If STATE says she is asleep: she stays asleep. MOMENT is narrator + body (breath
     // Which character's nights the Stories sheet is showing (does not start a chat)
     let libFace = null;
     let libNightTabs = new Set(["all"]);
+    let libNightTags = new Set();
+    const NIGHT_TAG_OPTS = ["aware","unaware","intentional","unintentional","mean","caring","sleeping"];
     function browseFace(id) {
       if (!CHARACTERS[id]) return;
       applyTheme(id);
@@ -9668,6 +9986,10 @@ If STATE says she is asleep: she stays asleep. MOMENT is narrator + body (breath
       }, 140);
     }
 
+    function scenarioTags(s) {
+      return (s && s.tags && s.tags.length) ? s.tags.slice() : [];
+    }
+
     function nightMatches(s, tabs, q) {
       if (!s) return false;
       const set = tabs instanceof Set ? tabs : new Set([tabs || "all"]);
@@ -9681,6 +10003,12 @@ If STATE says she is asleep: she stays asleep. MOMENT is narrator + body (breath
         if (wantOut && !wantIn && gut) return false;
         if (wantIn && !wantOut && !gut) return false;
         if (wantConor && !conor) return false;
+      }
+      if (libNightTags && libNightTags.size) {
+        const have = scenarioTags(s);
+        for (const t of libNightTags) {
+          if (have.indexOf(t) < 0) return false;
+        }
       }
       if (q) {
         const hay = ((s.title || "") + " " + (s.blurb || "") + " " + (s.sub || "")).toLowerCase();
@@ -9701,6 +10029,14 @@ If STATE says she is asleep: she stays asleep. MOMENT is narrator + body (breath
       if (s.gut) {
         const g = document.createElement("span"); g.className = "badge gut"; g.textContent = "Inside"; badges.appendChild(g);
       }
+      scenarioTags(s).forEach((tag) => {
+        if (tag === "aware" || tag === "unaware" || tag === "intentional" || tag === "unintentional" || tag === "mean" || tag === "caring" || tag === "sleeping") {
+          const g = document.createElement("span");
+          g.className = "badge " + tag;
+          g.textContent = tag;
+          badges.appendChild(g);
+        }
+      });
       if (/\bGIANTESS\b/i.test(s.hook || "") || /giant/i.test(s.sub || "")) {
         const g = document.createElement("span"); g.className = "badge giant"; g.textContent = "Giantess"; badges.appendChild(g);
       }
@@ -9754,6 +10090,27 @@ If STATE says she is asleep: she stays asleep. MOMENT is narrator + body (breath
         leftover.forEach((c) => rail.appendChild(makeChip(c)));
         wrap.append(h, rail);
         els.faceList.appendChild(wrap);
+      }
+      const tagHost = document.getElementById("tagTabs");
+      if (tagHost && !tagHost.dataset.ready) {
+        NIGHT_TAG_OPTS.forEach((tag) => {
+          const b = document.createElement("button");
+          b.type = "button";
+          b.dataset.tag = tag;
+          b.textContent = tag;
+          b.addEventListener("click", () => {
+            if (libNightTags.has(tag)) libNightTags.delete(tag);
+            else libNightTags.add(tag);
+            renderLibrary();
+          });
+          tagHost.appendChild(b);
+        });
+        tagHost.dataset.ready = "1";
+      }
+      if (tagHost) {
+        Array.from(tagHost.querySelectorAll("button")).forEach((b) => {
+          b.classList.toggle("on", libNightTags.has(b.dataset.tag));
+        });
       }
       const pack = characterOf(libFace);
       const q = ((document.getElementById("nightSearch") || {}).value || "").trim().toLowerCase();
@@ -10380,6 +10737,18 @@ Never copy SPEECH: or ACTION: into your reply. Reply only with MOMENT, SAY, SHOT
           + " Continue from the last MOMENT — same clothes, same room or the next room she would actually walk to (bathroom only if disposal is running)."
           + " Never bring " + idName + " back as a living voice.";
       }
+      const tags = scenarioTags(s);
+      let stanceNote = "";
+      if (tags.length) {
+        stanceNote = " STANCE TAGS: " + tags.join(", ") + "."
+          + (tags.indexOf("sleeping") >= 0 ? " She is asleep — narrator body, no real conversation." : "")
+          + (tags.indexOf("unaware") >= 0 ? " She does not know the speck is a person in there unless they force the issue." : "")
+          + (tags.indexOf("aware") >= 0 ? " She knows someone is here and may talk to them." : "")
+          + (tags.indexOf("unintentional") >= 0 ? " She did not plan this and wants it undone or contained, not savored." : "")
+          + (tags.indexOf("intentional") >= 0 ? " She allowed this. She is not rushing to spit them out." : "")
+          + (tags.indexOf("caring") >= 0 ? " Tone is care, guilt, help — not cruelty." : "")
+          + (tags.indexOf("mean") >= 0 ? " Tone can be selfish, teasing, or unapologetic." : "");
+      }
       const recap = sceneRecap();
       const sleepBlob = [s.id, s.title, s.mood, s.hook, game.mood].join(" ").toLowerCase();
       const sleepNight = /\b(asleep|lights out|sleeping)\b/.test(sleepBlob);
@@ -10394,7 +10763,7 @@ Never copy SPEECH: or ACTION: into your reply. Reply only with MOMENT, SAY, SHOT
         + " Continuity: do not forget the location, outfit, or last beat. If STATE conflicts with a sudden new place, STATE wins."
         + recap
         + " SAY variety: do not reuse any previous SAY sentence from this chat."
-        + snack + earlyNote + meterNote + sleepNote + (opts.extra || "");
+        + snack + earlyNote + meterNote + sleepNote + stanceNote + (opts.extra || "");
       return [
         { role: "system", content: SYSTEM + "\n\n" + PLAYER_FORMAT + "\n\n" + c.voice + "\nLabel spoken lines SAY:.\n\n" + s.hook + "\n\n" + state },
         ...history.slice(-(ACTOR_QUALITY.historyTurns || 36)),
