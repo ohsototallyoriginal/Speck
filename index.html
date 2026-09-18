@@ -2464,8 +2464,108 @@
       transform: translateY(8px);
     }
 
-    #meter {
+    #vitalWrap {
       margin: 10px 12px 0;
+    }
+    #hpMeter {
+      margin: 0 0 8px;
+    }
+    #hpMeter .hp-row {
+      display: flex;
+      align-items: baseline;
+      justify-content: space-between;
+      gap: 8px;
+      margin-bottom: 3px;
+    }
+    #hpMeter .hp-row span {
+      font-size: .58rem;
+      letter-spacing: .12em;
+      text-transform: uppercase;
+      font-weight: 800;
+      color: var(--muted);
+    }
+    #hpMeter .hp-row b {
+      font-variant-numeric: tabular-nums;
+      font-size: .72rem;
+      font-weight: 800;
+      color: #9ff0c0;
+    }
+    #hpMeter.hurt .hp-row b { color: #ffb060; }
+    #hpMeter.critical .hp-row b { color: #ff6a55; }
+    #hpMeter.gone .hp-row b { color: #c4a070; }
+    .hp-track {
+      height: 7px;
+      border-radius: 99px;
+      background: rgba(0,0,0,.42);
+      border: 1px solid color-mix(in srgb, var(--hair) 70%, transparent);
+      overflow: hidden;
+    }
+    #hpFill {
+      display: block;
+      height: 100%;
+      width: 100%;
+      border-radius: 99px;
+      background: linear-gradient(90deg, #2a8a4a, #7ee08a);
+      box-shadow: 0 0 8px rgba(80, 220, 120, .35);
+      transition: width .35s ease, background .35s ease;
+    }
+    #hpMeter.hurt #hpFill { background: linear-gradient(90deg, #8a5a12, #e0a040); }
+    #hpMeter.critical #hpFill {
+      background: linear-gradient(90deg, #6a1212, #ff5a48);
+      animation: digFillPulse 1s ease-in-out infinite;
+    }
+    #hpMeter.flash #hpFill { filter: brightness(1.45); }
+    .vital-body {
+      display: flex;
+      align-items: stretch;
+      gap: 8px;
+    }
+    .vital-body #meter { flex: 1 1 auto; min-width: 0; margin: 0; }
+    #gasMeter {
+      flex: 0 0 18px;
+      display: none;
+      flex-direction: column;
+      align-items: center;
+      gap: 4px;
+      padding: 4px 0 2px;
+    }
+    #gasMeter.show { display: flex; }
+    #gasMeter .gas-label {
+      font-size: .48rem;
+      letter-spacing: .08em;
+      text-transform: uppercase;
+      font-weight: 800;
+      color: var(--muted);
+      writing-mode: vertical-rl;
+      transform: rotate(180deg);
+      opacity: .7;
+    }
+    .gas-track {
+      flex: 1 1 auto;
+      width: 7px;
+      min-height: 52px;
+      border-radius: 99px;
+      background: rgba(0,0,0,.42);
+      border: 1px solid rgba(180, 160, 80, .28);
+      overflow: hidden;
+      display: flex;
+      align-items: flex-end;
+    }
+    #gasFill {
+      display: block;
+      width: 100%;
+      height: 0%;
+      border-radius: 99px;
+      background: linear-gradient(180deg, #f0e080, #c4a028);
+      transition: height .3s ease, background .3s ease;
+    }
+    #gasMeter.hot #gasFill { background: linear-gradient(180deg, #ffe08a, #e07820); }
+    #gasMeter.ready #gasFill {
+      background: linear-gradient(180deg, #fff2a8, #ff8a40);
+      box-shadow: 0 0 8px rgba(255, 160, 60, .45);
+    }
+    #meter {
+      margin: 0;
     }
     .meter-labels {
       display: grid;
@@ -3283,7 +3383,10 @@
         0% { box-shadow: 0 0 0 0 var(--neon); }
         60% { box-shadow: 0 0 0 5px transparent; }
       }
+      #vitalWrap { flex: 1 1 auto; min-width: 0; margin: 0; }
       #meter { flex: 1 1 auto; min-width: 0; margin: 0; }
+      #gasMeter { min-height: 0; }
+      .gas-track { min-height: 44px; }
       .meter-labels { margin-bottom: 5px; font-size: .58rem; letter-spacing: .06em; }
       #thumbHint { margin: 6px 0 0; font-size: .72rem; color: var(--muted); }
 
@@ -3421,6 +3524,12 @@
     <div id="shotchip">establish</div>
     <div id="progress" hidden><span></span></div>
   </figure>
+  <div id="vitalWrap">
+    <div id="hpMeter" aria-label="Your health">
+      <div class="hp-row"><span>You</span><b id="hpLabel">100</b></div>
+      <div class="hp-track"><i id="hpFill"></i></div>
+    </div>
+    <div class="vital-body">
   <div id="meter" data-step="palm">
     <div class="meter-labels" id="meterLabels"><span>Palm</span><span>Tongue</span><span>Gulp</span><span>Gut</span></div>
     <div class="meter-track" id="meterTrack"><i id="meterFill"></i></div>
@@ -3462,6 +3571,12 @@
       <div class="dm-toast" id="dmToast"></div>
     </div>
     <p id="thumbHint">Tap the picture to enlarge</p>
+  </div>
+      <div id="gasMeter" aria-label="Gas">
+        <span class="gas-label">Gas</span>
+        <div class="gas-track"><i id="gasFill"></i></div>
+      </div>
+    </div>
   </div>
   </div>
   <div id="goneBanner">You are gone. The log stays. She can keep going below, or start a new night.</div>
@@ -8690,7 +8805,113 @@ If STATE says she is asleep: she stays asleep. MOMENT is narrator + body (breath
       if (els.goneBanner) els.goneBanner.classList.remove("show");
       paintSkullBar();
       paintGutPhase();
+      paintVitals();
       paintActions();
+    }
+
+    function migrateVitals() {
+      if (game.hp == null || isNaN(Number(game.hp))) game.hp = 100;
+      if (game.gas == null || isNaN(Number(game.gas))) game.gas = 0;
+      game.hp = Math.max(0, Math.min(100, Number(game.hp)));
+      game.gas = Math.max(0, Math.min(100, Number(game.gas)));
+    }
+
+    let hpFlashTimer = null;
+    function paintVitals() {
+      migrateVitals();
+      const hpEl = document.getElementById("hpMeter");
+      const hpFill = document.getElementById("hpFill");
+      const hpLabel = document.getElementById("hpLabel");
+      const gasEl = document.getElementById("gasMeter");
+      const gasFill = document.getElementById("gasFill");
+      if (hpFill) hpFill.style.width = game.hp.toFixed(1) + "%";
+      if (hpLabel) hpLabel.textContent = String(Math.round(game.hp));
+      if (hpEl) {
+        hpEl.classList.toggle("hurt", game.hp < 55 && game.hp >= 28);
+        hpEl.classList.toggle("critical", game.hp < 28 && game.hp > 0);
+        hpEl.classList.toggle("gone", game.hp <= 0 || !!game.gone);
+      }
+      const showGas = (game.depth || 0) >= 2 || game.gas > 4 || !!(game.digestMeter && game.digestMeter.active);
+      if (gasEl) {
+        gasEl.classList.toggle("show", showGas);
+        gasEl.classList.toggle("hot", game.gas >= 55 && game.gas < 86);
+        gasEl.classList.toggle("ready", game.gas >= 86);
+      }
+      if (gasFill) gasFill.style.height = Math.max(0, Math.min(100, game.gas)).toFixed(1) + "%";
+    }
+
+    function flashHp() {
+      const hpEl = document.getElementById("hpMeter");
+      if (!hpEl) return;
+      hpEl.classList.add("flash");
+      if (hpFlashTimer) clearTimeout(hpFlashTimer);
+      hpFlashTimer = setTimeout(() => hpEl.classList.remove("flash"), 280);
+    }
+
+    function applyHpDelta(n, opts) {
+      opts = opts || {};
+      if (!n) return game.hp;
+      migrateVitals();
+      if (game.gone && n < 0) return game.hp;
+      game.hp = Math.max(0, Math.min(100, game.hp + n));
+      if (n < 0) flashHp();
+      paintVitals();
+      if (game.hp <= 0 && !game.gone && game.digestMeter && game.digestMeter.active && !(game.bowel && game.bowel.active)) {
+        if (!opts.skipFinish) {
+          game.hp = 0;
+          finishDigestMeter();
+        }
+      }
+      return game.hp;
+    }
+
+    function applyGasDelta(n) {
+      if (!n) return game.gas;
+      migrateVitals();
+      game.gas = Math.max(0, Math.min(100, game.gas + n));
+      paintVitals();
+      if (game.gas >= 100) releaseGasBurp("full");
+      return game.gas;
+    }
+
+    function releaseGasBurp(reason) {
+      if (game.gone || game.fate === "digested") {
+        game.gas = 0;
+        paintVitals();
+        return;
+      }
+      if (game._gasBurstAt && Date.now() - game._gasBurstAt < 1800) return;
+      game._gasBurstAt = Date.now();
+      migrateVitals();
+      const dm = game.digestMeter;
+      const wHit = (dm && dm.active) ? penaltyWeight(dm.factors) : 1;
+      const clockHit = Math.round((28 + Math.floor(Math.random() * 42)) * Math.max(0.7, wHit));
+      const hpHit = Math.round((8 + Math.random() * 8) * (reason === "full" ? 1 : 0.75));
+      game.gas = 8 + Math.random() * 14;
+      if (dm && dm.active && !(game.bowel && game.bowel.active)) {
+        dm.factors = migrateFactors(dm.factors);
+        dm.factors.stomach = clamp01(dm.factors.stomach + 0.08);
+        dm.factors.pace = clamp01(dm.factors.pace + 0.1);
+        dm.remainingMs = Math.max(0, dm.remainingMs - clockHit * 1000);
+        if (dm.remainingMs <= 0) {
+          applyHpDelta(-hpHit, { skipFinish: true });
+          paintDigestMeter("Burp — the chamber vents (−" + clockHit + "s)");
+          triggerDigestFx("burp");
+          finishDigestMeter();
+          return;
+        }
+        paintDigestMeter("Burp — the chamber vents (−" + clockHit + "s)");
+      } else if (game.bowel && game.bowel.active) {
+        game.bowel.remainingMs = Math.max(0, game.bowel.remainingMs - Math.round(clockHit * 0.45) * 1000);
+        paintBowelMeter("A push of air (−" + Math.round(clockHit * 0.45) + "s)");
+      }
+      applyHpDelta(-hpHit, { skipFinish: true });
+      triggerDigestFx("burp");
+      paintVitals();
+      persist();
+      if (dm && dm.active && !busy) {
+        try { fireClockBeat("burp"); } catch {}
+      }
     }
 
     function setDepth(n, opts) {
@@ -8844,7 +9065,16 @@ If STATE says she is asleep: she stays asleep. MOMENT is narrator + body (breath
       if (tags.indexOf("sleeping") >= 0) bits.push("she is asleep — no conversation");
       if (tags.indexOf("unaware") >= 0) bits.push("she still may not know it is a person");
       if (tags.indexOf("caring") >= 0) bits.push("guilt / help reflex if she is awake");
-      return " BODY: " + bits.join("; ") + ". Show this in MOMENT. React in SAY. Never name a clock.";
+      const hp = Number(game.hp);
+      if (!isNaN(hp)) {
+        if (hp <= 0) bits.push("the snack has no fight left");
+        else if (hp < 28) bits.push("the speck is fading against the wall");
+        else if (hp < 55) bits.push("the speck is worn down, still there");
+      }
+      const gas = Number(game.gas);
+      if (!isNaN(gas) && gas >= 78) bits.push("gas is stacked under her ribs — a burp is close");
+      else if (!isNaN(gas) && gas >= 48) bits.push("air is building in the chamber");
+      return " BODY: " + bits.join("; ") + ". Show this in MOMENT. React in SAY. Never name a clock, HP, or a meter.";
     }
 
     function formatClock(ms) {
@@ -9205,6 +9435,7 @@ If STATE says she is asleep: she stays asleep. MOMENT is narrator + body (breath
       if (host && host.childElementCount !== bubbleN) spawnBubbles(bubbleN);
       if (toastMsg) dmToast(toastMsg);
       paintGutPhase();
+      paintVitals();
       paintActions();
     }
 
@@ -9230,13 +9461,19 @@ If STATE says she is asleep: she stays asleep. MOMENT is narrator + body (breath
       const dt = Math.min(2000, Math.max(0, now - (dm.lastTick || now)));
       dm.lastTick = now;
       dm.factors = migrateFactors(dm.factors);
-      dm.remainingMs = Math.max(0, dm.remainingMs - dt * burnRate(dm.factors));
-      paintDigestMeter();
-      // Ambient chamber motion — more often as the clock runs out
+      const rate = burnRate(dm.factors);
+      dm.remainingMs = Math.max(0, dm.remainingMs - dt * rate);
       const danger = 1 - Math.max(0, Math.min(1, dm.remainingMs / Math.max(1, dm.totalMs)));
-      if (fxOn() && Math.random() < 0.08 + danger * 0.22) {
-        const roll = Math.random();
-        triggerDigestFx(roll < 0.22 + danger * 0.28 ? "burp" : (roll < 0.6 ? "gurgle" : "growl"));
+      const sec = Math.max(0.2, dt / 1000);
+      applyHpDelta(-(0.09 + dm.factors.stomach * 0.22 + dm.factors.pace * 0.14 + danger * 0.28) * sec, { skipFinish: true });
+      applyGasDelta((0.55 + dm.factors.stomach * 1.15 + dm.factors.pace * 0.95 + danger * 1.35) * sec);
+      paintDigestMeter();
+      if (fxOn() && Math.random() < 0.07 + danger * 0.16) {
+        triggerDigestFx(Math.random() < 0.55 ? "gurgle" : "growl");
+      }
+      if (game.hp <= 0) {
+        finishDigestMeter();
+        return;
       }
       if (dm.remainingMs <= 0) {
         finishDigestMeter();
@@ -9248,6 +9485,8 @@ If STATE says she is asleep: she stays asleep. MOMENT is narrator + body (breath
       clearGutTimer();
       game.fate = "digested";
       game.digestDone = true;
+      game.hp = 0;
+      game.gas = 0;
       startBowelMovement({ path: "dead", silent: true });
       triggerDigestFx("burp");
       showFate("digest");
@@ -9406,6 +9645,7 @@ If STATE says she is asleep: she stays asleep. MOMENT is narrator + body (breath
       if (fx) fx.classList.add("on");
       if (toastMsg) dmToast(toastMsg);
       paintGutPhase();
+      paintVitals();
       paintActions();
     }
 
@@ -9509,6 +9749,10 @@ If STATE says she is asleep: she stays asleep. MOMENT is narrator + body (breath
     }
 
     const CLOCK_BEATS = {
+      burp: {
+        user: "[BODY] She lets a real burp go. Air leaves the chamber. This is not a new scene. Same girl, same night. React to the belch — do not greet anyone, do not finish them unless the body already did.",
+        extra: " BURP BEAT: a room-feeling belch from the stomach. MOMENT is pressure, heat, the wall slamming, air leaving. SAY only if she is awake — a short in-character reaction, not a slogan. Prefer SHOT burp, belch, taut, full, hold. Do not name meters.",
+      },
       settle: {
         user: "[CLOCK] Active gut time ran out. The chamber's work is now on a clock. This is NOT the speck going limp, choosing to stay still, or giving up. Keep their last real move. Same room, same night.",
         extra: " CLOCK BEAT only: the body clock started because time passed, not because they went still. Do not write them as limp unless their last ACTION was limp. Do not treat this as a new scene. Same girl, same clothes, same last beat. Do NOT finish them. If she is asleep, she stays asleep. Prefer SHOT inside, hold, taut, full. SAY only if she is awake.",
@@ -9546,6 +9790,8 @@ If STATE says she is asleep: she stays asleep. MOMENT is narrator + body (breath
         extra = spec.extra + (who ? (" She remembers it was " + who + ".") : "") + sceneRecap();
       } else if (kind === "settle" && who) {
         extra = spec.extra + " The speck is " + who + ". Use the name. Do not invent that " + who + " stopped moving.";
+      } else if (kind === "burp") {
+        extra = spec.extra + (who ? (" The speck is " + who + ".") : "") + " Same last beat. Do not treat this as them going still.";
       }
       const typing = addTyping();
       setBusy(true);
@@ -9769,6 +10015,9 @@ If STATE says she is asleep: she stays asleep. MOMENT is narrator + body (breath
       const escaping = /\b(climb(s|ed|ing)?|escape|cardia|way I came|back toward)\b/i.test(userBlob)
         && !/\b(thrash|kick|struggle|punch|claw)\b/i.test(userBlob);
 
+      let hpHit = 0;
+      let gasHit = 0;
+
       if (RE_BURP.test(blob) || shot === "burp" || shot === "belch") {
         const hit = Math.round(scaledHitSeconds(dm, 35, 150) * wHit);
         delta -= hit * 1000;
@@ -9776,6 +10025,9 @@ If STATE says she is asleep: she stays asleep. MOMENT is narrator + body (breath
         triggerDigestFx("burp");
         dm.factors.stomach = clamp01(dm.factors.stomach + 0.08);
         dm.factors.pace = clamp01(dm.factors.pace + 0.08);
+        hpHit = -(7 + Math.round(Math.random() * 7));
+        gasHit = -game.gas + (8 + Math.random() * 12);
+        game._gasBurstAt = Date.now();
       } else if (escaping) {
         const hit = Math.round(scaledHitSeconds(dm, 16, 48) * wHit);
         delta -= hit * 1000;
@@ -9784,6 +10036,8 @@ If STATE says she is asleep: she stays asleep. MOMENT is narrator + body (breath
         dm.factors.mood = clamp01(dm.factors.mood + 0.06);
         dm.factors.stomach = clamp01(dm.factors.stomach + 0.08);
         dm.factors.pace = clamp01(dm.factors.pace + 0.05);
+        hpHit = -(3 + Math.round(Math.random() * 3));
+        gasHit = 8 + Math.random() * 6;
       } else if (begging) {
         const tags = nightTags();
         const kind = (tags.indexOf("caring") >= 0 || tags.indexOf("unintentional") >= 0) ? 1.45 : (tags.indexOf("mean") >= 0 ? 0.55 : 1);
@@ -9794,6 +10048,8 @@ If STATE says she is asleep: she stays asleep. MOMENT is narrator + body (breath
           : "Begging lands — she hears it (+" + gain + "s)";
         dm.factors.mood = clamp01(dm.factors.mood - (tags.indexOf("mean") >= 0 ? 0.01 : 0.06));
         dm.factors.pace = clamp01(dm.factors.pace - 0.03);
+        hpHit = 1;
+        gasHit = -4;
       } else if (RE_SQUIRM.test(blob) || RE_SQUIRM.test(userBlob)) {
         const tags = nightTags();
         const hit = Math.round(scaledHitSeconds(dm, 40, 120) * wHit * (tags.indexOf("caring") >= 0 ? 0.75 : 1));
@@ -9803,6 +10059,8 @@ If STATE says she is asleep: she stays asleep. MOMENT is narrator + body (breath
         dm.factors.mood = clamp01(dm.factors.mood + (tags.indexOf("caring") >= 0 ? 0.06 : 0.12));
         dm.factors.stomach = clamp01(dm.factors.stomach + 0.14);
         dm.factors.pace = clamp01(dm.factors.pace + 0.1);
+        hpHit = -(6 + Math.round(Math.random() * 6));
+        gasHit = 16 + Math.random() * 12;
       } else if (teased) {
         const hit = Math.round(scaledHitSeconds(dm, 28, 90) * wHit);
         delta -= hit * 1000;
@@ -9811,6 +10069,8 @@ If STATE says she is asleep: she stays asleep. MOMENT is narrator + body (breath
         dm.factors.mood = clamp01(dm.factors.mood + 0.14);
         dm.factors.pace = clamp01(dm.factors.pace + 0.16);
         dm.factors.stomach = clamp01(dm.factors.stomach + 0.06);
+        hpHit = -(2 + Math.round(Math.random() * 3));
+        gasHit = 10 + Math.random() * 8;
       } else if (RE_CHURN.test(blob) || shot === "digest" || shot === "taut") {
         const hit = Math.round(scaledHitSeconds(dm, 22, 75) * wHit);
         delta -= hit * 1000;
@@ -9818,6 +10078,8 @@ If STATE says she is asleep: she stays asleep. MOMENT is narrator + body (breath
         triggerDigestFx("gurgle");
         dm.factors.stomach = clamp01(dm.factors.stomach + 0.08);
         dm.factors.pace = clamp01(dm.factors.pace + 0.06);
+        hpHit = -(4 + Math.round(Math.random() * 4));
+        gasHit = 9 + Math.random() * 7;
       } else if (RE_CALM.test(blob) || shot === "lounge" || shot === "hold" || shot === "rub" || shot === "pat") {
         const gain = Math.round((18 + Math.floor(Math.random() * 22)) * wSoft);
         delta += gain * 1000;
@@ -9825,22 +10087,40 @@ If STATE says she is asleep: she stays asleep. MOMENT is narrator + body (breath
         dm.factors.mood = clamp01(dm.factors.mood - 0.14);
         dm.factors.stomach = clamp01(dm.factors.stomach - 0.14);
         dm.factors.pace = clamp01(dm.factors.pace - 0.12);
+        hpHit = 2;
+        gasHit = -10;
       } else if (RE_FEED.test(blob)) {
         const gain = Math.round((20 + Math.floor(Math.random() * 25)) * wSoft);
         delta += gain * 1000;
         note = "She's full. Walls ease (+" + gain + "s)";
         dm.factors.stomach = clamp01(dm.factors.stomach - 0.1);
         dm.factors.pace = clamp01(dm.factors.pace - 0.08);
+        hpHit = 1;
+        gasHit = 6;
       } else if (RE_HUNGER.test(blob)) {
         const hit = Math.round(scaledHitSeconds(dm, 18, 55) * wHit);
         delta -= hit * 1000;
         note = formatHitNote("Empty walls work you", hit);
         dm.factors.stomach = clamp01(dm.factors.stomach + 0.1);
         dm.factors.pace = clamp01(dm.factors.pace + 0.1);
+        hpHit = -4;
+        gasHit = 6;
       } else {
         const hit = Math.round(scaledHitSeconds(dm, 6, 18) * wHit);
         delta -= hit * 1000;
         note = formatHitNote("Slow burn", hit);
+        hpHit = -1.5;
+        gasHit = 3;
+      }
+
+      if (hpHit) applyHpDelta(hpHit, { skipFinish: true });
+      if (gasHit) {
+        migrateVitals();
+        game.gas = Math.max(0, Math.min(100, game.gas + gasHit));
+        paintVitals();
+        if (game.gas >= 100 && !(RE_BURP.test(blob) || shot === "burp" || shot === "belch")) {
+          releaseGasBurp("full");
+        }
       }
 
       dm.remainingMs = Math.max(0, Math.min(DIGEST_MAX_MS, dm.remainingMs + delta));
@@ -10011,6 +10291,8 @@ If STATE says she is asleep: she stays asleep. MOMENT is narrator + body (breath
         shownGulp: false,
         shownDigest: false,
         shownBowel: false,
+        hp: 100,
+        gas: 0,
       };
     }
     let game = freshGame("mara-laundry", "mara");
