@@ -8864,6 +8864,9 @@ Everyone on stage is an adult in body and voice. No children, school-age framing
       // Harsh, time-scaled penalties (~210% harder than prior baseline)
       // Burp: ~1.5 min → 9–15 min | Squirm: ~2.3 min → ~12 min | Churn: ~1.3 min → ~8 min
       const teased = /\b(tease|brat|dare|snack|eat me|you won.?t)\b/i.test(userBlob);
+      const begging = /\b(beg(s|ged|ging)?|please|let me out|get me out|don't (finish|digest) me)\b/i.test(userBlob);
+      const escaping = /\b(climb(s|ed|ing)?|escape|cardia|way I came|back toward)\b/i.test(userBlob)
+        && !/\b(thrash|kick|struggle|punch|claw)\b/i.test(userBlob);
 
       if (RE_BURP.test(blob) || shot === "burp" || shot === "belch") {
         const hit = Math.round(scaledHitSeconds(dm, 35, 150) * wHit);
@@ -8872,6 +8875,20 @@ Everyone on stage is an adult in body and voice. No children, school-age framing
         triggerDigestFx("burp");
         dm.factors.stomach = clamp01(dm.factors.stomach + 0.08);
         dm.factors.pace = clamp01(dm.factors.pace + 0.08);
+      } else if (escaping) {
+        const hit = Math.round(scaledHitSeconds(dm, 16, 48) * wHit);
+        delta -= hit * 1000;
+        note = formatHitNote("Escape try — no lift", hit);
+        triggerDigestFx("gurgle");
+        dm.factors.mood = clamp01(dm.factors.mood + 0.06);
+        dm.factors.stomach = clamp01(dm.factors.stomach + 0.08);
+        dm.factors.pace = clamp01(dm.factors.pace + 0.05);
+      } else if (begging) {
+        const gain = Math.round((8 + Math.floor(Math.random() * 12)) * wSoft);
+        delta += gain * 1000;
+        note = "Begging lands — she hears it (+" + gain + "s)";
+        dm.factors.mood = clamp01(dm.factors.mood - 0.04);
+        dm.factors.pace = clamp01(dm.factors.pace - 0.03);
       } else if (RE_SQUIRM.test(blob) || RE_SQUIRM.test(userBlob)) {
         const hit = Math.round(scaledHitSeconds(dm, 40, 120) * wHit);
         delta -= hit * 1000;
@@ -8911,7 +8928,7 @@ Everyone on stage is an adult in body and voice. No children, school-age framing
       } else if (RE_HUNGER.test(blob)) {
         const hit = Math.round(scaledHitSeconds(dm, 18, 55) * wHit);
         delta -= hit * 1000;
-        note = formatHitNote("Hunger works the walls", hit);
+        note = formatHitNote("Empty walls work you", hit);
         dm.factors.stomach = clamp01(dm.factors.stomach + 0.1);
         dm.factors.pace = clamp01(dm.factors.pace + 0.1);
       } else {
@@ -10173,6 +10190,27 @@ Everyone on stage is an adult in body and voice. No children, school-age framing
 
     function applyActionHints(text) {
       const t = text.toLowerCase();
+      const inGut = (game.depth || 0) >= 3 || !!(game.digestMeter && game.digestMeter.active);
+      const inBowel = !!(game.bowel && game.bowel.active);
+      if (inBowel) {
+        game.playerPlace = game.playerPlace || "lower, still moving";
+        return;
+      }
+      if (inGut) {
+        if (/\b(rub|nuzzle|stroke|soothe)\b/.test(t)) {
+          game.playerPlace = "rubbing along a fold of her stomach";
+          game.mood = "feeling a small careful motion instead of a kick";
+        } else if (/\b(beg|please|let me out|don't (finish|digest))\b/.test(t)) {
+          game.playerPlace = "pressed up under her navel, begging";
+          game.mood = "hearing a voice she cannot see";
+        } else if (/\b(climb|escape|way i came|cardia|throat|opening)\b/.test(t)) {
+          game.playerPlace = "climbing folds toward the way in";
+          game.mood = "feeling someone try the wrong direction on purpose";
+        } else {
+          game.playerPlace = game.playerPlace || "in the dark warm chamber";
+        }
+        return;
+      }
       if (/\b(navel|lining|stomach wall|inside)\b/.test(t) && (game.depth || 0) >= 3) {
         game.playerPlace = "pressed into a fold of her stomach";
         game.mood = "feeling every kick as a private inconvenience";
@@ -10442,9 +10480,13 @@ Never copy SPEECH: or ACTION: into your reply. Reply only with MOMENT, SAY, SHOT
         }
         addTurn({ think: parsed.think || "…", you: composed });
         persist();
-        setBusy(false);
-        if (composed) await speak(composed, { silentYou: true });
-        else paintThinkBtn();
+        if (composed) {
+          // speak() owns busy from here — do not drop it or a second click can double-fire
+          await speak(composed, { silentYou: true, keepBusy: true });
+        } else {
+          setBusy(false);
+          paintThinkBtn();
+        }
       } catch (err) {
         wrap.remove();
         setBusy(false);
@@ -10467,7 +10509,8 @@ Never copy SPEECH: or ACTION: into your reply. Reply only with MOMENT, SAY, SHOT
 
     async function speak(userText, opts) {
       opts = opts || {};
-      if (busy || game.gone || (!engine && !CLOUD_ACTOR_URL)) return;
+      if (game.gone || (!engine && !CLOUD_ACTOR_URL)) return;
+      if (busy && !opts.keepBusy) return;
       const hadFocus = document.activeElement === els.input;
       applyActionHints(userText);
       // Secret path: force further down into the bowel while still alive
