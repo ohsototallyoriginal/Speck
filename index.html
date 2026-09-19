@@ -3841,6 +3841,20 @@
       }
     }
 
+  
+    body.guest #home,
+    #home.land.show {
+      opacity: 1 !important;
+      visibility: visible !important;
+      pointer-events: auto !important;
+      z-index: 80 !important;
+    }
+    body.guest #sceneBar,
+    body.guest #log,
+    body.guest .dock {
+      visibility: hidden !important;
+    }
+
   </style>
 </head>
 <body>
@@ -10831,9 +10845,10 @@ If STATE says she is asleep: she stays asleep. MOMENT is narrator + body (breath
     }
 
     function characterOf(id) {
-      if (id && CHARACTERS[id]) return CHARACTERS[id];
       const vis = (typeof characterList === "function") ? characterList() : [];
-      return vis[0] || CHARACTERS.mara || CHARACTERS.ang || { id: "none", name: "—", ready: false, blurb: "", voice: "", scenarios: [], gutNights: [] };
+      const allowed = (c) => c && vis.some((x) => x.id === c.id);
+      if (id && CHARACTERS[id] && allowed(CHARACTERS[id])) return CHARACTERS[id];
+      return vis[0] || { id: "", name: "Speck", ready: false, blurb: "", voice: "", scenarios: [], gutNights: [] };
     }
 
     function ownerOfScenario(id) {
@@ -10930,7 +10945,7 @@ If STATE says she is asleep: she stays asleep. MOMENT is narrator + body (breath
     function freshGame(scenarioId, characterId) {
       const s = scenarioOf(scenarioId);
       const inferred = ownerOfScenario(s.id);
-      const c = characterOf(characterId || inferred || game.characterId || "mara");
+      const c = characterOf(characterId || inferred || (game && game.characterId) || "");
       return {
         characterId: c.id,
         scenarioId: s.id,
@@ -10961,7 +10976,10 @@ If STATE says she is asleep: she stays asleep. MOMENT is narrator + body (breath
         gas: 0,
       };
     }
-    let game = freshGame("mara-laundry", "mara");
+    let game = {
+      characterId: "", scenarioId: "", location: "", playerPlace: "", playerName: "",
+      mood: "", noticed: false, shot: "look", fate: "", depth: 0, hp: 100, gone: false
+    };
     let activeChatId = null;
 
     const els = {
@@ -11150,6 +11168,7 @@ If STATE says she is asleep: she stays asleep. MOMENT is narrator + body (breath
         showAuthPane("signed");
       } else {
         els.account.textContent = "Log in";
+        try { if (typeof syncGuestShell === "function") syncGuestShell(); } catch {}
         if (authView === "signup") {
           els.authTitle.textContent = "Create account";
           els.authStatus.textContent = "Nights already on this phone will upload after you create the account.";
@@ -13042,9 +13061,17 @@ Never copy SPEECH: or ACTION: into your reply. Reply only with MOMENT, SAY, SHOT
       if (!sessionUser) return true;
       return !characterList().some((c) => c.ready);
     }
-    function showHome() {
+    function syncGuestShell() {
       const land = landingNeeded();
-      els.home.classList.toggle("land", land);
+      document.body.classList.toggle("guest", land);
+      if (els.home) {
+        els.home.classList.toggle("land", land);
+        if (land) els.home.classList.add("show");
+      }
+      return land;
+    }
+    function showHome() {
+      const land = syncGuestShell();
       const note = document.getElementById("landNote");
       if (note) {
         note.textContent = sessionUser
@@ -13062,6 +13089,11 @@ Never copy SPEECH: or ACTION: into your reply. Reply only with MOMENT, SAY, SHOT
     }
 
     function hideHome() {
+      if (typeof landingNeeded === "function" && landingNeeded()) {
+        syncGuestShell();
+        return;
+      }
+      document.body.classList.remove("guest");
       els.home.classList.remove("show");
       // Snap palette back to whoever is actually in play
       applyTheme(game.characterId);
@@ -13604,7 +13636,9 @@ Never copy SPEECH: or ACTION: into your reply. Reply only with MOMENT, SAY, SHOT
     const newChatBtn = document.getElementById("newChatBtn");
     if (newChatBtn) {
       newChatBtn.addEventListener("click", () => {
+        if (typeof landingNeeded === "function" && landingNeeded()) { showHome(); return; }
         const face = characterOf(game.characterId).id;
+        if (!face) { showHome(); return; }
         hideHome();
         closeLibrary();
         startOpenChat(face);
@@ -13644,7 +13678,8 @@ Never copy SPEECH: or ACTION: into your reply. Reply only with MOMENT, SAY, SHOT
     });
     const homeNew = document.getElementById("homeNew");
     if (homeNew) homeNew.addEventListener("click", () => {
-      if (landingNeeded() && !characterList().length) { openStudio("char"); return; }
+      if (!sessionUser) { openAuth(); return; }
+      if (landingNeeded()) { openStudio("char"); return; }
       hideHome();
       startOpenChat(lastFaceId());
     });
@@ -13664,6 +13699,7 @@ Never copy SPEECH: or ACTION: into your reply. Reply only with MOMENT, SAY, SHOT
       }
     });
     function leaveHome() {
+      if (landingNeeded()) { showHome(); return; }
       hideHome();
       if (!els.log.children.length) paintOpening();
     }
