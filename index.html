@@ -3539,27 +3539,48 @@ If STATE says she is asleep: she stays asleep. MOMENT is narrator + body (breath
     let canonLoaded = false;
     let canonError = "";
 
+    function applyCanon(obj) {
+      if (!obj) return false;
+      Object.assign(CHARACTERS, obj.characters || {});
+      Object.assign(SCENARIOS, obj.scenarios || {});
+      return !!Object.keys(CHARACTERS).length;
+    }
+
+    // Source A: private Storage bucket "canon", object "canon.json".
+    // Easiest to seed (upload a file in the dashboard, no terminal needed).
+    async function loadCanonFromStorage() {
+      const { data, error } = await supabase.storage.from("canon").download("canon.json");
+      if (error || !data) return false;
+      return applyCanon(JSON.parse(await data.text()));
+    }
+
+    // Source B: the canon_content table, if you ever seed it instead.
+    async function loadCanonFromTable() {
+      const { data, error } = await supabase
+        .from("canon_content")
+        .select("id, data")
+        .in("id", ["characters", "scenarios"]);
+      if (error || !data || !data.length) return false;
+      const obj = { characters: {}, scenarios: {} };
+      data.forEach((row) => {
+        if (row.id === "characters") obj.characters = row.data || {};
+        if (row.id === "scenarios") obj.scenarios = row.data || {};
+      });
+      return applyCanon(obj);
+    }
+
     async function loadCanon() {
       if (canonLoaded || !supabase || !sessionUser) return canonLoaded;
-      try {
-        const { data, error } = await supabase
-          .from("canon_content")
-          .select("id, data")
-          .in("id", ["characters", "scenarios"]);
-        if (error) throw error;
-        if (!data || !data.length) { canonError = "no-access"; return false; }
-        data.forEach((row) => {
-          if (row.id === "characters") Object.assign(CHARACTERS, row.data || {});
-          if (row.id === "scenarios") Object.assign(SCENARIOS, row.data || {});
-        });
-        canonLoaded = !!Object.keys(CHARACTERS).length;
-        canonError = canonLoaded ? "" : "empty";
-        return canonLoaded;
-      } catch (e) {
-        console.warn("canon load failed", e);
-        canonError = "fetch";
-        return false;
+      for (const src of [loadCanonFromStorage, loadCanonFromTable]) {
+        try {
+          if (await src()) { canonLoaded = true; canonError = ""; return true; }
+        } catch (e) {
+          console.warn("canon source failed:", src.name, e && e.message);
+        }
       }
+      canonError = "no-access";
+      console.warn("Canon unavailable: not seeded, or this account is not in canon_readers.");
+      return false;
     }
 
     function unloadCanon() {
