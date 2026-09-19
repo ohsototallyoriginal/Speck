@@ -1815,14 +1815,16 @@
     }
     .you-think::before { content: "think  "; font-style: normal; letter-spacing: .08em; text-transform: uppercase; font-size: .62em; opacity: .7; }
     #thinkBtn {
-      display: none;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
       flex: 1; min-height: 34px; border-radius: 999px;
       border: 1px solid color-mix(in srgb, var(--cyan) 45%, var(--hair));
       background: color-mix(in srgb, var(--panel2) 70%, #102028);
       color: var(--cyan); font-size: .68rem; font-weight: 800;
       letter-spacing: .1em; text-transform: uppercase;
     }
-    html.conor-play #thinkBtn { display: inline-flex; align-items: center; justify-content: center; }
+    html.conor-play #thinkBtn { display: inline-flex; }
     html.scene-gut .actions #look,
     html.scene-gut .actions #talk,
     html.scene-gut .actions #hide {
@@ -2413,9 +2415,10 @@
     #nightTabBegin.on, #nightTabGut.on, #nightTabConor.on, #nightTabAll.on {
       border-color: var(--tab); background: var(--tab); color: #0a0810;
     }
+    .face-group { margin-bottom: 18px; }
     .lib-split {
       height: 1px;
-      margin: 4px 0 14px;
+      margin: 22px 0 26px;
       border: 0;
       background: linear-gradient(90deg, transparent, var(--neon), var(--cyan), transparent);
       opacity: .7;
@@ -2476,6 +2479,50 @@
     }
     .ask-actions .ask-yes {
       background: var(--neon); color: #140814; border-color: transparent;
+    }
+    #studio {
+      position: fixed; inset: 0; z-index: 40;
+      display: none; align-items: flex-end; justify-content: center;
+      background: rgba(8,4,10,.72);
+      padding: calc(10px + var(--safe-top)) 0 0;
+    }
+    #studio.show { display: flex; }
+    #studio .sheet {
+      width: 100%; max-height: 94%;
+      overflow-y: auto;
+      background: color-mix(in srgb, var(--panel2) 94%, #000);
+      border: 1px solid var(--hair);
+      border-radius: 22px 22px 0 0;
+      padding: 16px 16px calc(20px + var(--safe-bot));
+    }
+    #studio h2 { margin: 0 0 8px; font-size: 1.05rem; }
+    #studio label {
+      display: block; margin: 10px 0 4px;
+      font-size: .68rem; letter-spacing: .1em; text-transform: uppercase; color: var(--muted); font-weight: 800;
+    }
+    #studio input, #studio textarea, #studio select {
+      width: 100%; border-radius: 12px; border: 1px solid var(--hair);
+      background: var(--panel); color: var(--ink); font: inherit; padding: 10px 12px;
+    }
+    #studio textarea { min-height: 88px; resize: vertical; }
+    #studio .row { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 12px; }
+    #studio .row button { flex: 1; min-height: 42px; border-radius: 12px; font-weight: 800; }
+    .still-map { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 8px; }
+    .still-slot {
+      border: 1px dashed var(--hair); border-radius: 12px; padding: 8px;
+      background: var(--panel); min-height: 72px;
+    }
+    .still-slot b { display: block; font-size: .62rem; letter-spacing: .08em; text-transform: uppercase; color: var(--muted); }
+    .still-slot img { width: 100%; height: 64px; object-fit: cover; border-radius: 8px; margin-top: 6px; background: #000; }
+    .studio-empty {
+      padding: 16px; border: 1px dashed var(--hair); border-radius: 14px;
+      color: var(--muted); margin: 8px 0 16px;
+    }
+    .lib-create { display: flex; gap: 8px; margin: 8px 0 4px; }
+    .lib-create button {
+      flex: 1; min-height: 40px; border-radius: 999px;
+      border: 1px solid var(--hair); background: var(--panel); color: var(--ink);
+      font-size: .68rem; font-weight: 800; letter-spacing: .06em; text-transform: uppercase;
     }
     .night-card .badge.unintentional { color: #f0e090; border-color: color-mix(in srgb, #f0e090 40%, var(--hair)); }
     .night-card .badge.mean { color: #ff7a8a; border-color: color-mix(in srgb, #ff7a8a 40%, var(--hair)); }
@@ -3721,6 +3768,55 @@
       </div>
     </div>
   </div>
+  <div id="studio">
+    <div class="sheet" role="dialog" aria-modal="true" aria-labelledby="studioTitle">
+      <h2 id="studioTitle">New character</h2>
+      <p class="hint" id="studioHint">Private to this login. Gemini plays her from the voice you write.</p>
+      <div id="studioCharPane">
+        <label for="scName">Name</label>
+        <input id="scName" maxlength="40" autocomplete="off" />
+        <label for="scBlurb">Blurb</label>
+        <input id="scBlurb" maxlength="80" placeholder="One line" />
+        <label for="scVoice">Voice / prompt</label>
+        <textarea id="scVoice" placeholder="You play NAME. How she talks. What she will and will not do."></textarea>
+        <label for="scAccent">Accent color</label>
+        <input id="scAccent" type="color" value="#7cff9a" />
+        <div class="row">
+          <button type="button" id="scDraft">Draft voice</button>
+          <button type="button" id="scSaveChar" class="ask-yes">Save character</button>
+        </div>
+        <label>Stills — assign a photo to a shot</label>
+        <div class="still-map" id="scStillMap"></div>
+      </div>
+      <div id="studioNightPane" hidden>
+        <label for="snTitle">Night title</label>
+        <input id="snTitle" maxlength="60" />
+        <label for="snBlurb">Blurb</label>
+        <input id="snBlurb" maxlength="120" />
+        <label for="snPlace">Where you are</label>
+        <input id="snPlace" placeholder="on her palm / across the booth / inside" />
+        <label for="snLoc">Location</label>
+        <input id="snLoc" placeholder="her apartment, late" />
+        <label for="snHook">Scenario lock for the model</label>
+        <textarea id="snHook" placeholder="SCENARIO: she does not know / she swallowed by accident / ..."></textarea>
+        <label for="snOpenM">Opening moment</label>
+        <textarea id="snOpenM"></textarea>
+        <label for="snOpenL">Opening line</label>
+        <input id="snOpenL" />
+        <label for="snShot">Starting shot</label>
+        <select id="snShot"></select>
+        <label class="row" style="display:flex;align-items:center;gap:8px;text-transform:none;letter-spacing:0">
+          <input id="snGut" type="checkbox" style="width:auto" /> Starts inside
+        </label>
+        <div class="row">
+          <button type="button" id="snSave">Save night</button>
+        </div>
+      </div>
+      <div class="row">
+        <button type="button" id="studioClose">Close</button>
+      </div>
+    </div>
+  </div>
   <div id="world" aria-hidden="true"><i class="alley"></i><i class="mouth"></i><i class="throat"></i><i class="gut"></i></div>
   <div id="gulp" class="fate" role="dialog" aria-label="Swallowed">
     <h2>Gulp</h2>
@@ -3889,14 +3985,18 @@
         <button type="button" id="libTabChats" role="tab" aria-selected="false">Chats</button>
       </div>
       <div id="libStoriesPane">
+        <div class="lib-create">
+          <button type="button" id="btnNewChar">New character</button>
+          <button type="button" id="btnNewNight">New night</button>
+        </div>
         <div id="faceList"></div>
         <hr class="lib-split" />
         <div class="night-tools">
           <div class="night-tabs" role="tablist">
+            <button type="button" id="nightTabAll" class="on">All</button>
             <button type="button" id="nightTabBegin">Outside</button>
             <button type="button" id="nightTabGut">Inside</button>
             <button type="button" id="nightTabConor">Conor</button>
-            <button type="button" id="nightTabAll" class="on">All</button>
           </div>
           <div class="tag-tabs" id="tagTabs" role="tablist" aria-label="Night tags"></div>
           <input id="nightSearch" type="search" placeholder="Search stories" enterkeyhint="search" autocomplete="off" />
@@ -4030,8 +4130,10 @@
       if (host) return host[0];
       return u.replace(/\/+$/, "").replace(/\/(auth|rest|storage|functions)\/v1.*$/i, "");
     }
+    const OWNER_EMAIL = "deathsprofessor@gmail.com";
+    const DEFAULT_SUPABASE_URL = "https://zwloempjmisgapphgjqm.supabase.co";
     const SUPABASE_URL = normalizeSupabaseUrl(
-      localStorage.getItem("speckSupabaseUrl") || ""
+      localStorage.getItem("speckSupabaseUrl") || DEFAULT_SUPABASE_URL
     );
     const SUPABASE_ANON = String(localStorage.getItem("speckSupabaseAnon") || "").trim().replace(/^["']|["']$/g, "");
     const cloudReady = /^https:\/\/[a-z0-9-]+\.supabase\.co$/i.test(SUPABASE_URL) && SUPABASE_ANON.length > 40;
@@ -9018,16 +9120,107 @@ If STATE says she is asleep: she stays asleep. MOMENT is narrator + body (breath
       return g ? g.id : "originals";
     }
 
+    function isOwner() {
+      const em = sessionUser && String(sessionUser.email || "").toLowerCase();
+      return em === OWNER_EMAIL;
+    }
+    function isCanonId(id) {
+      return FACE_ORDER.indexOf(id) >= 0 || (CHARACTERS[id] && !CHARACTERS[id].custom);
+    }
     function characterList() {
       const seen = new Set();
       const out = [];
-      FACE_ORDER.forEach((id) => {
-        if (CHARACTERS[id]) { out.push(CHARACTERS[id]); seen.add(id); }
-      });
-      Object.keys(CHARACTERS).forEach((id) => {
-        if (!seen.has(id)) out.push(CHARACTERS[id]);
-      });
+      const allowCanon = isOwner();
+      const uid = sessionUser && sessionUser.id;
+      const take = (c) => {
+        if (!c || seen.has(c.id)) return;
+        if (c.custom) {
+          if (!uid || c.ownerId !== uid) return;
+        } else if (!allowCanon) return;
+        out.push(c);
+        seen.add(c.id);
+      };
+      FACE_ORDER.forEach((id) => { if (CHARACTERS[id]) take(CHARACTERS[id]); });
+      Object.keys(CHARACTERS).forEach((id) => take(CHARACTERS[id]));
       return out;
+    }
+
+    const STUDIO_SHOTS = ["look","palm","hold","wave","street","swallow","inside","gut","after","burp","lounge","bed","sit","tongue"];
+    let studioPack = { characters: {}, scenarios: {} };
+    let studioMode = "char";
+    let studioEditId = "";
+
+    function studioKey() {
+      return "speckStudio:" + ((sessionUser && sessionUser.id) || "local");
+    }
+    function readStudioLocal() {
+      try {
+        const raw = JSON.parse(localStorage.getItem(studioKey()) || "null");
+        if (raw && raw.characters) studioPack = raw;
+      } catch {}
+    }
+    function writeStudioLocal() {
+      try { localStorage.setItem(studioKey(), JSON.stringify(studioPack)); } catch {}
+    }
+    function applyStudioPack() {
+      Object.keys(CHARACTERS).forEach((id) => {
+        if (CHARACTERS[id] && CHARACTERS[id].custom) delete CHARACTERS[id];
+      });
+      Object.keys(SCENARIOS).forEach((id) => {
+        if (SCENARIOS[id] && SCENARIOS[id].custom) delete SCENARIOS[id];
+      });
+      Object.keys(studioPack.characters || {}).forEach((id) => {
+        const c = studioPack.characters[id];
+        if (!c) return;
+        CHARACTERS[id] = Object.assign({
+          ready: true,
+          custom: true,
+          thinkBudget: 256,
+          maxTokens: 8192,
+          temperature: 0.9,
+          stillDir: "",
+          stills: {},
+          scenarios: [],
+          gutNights: [],
+          gulpLine: "You're in.",
+          digestLine: "That's the night.",
+        }, c);
+        FACE_ACCENT[id] = c.accent || "#7cff9a";
+      });
+      Object.keys(studioPack.scenarios || {}).forEach((id) => {
+        const s = studioPack.scenarios[id];
+        if (!s) return;
+        SCENARIOS[id] = Object.assign({ custom: true, tags: ["aware"], shot: "look" }, s);
+        const c = CHARACTERS[s.characterId];
+        if (c) {
+          c.scenarios = c.scenarios || [];
+          c.gutNights = c.gutNights || [];
+          if (s.gut) {
+            if (c.gutNights.indexOf(id) < 0) c.gutNights.push(id);
+          } else if (c.scenarios.indexOf(id) < 0) c.scenarios.push(id);
+        }
+      });
+    }
+    async function pullStudio() {
+      readStudioLocal();
+      if (supabase && sessionUser) {
+        try {
+          const { data } = await supabase.from("studio_packs").select("pack").eq("user_id", sessionUser.id).maybeSingle();
+          if (data && data.pack && data.pack.characters) studioPack = data.pack;
+        } catch (e) { console.warn("studio pull", e); }
+      }
+      applyStudioPack();
+    }
+    async function pushStudio() {
+      writeStudioLocal();
+      if (!supabase || !sessionUser) return;
+      try {
+        await supabase.from("studio_packs").upsert({
+          user_id: sessionUser.id,
+          pack: studioPack,
+          updated_at: new Date().toISOString(),
+        });
+      } catch (e) { console.warn("studio push", e); }
     }
 
     const DEPTH_ORDER = ["palm", "tongue", "gulp", "gut"];
@@ -10538,7 +10731,14 @@ If STATE says she is asleep: she stays asleep. MOMENT is narrator + body (breath
     const SAVE_KEY = "dawnSave.v1";
 
     function characterOf(id) {
-      return CHARACTERS[id] || CHARACTERS.mara;
+      if (id && CHARACTERS[id]) {
+        const c = CHARACTERS[id];
+        if (c.custom) {
+          if (sessionUser && c.ownerId === sessionUser.id) return c;
+        } else if (isOwner()) return c;
+      }
+      const vis = characterList();
+      return vis[0] || CHARACTERS[id] || CHARACTERS.mara || { id: "none", name: "—", ready: false, blurb: "", voice: "", scenarios: [], gutNights: [] };
     }
 
     function ownerOfScenario(id) {
@@ -10605,6 +10805,8 @@ If STATE says she is asleep: she stays asleep. MOMENT is narrator + body (breath
       const root = document.documentElement;
       root.classList.add("theme-anim");
       root.setAttribute("data-face", id);
+      const accent = FACE_ACCENT[id];
+      if (accent) root.style.setProperty("--neon", accent);
       const meta = document.querySelector('meta[name="theme-color"]');
       if (meta) meta.setAttribute("content", THEME_COLORS[id] || "#120814");
       const c = characterOf(id);
@@ -10620,8 +10822,13 @@ If STATE says she is asleep: she stays asleep. MOMENT is narrator + body (breath
 
     function stillSrc(key) {
       const c = characterOf(game.characterId);
-      const dir = c.stillDir || "stills/";
-      let name = STILLS[key] ? key : "look";
+      const name = STILLS[key] ? key : "look";
+      if (c && c.stills) {
+        if (c.stills[name]) return c.stills[name];
+        if (c.stills.look) return c.stills.look;
+      }
+      if (c && c.custom) return "logo.png";
+      const dir = (c && c.stillDir) || "stills/";
       return dir + name + ".jpg";
     }
 
@@ -10852,10 +11059,15 @@ If STATE says she is asleep: she stays asleep. MOMENT is narrator + body (breath
 
     async function afterLogin() {
       await authUser();
+      await pullStudio();
       await uploadLocalChats();
       await pullChats();
       setAuthUi();
       renderLibrary();
+      paintHomeFaces();
+      if (sessionUser && !isOwner() && !characterList().length) {
+        openStudio("char");
+      }
     }
 
     async function pushChat(chat) {
@@ -11011,9 +11223,10 @@ If STATE says she is asleep: she stays asleep. MOMENT is narrator + body (breath
     function lastFaceId() {
       try {
         const id = localStorage.getItem("speckLastFace");
-        if (id && CHARACTERS[id] && CHARACTERS[id].ready) return id;
+        if (id && characterList().some((c) => c.id === id && c.ready)) return id;
       } catch {}
-      return "ang";
+      const vis = characterList().filter((c) => c.ready);
+      return vis[0] ? vis[0].id : "";
     }
     function rememberFace(id) {
       if (id && CHARACTERS[id]) {
@@ -11029,7 +11242,12 @@ If STATE says she is asleep: she stays asleep. MOMENT is narrator + body (breath
       return !s.opening || s.id === "blank" || /-blank$/.test(s.id);
     }
     function startOpenChat(faceId) {
-      const face = (CHARACTERS[faceId] && CHARACTERS[faceId].ready) ? faceId : lastFaceId();
+      const vis = characterList().filter((c) => c.ready);
+      const face = vis.some((c) => c.id === faceId) ? faceId : lastFaceId();
+      if (!face) {
+        showHome();
+        return;
+      }
       rememberFace(face);
       stopDigestMeter({ clear: true });
       activeChatId = "chat-" + Date.now();
@@ -11343,8 +11561,9 @@ If STATE says she is asleep: she stays asleep. MOMENT is narrator + body (breath
         else b.addEventListener("click", () => browseFace(c.id));
         return b;
       };
+      const visibleIds = new Set(characterList().map((c) => c.id));
       FACE_GROUPS.forEach((g) => {
-        const pack = g.ids.map((id) => CHARACTERS[id]).filter((c) => c && c.ready);
+        const pack = g.ids.map((id) => CHARACTERS[id]).filter((c) => c && c.ready && visibleIds.has(c.id));
         if (!pack.length) return;
         pack.forEach((c) => used.add(c.id));
         const wrap = document.createElement("div");
@@ -11362,12 +11581,20 @@ If STATE says she is asleep: she stays asleep. MOMENT is narrator + body (breath
         const wrap = document.createElement("div");
         wrap.className = "face-group";
         const h = document.createElement("h4");
-        h.textContent = "More";
+        h.textContent = leftover.some((c) => c.custom) ? "Yours" : "More";
         const rail = document.createElement("div");
         rail.className = "face-tabs";
         leftover.forEach((c) => rail.appendChild(makeChip(c)));
         wrap.append(h, rail);
         els.faceList.appendChild(wrap);
+      }
+      if (!characterList().length) {
+        const empty = document.createElement("div");
+        empty.className = "studio-empty";
+        empty.innerHTML = sessionUser
+          ? "<b>No characters yet.</b><span> Create one — private to this login.</span>"
+          : "<b>Log in</b><span> to load your private cast. Canon faces stay on the owner account.</span>";
+        els.faceList.appendChild(empty);
       }
       const tagHost = document.getElementById("tagTabs");
       if (tagHost && !tagHost.dataset.ready) {
@@ -11777,8 +12004,8 @@ If STATE says she is asleep: she stays asleep. MOMENT is narrator + body (breath
       return /^conor$/i.test(namedPlayer());
     }
     function paintThinkBtn() {
-      const on = isConorPlay() && !game.gone;
-      document.documentElement.classList.toggle("conor-play", on);
+      const on = !game.gone;
+      document.documentElement.classList.toggle("conor-play", isConorPlay());
       const btn = document.getElementById("thinkBtn");
       if (btn) btn.disabled = !on || busy || (!engine && !CLOUD_ACTOR_URL);
     }
@@ -12337,7 +12564,7 @@ Never copy SPEECH: or ACTION: into your reply. Reply only with MOMENT, SAY, SHOT
 
     async function firePlayerAct(kind) {
       if (busy || game.gone || (!engine && !CLOUD_ACTOR_URL)) return;
-      if (kind === "think" && !isConorPlay()) return;
+      if (kind === "think" && game.gone) return;
       const wrap = addTurn({ think: "…", pending: true });
       setBusy(true);
       try {
@@ -12702,8 +12929,11 @@ Never copy SPEECH: or ACTION: into your reply. Reply only with MOMENT, SAY, SHOT
           try {
             await authUser();
             if (sessionUser) {
+              await pullStudio();
               await uploadLocalChats();
               await pullChats();
+              renderLibrary();
+              paintHomeFaces();
             }
           } catch (e) { console.warn(e); }
           setAuthUi();
@@ -12949,9 +13179,191 @@ Never copy SPEECH: or ACTION: into your reply. Reply only with MOMENT, SAY, SHOT
     document.getElementById("authOut").addEventListener("click", async () => {
       if (supabase) await supabase.auth.signOut();
       sessionUser = null;
+      studioPack = { characters: {}, scenarios: {} };
+      applyStudioPack();
       authView = "welcome";
       setAuthUi();
+      renderLibrary();
+      paintHomeFaces();
     });
+
+    function paintStillMap() {
+      const host = document.getElementById("scStillMap");
+      if (!host) return;
+      const c = studioEditId && studioPack.characters[studioEditId];
+      const stills = (c && c.stills) || {};
+      host.innerHTML = "";
+      STUDIO_SHOTS.forEach((shot) => {
+        const slot = document.createElement("label");
+        slot.className = "still-slot";
+        slot.innerHTML = "<b></b><img alt=\"\" /><input type=\"file\" accept=\"image/*\" hidden />";
+        slot.querySelector("b").textContent = shot;
+        const img = slot.querySelector("img");
+        if (stills[shot]) img.src = stills[shot];
+        slot.querySelector("input").addEventListener("change", async (e) => {
+          const file = e.target.files && e.target.files[0];
+          if (!file) return;
+          const url = await uploadStillFile(file, studioEditId || "draft", shot);
+          if (!url) return;
+          if (!studioEditId) return;
+          studioPack.characters[studioEditId].stills = studioPack.characters[studioEditId].stills || {};
+          studioPack.characters[studioEditId].stills[shot] = url;
+          img.src = url;
+          applyStudioPack();
+          await pushStudio();
+          if (game.characterId === studioEditId) setStill(game.shot || shot);
+        });
+        host.appendChild(slot);
+      });
+    }
+    async function uploadStillFile(file, charId, shot) {
+      if (!sessionUser) {
+        pushToast("Log in to upload stills.", "bad");
+        return "";
+      }
+      const ext = (file.name.split(".").pop() || "jpg").toLowerCase().replace(/[^a-z0-9]/g, "") || "jpg";
+      const path = sessionUser.id + "/" + charId + "/" + shot + "." + ext;
+      try {
+        await loadSupabase();
+        const { error } = await supabase.storage.from("stills").upload(path, file, { upsert: true, contentType: file.type || "image/jpeg" });
+        if (error) throw error;
+        const { data, error: sErr } = await supabase.storage.from("stills").createSignedUrl(path, 60 * 60 * 24 * 30);
+        if (sErr) throw sErr;
+        return data.signedUrl;
+      } catch (e) {
+        console.warn(e);
+        pushToast(String(e.message || e), "bad");
+        return "";
+      }
+    }
+    function openStudio(mode, id) {
+      if (!sessionUser) {
+        openAuth();
+        return;
+      }
+      studioMode = mode || "char";
+      studioEditId = id || "";
+      const sheet = document.getElementById("studio");
+      const charPane = document.getElementById("studioCharPane");
+      const nightPane = document.getElementById("studioNightPane");
+      document.getElementById("studioTitle").textContent = studioMode === "night" ? "New night" : (studioEditId ? "Edit character" : "New character");
+      charPane.hidden = studioMode === "night";
+      nightPane.hidden = studioMode !== "night";
+      if (studioMode === "char") {
+        const c = studioEditId && studioPack.characters[studioEditId];
+        document.getElementById("scName").value = c ? c.name : "";
+        document.getElementById("scBlurb").value = c ? c.blurb : "";
+        document.getElementById("scVoice").value = c ? c.voice : "";
+        document.getElementById("scAccent").value = c && c.accent ? c.accent : "#7cff9a";
+        paintStillMap();
+      } else {
+        const sel = document.getElementById("snShot");
+        sel.innerHTML = STUDIO_SHOTS.map((k) => "<option value=\"" + k + "\">" + k + "</option>").join("");
+        document.getElementById("snTitle").value = "";
+        document.getElementById("snBlurb").value = "";
+        document.getElementById("snPlace").value = "";
+        document.getElementById("snLoc").value = "";
+        document.getElementById("snHook").value = "";
+        document.getElementById("snOpenM").value = "";
+        document.getElementById("snOpenL").value = "";
+        document.getElementById("snGut").checked = false;
+      }
+      sheet.classList.add("show");
+    }
+    function closeStudio() {
+      document.getElementById("studio").classList.remove("show");
+    }
+    async function saveStudioChar() {
+      const name = document.getElementById("scName").value.trim();
+      if (!name) { pushToast("Name her first.", "bad"); return; }
+      if (!sessionUser) { openAuth(); return; }
+      const id = studioEditId || ("c-" + Date.now().toString(36));
+      studioPack.characters[id] = Object.assign({}, studioPack.characters[id] || {}, {
+        id,
+        custom: true,
+        ownerId: sessionUser.id,
+        ready: true,
+        name,
+        blurb: document.getElementById("scBlurb").value.trim() || "Your character",
+        voice: document.getElementById("scVoice").value.trim() || ("You play " + name + ". Adult. Stay in character. Label speech SAY:"),
+        accent: document.getElementById("scAccent").value || "#7cff9a",
+        stills: (studioPack.characters[id] && studioPack.characters[id].stills) || {},
+        scenarios: (studioPack.characters[id] && studioPack.characters[id].scenarios) || [],
+        gutNights: (studioPack.characters[id] && studioPack.characters[id].gutNights) || [],
+      });
+      studioEditId = id;
+      applyStudioPack();
+      await pushStudio();
+      paintStillMap();
+      renderLibrary();
+      paintHomeFaces();
+      pushToast("Saved " + name + ".", "ok");
+    }
+    async function saveStudioNight() {
+      const title = document.getElementById("snTitle").value.trim();
+      if (!title) { pushToast("Title the night.", "bad"); return; }
+      const face = libFace || lastFaceId();
+      if (!face || !CHARACTERS[face]) { pushToast("Pick a character first.", "bad"); return; }
+      if (CHARACTERS[face].custom && CHARACTERS[face].ownerId !== (sessionUser && sessionUser.id)) {
+        pushToast("That face isn't yours.", "bad"); return;
+      }
+      if (!CHARACTERS[face].custom && !isOwner()) {
+        pushToast("Canon nights stay on the owner account. Make your own face.", "bad"); return;
+      }
+      const id = "n-" + Date.now().toString(36);
+      const gut = !!document.getElementById("snGut").checked;
+      studioPack.scenarios[id] = {
+        id,
+        custom: true,
+        characterId: face,
+        title,
+        blurb: document.getElementById("snBlurb").value.trim() || title,
+        sub: gut ? "Inside" : "Outside",
+        location: document.getElementById("snLoc").value.trim() || "this room",
+        playerPlace: document.getElementById("snPlace").value.trim() || "near her",
+        mood: "",
+        shot: document.getElementById("snShot").value || "look",
+        gut,
+        tags: gut ? ["aware", "intentional"] : ["aware"],
+        hook: document.getElementById("snHook").value.trim() || ("SCENARIO: " + title + ". Stay in this room."),
+        opening: {
+          moment: document.getElementById("snOpenM").value.trim() || "The night starts.",
+          line: document.getElementById("snOpenL").value.trim() || "",
+        },
+      };
+      applyStudioPack();
+      await pushStudio();
+      renderLibrary();
+      closeStudio();
+      pushToast("Night saved.", "ok");
+    }
+    async function draftStudioVoice() {
+      const name = document.getElementById("scName").value.trim() || "her";
+      const blurb = document.getElementById("scBlurb").value.trim();
+      try {
+        const raw = await askActor([
+          { role: "system", content: "Write a compact actor prompt. Start with You play NAME. No markdown. 80-140 words. Adult. Include speech style and what she will not do. End with Label speech SAY:" },
+          { role: "user", content: "Name: " + name + "\nBlurb: " + blurb },
+        ]);
+        const text = String(raw || "").replace(/^MOMENT:.*$/m, "").trim();
+        if (text) document.getElementById("scVoice").value = text;
+      } catch (e) {
+        pushToast(String(e.message || e), "bad");
+      }
+    }
+
+    const btnNewChar = document.getElementById("btnNewChar");
+    const btnNewNight = document.getElementById("btnNewNight");
+    if (btnNewChar) btnNewChar.addEventListener("click", () => openStudio("char"));
+    if (btnNewNight) btnNewNight.addEventListener("click", () => openStudio("night"));
+    const studioClose = document.getElementById("studioClose");
+    if (studioClose) studioClose.addEventListener("click", closeStudio);
+    const scSave = document.getElementById("scSaveChar");
+    if (scSave) scSave.addEventListener("click", saveStudioChar);
+    const snSave = document.getElementById("snSave");
+    if (snSave) snSave.addEventListener("click", saveStudioNight);
+    const scDraft = document.getElementById("scDraft");
+    if (scDraft) scDraft.addEventListener("click", draftStudioVoice);
 
     function openSettings() {
       els.setMsg.textContent = sessionUser ? ("Signed in as " + sessionUser.email) : "Log in to change password.";
