@@ -1381,6 +1381,7 @@
     #home.land #homeCreate { display: block; }
     #home #homeCreate { display: none; }
     #home.land .lede { display: none; }
+    #home.land #homeClose { display: none !important; }
     #home button { cursor: pointer; }
     .scene-who { display: none !important; }
     .scene-who h1 {
@@ -13066,7 +13067,7 @@ Never copy SPEECH: or ACTION: into your reply. Reply only with MOMENT, SAY, SHOT
       if (note) {
         note.textContent = sessionUser
           ? "No characters on this account yet. Make one, then start a chat."
-          : "Log in to load your nights, or create a character to start.";
+          : "You're on the landing page. Log in to use characters, chats, and nights.";
       }
       const create = document.getElementById("homeCreate");
       if (create) create.textContent = sessionUser ? "Create character" : "Log in";
@@ -13622,7 +13623,8 @@ Never copy SPEECH: or ACTION: into your reply. Reply only with MOMENT, SAY, SHOT
     const newChatBtn = document.getElementById("newChatBtn");
     if (newChatBtn) {
       newChatBtn.addEventListener("click", () => {
-        if (typeof landingNeeded === "function" && landingNeeded()) { showHome(); return; }
+        if (!sessionUser) { showHome(); openAuth(); return; }
+        if (typeof landingNeeded === "function" && landingNeeded()) { openStudio("char"); return; }
         const face = characterOf(game.characterId).id;
         if (!face) { showHome(); return; }
         hideHome();
