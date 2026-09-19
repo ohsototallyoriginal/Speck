@@ -3846,6 +3846,27 @@
 
   
 
+  
+    #home .home-top { display: block; max-width: 26rem; }
+    #home.land .home-actions { grid-template-columns: 1fr; }
+    #home.land #homeNew,
+    #home.land #homeContinue,
+    #home.land #homeStories,
+    #home.land #homeChats { display: none !important; }
+    #home:not(.land) #homeAuth { display: none !important; }
+    #home.land #homeAuth { display: block; }
+    #home.land.signed #homeAuth { display: none !important; }
+    #home:not(.land) #homeCreate { display: none; }
+    #home.land #homeCreate { display: none; }
+    #home.land.signed #homeCreate { display: block; }
+    #home .home-primary,
+    #home #homeAuth {
+      background: var(--neon); color: #140814; border-color: transparent;
+      font-weight: 800; min-height: 44px;
+    }
+    #home.land h1 { font-size: clamp(2rem, 9vw, 2.8rem); margin: 0 0 10px; }
+    #home.land .land-note { display: block; margin: 0 0 18px; }
+
   </style>
 </head>
 <body>
@@ -3925,17 +3946,15 @@
     <div class="home-orbit" aria-hidden="true" id="homeOrbit"></div>
     <div class="home-inner">
       <div class="home-top">
-        <div>
-          <p class="eyebrow">Last call · speck scale</p>
-          <h1>Speck</h1>
-        </div>
-        <button type="button" id="homeAuth">Log in</button>
+        <p class="eyebrow">Speck</p>
+        <h1 id="homeTitle">Welcome</h1>
+        <p class="lede" id="homeLede">Open a chat. Stories are optional nights if you want a script.</p>
+        <p class="land-note" id="landNote"></p>
       </div>
-      <p class="lede">Open a chat and type. Stories are optional nights if you want a script.</p>
-      <p class="land-note" id="landNote">Log in to keep nights on this phone, or make a character and start typing.</p>
       <div class="home-actions">
-        <button type="button" id="homeNew">New chat</button>
+        <button type="button" id="homeAuth" class="home-primary">Log in</button>
         <button type="button" id="homeCreate">Create character</button>
+        <button type="button" id="homeNew">New chat</button>
         <button type="button" id="homeContinue">Continue last night</button>
         <button type="button" id="homeStories">Stories</button>
         <button type="button" id="homeChats">Saved chats</button>
@@ -13063,16 +13082,21 @@ Never copy SPEECH: or ACTION: into your reply. Reply only with MOMENT, SAY, SHOT
     }
     function showHome() {
       const land = syncGuestShell();
+      els.home.classList.toggle("signed", !!sessionUser);
+      const title = document.getElementById("homeTitle");
+      const lede = document.getElementById("homeLede");
       const note = document.getElementById("landNote");
+      if (title) title.textContent = sessionUser ? (land ? "Your desk" : "Speck") : "Welcome";
+      if (lede) lede.hidden = !!land;
       if (note) {
-        note.textContent = sessionUser
-          ? "No characters on this account yet. Make one, then start a chat."
-          : "You're on the landing page. Log in to use characters, chats, and nights.";
+        note.textContent = !sessionUser
+          ? "Log in from here or the header. Nights stay on your account."
+          : (land ? "No characters yet. Make one, then start a chat." : "");
       }
       const create = document.getElementById("homeCreate");
-      if (create) create.textContent = sessionUser ? "Create character" : "Log in";
-      const nw = document.getElementById("homeNew");
-      if (nw) nw.hidden = land && !sessionUser;
+      if (create) create.textContent = "Create character";
+      const auth = document.getElementById("homeAuth");
+      if (auth) auth.textContent = "Log in";
       paintHomeFaces();
       paintHomeOrbit();
       els.home.classList.add("show");
