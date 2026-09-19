@@ -5286,8 +5286,28 @@ If STATE says she is asleep: she stays asleep. MOMENT is narrator + body (breath
       applyTheme._t = setTimeout(() => root.classList.remove("theme-anim"), 600);
     }
 
+    // Canon loads asynchronously, so SCENARIOS is empty on first paint.
+    // Every consumer of scenarioOf() assumed a real object; this keeps the
+    // shape stable so nothing throws before the fetch lands.
+    const EMPTY_SCENARIO = Object.freeze({
+      id: "",
+      tags: [],
+      title: "",
+      sub: "",
+      blurb: "",
+      location: "",
+      playerPlace: "",
+      playerName: "",
+      mood: "",
+      shot: "look",
+      hook: "",
+      opening: null,
+      gut: false,
+      scenarios: [],
+    });
+
     function scenarioOf(id) {
-      return SCENARIOS[id] || SCENARIOS.blank;
+      return SCENARIOS[id] || SCENARIOS.blank || EMPTY_SCENARIO;
     }
 
     function stillSrc(key) {
