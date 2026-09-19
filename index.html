@@ -3052,6 +3052,81 @@
       #stage { cursor: default; }
       #zoomIcon, #thumbHint { display: none; }
     }
+    #studio {
+      position: fixed; inset: 0; z-index: 45;
+      display: none;
+      align-items: flex-end;
+      justify-content: center;
+      background: rgba(8,4,10,.78);
+      padding: calc(10px + env(safe-area-inset-top)) 0 0;
+    }
+    #studio.show { display: flex; }
+    #studio .sheet {
+      width: 100%;
+      max-height: 92%;
+      overflow-y: auto;
+      background: #12080e;
+      border: 1px solid rgba(240,196,58,.28);
+      border-radius: 22px 22px 0 0;
+      padding: 18px 16px calc(22px + env(safe-area-inset-bottom));
+    }
+    #studio h2 { margin: 0 0 6px; font-size: 1.15rem; }
+    #studio .hint { margin: 0 0 12px; color: var(--muted, #cbb89a); font-size: .86rem; }
+    #studio label {
+      display: block;
+      margin: 12px 0 4px;
+      font-size: .68rem;
+      letter-spacing: .1em;
+      text-transform: uppercase;
+      font-weight: 800;
+      color: var(--muted, #cbb89a);
+    }
+    #studio input, #studio textarea, #studio select {
+      display: block;
+      width: 100%;
+      box-sizing: border-box;
+      border-radius: 12px;
+      border: 1px solid rgba(255,255,255,.14);
+      background: #1a1014;
+      color: #fff8e8;
+      font: inherit;
+      padding: 10px 12px;
+    }
+    #studio textarea { min-height: 96px; resize: vertical; }
+    #studio input[type="color"] { height: 42px; padding: 4px; }
+    #studio .row { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 14px; }
+    #studio .row button {
+      flex: 1;
+      min-height: 44px;
+      border-radius: 12px;
+      border: 1px solid rgba(255,255,255,.14);
+      background: #241418;
+      color: #fff8e8;
+      font-weight: 800;
+    }
+    #scSaveChar, #snSave { background: #ffcc00; color: #140814; border-color: transparent; }
+    .still-map { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 8px; }
+    .still-slot {
+      border: 1px dashed rgba(255,255,255,.16);
+      border-radius: 12px;
+      padding: 8px;
+      background: #1a1014;
+    }
+    .still-slot b { display: block; font-size: .62rem; letter-spacing: .08em; text-transform: uppercase; color: #cbb89a; }
+    .still-slot img { width: 100%; height: 64px; object-fit: cover; border-radius: 8px; margin-top: 6px; background: #000; }
+    .lib-create { display: flex; gap: 8px; margin: 8px 0 10px; }
+    .lib-create button {
+      flex: 1; min-height: 40px; border-radius: 999px;
+      border: 1px solid rgba(255,255,255,.14);
+      background: #1a1014; color: #fff8e8;
+      font-size: .68rem; font-weight: 800; letter-spacing: .06em; text-transform: uppercase;
+    }
+    .ask-sheet {
+      position: fixed; inset: 0; z-index: 90;
+      display: none; place-items: center;
+      background: rgba(6,4,8,.55); padding: 24px;
+    }
+    .ask-sheet.show { display: grid; }
   </style>
 </head>
 <body>
@@ -3067,7 +3142,7 @@
 
   <div id="toasts" aria-live="polite" aria-relevant="additions"></div>
   
-  <div id="studio">
+  <div id="studio" hidden>
     <div class="sheet" role="dialog" aria-modal="true">
       <h2 id="studioTitle">New character</h2>
       <p class="hint" id="studioHint">Private to this login.</p>
@@ -12583,10 +12658,14 @@ Never copy SPEECH: or ACTION: into your reply. Reply only with MOMENT, SAY, SHOT
         document.getElementById("snOpenL").value = "";
         document.getElementById("snGut").checked = false;
       }
+      sheet.hidden = false;
       sheet.classList.add("show");
     }
     function closeStudio() {
-      document.getElementById("studio").classList.remove("show");
+      const sheet = document.getElementById("studio");
+      if (!sheet) return;
+      sheet.classList.remove("show");
+      sheet.hidden = true;
     }
     async function saveStudioChar() {
       const name = document.getElementById("scName").value.trim();
