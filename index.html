@@ -1371,6 +1371,16 @@
     #settings .set-note { margin: 6px 0 0; font-size: .78rem; color: var(--muted); }
     #home .home-dismiss { display: none; }
     #home { cursor: default; }
+    #home.land .home-faces-block { display: none; }
+    #home.land .home-actions #homeContinue,
+    #home.land .home-actions #homeStories,
+    #home.land .home-actions #homeChats { display: none; }
+    #home .land-note { display: none; margin: 0 0 16px; color: var(--muted); font-size: .92rem; line-height: 1.45; }
+    #home.land .land-note { display: block; }
+    #home.land #homeNew { flex: 1; background: var(--neon); color: #140814; border-color: transparent; font-weight: 800; }
+    #home.land #homeCreate { display: block; }
+    #home #homeCreate { display: none; }
+    #home.land .lede { display: none; }
     #home button { cursor: pointer; }
     .scene-who { display: none !important; }
     .scene-who h1 {
@@ -1419,7 +1429,13 @@
       margin: 0;
       vertical-align: middle;
     }
-    #live { color: var(--muted); }
+    #live {
+      min-width: 4.7rem;
+      max-width: 4.7rem;
+      overflow: hidden;
+      text-overflow: clip;
+      white-space: nowrap;
+      padding: 6px 8px !important; color: var(--muted); }
     #live.ready { color: #9ff0c0; border-color: #2f6a4a; }
     #live.busy { color: #ffd36a; border-color: #8a6a20; }
     #live.bad { color: #ff9aa6; border-color: var(--danger); }
@@ -3841,17 +3857,21 @@
         <button type="button" id="homeAuth">Log in</button>
       </div>
       <p class="lede">Open a chat and type. Stories are optional nights if you want a script.</p>
+      <p class="land-note" id="landNote">Log in to keep nights on this phone, or make a character and start typing.</p>
       <div class="home-actions">
         <button type="button" id="homeNew">New chat</button>
+        <button type="button" id="homeCreate">Create character</button>
         <button type="button" id="homeContinue">Continue last night</button>
         <button type="button" id="homeStories">Stories</button>
         <button type="button" id="homeChats">Saved chats</button>
       </div>
+      <div class="home-faces-block">
       <p class="home-label">Friend group</p>
       <div class="faces" id="homeFaces"></div>
       <p class="home-label">Everyone</p>
       <input id="homeFilter" type="search" placeholder="Filter faces" autocomplete="off" />
       <div class="faces chips" id="homeRest"></div>
+      </div>
       <button type="button" id="homeClose">Back to the night</button>
     </div>
   </div>
@@ -12185,7 +12205,7 @@ If STATE says she is asleep: she stays asleep. MOMENT is narrator + body (breath
       els.stage.classList.toggle("busy", on);
       if (game.gone) els.input.placeholder = "You are gone. Reset for another night.";
       else if (typeof setCompose === "function" && composeReady) setCompose(composeMode);
-      if (on) setLive("Thinking", "busy");
+      if (on) setLive("Wait", "busy");
       else if (engine || CLOUD_ACTOR_URL) setLive("Live", "ready");
     }
 
@@ -12947,7 +12967,23 @@ Never copy SPEECH: or ACTION: into your reply. Reply only with MOMENT, SAY, SHOT
       }
     }
 
+    function landingNeeded() {
+      if (!sessionUser) return true;
+      return !characterList().some((c) => c.ready);
+    }
     function showHome() {
+      const land = landingNeeded();
+      els.home.classList.toggle("land", land);
+      const note = document.getElementById("landNote");
+      if (note) {
+        note.textContent = sessionUser
+          ? "No characters on this account yet. Make one, then start a chat."
+          : "Log in to load your nights, or create a character to start.";
+      }
+      const create = document.getElementById("homeCreate");
+      if (create) create.textContent = sessionUser ? "Create character" : "Log in";
+      const nw = document.getElementById("homeNew");
+      if (nw) nw.hidden = land && !sessionUser;
       paintHomeFaces();
       paintHomeOrbit();
       els.home.classList.add("show");
@@ -12979,6 +13015,14 @@ Never copy SPEECH: or ACTION: into your reply. Reply only with MOMENT, SAY, SHOT
         } catch (e) { console.warn("boot auth", e); }
       }
       setAuthUi();
+      if (landingNeeded()) {
+        showHome();
+        preloadStills();
+        setLive("Live", "ready");
+        setBusy(false);
+        hideSplash();
+        return;
+      }
       const saved = loadSave();
       const g = saved && (saved.game || saved.vitals || {});
       const leftOnChat = !!(saved && (
@@ -13524,8 +13568,14 @@ Never copy SPEECH: or ACTION: into your reply. Reply only with MOMENT, SAY, SHOT
     });
     const homeNew = document.getElementById("homeNew");
     if (homeNew) homeNew.addEventListener("click", () => {
+      if (landingNeeded() && !characterList().length) { openStudio("char"); return; }
       hideHome();
       startOpenChat(lastFaceId());
+    });
+    const homeCreate = document.getElementById("homeCreate");
+    if (homeCreate) homeCreate.addEventListener("click", () => {
+      if (!sessionUser) { openAuth(); return; }
+      openStudio("char");
     });
     els.homeContinue.addEventListener("click", () => {
       hideHome();
