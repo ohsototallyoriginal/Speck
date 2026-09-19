@@ -9185,7 +9185,7 @@ If STATE says she is asleep: she stays asleep. MOMENT is narrator + body (breath
           gulpLine: "You're in.",
           digestLine: "That's the night.",
         }, c);
-        FACE_ACCENT[id] = c.accent || "#7cff9a";
+        if (typeof FACE_ACCENT === "object") FACE_ACCENT[id] = c.accent || "#7cff9a";
       });
       Object.keys(studioPack.scenarios || {}).forEach((id) => {
         const s = studioPack.scenarios[id];
@@ -10731,14 +10731,9 @@ If STATE says she is asleep: she stays asleep. MOMENT is narrator + body (breath
     const SAVE_KEY = "dawnSave.v1";
 
     function characterOf(id) {
-      if (id && CHARACTERS[id]) {
-        const c = CHARACTERS[id];
-        if (c.custom) {
-          if (sessionUser && c.ownerId === sessionUser.id) return c;
-        } else if (isOwner()) return c;
-      }
-      const vis = characterList();
-      return vis[0] || CHARACTERS[id] || CHARACTERS.mara || { id: "none", name: "—", ready: false, blurb: "", voice: "", scenarios: [], gutNights: [] };
+      if (id && CHARACTERS[id]) return CHARACTERS[id];
+      const vis = (typeof characterList === "function") ? characterList() : [];
+      return vis[0] || CHARACTERS.mara || CHARACTERS.ang || { id: "none", name: "—", ready: false, blurb: "", voice: "", scenarios: [], gutNights: [] };
     }
 
     function ownerOfScenario(id) {
@@ -12900,6 +12895,8 @@ Never copy SPEECH: or ACTION: into your reply. Reply only with MOMENT, SAY, SHOT
     }
 
     async function boot() {
+      try { hideSplash(); } catch {}
+      try {
       const saved = loadSave();
       const g = saved && (saved.game || saved.vitals || {});
       const leftOnChat = !!(saved && (
@@ -12985,6 +12982,11 @@ Never copy SPEECH: or ACTION: into your reply. Reply only with MOMENT, SAY, SHOT
       setLive("Live", "ready");
       setBusy(false);
       hideSplash();
+      } catch (err) {
+        console.error("boot", err);
+        try { hideSplash(); } catch {}
+        try { setLive("Live", "ready"); setBusy(false); } catch {}
+      }
     }
 
     // ----- Say / Do composer -----
@@ -13477,7 +13479,8 @@ Never copy SPEECH: or ACTION: into your reply. Reply only with MOMENT, SAY, SHOT
     if (libTabChats) libTabChats.addEventListener("click", () => { setLibraryMode("chats"); renderLibrary(); });
     (() => {
       const head = document.getElementById("libHead");
-      const sheet = els.library.querySelector(".sheet");
+      const sheet = els.library && els.library.querySelector(".sheet");
+      if (!head || !sheet) return;
       let y0 = null, dy = 0;
       head.addEventListener("pointerdown", (e) => {
         if (e.target.closest("button")) return;
@@ -13676,6 +13679,7 @@ Never copy SPEECH: or ACTION: into your reply. Reply only with MOMENT, SAY, SHOT
     window.addEventListener("blur", () => pauseGutTimer());
 
     document.addEventListener("pointerdown", () => { try { resumeBurpAudio(); } catch {} }, { once: true });
+    setTimeout(() => { try { hideSplash(); } catch {} }, 1200);
     boot();
   </script>
 </body>
