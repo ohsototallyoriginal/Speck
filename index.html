@@ -10955,6 +10955,19 @@ If STATE says she is asleep: she stays asleep. MOMENT is narrator + body (breath
 
 
     let sessionUser = null;
+    try {
+      const hint = JSON.parse(localStorage.getItem("speckAuthHint") || "null");
+      if (hint && hint.id && hint.email) sessionUser = { id: hint.id, email: hint.email };
+    } catch {}
+    function rememberAuth(user) {
+      if (user && user.id && user.email) {
+        sessionUser = user;
+        try { localStorage.setItem("speckAuthHint", JSON.stringify({ id: user.id, email: user.email })); } catch {}
+      } else {
+        sessionUser = null;
+        try { localStorage.removeItem("speckAuthHint"); } catch {}
+      }
+    }
 
 
     let history = [];
@@ -11007,9 +11020,15 @@ If STATE says she is asleep: she stays asleep. MOMENT is narrator + body (breath
     }
 
     async function authUser() {
-      if (!supabase) return null;
-      const { data } = await supabase.auth.getUser();
-      sessionUser = data.user || null;
+      if (!supabase) return sessionUser;
+      try {
+        const { data } = await supabase.auth.getSession();
+        const user = data && data.session && data.session.user;
+        if (user) rememberAuth(user);
+        else rememberAuth(null);
+      } catch (e) {
+        console.warn("auth session", e);
+      }
       return sessionUser;
     }
 
@@ -12945,6 +12964,21 @@ Never copy SPEECH: or ACTION: into your reply. Reply only with MOMENT, SAY, SHOT
     async function boot() {
       try { hideSplash(); } catch {}
       try {
+      if (cloudReady) {
+        try {
+          await loadSupabase();
+          if (supabase) {
+            await authUser();
+            if (sessionUser) {
+              if (typeof adoptLegacyLib === "function") adoptLegacyLib();
+              await pullStudio();
+              await uploadLocalChats();
+              await pullChats();
+            }
+          }
+        } catch (e) { console.warn("boot auth", e); }
+      }
+      setAuthUi();
       const saved = loadSave();
       const g = saved && (saved.game || saved.vitals || {});
       const leftOnChat = !!(saved && (
@@ -12967,22 +13001,17 @@ Never copy SPEECH: or ACTION: into your reply. Reply only with MOMENT, SAY, SHOT
       if (!els.log.children.length) paintOpening();
       preloadStills();
       setAuthUi();
-      if (cloudReady) {
-        (async () => {
-          await loadSupabase();
-          if (!supabase) return;
-          try {
-            await authUser();
-            if (sessionUser) {
-              await pullStudio();
-              await uploadLocalChats();
-              await pullChats();
-              renderLibrary();
-              paintHomeFaces();
-            }
-          } catch (e) { console.warn(e); }
-          setAuthUi();
-        })();
+      try { renderLibrary(); paintHomeFaces(); } catch {}
+      if (supabase) {
+        try {
+          supabase.auth.onAuthStateChange((_evt, sess) => {
+            const user = sess && sess.user;
+            if (user) rememberAuth(user);
+            else if (_evt === "SIGNED_OUT") rememberAuth(null);
+            setAuthUi();
+            try { renderLibrary(); paintHomeFaces(); } catch {}
+          });
+        } catch {}
       }
       const { ios, ver } = iosHint();
       const needsModel = !CLOUD_ACTOR_URL;
