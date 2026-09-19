@@ -1895,7 +1895,7 @@
     .fate.show { opacity: 1; visibility: visible; pointer-events: auto; }
 
     #home {
-      position: fixed; inset: 0; z-index: 40;
+      position: fixed; inset: 0; z-index: 70;
       display: flex; flex-direction: column; justify-content: flex-start;
       padding: max(16px, var(--safe-top)) 16px calc(18px + var(--safe-bot));
       background:
@@ -11301,6 +11301,7 @@ If STATE says she is asleep: she stays asleep. MOMENT is narrator + body (breath
       return !s.opening || s.id === "blank" || /-blank$/.test(s.id);
     }
     function startOpenChat(faceId) {
+      if (typeof landingNeeded === "function" && landingNeeded()) { showHome(); return; }
       const vis = characterList().filter((c) => c.ready);
       const face = vis.some((c) => c.id === faceId) ? faceId : lastFaceId();
       if (!face) {
@@ -13016,7 +13017,7 @@ Never copy SPEECH: or ACTION: into your reply. Reply only with MOMENT, SAY, SHOT
       }
       setAuthUi();
       if (landingNeeded()) {
-        showHome();
+        try { showHome(); } catch (e) { console.warn(e); }
         preloadStills();
         setLive("Live", "ready");
         setBusy(false);
@@ -13300,19 +13301,24 @@ Never copy SPEECH: or ACTION: into your reply. Reply only with MOMENT, SAY, SHOT
       if (!sessionUser) els.authErr.textContent = "Account created. If Confirm email is on, check your inbox, then log in.";
     });
     document.getElementById("authOut").addEventListener("click", async () => {
-      if (supabase) await supabase.auth.signOut();
-      sessionUser = null;
+      try { if (supabase) await supabase.auth.signOut(); } catch {}
+      if (typeof rememberAuth === "function") rememberAuth(null);
+      else sessionUser = null;
+      try { localStorage.removeItem("speckAuthHint"); localStorage.removeItem("speckLastFace"); } catch {}
       studioPack = { characters: {}, scenarios: {} };
       applyStudioPack();
       activeChatId = null;
       history = [];
       logTurns = [];
       if (els.log) els.log.innerHTML = "";
+      try {
+        game = Object.assign(freshGame("mara-laundry", "mara"), { characterId: "", scenarioId: "", shot: "look" });
+      } catch {}
       authView = "welcome";
+      try { closeAuth(); } catch {}
       setAuthUi();
       renderLibrary();
-      paintHomeFaces();
-      try { showHome(); } catch {}
+      try { showHome(); } catch (e) { console.warn(e); }
     });
 
     function paintStillMap() {
