@@ -1429,13 +1429,7 @@
       margin: 0;
       vertical-align: middle;
     }
-    #live {
-      min-width: 4.7rem;
-      max-width: 4.7rem;
-      overflow: hidden;
-      text-overflow: clip;
-      white-space: nowrap;
-      padding: 6px 8px !important; color: var(--muted); }
+    #live { color: var(--muted); }
     #live.ready { color: #9ff0c0; border-color: #2f6a4a; }
     #live.busy { color: #ffd36a; border-color: #8a6a20; }
     #live.bad { color: #ff9aa6; border-color: var(--danger); }
@@ -3643,8 +3637,7 @@
         padding: calc(6px + var(--safe-top)) 8px 6px;
         flex: 0 0 auto;
       }
-      .nav-left { overflow-x: auto; scrollbar-width: none; -webkit-overflow-scrolling: touch; }
-      .nav-left::-webkit-scrollbar { display: none; }
+      .nav-left { overflow: hidden; }
       .nav-left button, .nav-right button, #live {
         flex: 0 0 auto;
         white-space: nowrap;
@@ -3771,6 +3764,83 @@
       #sceneBar.big { flex-direction: column; }
       #sceneBar.big #stage { height: auto; max-height: min(58vh, 520px); }
     }
+  
+    /* Header: one row, equal pills, no horizontal scroll */
+    header.top {
+      display: flex !important;
+      align-items: center !important;
+      justify-content: space-between !important;
+      gap: 6px !important;
+      overflow: hidden !important;
+      width: 100%;
+      box-sizing: border-box;
+    }
+    header.top .nav-left,
+    header.top .nav-right {
+      display: flex !important;
+      align-items: center !important;
+      gap: 5px !important;
+      min-width: 0 !important;
+      overflow: hidden !important;
+      flex-wrap: nowrap !important;
+    }
+    header.top .nav-left { flex: 1 1 auto !important; }
+    header.top .nav-right { flex: 0 1 auto !important; }
+    header.top button,
+    header.top #live {
+      box-sizing: border-box !important;
+      height: 32px !important;
+      min-height: 32px !important;
+      max-height: 32px !important;
+      padding: 0 9px !important;
+      margin: 0 !important;
+      border-radius: 999px !important;
+      font-size: 0.62rem !important;
+      font-weight: 800 !important;
+      letter-spacing: .06em !important;
+      line-height: 30px !important;
+      text-transform: uppercase !important;
+      white-space: nowrap !important;
+      flex: 0 1 auto !important;
+      min-width: 0 !important;
+      max-width: none !important;
+      overflow: hidden !important;
+    }
+    header.top #live {
+      flex: 0 0 auto !important;
+      min-width: 52px !important;
+      width: auto !important;
+      text-align: center;
+    }
+    header.top .brand-mark,
+    header.top #homeBtn {
+      width: 32px !important;
+      height: 32px !important;
+      min-width: 32px !important;
+      max-width: 32px !important;
+      padding: 0 !important;
+      border-radius: 10px !important;
+      flex: 0 0 32px !important;
+    }
+    header.top #gear {
+      width: 32px !important;
+      min-width: 32px !important;
+      max-width: 32px !important;
+      padding: 0 !important;
+      flex: 0 0 32px !important;
+      letter-spacing: 0 !important;
+      font-size: 0.95rem !important;
+    }
+    @media (max-width: 430px) {
+      header.top { gap: 4px !important; padding-left: 8px; padding-right: 8px; }
+      header.top .nav-left, header.top .nav-right { gap: 4px !important; }
+      header.top button, header.top #live {
+        padding: 0 7px !important;
+        font-size: 0.58rem !important;
+        letter-spacing: .04em !important;
+      }
+    }
+
   </style>
 </head>
 <body>
