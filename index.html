@@ -1766,6 +1766,23 @@
     #studio textarea { min-height: 88px; resize: vertical; }
     #studio .row { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 12px; }
     #studio .row button { flex: 1; min-height: 42px; border-radius: 12px; font-weight: 800; }
+    .me-slots { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin: 10px 0 2px; }
+    .me-slot {
+      border: 1px solid var(--hair); border-radius: 12px; padding: 10px;
+      background: var(--panel); color: var(--ink); text-align: left;
+      min-height: 64px; font: inherit; cursor: pointer;
+    }
+    .me-slot b { display: block; font-size: .82rem; font-weight: 800; }
+    .me-slot span { display: block; font-size: .64rem; color: var(--muted); margin-top: 3px; }
+    .me-slot span.live { color: var(--neon); font-weight: 800; letter-spacing: .06em; text-transform: uppercase; }
+    .me-slot.on { border-color: var(--neon); box-shadow: inset 0 0 0 1px var(--neon); }
+    .rel-chips { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 8px; }
+    .rel-chips button {
+      border: 1px solid var(--hair); background: var(--panel); color: var(--muted);
+      border-radius: 999px; padding: 5px 11px; font: inherit; font-size: .72rem;
+      cursor: pointer; width: auto;
+    }
+    .rel-chips button:hover { color: var(--ink); border-color: var(--neon); }
     .still-map { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 8px; }
     .still-slot {
       border: 1px dashed var(--hair); border-radius: 12px; padding: 8px;
@@ -3107,6 +3124,8 @@
     #home:not(.land) #homeCreate { display: none; }
     #home.land #homeCreate { display: none; }
     #home.land.signed #homeCreate { display: block; }
+    #home.land #homeMe { display: none !important; }
+    #home:not(.signed) #homeMe { display: none !important; }
     #home .home-primary,
     #home #homeAuth {
       background: var(--neon); color: #140814; border-color: transparent;
@@ -3172,6 +3191,31 @@
           <button type="button" id="snSave">Save night</button>
         </div>
       </div>
+      <div id="studioMePane" hidden>
+        <div class="me-slots" id="meSlots"></div>
+        <label for="mpName">Name</label>
+        <input id="mpName" maxlength="40" autocomplete="off" placeholder="What she calls you" />
+        <label for="mpPronouns">Pronouns</label>
+        <select id="mpPronouns">
+          <option value="he/him">he/him</option>
+          <option value="she/her">she/her</option>
+          <option value="they/them">they/them</option>
+        </select>
+        <label for="mpRel">What you are to her</label>
+        <input id="mpRel" maxlength="90" placeholder="best friend / ex / roommate / stranger" />
+        <div class="rel-chips" id="mpRelChips"></div>
+        <label for="mpAbout">About you</label>
+        <textarea id="mpAbout" maxlength="600" placeholder="Adults only. How you talk, how you carry yourself, why you're this small tonight."></textarea>
+        <label for="mpTreat">How she treats you</label>
+        <textarea id="mpTreat" maxlength="400" placeholder="Nicknames, history, what she'd never do to you, what she absolutely would."></textarea>
+        <div class="row">
+          <button type="button" id="mpUse" class="ask-yes">Save &amp; play as this</button>
+          <button type="button" id="mpSave">Save only</button>
+        </div>
+        <div class="row">
+          <button type="button" id="mpClear">Clear slot</button>
+        </div>
+      </div>
       <div class="row">
         <button type="button" id="studioClose">Close</button>
       </div>
@@ -3202,6 +3246,7 @@
       <div class="home-actions">
         <button type="button" id="homeAuth" class="home-primary">Log in</button>
         <button type="button" id="homeCreate">Create character</button>
+        <button type="button" id="homeMe">Who you are</button>
         <button type="button" id="homeNew">New chat</button>
         <button type="button" id="homeContinue">Continue last night</button>
         <button type="button" id="homeStories">Stories</button>
@@ -3351,6 +3396,7 @@
           <button type="button" id="btnNewChar">New character</button>
           <button type="button" id="btnEditChar">Edit</button>
           <button type="button" id="btnNewNight">New night</button>
+          <button type="button" id="btnWhoYouAre">Who you are</button>
         </div>
         <div id="faceList"></div>
         <hr class="lib-split" />
@@ -3830,7 +3876,7 @@ If STATE says she is asleep: she stays asleep. MOMENT is narrator + body (breath
     }
 
     const STUDIO_SHOTS = ["look","palm","hold","wave","street","swallow","inside","gut","after","burp","lounge","bed","sit","tongue"];
-    let studioPack = { characters: {}, scenarios: {} };
+    let studioPack = { characters: {}, scenarios: {}, players: {}, activePlayerId: "" };
     let studioMode = "char";
     let studioEditId = "";
 
@@ -3841,6 +3887,7 @@ If STATE says she is asleep: she stays asleep. MOMENT is narrator + body (breath
       try {
         const raw = JSON.parse(localStorage.getItem(studioKey()) || "null");
         if (raw && raw.characters) studioPack = raw;
+        ensurePlayerPack();
       } catch {}
     }
     function writeStudioLocal() {
@@ -3899,6 +3946,7 @@ If STATE says she is asleep: she stays asleep. MOMENT is narrator + body (breath
         try {
           const { data } = await supabase.from("studio_packs").select("pack").eq("user_id", sessionUser.id).maybeSingle();
           if (data && data.pack && data.pack.characters) studioPack = data.pack;
+          ensurePlayerPack();
         } catch (e) { console.warn("studio pull", e); }
       }
       applyStudioPack();
@@ -3913,6 +3961,80 @@ If STATE says she is asleep: she stays asleep. MOMENT is narrator + body (breath
           updated_at: new Date().toISOString(),
         });
       } catch (e) { console.warn("studio push", e); }
+    }
+
+
+    // ---------------------------------------------------------------
+    // PLAYER CHARACTERS — "who you are". Two slots, stored in the same
+    // studio pack (local + Supabase), one of them active at a time.
+    // The active one is folded into every prompt so the actor knows the
+    // speck's name, pronouns, and what they are to her.
+    // ---------------------------------------------------------------
+    const PLAYER_SLOTS = ["p1", "p2"];
+    const REL_PRESETS = [
+      "stranger", "friend", "best friend", "ex", "roommate",
+      "coworker", "neighbour", "crush", "sibling", "rival",
+    ];
+    // Everyone on stage is an adult. Refuse to store a persona that reads otherwise.
+    const PERSONA_MINOR_RE = /\b(minor|underage|under[- ]?18|child|children|kid|kids|toddler|infant|preteen|pre-teen|tween|teen|teens|teenaged?|teenager|schoolgirl|schoolboy|school ?kid|high ?school|middle ?school|grade ?school|elementary|kindergarten|little (?:boy|girl)|young (?:boy|girl)|(?:[1-9]|1[0-7])\s*(?:years? ?old|yrs? ?old|y\/?o))\b/i;
+
+    function ensurePlayerPack() {
+      if (!studioPack.players || typeof studioPack.players !== "object") studioPack.players = {};
+      if (typeof studioPack.activePlayerId !== "string") studioPack.activePlayerId = "";
+      return studioPack.players;
+    }
+    function playerSlot(slot) {
+      ensurePlayerPack();
+      return studioPack.players[slot] || null;
+    }
+    function activePlayer() {
+      ensurePlayerPack();
+      const p = studioPack.players[studioPack.activePlayerId];
+      return (p && p.name) ? p : null;
+    }
+    function activePlayerName() {
+      const p = activePlayer();
+      return p ? p.name : "";
+    }
+    function personaLooksMinor(p) {
+      const blob = [p.name, p.pronouns, p.relationship, p.about, p.treat].filter(Boolean).join(" ");
+      return PERSONA_MINOR_RE.test(blob);
+    }
+
+    // The block that gets handed to the model.
+    function playerPersonaPrompt(herName) {
+      const p = activePlayer();
+      if (!p) return "";
+      const her = herName || characterOf(game.characterId).name || "her";
+      const out = ["PLAYER CHARACTER (who the speck actually is)"];
+      out.push("Name: " + p.name + ". The speck IS " + p.name + ". Use that name — never call them \"the speck\" as if it were a name.");
+      if (p.pronouns) out.push("Pronouns: " + p.pronouns + ". Use them for the speck every single time.");
+      out.push("Age: adult. Never write " + p.name + " as a minor and never use school-age or childlike framing for them.");
+      if (p.relationship) {
+        out.push("Relationship to " + her + ": " + p.relationship + ". She already knows this. It colours every line — history, familiarity, nicknames, how much she thinks she can get away with, and how guilty she feels afterward.");
+      }
+      if (p.about) out.push("About " + p.name + ": " + p.about);
+      if (p.treat) out.push("How " + her + " treats " + p.name + ": " + p.treat);
+      out.push("Do not invent a different identity for the speck. Do not treat them as a nameless stranger unless STATE says she has not noticed them yet.");
+      return out.join("\n");
+    }
+    // Short version for the STATE line and the speck-side actor.
+    function playerPersonaShort() {
+      const p = activePlayer();
+      if (!p) return "";
+      const bits = [p.name];
+      if (p.pronouns) bits.push(p.pronouns);
+      if (p.relationship) bits.push("her " + p.relationship);
+      return bits.join(", ");
+    }
+
+    async function writePlayerSlot(slot, data, makeActive) {
+      ensurePlayerPack();
+      if (data) studioPack.players[slot] = data;
+      else delete studioPack.players[slot];
+      if (makeActive) studioPack.activePlayerId = data ? slot : "";
+      else if (studioPack.activePlayerId === slot && !data) studioPack.activePlayerId = "";
+      await pushStudio();
     }
 
     const DEPTH_ORDER = ["palm", "tongue", "gulp", "gut"];
@@ -4971,7 +5093,7 @@ If STATE says she is asleep: she stays asleep. MOMENT is narrator + body (breath
     }
 
     function snackName() {
-      return game.playerName || scenarioOf(game.scenarioId).playerName || "";
+      return game.playerName || activePlayerName() || scenarioOf(game.scenarioId).playerName || "";
     }
 
     function digestAckNote() {
@@ -5562,7 +5684,8 @@ If STATE says she is asleep: she stays asleep. MOMENT is narrator + body (breath
         scenarioId: s.id,
         location: s.location,
         playerPlace: s.playerPlace,
-        playerName: s.playerName || "",
+        // Your own character wins over whatever name the night shipped with.
+        playerName: activePlayerName() || s.playerName || "",
         mood: s.mood,
         noticed: true,
         shot: s.shot,
@@ -6795,7 +6918,7 @@ If STATE says she is asleep: she stays asleep. MOMENT is narrator + body (breath
     }
 
     function namedPlayer() {
-      return game.playerName || scenarioOf(game.scenarioId).playerName || "";
+      return game.playerName || activePlayerName() || scenarioOf(game.scenarioId).playerName || "";
     }
     function isConorPlay() {
       return /^conor$/i.test(namedPlayer());
@@ -6998,7 +7121,8 @@ Never copy SPEECH: or ACTION: into your reply. Reply only with MOMENT, SAY, SHOT
       opts = opts || {};
       const s = scenarioOf(game.scenarioId);
       const c = characterOf(game.characterId);
-      const whoName = game.playerName || s.playerName || "";
+      const whoName = game.playerName || activePlayerName() || s.playerName || "";
+      const persona = playerPersonaPrompt(c.name);
       const who = whoName
         ? (game.gone
           ? ("IDENTITY: the speck WAS " + whoName + ". " + c.name + " knows exactly who that was and must not forget the name. She may think or mutter about " + whoName + ". She does not speak as if " + whoName + " can still answer.")
@@ -7108,10 +7232,11 @@ Never copy SPEECH: or ACTION: into your reply. Reply only with MOMENT, SAY, SHOT
       const state = `STATE: character=${c.name}; scenario=${s.id} (${s.title || s.id}); ${who} location=${game.location}; speck is ${game.playerPlace}; mood=${game.mood}; noticed=${game.noticed}; shot=${game.shot}; depth=${game.depth}; fate=${game.fate || "none"}; gone=${!!game.gone}; digestDone=${!!game.digestDone}; bowel=${game.bowel && game.bowel.active ? "need" : (game.bowelDone ? "done" : "no")}${sleepNight ? "; asleep=yes" : ""}${bodyBits.length ? "; body=" + bodyBits.join(", ") : ""}.`
         + " Continuity: do not forget the location, outfit, or last beat. If STATE conflicts with a sudden new place, STATE wins."
         + recap
+        + (persona ? (" PLAYER: " + playerPersonaShort() + ".") : "")
         + " SAY variety: do not reuse any previous SAY sentence from this chat."
         + snack + earlyNote + meterNote + sleepNote + stanceNote + (opts.extra || "");
       return [
-        { role: "system", content: SYSTEM + "\n\n" + PLAYER_FORMAT + "\n\n" + c.voice + "\nLabel spoken lines SAY:.\n\n" + s.hook + "\n\n" + state },
+        { role: "system", content: SYSTEM + "\n\n" + PLAYER_FORMAT + (persona ? "\n\n" + persona : "") + "\n\n" + c.voice + "\nLabel spoken lines SAY:.\n\n" + s.hook + "\n\n" + state },
         ...history.slice(-(ACTOR_QUALITY.historyTurns || 36)),
         { role: "user", content: userText },
       ];
@@ -7348,7 +7473,8 @@ Never copy SPEECH: or ACTION: into your reply. Reply only with MOMENT, SAY, SHOT
         ? ("You play CONOR, a young man from the White Plains / Yonkers friend group. First person as Conor only.\n"
           + "He is friends with Ang (blunt, leaving for MD, roast-first), Maddy (loud, rewrites nights, old messy closeness), Maggie (Yonkers, law school, sweet), Nat (mom-coded, will try to help), Fran (quiet, cursed-humor), Alex (nurse, dated him).\n"
           + "Voice: guy from this group, not a narrator, not poetic purple. Dry, a little defensive, can be funny. Use their names.")
-        : ("You play the speck" + (who !== "the speck" ? (" named " + who) : "") + " in first person only. Sesame-seed small. Not a narrator. Short, physical, specific.");
+        : ("You play the speck" + (who !== "the speck" ? (" named " + who) : "") + " in first person only. Sesame-seed small. Not a narrator. Short, physical, specific."
+          + (playerPersonaPrompt(her) ? ("\n" + playerPersonaPrompt(her)) : ""));
       const system = voice + "\n"
         + sceneLock + "\n"
         + "Physical place this beat: " + whereAct + ".\n"
@@ -8131,6 +8257,103 @@ Never copy SPEECH: or ACTION: into your reply. Reply only with MOMENT, SAY, SHOT
         return "";
       }
     }
+
+    // ---- "Who you are" pane ------------------------------------------------
+    let mePaneSlot = "p1";
+
+    function paintMeSlots() {
+      ensurePlayerPack();
+      const wrap = document.getElementById("meSlots");
+      if (!wrap) return;
+      wrap.textContent = "";
+      PLAYER_SLOTS.forEach((slot, i) => {
+        const p = studioPack.players[slot];
+        const btn = document.createElement("button");
+        btn.type = "button";
+        btn.className = "me-slot" + (slot === mePaneSlot ? " on" : "");
+        const name = document.createElement("b");
+        name.textContent = (p && p.name) ? p.name : "Character " + (i + 1);
+        const sub = document.createElement("span");
+        sub.textContent = (p && p.relationship) ? p.relationship : (p && p.name ? "no relationship set" : "empty slot");
+        btn.appendChild(name);
+        btn.appendChild(sub);
+        if (p && p.name && studioPack.activePlayerId === slot) {
+          const live = document.createElement("span");
+          live.className = "live";
+          live.textContent = "Playing as this";
+          btn.appendChild(live);
+        }
+        btn.addEventListener("click", () => { mePaneSlot = slot; loadMeSlot(); });
+        wrap.appendChild(btn);
+      });
+    }
+
+    function paintRelChips() {
+      const wrap = document.getElementById("mpRelChips");
+      if (!wrap || wrap.dataset.built) return;
+      wrap.dataset.built = "1";
+      REL_PRESETS.forEach((rel) => {
+        const b = document.createElement("button");
+        b.type = "button";
+        b.textContent = rel;
+        b.addEventListener("click", () => {
+          const el = document.getElementById("mpRel");
+          el.value = rel;
+          el.focus();
+        });
+        wrap.appendChild(b);
+      });
+    }
+
+    function loadMeSlot() {
+      const p = playerSlot(mePaneSlot) || {};
+      document.getElementById("mpName").value = p.name || "";
+      document.getElementById("mpPronouns").value = p.pronouns || "they/them";
+      document.getElementById("mpRel").value = p.relationship || "";
+      document.getElementById("mpAbout").value = p.about || "";
+      document.getElementById("mpTreat").value = p.treat || "";
+      paintMeSlots();
+    }
+
+    function readMeSlot() {
+      return {
+        id: mePaneSlot,
+        name: document.getElementById("mpName").value.trim(),
+        pronouns: document.getElementById("mpPronouns").value || "they/them",
+        relationship: document.getElementById("mpRel").value.trim(),
+        about: document.getElementById("mpAbout").value.trim(),
+        treat: document.getElementById("mpTreat").value.trim(),
+        ownerId: (sessionUser && sessionUser.id) || "",
+        updatedAt: new Date().toISOString(),
+      };
+    }
+
+    async function saveMeSlot(makeActive) {
+      if (!sessionUser) { openAuth(); return; }
+      const data = readMeSlot();
+      if (!data.name) { pushToast("Give yourself a name first.", "bad"); return; }
+      if (personaLooksMinor(data)) {
+        pushToast("Everyone on stage is an adult — take the underage wording out.", "bad");
+        return;
+      }
+      await writePlayerSlot(mePaneSlot, data, !!makeActive);
+      if (makeActive) {
+        // A live scene should start using the new name straight away.
+        game.playerName = data.name;
+      }
+      paintMeSlots();
+      pushToast(makeActive ? ("Playing as " + data.name + ".") : ("Saved " + data.name + "."), "ok");
+    }
+
+    async function clearMeSlot() {
+      if (!sessionUser) { openAuth(); return; }
+      const p = playerSlot(mePaneSlot);
+      if (!p) { pushToast("Slot is already empty.", "bad"); return; }
+      await writePlayerSlot(mePaneSlot, null, false);
+      loadMeSlot();
+      pushToast("Slot cleared.", "ok");
+    }
+
     function openStudio(mode, id) {
       if (!sessionUser) {
         openAuth();
@@ -8141,10 +8364,24 @@ Never copy SPEECH: or ACTION: into your reply. Reply only with MOMENT, SAY, SHOT
       const sheet = document.getElementById("studio");
       const charPane = document.getElementById("studioCharPane");
       const nightPane = document.getElementById("studioNightPane");
-      document.getElementById("studioTitle").textContent = studioMode === "night" ? "New night" : (studioEditId ? "Edit character" : "New character");
-      charPane.hidden = studioMode === "night";
+      const mePane = document.getElementById("studioMePane");
+      document.getElementById("studioTitle").textContent = studioMode === "night"
+        ? "New night"
+        : (studioMode === "me" ? "Who you are" : (studioEditId ? "Edit character" : "New character"));
+      const hint = document.getElementById("studioHint");
+      if (hint) {
+        hint.textContent = studioMode === "me"
+          ? "Two slots. Pick one to play as and she'll know your name, your pronouns, and what you are to her."
+          : "Private to this login. Gemini plays her from the voice you write.";
+      }
+      charPane.hidden = studioMode !== "char";
       nightPane.hidden = studioMode !== "night";
-      if (studioMode === "char") {
+      if (mePane) mePane.hidden = studioMode !== "me";
+      if (studioMode === "me") {
+        mePaneSlot = studioPack.activePlayerId || mePaneSlot || "p1";
+        paintRelChips();
+        loadMeSlot();
+      } else if (studioMode === "char") {
         const live = studioEditId && CHARACTERS[studioEditId];
         const c = (studioEditId && studioPack.characters[studioEditId]) || live || null;
         document.getElementById("scName").value = c ? (c.name || "") : "";
@@ -8261,8 +8498,21 @@ Never copy SPEECH: or ACTION: into your reply. Reply only with MOMENT, SAY, SHOT
       openStudio("char", libFace);
     });
     if (btnNewNight) btnNewNight.addEventListener("click", () => openStudio("night"));
+    const btnWhoYouAre = document.getElementById("btnWhoYouAre");
+    if (btnWhoYouAre) btnWhoYouAre.addEventListener("click", () => openStudio("me"));
     const studioClose = document.getElementById("studioClose");
     if (studioClose) studioClose.addEventListener("click", closeStudio);
+    const mpUse = document.getElementById("mpUse");
+    if (mpUse) mpUse.addEventListener("click", () => saveMeSlot(true));
+    const mpSave = document.getElementById("mpSave");
+    if (mpSave) mpSave.addEventListener("click", () => saveMeSlot(false));
+    const mpClear = document.getElementById("mpClear");
+    if (mpClear) mpClear.addEventListener("click", clearMeSlot);
+    const homeMe = document.getElementById("homeMe");
+    if (homeMe) homeMe.addEventListener("click", () => {
+      if (!sessionUser) { openAuth(); return; }
+      openStudio("me");
+    });
     const scSave = document.getElementById("scSaveChar");
     if (scSave) scSave.addEventListener("click", saveStudioChar);
     const snSave = document.getElementById("snSave");
