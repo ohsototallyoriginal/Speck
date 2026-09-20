@@ -3600,7 +3600,18 @@
       if (!cloudReady || supabase) return supabase;
       try {
         const { createClient } = await import(SUPABASE_JS_URL);
-        supabase = createClient(SUPABASE_URL, SUPABASE_ANON);
+        supabase = createClient(SUPABASE_URL, SUPABASE_ANON, {
+          auth: {
+            // Keep the refresh token on the device and renew it in the
+            // background so a reload never lands on a logged-out shell.
+            persistSession: true,
+            autoRefreshToken: true,
+            detectSessionInUrl: true,
+            storage: window.localStorage,
+            storageKey: "speck-auth",
+            flowType: "pkce",
+          },
+        });
       } catch (e) {
         console.warn("Cloud sync unavailable", e);
       }
@@ -3858,6 +3869,39 @@ If STATE says she is asleep: she stays asleep. MOMENT is narrator + body (breath
       canonError = "no-access";
       console.warn("Canon unavailable: not seeded, or this account is not in canon_readers.");
       return false;
+    }
+
+    // A per-account snapshot of canon, so a reload paints instantly instead of
+    // waiting on the network. Scoped to the user id and wiped on sign-out, so it
+    // never outlives the session that was allowed to read it.
+    function canonCacheKey() {
+      return "speckCanon:" + ((sessionUser && sessionUser.id) || "none");
+    }
+    function saveCanonCache() {
+      if (!sessionUser) return;
+      try {
+        localStorage.setItem(canonCacheKey(), JSON.stringify({
+          characters: CHARACTERS,
+          scenarios: SCENARIOS,
+          at: Date.now(),
+        }));
+      } catch {}
+    }
+    function loadCanonCache() {
+      if (!sessionUser) return false;
+      try {
+        const raw = JSON.parse(localStorage.getItem(canonCacheKey()) || "null");
+        // Deliberately does NOT set canonLoaded — the live fetch still runs and wins.
+        if (raw && raw.characters && Object.keys(raw.characters).length) return applyCanon(raw);
+      } catch {}
+      return false;
+    }
+    function dropCanonCache() {
+      try {
+        Object.keys(localStorage).forEach((k) => {
+          if (k.indexOf("speckCanon:") === 0) localStorage.removeItem(k);
+        });
+      } catch {}
     }
 
     function unloadCanon() {
@@ -5145,10 +5189,25 @@ If STATE says she is asleep: she stays asleep. MOMENT is narrator + body (breath
       const dt = Math.min(2000, Math.max(0, now - (bm.lastTick || now)));
       bm.lastTick = now;
       bm.remainingMs = Math.max(0, bm.remainingMs - dt);
-      if (game.digestMeter) game.digestMeter.remainingMs = bm.remainingMs;
+      // Mirror onto the digest meter for the shared painter, clamped to its own total.
+      if (game.digestMeter) {
+        game.digestMeter.remainingMs = Math.min(bm.remainingMs, game.digestMeter.totalMs || bm.remainingMs);
+      }
+      // Forced-down-while-conscious: HP was frozen here, so the tract was safer
+      // than the stomach. Keep the body clock running on that path.
+      if (bm.alive && !game.gone) {
+        const ratio = bm.totalMs ? bm.remainingMs / bm.totalMs : 1;
+        applyHpDelta(-(0.16 + (1 - Math.max(0, Math.min(1, ratio))) * 0.3) * (dt / 1000), { skipFinish: true, quiet: true });
+        if (game.hp <= 0) {
+          bm.alive = false;
+          game.hp = 0;
+          addNotice("You stop moving. The rest is plumbing.");
+        }
+      }
       paintBowelMeter();
       if (fxOn() && Math.random() < 0.16) triggerDigestFx(Math.random() < 0.5 ? "gurgle" : "growl");
       if (bm.remainingMs <= 0) finishBowelMovement();
+      else persistSoon();
     }
 
     function applyBowelBeat(shot, moment, line, userText) {
@@ -5979,7 +6038,9 @@ If STATE says she is asleep: she stays asleep. MOMENT is narrator + body (breath
         const { data } = await supabase.auth.getSession();
         const user = data && data.session && data.session.user;
         if (user) rememberAuth(user);
-        else rememberAuth(null);
+        else if (navigator.onLine) rememberAuth(null);
+        // Offline with no readable session: keep the hint. The real gate is the
+        // access token on every request, so this only affects what the UI shows.
       } catch (e) {
         console.warn("auth session", e);
       }
@@ -6121,6 +6182,15 @@ If STATE says she is asleep: she stays asleep. MOMENT is narrator + body (breath
     async function cloudDelete(id) {
       if (!supabase || !sessionUser || !id) return;
       await supabase.from("chats").delete().eq("id", id).eq("user_id", sessionUser.id);
+    }
+
+    // buildMessages only ever reads the last ~36 turns, but history grew forever
+    // and went into both localStorage and the chat row. Cap it.
+    const HISTORY_CAP = 160;
+    const LOG_CAP = 400;
+    function trimHistory() {
+      if (history.length > HISTORY_CAP) history = history.slice(-HISTORY_CAP);
+      if (logTurns && logTurns.length > LOG_CAP) logTurns = logTurns.slice(-LOG_CAP);
     }
 
     function cloneState(v) {
@@ -7696,6 +7766,7 @@ Never copy SPEECH: or ACTION: into your reply. Reply only with MOMENT, SAY, SHOT
         addTurn({ you: opts.silentYou ? "" : userText, moment, line });
         history.push({ role: "user", content: userText });
         history.push({ role: "assistant", content: raw });
+        trimHistory();
         persist();
         const early = turnNo <= 2;
         const fate = readFate(shot, moment, line, { early, asked: PLAYER_WANTS_DIGEST.test(userText) });
@@ -7784,6 +7855,7 @@ Never copy SPEECH: or ACTION: into your reply. Reply only with MOMENT, SAY, SHOT
         addTurn({ moment, line });
         history.push({ role: "user", content: cue.user });
         history.push({ role: "assistant", content: raw });
+        trimHistory();
         game.afterPasses = cue.n;
         if (game.bowel && game.bowel.active) applyBowelBeat(shot, moment, line, "");
         persist();
@@ -7948,9 +8020,43 @@ Never copy SPEECH: or ACTION: into your reply. Reply only with MOMENT, SAY, SHOT
       }
     }
 
+    let bootSettled = false;
+    function authHinted() {
+      try { return !!JSON.parse(localStorage.getItem("speckAuthHint") || "null"); } catch { return false; }
+    }
     function landingNeeded() {
-      if (!sessionUser) return true;
+      if (!sessionUser) return !authHinted() || bootSettled;
+      // While the session and canon are still resolving, a returning user should
+      // never be shown the "no characters yet" desk.
+      if (!bootSettled && authHinted()) return false;
       return !characterList().some((c) => c.ready);
+    }
+
+    // Everything that can be restored from this device, with no network at all.
+    function hydrateFast() {
+      if (!sessionUser) return false;
+      try {
+        readStudioLocal();
+        ensurePlayerPack();
+        ensureSections();
+        loadCanonCache();
+        applyStudioPack();
+      } catch (e) { console.warn("fast hydrate", e); }
+      return characterList().some((c) => c.ready);
+    }
+
+    function watchAuth() {
+      if (!supabase || watchAuth.on) return;
+      watchAuth.on = true;
+      try {
+        supabase.auth.onAuthStateChange((evt, sess) => {
+          const user = sess && sess.user;
+          if (user) rememberAuth(user);
+          else if (evt === "SIGNED_OUT") { rememberAuth(null); unloadCanon(); dropCanonCache(); }
+          setAuthUi();
+          try { renderLibrary(); paintHomeFaces(); } catch {}
+        });
+      } catch {}
     }
     function syncGuestShell() {
       const land = landingNeeded();
@@ -7995,21 +8101,41 @@ Never copy SPEECH: or ACTION: into your reply. Reply only with MOMENT, SAY, SHOT
     async function boot() {
       try { hideSplash(); } catch {}
       try {
+      // Optimistic: sessionUser is already set from the stored auth hint, so
+      // restore this device's characters and nights before touching the network.
+      const cached = hydrateFast();
+      try { setAuthUi(); } catch {}
       if (cloudReady) {
         try {
           await loadSupabase();
           if (supabase) {
+            watchAuth();
             await authUser();
             if (sessionUser) {
               if (typeof adoptLegacyLib === "function") adoptLegacyLib();
-              await loadCanon();
+              if (cached) {
+                // Already painted from the snapshot — refresh it quietly.
+                loadCanon()
+                  .then(() => { saveCanonCache(); try { renderLibrary(); paintHomeFaces(); } catch {} })
+                  .catch((e) => console.warn("canon refresh", e));
+              } else {
+                await loadCanon();
+                saveCanonCache();
+              }
               await pullStudio();
-              await uploadLocalChats();
-              await pullChats();
+              // Chat sync is background work; the local library is already live.
+              Promise.resolve()
+                .then(uploadLocalChats)
+                .then(pullChats)
+                .then(() => { try { renderLibrary(); } catch {} })
+                .catch((e) => console.warn("chat sync", e));
+            } else {
+              dropCanonCache();
             }
           }
         } catch (e) { console.warn("boot auth", e); }
       }
+      bootSettled = true;
       setAuthUi();
       if (landingNeeded()) {
         try { showHome(); } catch (e) { console.warn(e); }
@@ -8042,17 +8168,6 @@ Never copy SPEECH: or ACTION: into your reply. Reply only with MOMENT, SAY, SHOT
       preloadStills();
       setAuthUi();
       try { renderLibrary(); paintHomeFaces(); } catch {}
-      if (supabase) {
-        try {
-          supabase.auth.onAuthStateChange((_evt, sess) => {
-            const user = sess && sess.user;
-            if (user) rememberAuth(user);
-            else if (_evt === "SIGNED_OUT") { rememberAuth(null); unloadCanon(); }
-            setAuthUi();
-            try { renderLibrary(); paintHomeFaces(); } catch {}
-          });
-        } catch {}
-      }
       setLive("Live", "ready");
       setBusy(false);
       if (els.progress) els.progress.hidden = true;
@@ -8315,14 +8430,15 @@ Never copy SPEECH: or ACTION: into your reply. Reply only with MOMENT, SAY, SHOT
       else sessionUser = null;
       try { localStorage.removeItem("speckAuthHint"); localStorage.removeItem("speckLastFace"); } catch {}
       unloadCanon();
-      studioPack = { characters: {}, scenarios: {} };
+      dropCanonCache();
+      studioPack = { characters: {}, scenarios: {}, players: {}, activePlayerId: "", sections: [], faceSection: {} };
       applyStudioPack();
       activeChatId = null;
       history = [];
       logTurns = [];
       if (els.log) els.log.innerHTML = "";
       try {
-        game = Object.assign(freshGame("mara-laundry", "mara"), { characterId: "", scenarioId: "", shot: "look" });
+        game = Object.assign(freshGame("", ""), { characterId: "", scenarioId: "", shot: "look" });
       } catch {}
       authView = "welcome";
       try { closeAuth(); } catch {}
