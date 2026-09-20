@@ -1532,6 +1532,13 @@
       border-radius: 18px;
       padding: 14px;
     }
+    @keyframes toastPop {
+      0%   { transform: scale(1); }
+      38%  { transform: scale(1.055); }
+      100% { transform: scale(1); }
+    }
+    #toasts .toast-pop { animation: toastPop .34s cubic-bezier(.2,.9,.2,1); }
+    @media (prefers-reduced-motion: reduce) { #toasts .toast-pop { animation: none; } }
     .set-select {
       width: 100%; min-height: 44px; border-radius: 12px;
       border: 1px solid var(--hair); background: var(--panel2); color: var(--ink);
@@ -4186,8 +4193,9 @@ If STATE says she is asleep: she stays asleep. MOMENT is narrator + body (breath
     // ---------------------------------------------------------------
     const PLAYER_SLOTS = ["p1", "p2"];
     const REL_PRESETS = [
-      "stranger", "friend", "best friend", "ex", "roommate",
-      "coworker", "neighbour", "crush", "sibling", "rival",
+      "stranger", "friend", "best friend", "partner", "ex",
+      "crush", "roommate", "coworker", "boss", "sibling",
+      "cousin", "aunt", "neighbour", "rival",
     ];
     // Everyone on stage is an adult. Refuse to store a persona that reads otherwise.
     const PERSONA_MINOR_RE = /\b(minor|underage|under[- ]?18|child|children|kid|kids|toddler|infant|preteen|pre-teen|tween|teen|teens|teenaged?|teenager|schoolgirl|schoolboy|school ?kid|high ?school|middle ?school|grade ?school|elementary|kindergarten|little (?:boy|girl)|young (?:boy|girl)|(?:[1-9]|1[0-7])\s*(?:years? ?old|yrs? ?old|y\/?o))\b/i;
@@ -4520,6 +4528,9 @@ If STATE says she is asleep: she stays asleep. MOMENT is narrator + body (breath
         const wasActive = !!(game.digestMeter && game.digestMeter.active);
         stopDigestMeter({ clear: true });
         clearGutTimer();
+        // A second trip down starts the climb from nothing.
+        game.escape = { prog: 0, ready: false, gutTurns: 0 };
+        paintEscapeBar();
         game.fate = game.depth >= 2 ? "swallowed" : "";
         addNotice(wasActive
           ? "She's let you back up. The Digest-O Meter cools off."
@@ -4547,15 +4558,29 @@ If STATE says she is asleep: she stays asleep. MOMENT is narrator + body (breath
     // --- Relationship → mechanics -------------------------------------------
     // The persona's relationship field used to be prose the model read and
     // nothing else. It now seeds how she starts the night.
+    // Order matters — first match wins, so the specific rules sit above the loose
+    // ones ("best friend" before "friend", "ex-wife" before "wife").
     const REL_PROFILE = [
       { re: /\b(best friend|bestie)\b/i,                 mood: -0.10, pace: -0.08, temper: -0.22 },
-      { re: /\b(ex[- ]?(girlfriend|boyfriend|partner)?)\b/i, mood: +0.10, pace: +0.06, temper: +0.18 },
-      { re: /\b(sibling|brother|sister)\b/i,             mood: -0.08, pace: -0.06, temper: -0.18 },
+      { re: /\bex\b|\bex[- ]?(girlfriend|boyfriend|partner|wife|husband)\b/i,
+                                                         mood: +0.10, pace: +0.06, temper: +0.18 },
+      // Lovers — the softest opening. She has the most to lose here.
+      { re: /\b(girlfriend|boyfriend|partner|wife|husband|spouse|fianc(e|é|ée|ee)|lover|dating|together|my (girl|guy|woman|man))\b/i,
+                                                         mood: -0.12, pace: -0.06, temper: -0.25 },
+      // Family. Adults only, same as everywhere else in this app.
+      { re: /\b(step)?\s?(mom|mum|mother|dad|father|aunt|auntie|uncle|cousin|sibling|brother|sister|in[- ]law|family)\b/i,
+                                                         mood: -0.10, pace: -0.08, temper: -0.28 },
       { re: /\b(rival|enemy|nemesis)\b/i,                mood: +0.14, pace: +0.10, temper: +0.30 },
-      { re: /\b(roommate|neighbou?r|coworker|colleague)\b/i, mood: -0.03, pace: -0.02, temper: -0.05 },
+      // Work — polite distance rather than warmth, and a boss has the upper hand.
+      { re: /\b(boss|manager|supervisor)\b/i,            mood: +0.06, pace: +0.05, temper: +0.12 },
+      { re: /\b(coworker|co[- ]worker|colleague|workmate|from work|intern|assistant)\b/i,
+                                                         mood: +0.02, pace: 0.00, temper: +0.02 },
+      { re: /\b(roommate|flatmate|housemate|neighbou?r|classmate)\b/i,
+                                                         mood: -0.03, pace: -0.02, temper: -0.05 },
       { re: /\b(crush)\b/i,                              mood: -0.04, pace: +0.04, temper: -0.05 },
       { re: /\b(friend)\b/i,                             mood: -0.06, pace: -0.04, temper: -0.10 },
-      { re: /\b(stranger)\b/i,                           mood: +0.05, pace: +0.04, temper: +0.08, unknown: true },
+      { re: /\b(stranger|never met|don.?t know (her|each other))\b/i,
+                                                         mood: +0.05, pace: +0.04, temper: +0.08, unknown: true },
     ];
     function relProfile() {
       const p = (typeof activePlayer === "function") ? activePlayer() : null;
@@ -4599,7 +4624,6 @@ If STATE says she is asleep: she stays asleep. MOMENT is narrator + body (breath
       const gained = after.filter((x) => before.indexOf(x) < 0);
       if (gained.indexOf("mean") >= 0) addNotice("She's hardened toward you.");
       else if (gained.indexOf("caring") >= 0) addNotice("She's softened toward you.");
-      else if (gained.indexOf("aware") >= 0) addNotice("She knows you're a person now.");
       return game.temper;
     }
     // Called once per completed turn with everything that happened in it.
@@ -6070,6 +6094,7 @@ If STATE says she is asleep: she stays asleep. MOMENT is narrator + body (breath
         noticed: !(relProfile() && relProfile().unknown),
         temper: (relProfile() && relProfile().temper) || 0,
         escape: { prog: 0, ready: false, gutTurns: 0 },
+        escaped: false,
         shot: s.shot,
         fate: s.gut ? "swallowed" : "",
         depth: s.gut ? 3 : 0,
@@ -6093,7 +6118,7 @@ If STATE says she is asleep: she stays asleep. MOMENT is narrator + body (breath
     let game = {
       characterId: "", scenarioId: "", location: "", playerPlace: "", playerName: "",
       mood: "", noticed: false, shot: "look", fate: "", depth: 0, hp: 100, gone: false,
-      temper: 0, escape: { prog: 0, ready: false, gutTurns: 0 }
+      temper: 0, escape: { prog: 0, ready: false, gutTurns: 0 }, escaped: false
     };
     let activeChatId = null;
 
@@ -7439,7 +7464,9 @@ If STATE says she is asleep: she stays asleep. MOMENT is narrator + body (breath
         return;
       }
       if (inGut) {
-        const tags = (typeof scenarioTags === "function") ? scenarioTags(scenarioOf(game.scenarioId)) : [];
+        // Live tags, not the frozen scenario ones — if she has drifted to mean,
+        // the in-gut flavour should stop reading as care.
+        const tags = nightTags();
         const caring = tags.indexOf("caring") >= 0;
         const asleep = tags.indexOf("sleeping") >= 0;
         if (/\b(rub|nuzzle|stroke|soothe)\b/.test(t)) {
@@ -7475,6 +7502,10 @@ If STATE says she is asleep: she stays asleep. MOMENT is narrator + body (breath
         game.playerPlace = "tucked into a dark gap near her";
         game.mood = "hunting you by heat";
       } else if (/\b(wave|yell|call|hey|hi|attention)\b/.test(t)) {
+        if (!game.noticed && nightTags().indexOf("unaware") >= 0) {
+          game.noticed = true;
+          addNotice("She knows you're a person now. She can't un-know it.");
+        }
         game.noticed = true;
         game.playerPlace = "pinned under her attention";
         game.mood = "already thinking about her tongue";
@@ -7599,6 +7630,11 @@ Never copy SPEECH: or ACTION: into your reply. Reply only with MOMENT, SAY, SHOT
         stanceNote += " PACK: she tries to help / undo. Not a predator bit.";
       }
       let escapeNote = "";
+      if (game.escaped && !game.gone) {
+        escapeNote += " ESCAPED BEFORE: they already got back out of her once tonight."
+          + " She knows it can happen and she is not casual about it — she watches them, keeps them closer,"
+          + " or jokes about it. Do not pretend it never happened.";
+      }
       if (!game.gone && (game.depth || 0) >= 3) {
         const es = escapeState();
         if (es.ready) {
