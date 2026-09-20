@@ -6104,7 +6104,9 @@ If STATE says she is asleep: she stays asleep. MOMENT is narrator + body (breath
       const { error } = await supabase.from("chats").upsert({
         id: chat.id,
         user_id: sessionUser.id,
-        scenario_id: chat.scenarioId || "mara-laundry",
+        // Never substitute a real night here — a blank id resolves to the
+        // empty scenario, while a wrong one would reopen someone else's story.
+        scenario_id: chat.scenarioId || "",
         title: chat.title || "Chat",
         game: chat.game || {},
         history: chat.history || [],
@@ -6186,7 +6188,7 @@ If STATE says she is asleep: she stays asleep. MOMENT is narrator + body (breath
     }
 
     function hydrateGame(saved) {
-      const face = (saved && saved.characterId) || (saved && saved.game && saved.game.characterId) || game.characterId || "mara";
+      const face = (saved && saved.characterId) || (saved && saved.game && saved.game.characterId) || fallbackFaceId();
       const sid = (saved && saved.game && saved.game.scenarioId) || (saved && saved.scenarioId) || game.scenarioId;
       const base = freshGame(sid, face);
       const fromGame = (saved && saved.game) || {};
@@ -6222,7 +6224,7 @@ If STATE says she is asleep: she stays asleep. MOMENT is narrator + body (breath
       lib.chats[activeChatId] = {
         id: activeChatId,
         scenarioId: s.id,
-        characterId: game.characterId || "mara",
+        characterId: game.characterId || fallbackFaceId(),
         title: prev.title || s.title,
         game: snap,
         vitals: {
@@ -7868,6 +7870,7 @@ Never copy SPEECH: or ACTION: into your reply. Reply only with MOMENT, SAY, SHOT
       stopDigestMeter({ clear: true });
       clearSave();
       const sid = game.scenarioId || fallbackNightId(fallbackFaceId());
+      if (!sid) { showHome(); return; }
       game = freshGame(sid, game.characterId);
       history = [];
       els.log.innerHTML = "";
