@@ -1254,7 +1254,18 @@
       color: var(--cyan); font-size: .68rem; font-weight: 800;
       letter-spacing: .1em; text-transform: uppercase;
     }
+    /* Think is a general action, not part of the Conor biography — gating its
+       visibility on .conor-play hid it from every other account. */
     html.conor-play #thinkBtn { display: inline-flex; }
+    #goBtn {
+      display: inline-flex; align-items: center; justify-content: center;
+      flex: 1; min-height: 34px; border-radius: 999px;
+      border: 1px solid color-mix(in srgb, var(--neon) 42%, var(--hair));
+      background: color-mix(in srgb, var(--panel2) 70%, #281024);
+      color: var(--neon); font-size: .68rem; font-weight: 800;
+      letter-spacing: .1em; text-transform: uppercase;
+    }
+    #goBtn:disabled { opacity: .38; }
     html.scene-gut .actions #look,
     html.scene-gut .actions #talk,
     html.scene-gut .actions #hide {
@@ -3276,10 +3287,21 @@
   
     #home .home-top { display: block; max-width: 26rem; }
     #home.land .home-actions { grid-template-columns: 1fr; }
-    #home.land #homeNew,
-    #home.land #homeContinue,
-    #home.land #homeStories,
-    #home.land #homeChats { display: none !important; }
+    #home.land:not(.signed) #homeNew,
+    #home.land:not(.signed) #homeContinue,
+    #home.land:not(.signed) #homeStories,
+    #home.land:not(.signed) #homeChats { display: none !important; }
+    #home.land.signed #homeNew,
+    #home.land.signed #homeContinue,
+    #home.land.signed #homeStories,
+    #home.land.signed #homeChats,
+    #home.land.signed #homeNewStory { display: block; }
+    #home:not(.land) #homeNewStory,
+    #home.land:not(.signed) #homeNewStory { display: none !important; }
+    #home.land.signed .home-actions { grid-template-columns: 1fr 1fr; }
+    #home.land.signed #homeNew,
+    #home.land.signed #homeContinue { grid-column: 1 / -1; }
+    #home.land.signed .home-actions button { width: 100%; }
     #home:not(.land) #homeAuth { display: none !important; }
     #home.land #homeAuth { display: block; }
     #home.land.signed #homeAuth { display: none !important; }
@@ -3462,6 +3484,94 @@
       #home.land.show .home-actions { animation: none; }
     }
 
+    /* ---- Who you are: readable slots and a real button hierarchy ---- */
+    #studioMePane .me-slot {
+      position: relative;
+      display: flex; flex-direction: column; gap: 3px;
+      width: 100%; text-align: left;
+      padding: 13px 15px; margin-bottom: 8px;
+      border-radius: 14px;
+      border: 1px solid var(--hair);
+      background: var(--glass); color: var(--ink);
+      transition: border-color .18s ease, background .18s ease, transform .14s ease;
+    }
+    #studioMePane .me-slot:hover { border-color: color-mix(in srgb, var(--neon) 55%, var(--hair)); }
+    #studioMePane .me-slot:active { transform: scale(.99); }
+    #studioMePane .me-slot.on {
+      border-color: var(--neon);
+      background: color-mix(in srgb, var(--neon) 12%, var(--glass));
+    }
+    #studioMePane .me-slot b { font-size: 1rem; font-weight: 800; }
+    #studioMePane .me-slot span { color: var(--muted); font-size: .8rem; }
+    #studioMePane .me-slot .live {
+      position: absolute; top: 11px; right: 12px;
+      padding: 3px 9px; border-radius: 999px;
+      background: var(--neon); color: #140814;
+      font-size: .62rem; font-weight: 800;
+      letter-spacing: .07em; text-transform: uppercase;
+    }
+    #studioMePane .row { display: flex; gap: 9px; margin-top: 12px; }
+    #studioMePane .row button {
+      flex: 1; min-height: 46px;
+      border-radius: 13px; font-weight: 800; font-size: .92rem;
+      border: 1px solid var(--hair); background: var(--panel); color: var(--ink);
+      transition: transform .14s ease, filter .18s ease, box-shadow .2s ease;
+    }
+    #studioMePane .row button:hover { transform: translateY(-1px); filter: brightness(1.08); }
+    #studioMePane .row button:active { transform: translateY(0) scale(.985); }
+    #studioMePane .row #mpUse {
+      background: var(--neon); color: #140814; border-color: transparent;
+      box-shadow: 0 8px 22px -10px color-mix(in srgb, var(--neon) 80%, transparent);
+    }
+    #studioMePane .row #mpClear {
+      background: transparent; color: var(--muted); font-weight: 700;
+    }
+    #studioMePane .row #mpClear:hover { color: var(--danger); border-color: var(--danger); }
+    #studioMePane .mp-active {
+      margin: 14px 0 0; padding: 10px 12px;
+      border-radius: 11px;
+      border: 1px solid color-mix(in srgb, var(--neon) 30%, var(--hair));
+      background: color-mix(in srgb, var(--neon) 7%, transparent);
+      color: var(--muted); font-size: .82rem; font-weight: 700;
+    }
+    /* ---- Studio palette picker ---- */
+    #studioCharPane .pal-grid {
+      display: grid; grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 8px; margin: 4px 0 2px;
+    }
+    #studioCharPane .pal-swatch {
+      display: flex; flex-direction: column; align-items: center; gap: 5px;
+      text-transform: none; letter-spacing: 0; font-size: .66rem;
+      color: var(--muted); font-weight: 700;
+    }
+    #studioCharPane .pal-swatch input[type="color"] {
+      width: 100%; min-height: 42px; padding: 2px;
+      border-radius: 11px; border: 1px solid var(--hair);
+      background: var(--glass); cursor: pointer;
+    }
+    #studioCharPane #scPalReset,
+    #studioCharPane #scPalPreview {
+      flex: 1; min-height: 40px; border-radius: 11px; font-weight: 800;
+      font-size: .82rem; border: 1px solid var(--hair);
+      background: var(--panel); color: var(--ink);
+    }
+    #studioCharPane #scPalReset { background: transparent; color: var(--muted); }
+    .scene-who #editNight {
+      margin-top: 6px;
+      min-height: 30px; padding: 0 12px;
+      border-radius: 999px;
+      border: 1px solid var(--hair);
+      background: var(--glass); color: var(--muted);
+      font-size: .64rem; font-weight: 800;
+      letter-spacing: .09em; text-transform: uppercase;
+      transition: color .16s ease, border-color .16s ease;
+    }
+    .scene-who #editNight:hover { color: var(--ink); border-color: var(--neon); }
+    #studioNightPane #snDelete {
+      background: transparent; color: var(--muted);
+      border: 1px solid var(--hair); font-weight: 700;
+    }
+    #studioNightPane #snDelete:hover { color: var(--danger); border-color: var(--danger); }
   </style>
 </head>
 <body>
@@ -3488,8 +3598,17 @@
         <textarea id="scVoice" placeholder="You play NAME. How she talks. What she will and will not do."></textarea>
         <label for="scPace">Pacing</label>
         <select id="scPace"></select>
-        <label for="scAccent">Accent color</label>
-        <input id="scAccent" type="color" value="#7cff9a" />
+        <label>Palette</label>
+        <div class="pal-grid">
+          <label class="pal-swatch"><input id="scAccent" type="color" value="#7cff9a" /><span>Accent</span></label>
+          <label class="pal-swatch"><input id="scBg" type="color" value="#100812" /><span>Background</span></label>
+          <label class="pal-swatch"><input id="scSecond" type="color" value="#5ce1ff" /><span>Highlight</span></label>
+          <label class="pal-swatch"><input id="scPanel" type="color" value="#3a2044" /><span>Panels</span></label>
+        </div>
+        <div class="row" style="margin-top:6px">
+          <button type="button" id="scPalReset">Reset palette</button>
+          <button type="button" id="scPalPreview">Preview</button>
+        </div>
         <div class="row">
           <button type="button" id="scDraft">Draft voice</button>
           <button type="button" id="scSaveChar" class="ask-yes">Save character</button>
@@ -3519,6 +3638,7 @@
         </label>
         <div class="row">
           <button type="button" id="snSave">Save night</button>
+          <button type="button" id="snDelete" hidden>Delete</button>
         </div>
       </div>
       <div id="studioSectionsPane" hidden>
@@ -3553,6 +3673,7 @@
           <button type="button" id="mpUse" class="ask-yes">Save &amp; play as this</button>
           <button type="button" id="mpSave">Save only</button>
         </div>
+        <p class="mp-active" id="mpActive" hidden></p>
         <div class="row">
           <button type="button" id="mpClear">Clear slot</button>
         </div>
@@ -3580,7 +3701,8 @@
       </div>
       <div class="home-actions">
         <button type="button" id="homeAuth" class="home-primary">Log in</button>
-        <button type="button" id="homeCreate">Create character</button>
+        <button type="button" id="homeCreate">New character</button>
+        <button type="button" id="homeNewStory">New story</button>
         <button type="button" id="homeMe">Who you are</button>
         <button type="button" id="homeNew">New chat</button>
         <button type="button" id="homeContinue">Continue last night</button>
@@ -3622,6 +3744,7 @@
   <div class="scene-who">
     <h1 id="placeTitle">Night</h1>
     <p id="placeSub">Character · scene</p>
+    <button type="button" id="editNight" hidden>Edit night</button>
   </div>
   <div id="sceneBar">
   <div id="stageCol">
@@ -3879,6 +4002,7 @@
       <button type="button" id="modeSay" class="on" aria-pressed="true">Say</button>
       <button type="button" id="modeDo" aria-pressed="false">Do</button>
       <button type="button" id="thinkBtn" disabled>Think</button>
+      <button type="button" id="goBtn" disabled>Go on</button>
     </div>
     <div class="composer">
       <textarea id="input" rows="1" aria-describedby="composeHint" placeholder="Type your response…" disabled enterkeyhint="send"></textarea>
@@ -4247,7 +4371,11 @@ If STATE says she is asleep: she stays asleep. MOMENT is narrator + body (breath
     // Built-ins first, then whatever the user added, in their own order.
     function allSections() {
       ensureSections();
-      const out = BUILTIN_SECTIONS.map((x) => ({ id: x.id, label: x.label, builtin: true }));
+      // The bundled sections describe the owner's own cast. Everyone else
+      // starts with a blank shelf and builds their own.
+      const out = isOwner()
+        ? BUILTIN_SECTIONS.map((x) => ({ id: x.id, label: x.label, builtin: true }))
+        : [];
       studioPack.sections.forEach((x) => {
         if (!x || !x.id) return;
         if (out.some((o) => o.id === x.id)) return;
@@ -4383,6 +4511,9 @@ If STATE says she is asleep: she stays asleep. MOMENT is narrator + body (breath
           if (c.voice) CHARACTERS[id].voice = c.voice;
           if (c.stills) CHARACTERS[id].stills = Object.assign({}, CHARACTERS[id].stills || {}, c.stills);
           if (c.accent && typeof FACE_ACCENT === "object") FACE_ACCENT[id] = c.accent;
+          if (c.bg) FACE_BG[id] = c.bg; else delete FACE_BG[id];
+          if (c.second) FACE_SECOND[id] = c.second; else delete FACE_SECOND[id];
+          if (c.panel) FACE_PANEL[id] = c.panel; else delete FACE_PANEL[id];
           return;
         }
         CHARACTERS[id] = Object.assign({
@@ -4399,6 +4530,9 @@ If STATE says she is asleep: she stays asleep. MOMENT is narrator + body (breath
           digestLine: "That's the night.",
         }, c);
         if (typeof FACE_ACCENT === "object") FACE_ACCENT[id] = c.accent || "#7cff9a";
+        if (c.bg) FACE_BG[id] = c.bg; else delete FACE_BG[id];
+        if (c.second) FACE_SECOND[id] = c.second; else delete FACE_SECOND[id];
+        if (c.panel) FACE_PANEL[id] = c.panel; else delete FACE_PANEL[id];
       });
       Object.keys(studioPack.scenarios || {}).forEach((id) => {
         const s = studioPack.scenarios[id];
@@ -5865,7 +5999,9 @@ If STATE says she is asleep: she stays asleep. MOMENT is narrator + body (breath
         extra = digestAckNote();
         game.digestAcked = true;
       } else if (kind === "disposal") {
-        extra = spec.extra + (who ? (" She remembers it was " + who + ".") : "") + sceneRecap();
+        // buildMessages already appends sceneRecap() to STATE — adding it here
+        // sent the whole scene memory twice in every disposal beat.
+        extra = spec.extra + (who ? (" She remembers it was " + who + ".") : "");
       } else if (kind === "settle" && who) {
         extra = spec.extra + " The speck is " + who + ". Use the name. Do not invent that " + who + " stopped moving.";
       } else if (kind === "burp") {
@@ -6362,15 +6498,32 @@ If STATE says she is asleep: she stays asleep. MOMENT is narrator + body (breath
       nat: "#b44cff", alex: "#5ce0c8", sable: "#c4a070", tessa: "#ff7ab0",
       priya: "#a78bfa", wren: "#86efac", fran: "#ff6bb8", keke: "#ffb000"
     };
+    // Studio palette overrides, filled by applyStudioPack(). Empty by default
+    // so a character with no override falls through to its CSS theme.
+    const FACE_BG = {};
+    const FACE_SECOND = {};
+    const FACE_PANEL = {};
     function applyTheme(faceId) {
       const id = characterOf(faceId || game.characterId).id;
       const root = document.documentElement;
       root.classList.add("theme-anim");
       root.setAttribute("data-face", id);
+      // These were set but never cleared, so switching from a character with a
+      // custom palette to one without kept the previous face's colours.
       const accent = FACE_ACCENT[id];
       if (accent) root.style.setProperty("--neon", accent);
+      else root.style.removeProperty("--neon");
+      const bg = FACE_BG[id];
+      if (bg) root.style.setProperty("--bg", bg);
+      else root.style.removeProperty("--bg");
+      const second = FACE_SECOND[id];
+      if (second) root.style.setProperty("--cyan", second);
+      else root.style.removeProperty("--cyan");
+      const panel = FACE_PANEL[id];
+      if (panel) root.style.setProperty("--panel", panel);
+      else root.style.removeProperty("--panel");
       const meta = document.querySelector('meta[name="theme-color"]');
-      if (meta) meta.setAttribute("content", THEME_COLORS[id] || "#120814");
+      if (meta) meta.setAttribute("content", bg || THEME_COLORS[id] || "#120814");
       const c = characterOf(id);
       if (els.still) els.still.alt = c.name;
       // Keep anim class briefly so CSS transitions can run
@@ -6923,7 +7076,7 @@ If STATE says she is asleep: she stays asleep. MOMENT is narrator + body (breath
       return !s.opening || s.id === "blank" || /-blank$/.test(s.id);
     }
     function startOpenChat(faceId) {
-      if (typeof landingNeeded === "function" && landingNeeded()) { showHome(); return; }
+      if (deckIsEmpty()) { showHome(); return; }
       const vis = characterList().filter((c) => c.ready);
       const face = vis.some((c) => c.id === faceId) ? faceId : lastFaceId();
       if (!face) {
@@ -6959,6 +7112,11 @@ If STATE says she is asleep: she stays asleep. MOMENT is narrator + body (breath
         const subBits = [c.name];
         if (s.sub && String(s.sub).trim()) subBits.push(String(s.sub).trim());
         els.placeSub.textContent = subBits.join(" · ");
+      }
+      const ed = document.getElementById("editNight");
+      if (ed) {
+        const n = SCENARIOS[game.scenarioId];
+        ed.hidden = !(n && (n.custom ? (studioPack.scenarios && studioPack.scenarios[n.id]) : isOwner()));
       }
       applyTheme();
       paintMeter();
@@ -7689,13 +7847,30 @@ If STATE says she is asleep: she stays asleep. MOMENT is narrator + body (breath
       return game.playerName || activePlayerName() || scenarioOf(game.scenarioId).playerName || "";
     }
     function isConorPlay() {
-      return /^conor$/i.test(namedPlayer());
+      // This swaps in a specific built-in friend-group biography (Ang, Maddy,
+      // Maggie, Nat, Fran, Alex). It used to fire on the NAME alone, so any
+      // account with a persona called Conor inherited another account's cast.
+      return isOwner() && /^conor$/i.test(namedPlayer());
     }
     function paintThinkBtn() {
       const on = !game.gone;
       document.documentElement.classList.toggle("conor-play", isConorPlay());
       const btn = document.getElementById("thinkBtn");
       if (btn) btn.disabled = !on || busy || !CLOUD_ACTOR_URL;
+      const go = document.getElementById("goBtn");
+      if (go) go.disabled = !on || busy || !CLOUD_ACTOR_URL;
+    }
+
+    // "Go on" — let her carry the scene without the player doing anything.
+    // Nothing is logged as a player turn; the cue is stripped from the log by
+    // silentYou so the transcript reads as one continuous scene.
+    function continueBeat() {
+      if (busy || game.gone || !CLOUD_ACTOR_URL) return;
+      return speak(
+        "[CONTINUE] The speck does nothing this beat. Carry the scene forward from the last moment"
+        + " — her body, her attention, what she does next. Do not restate the last beat.",
+        { silentYou: true }
+      );
     }
 
     function addTurn({ you, moment, line, pending, who, think }) {
@@ -7824,6 +7999,9 @@ If STATE says she is asleep: she stays asleep. MOMENT is narrator + body (breath
     }
 
     function applyActionHints(text) {
+      // The Go-on cue is narration scaffolding. Letting it through would move
+      // playerPlace on a beat where the speck did nothing.
+      if (/^\s*\[CONTINUE\]/i.test(text)) return;
       const t = text.toLowerCase();
       const inGut = (game.depth || 0) >= 3 || !!(game.digestMeter && game.digestMeter.active);
       const inBowel = !!(game.bowel && game.bowel.active);
@@ -7995,7 +8173,9 @@ Never copy SPEECH: or ACTION: into your reply. Reply only with MOMENT, SAY, SHOT
           stanceNote += " She has WORKED OUT that the speck is a person. She cannot un-know it.";
         }
       }
-      const packId = c.id || "";
+      // Built-in faces only. These are substring tests, and a custom id like
+      // "c-m9nat2q" would match /nat/ by luck and inherit her pack behaviour.
+      const packId = (c && c.id && !c.custom) ? c.id : "";
       const caringNight = tags.indexOf("caring") >= 0 || tags.indexOf("unintentional") >= 0;
       if (caringNight && /nat|fran|maggie|alex|priya|ang|tessa|wren/.test(packId)) {
         stanceNote += " PACK: help / undo first. Tags beat hunger.";
@@ -8052,12 +8232,28 @@ Never copy SPEECH: or ACTION: into your reply. Reply only with MOMENT, SAY, SHOT
         const r = game.bowel.totalMs ? game.bowel.remainingMs / game.bowel.totalMs : 0.5;
         bodyBits.push(r > 0.35 ? "bathroom need rising" : "bathroom need urgent");
       }
+      // Collapse exact repeats across the appended blocks, keeping first
+      // occurrence and order. Only the generated tail is touched — SYSTEM, the
+      // authored voice and the scenario hook are left exactly as written.
+      const dedupeNotes = (str) => {
+        const seen = new Set();
+        return String(str || "")
+          .split(/(?<=[.!?])\s+/)
+          .filter((sent) => {
+            const key = sent.replace(/\s+/g, " ").trim().toLowerCase();
+            if (key.length < 12) return true;
+            if (seen.has(key)) return false;
+            seen.add(key);
+            return true;
+          })
+          .join(" ");
+      };
       const state = `STATE: character=${c.name}; scenario=${s.id} (${s.title || s.id}); ${who} location=${game.location}; speck is ${game.playerPlace}; mood=${game.mood}; noticed=${game.noticed}; shot=${game.shot}; depth=${game.depth}; fate=${game.fate || "none"}; gone=${!!game.gone}; digestDone=${!!game.digestDone}; bowel=${game.bowel && game.bowel.active ? "need" : (game.bowelDone ? "done" : "no")}${sleepNight ? "; asleep=yes" : ""}${bodyBits.length ? "; body=" + bodyBits.join(", ") : ""}.`
         + " Continuity: do not forget the location, outfit, or last beat. If STATE conflicts with a sudden new place, STATE wins."
         + recap
         + (persona ? (" PLAYER: " + playerPersonaShort() + ".") : "")
         + " SAY variety: do not reuse any previous SAY sentence from this chat."
-        + snack + earlyNote + meterNote + sleepNote + stanceNote + escapeNote + (opts.extra || "");
+        + dedupeNotes(snack + earlyNote + meterNote + sleepNote + stanceNote + escapeNote + (opts.extra || ""));
       return [
         { role: "system", content: SYSTEM + "\n\n" + PLAYER_FORMAT + (persona ? "\n\n" + persona : "") + "\n\n" + c.voice + "\nLabel spoken lines SAY:.\n\n" + s.hook + "\n\n" + state },
         ...history.slice(-(ACTOR_QUALITY.historyTurns || 36)),
@@ -8167,6 +8363,24 @@ Never copy SPEECH: or ACTION: into your reply. Reply only with MOMENT, SAY, SHOT
       line = clampBeat(line.replace(/^(SAY|DAWN):\s*/i, ""), 280);
       if (/you are the actor|Never mention AI|BODY CLOCK/i.test(moment)) moment = "";
       if (/you are the actor|Never mention AI|BODY CLOCK/i.test(line)) line = "";
+      // Recovery: a beat with no spoken line is usually a formatting miss, not
+      // silence. Pull the label or the quote back out of MOMENT rather than
+      // showing the player a turn where she says nothing.
+      if (!line && moment) {
+        const inline = moment.match(new RegExp("(?:^|[\\s.!?\u201d\"])(?:" + SPK + "):\\s*([\\s\\S]+)$", "i"));
+        if (inline && inline[1] && inline[1].trim().length > 1) {
+          line = clampBeat(inline[1].trim(), 280);
+          moment = clampBeat(moment.slice(0, inline.index).trim(), 520);
+        }
+      }
+      if (!line && moment) {
+        // A trailing quoted sentence is her line often enough to promote it.
+        const q = moment.match(/[\"\u201c]([^\"\u201c\u201d]{2,280})[\"\u201d]\s*$/);
+        if (q && q[1]) {
+          line = clampBeat(q[1].trim(), 280);
+          moment = clampBeat(moment.slice(0, q.index).trim(), 520);
+        }
+      }
       return { moment, line, actorShot };
     }
 
@@ -8511,8 +8725,7 @@ Never copy SPEECH: or ACTION: into your reply. Reply only with MOMENT, SAY, SHOT
           + (n <= 2 ? " Stay in the same conversation. The snack is finished; she can feel that without announcing a slogan." : "")
           + " Do not invent a new city, job, or friend group mid-sentence."
           + " MOMENT is third person about her and THIS place. SAY is to herself or someone actually here."
-          + " Prefer SHOT lounge, rest, full, smug, pat, rub, after, bed, lift, cover, street, phone, door, profile. " + bathroom +
-          sceneRecap(),
+          + " Prefer SHOT lounge, rest, full, smug, pat, rub, after, bed, lift, cover, street, phone, door, profile. " + bathroom,
       };
     }
 
@@ -8946,12 +9159,17 @@ Never copy SPEECH: or ACTION: into your reply. Reply only with MOMENT, SAY, SHOT
     function authHinted() {
       try { return !!JSON.parse(localStorage.getItem("speckAuthHint") || "null"); } catch { return false; }
     }
+    // "Does this account have anything to play yet?" — distinct from
+    // landingNeeded(), which now just means "home is the deck".
+    function deckIsEmpty() {
+      return !characterList().some((c) => c.ready);
+    }
     function landingNeeded() {
       if (!sessionUser) return !authHinted() || bootSettled;
-      // While the session and canon are still resolving, a returning user should
-      // never be shown the "no characters yet" desk.
-      if (!bootSettled && authHinted()) return false;
-      return !characterList().some((c) => c.ready);
+      // The deck IS home once you are signed in — it used to appear only when
+      // the account had no characters yet, so a returning player was dropped
+      // straight into the last night with no way back except the Home button.
+      return true;
     }
 
     // Everything that can be restored from this device, with no network at all.
@@ -8995,12 +9213,15 @@ Never copy SPEECH: or ACTION: into your reply. Reply only with MOMENT, SAY, SHOT
       const title = document.getElementById("homeTitle");
       const lede = document.getElementById("homeLede");
       const note = document.getElementById("landNote");
-      if (title) title.textContent = sessionUser ? (land ? "Your desk" : "Speck") : "Welcome";
+      const bare = sessionUser && !characterList().some((c) => c.ready);
+      if (title) title.textContent = sessionUser ? "Your deck" : "Welcome";
       if (lede) lede.hidden = !!land;
       if (note) {
         note.textContent = !sessionUser
           ? "Log in from here or the header. Nights stay on your account."
-          : (land ? "No characters yet. Make one, then start a chat." : "");
+          : (bare
+            ? "No characters yet. Make one, then start a chat."
+            : "Pick up where you left off, or start something new.");
       }
       const create = document.getElementById("homeCreate");
       if (create) create.textContent = "Create character";
@@ -9027,6 +9248,15 @@ Never copy SPEECH: or ACTION: into your reply. Reply only with MOMENT, SAY, SHOT
       // restore this device's characters and nights before touching the network.
       const cached = hydrateFast();
       try { setAuthUi(); } catch {}
+      // The night shell used to be visible for the whole auth round-trip, so a
+      // reload flashed an empty chat before snapping to the deck. If this
+      // device remembers a login, the deck is where we are going — show it now.
+      if (authHinted() && els.home) {
+        try {
+          els.home.classList.add("land", "show");
+          document.body.classList.add("guest");
+        } catch {}
+      }
       if (cloudReady) {
         try {
           await loadSupabase();
@@ -9341,6 +9571,10 @@ Never copy SPEECH: or ACTION: into your reply. Reply only with MOMENT, SAY, SHOT
       const { error } = await supabase.auth.signUp({
         email: els.signEmail.value.trim(),
         password: els.signPass.value,
+        // Without this Supabase falls back to the project's Site URL, which is
+        // why a confirm link landed on a 404 even though the account was fine.
+        // detectSessionInUrl + pkce picks the code up when it returns here.
+        options: { emailRedirectTo: location.origin + location.pathname },
       });
       if (error) { els.authErr.textContent = error.message; return; }
       await afterLogin();
@@ -9542,6 +9776,19 @@ Never copy SPEECH: or ACTION: into your reply. Reply only with MOMENT, SAY, SHOT
         btn.addEventListener("click", () => { mePaneSlot = slot; loadMeSlot(); });
         wrap.appendChild(btn);
       });
+      // A standing line for who is actually in play — the per-slot badge is
+      // easy to miss once a slot is scrolled out of view.
+      const flag = document.getElementById("mpActive");
+      if (flag) {
+        const act = studioPack.players[studioPack.activePlayerId];
+        if (act && act.name) {
+          flag.hidden = false;
+          flag.textContent = "In play: " + act.name + (act.relationship ? (" — " + act.relationship) : "");
+        } else {
+          flag.hidden = false;
+          flag.textContent = "No persona in play. She'll treat you as unnamed.";
+        }
+      }
     }
 
     function paintRelChips() {
@@ -9599,6 +9846,9 @@ Never copy SPEECH: or ACTION: into your reply. Reply only with MOMENT, SAY, SHOT
       }
       paintMeSlots();
       pushToast(makeActive ? ("Playing as " + data.name + ".") : ("Saved " + data.name + "."), "ok");
+      // Committing to a persona is a "done here" action — the sheet used to
+      // stay open with no sign anything had happened.
+      if (makeActive) closeStudio();
     }
 
     async function clearMeSlot() {
@@ -9652,6 +9902,9 @@ Never copy SPEECH: or ACTION: into your reply. Reply only with MOMENT, SAY, SHOT
         document.getElementById("scBlurb").value = c ? (c.blurb || "") : "";
         document.getElementById("scVoice").value = c ? (c.voice || "") : "";
         document.getElementById("scAccent").value = (c && c.accent) || (typeof FACE_ACCENT === "object" && FACE_ACCENT[studioEditId]) || "#7cff9a";
+        document.getElementById("scBg").value = (c && c.bg) || "#100812";
+        document.getElementById("scSecond").value = (c && c.second) || "#5ce1ff";
+        document.getElementById("scPanel").value = (c && c.panel) || "#3a2044";
         const pc = document.getElementById("scPace");
         if (pc) {
           fillPaceSelect(pc, { inherit: true });
@@ -9661,14 +9914,22 @@ Never copy SPEECH: or ACTION: into your reply. Reply only with MOMENT, SAY, SHOT
       } else {
         const sel = document.getElementById("snShot");
         sel.innerHTML = STUDIO_SHOTS.map((k) => "<option value=\"" + k + "\">" + k + "</option>").join("");
-        document.getElementById("snTitle").value = "";
-        document.getElementById("snBlurb").value = "";
-        document.getElementById("snPlace").value = "";
-        document.getElementById("snLoc").value = "";
-        document.getElementById("snHook").value = "";
-        document.getElementById("snOpenM").value = "";
-        document.getElementById("snOpenL").value = "";
-        document.getElementById("snGut").checked = false;
+        const n = studioEditId
+          ? (studioPack.scenarios[studioEditId] || SCENARIOS[studioEditId] || null)
+          : null;
+        const open = (n && n.opening) || {};
+        document.getElementById("snTitle").value = n ? (n.title || "") : "";
+        document.getElementById("snBlurb").value = n ? (n.blurb || "") : "";
+        document.getElementById("snPlace").value = n ? (n.playerPlace || "") : "";
+        document.getElementById("snLoc").value = n ? (n.location || "") : "";
+        document.getElementById("snHook").value = n ? (n.hook || "") : "";
+        document.getElementById("snOpenM").value = open.moment || "";
+        document.getElementById("snOpenL").value = open.line || "";
+        document.getElementById("snGut").checked = !!(n && n.gut);
+        if (n && n.shot) sel.value = n.shot;
+        document.getElementById("studioTitle").textContent = n ? "Edit night" : "New night";
+        const del = document.getElementById("snDelete");
+        if (del) del.hidden = !(n && n.custom);
       }
       sheet.classList.add("show");
     }
@@ -9693,6 +9954,9 @@ Never copy SPEECH: or ACTION: into your reply. Reply only with MOMENT, SAY, SHOT
         blurb: document.getElementById("scBlurb").value.trim() || "Your character",
         voice: document.getElementById("scVoice").value.trim() || ("You play " + name + ". Adult. Stay in character. Label speech SAY:"),
         accent: document.getElementById("scAccent").value || "#7cff9a",
+        bg: document.getElementById("scBg").value || "",
+        second: document.getElementById("scSecond").value || "",
+        panel: document.getElementById("scPanel").value || "",
         stills: (studioPack.characters[id] && studioPack.characters[id].stills) || {},
         scenarios: (studioPack.characters[id] && studioPack.characters[id].scenarios) || [],
         gutNights: (studioPack.characters[id] && studioPack.characters[id].gutNights) || [],
@@ -9705,10 +9969,15 @@ Never copy SPEECH: or ACTION: into your reply. Reply only with MOMENT, SAY, SHOT
         else delete pp.byFace[id];
       }
       applyStudioPack();
+      try { applyTheme(game.characterId); } catch {}
       await pushStudio();
       paintStillMap();
       renderLibrary();
       paintHomeFaces();
+      // The deck hides its face block while #home still carries .land from the
+      // empty state. Saving the first character changed the data but nothing
+      // re-ran the shell check, so it took a hard refresh to appear.
+      try { if (els.home && els.home.classList.contains("show")) showHome(); } catch {}
       pushToast("Saved " + name + ".", "ok");
     }
     async function saveStudioNight() {
@@ -9722,12 +9991,16 @@ Never copy SPEECH: or ACTION: into your reply. Reply only with MOMENT, SAY, SHOT
       if (!CHARACTERS[face].custom && !isOwner()) {
         pushToast("That face isn't on this account.", "bad"); return;
       }
-      const id = "n-" + Date.now().toString(36);
+      const editing = studioEditId && studioPack.scenarios[studioEditId];
+      const id = editing ? studioEditId : ("n-" + Date.now().toString(36));
       const gut = !!document.getElementById("snGut").checked;
+      // Keep the night on the face it was written for; libFace can have moved
+      // on since it was created.
+      const owner = editing ? (editing.characterId || face) : face;
       studioPack.scenarios[id] = {
         id,
         custom: true,
-        characterId: face,
+        characterId: owner,
         title,
         blurb: document.getElementById("snBlurb").value.trim() || title,
         sub: gut ? "Inside" : "Outside",
@@ -9746,8 +10019,12 @@ Never copy SPEECH: or ACTION: into your reply. Reply only with MOMENT, SAY, SHOT
       applyStudioPack();
       await pushStudio();
       renderLibrary();
+      // Editing the night you are standing in should take effect immediately.
+      if (game.scenarioId === id) {
+        try { applyPlace(); paintMeter(); } catch {}
+      }
       closeStudio();
-      pushToast("Night saved.", "ok");
+      pushToast(editing ? "Night updated." : "Night saved.", "ok");
     }
     async function draftStudioVoice() {
       const name = document.getElementById("scName").value.trim() || "her";
@@ -9801,6 +10078,31 @@ Never copy SPEECH: or ACTION: into your reply. Reply only with MOMENT, SAY, SHOT
     if (homeMe) homeMe.addEventListener("click", () => {
       if (!sessionUser) { openAuth(); return; }
       openStudio("me");
+    });
+    const homeNewStory = document.getElementById("homeNewStory");
+    if (homeNewStory) homeNewStory.addEventListener("click", () => {
+      if (!sessionUser) { openAuth(); return; }
+      if (deckIsEmpty()) { pushToast("Make a character first.", "bad"); openStudio("char"); return; }
+      openStudio("night");
+    });
+    const scPalReset = document.getElementById("scPalReset");
+    if (scPalReset) scPalReset.addEventListener("click", () => {
+      document.getElementById("scAccent").value = "#7cff9a";
+      document.getElementById("scBg").value = "#100812";
+      document.getElementById("scSecond").value = "#5ce1ff";
+      document.getElementById("scPanel").value = "#3a2044";
+      const root = document.documentElement;
+      ["--neon", "--bg", "--cyan", "--panel"].forEach((v) => root.style.removeProperty(v));
+      pushToast("Palette reset.", "ok");
+    });
+    const scPalPreview = document.getElementById("scPalPreview");
+    if (scPalPreview) scPalPreview.addEventListener("click", () => {
+      // Paint the sheet live so the colours can be judged before saving.
+      const root = document.documentElement;
+      root.style.setProperty("--neon", document.getElementById("scAccent").value);
+      root.style.setProperty("--bg", document.getElementById("scBg").value);
+      root.style.setProperty("--cyan", document.getElementById("scSecond").value);
+      root.style.setProperty("--panel", document.getElementById("scPanel").value);
     });
     const scSave = document.getElementById("scSaveChar");
     if (scSave) scSave.addEventListener("click", saveStudioChar);
@@ -9864,7 +10166,7 @@ Never copy SPEECH: or ACTION: into your reply. Reply only with MOMENT, SAY, SHOT
     if (newChatBtn) {
       newChatBtn.addEventListener("click", () => {
         if (!sessionUser) { showHome(); openAuth(); return; }
-        if (typeof landingNeeded === "function" && landingNeeded()) { openStudio("char"); return; }
+        if (deckIsEmpty()) { openStudio("char"); return; }
         const face = characterOf(game.characterId).id;
         if (!face) { showHome(); return; }
         hideHome();
@@ -9887,7 +10189,7 @@ Never copy SPEECH: or ACTION: into your reply. Reply only with MOMENT, SAY, SHOT
     const homeNew = document.getElementById("homeNew");
     if (homeNew) homeNew.addEventListener("click", () => {
       if (!sessionUser) { openAuth(); return; }
-      if (landingNeeded()) { openStudio("char"); return; }
+      if (deckIsEmpty()) { openStudio("char"); return; }
       hideHome();
       startOpenChat(lastFaceId());
     });
@@ -9907,7 +10209,8 @@ Never copy SPEECH: or ACTION: into your reply. Reply only with MOMENT, SAY, SHOT
       }
     });
     function leaveHome() {
-      if (landingNeeded()) { showHome(); return; }
+      // Leaving the deck with nothing on it would land on an empty night.
+      if (deckIsEmpty()) { showHome(); return; }
       hideHome();
       if (!els.log.children.length) paintOpening();
     }
@@ -10015,6 +10318,26 @@ Never copy SPEECH: or ACTION: into your reply. Reply only with MOMENT, SAY, SHOT
 
     const thinkBtn = document.getElementById("thinkBtn");
     if (thinkBtn) thinkBtn.addEventListener("click", fireConorThink);
+    const goBtn = document.getElementById("goBtn");
+    if (goBtn) goBtn.addEventListener("click", continueBeat);
+    const editNight = document.getElementById("editNight");
+    if (editNight) editNight.addEventListener("click", () => {
+      if (!game.scenarioId) return;
+      libFace = characterOf(game.characterId).id;
+      openStudio("night", game.scenarioId);
+    });
+    const snDelete = document.getElementById("snDelete");
+    if (snDelete) snDelete.addEventListener("click", async () => {
+      if (!studioEditId || !studioPack.scenarios[studioEditId]) return;
+      const ok = await askConfirm("Delete this night? Saved chats that used it stay put.", "Delete");
+      if (!ok) return;
+      delete studioPack.scenarios[studioEditId];
+      applyStudioPack();
+      await pushStudio();
+      renderLibrary();
+      closeStudio();
+      pushToast("Night deleted.", "ok");
+    });
 
     // Skip the 2-minute gut settle grace period
     const gutSkipBtn = document.getElementById("gutSettleSkip");
