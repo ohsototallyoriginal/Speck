@@ -6261,6 +6261,9 @@ If STATE says she is asleep: she stays asleep. MOMENT is narrator + body (breath
       // Sweep up the empty rows older builds could mint: no face, no night,
       // and nothing ever said.
       if (!face && !scen && !(c.history && c.history.length)) return true;
+      // A row with no beats at all has nothing to reopen — that is exactly the
+      // blank a forced save left behind. Drop it whatever face it claims.
+      if (!(c.history && c.history.length) && !(c.logTurns && c.logTurns.length)) return true;
       return face === "dawn" || REMOVED_SCENARIOS.has(scen);
     }
     function pruneLib(lib) {
@@ -6434,6 +6437,13 @@ If STATE says she is asleep: she stays asleep. MOMENT is narrator + body (breath
       });
       (data || []).forEach((row) => {
         if (REMOVED_SCENARIOS.has(row.scenario_id) || (row.game && row.game.characterId === "dawn")) return;
+        // Blanks an older build already pushed would sync straight back after
+        // every local sweep. Remove them at the source instead.
+        if (!(row.history && row.history.length) && !(row.log_turns && row.log_turns.length)) {
+          delete lib.chats[row.id];
+          cloudDelete(row.id);
+          return;
+        }
         lib.chats[row.id] = {
           id: row.id,
           scenarioId: row.scenario_id,
@@ -6510,8 +6520,12 @@ If STATE says she is asleep: she stays asleep. MOMENT is narrator + body (breath
       // No character or no night means there is no scene to save.
       if (!game || !game.characterId || !game.scenarioId) return;
       const hasStory = !!(history.length || (logTurns && logTurns.length) || (game && ((game.depth || 0) >= 2 || (game.digestMeter && game.digestMeter.active) || game.hp < 100 || game.gas > 0)));
-      if (!opts.force && !hasStory) return;
       const lib = readLib();
+      // `force` means "flush this scene now" (tab hidden, page unloading). It
+      // does NOT mean "invent a row". Without this, every blur or reload on a
+      // freshly booted account minted a new chat-<timestamp> with an empty log.
+      const alreadySaved = !!(activeChatId && lib.chats[activeChatId]);
+      if (!hasStory && !(opts.force && alreadySaved)) return;
       if (!activeChatId) activeChatId = "chat-" + Date.now();
       const s = scenarioOf(game.scenarioId);
       const snap = snapshotGame();
@@ -7632,6 +7646,19 @@ Never copy SPEECH: or ACTION: into your reply. Reply only with MOMENT, SAY, SHOT
           + " Continue from the last MOMENT — same clothes, same room or the next room she would actually walk to (bathroom only if disposal is running)."
           + " Never bring " + idName + " back as a living voice.";
       }
+      // Pace used to scale only the hidden clock, so a slow-burn night and a
+      // quick one read identically. Give her the intent, never the number.
+      if (meterNote) {
+        const pk = paceKeyFor();
+        if (pk === "slow") {
+          meterNote += " PACE: slow burn. She is in no hurry and her body is not either —"
+            + " she lingers, settles, lets things sit between beats. Draw it out."
+            + " Do not move toward an ending faster than the STATE says.";
+        } else if (pk === "quick") {
+          meterNote += " PACE: quick. Her body works fast and she is not drawing this out —"
+            + " less lingering, more momentum, beats that move. Still never name a clock.";
+        }
+      }
       const tags = nightTags();
       let stanceNote = "";
       if (tags.length) {
@@ -7724,7 +7751,26 @@ Never copy SPEECH: or ACTION: into your reply. Reply only with MOMENT, SAY, SHOT
       ];
     }
 
-    const SPEAKER_LABEL = "DAWN|SAY|RAE|ANG|ANGELA|MADDY|MADISON|MAGGIE|NAT|NATALIE|FRAN|FRANCESCA|ALEX|ALEXANDRA|KEKE|KEISHA|MARA|SABLE|TESSA|PRIYA|WREN";
+    const BUILTIN_SPEAKERS = "DAWN|SAY|RAE|ANG|ANGELA|MADDY|MADISON|MAGGIE|NAT|NATALIE|FRAN|FRANCESCA|ALEX|ALEXANDRA|KEKE|KEISHA|MARA|SABLE|TESSA|PRIYA|WREN";
+    function escapeRe(x) { return String(x || "").replace(/[.*+?^${}()|[\]\\]/g, "\\$&"); }
+    // The label list used to be frozen, so a character made in the Studio was
+    // never a recognised speaker: her SAY line either vanished or got glued onto
+    // the end of MOMENT. Build it per-turn from whoever is actually on screen.
+    function speakerPattern() {
+      const names = new Set();
+      try {
+        const n = String(speakerName() || "").trim();
+        if (n) {
+          names.add(n);
+          n.split(/\s+/).forEach((part) => { if (part.length > 1) names.add(part); });
+        }
+      } catch {}
+      const extra = Array.from(names)
+        .map(escapeRe)
+        .filter((x) => x && BUILTIN_SPEAKERS.split("|").indexOf(x.toUpperCase()) < 0);
+      return BUILTIN_SPEAKERS + (extra.length ? "|" + extra.join("|") : "");
+    }
+    const SPEAKER_LABEL = BUILTIN_SPEAKERS;
     const MAJOR_WAKE_RE = /\b(wake(s|d)? (her|up)|wakes? her|alarm|slap(s|ped)? (her )?face|scream(s|ed|ing)?|yell(s|ed|ing)? (her name|in her ear)|dump(s|ed)? (ice )?water|ice water|shake(s|n)? her|shaking her|fire alarm|smoke)\b/i;
 
     function sanitizeModelText(raw) {
@@ -7784,8 +7830,9 @@ Never copy SPEECH: or ACTION: into your reply. Reply only with MOMENT, SAY, SHOT
 
     function parseActor(raw) {
       const text = sanitizeModelText(raw);
-      const speakRe = new RegExp("(?:^|\\n)\\s*(?:" + SPEAKER_LABEL + "):\\s*([\\s\\S]*?)(?=\\n\\s*(?:SHOT|" + SPEAKER_LABEL + "):|$)", "i");
-      const momentMatch = text.match(new RegExp("(?:^|\\n)\\s*MOMENT:\\s*([\\s\\S]*?)(?=\\n\\s*(?:" + SPEAKER_LABEL + "|SHOT):|$)", "i"));
+      const SPK = speakerPattern();
+      const speakRe = new RegExp("(?:^|\\n)\\s*(?:" + SPK + "):\\s*([\\s\\S]*?)(?=\\n\\s*(?:SHOT|" + SPK + "):|$)", "i");
+      const momentMatch = text.match(new RegExp("(?:^|\\n)\\s*MOMENT:\\s*([\\s\\S]*?)(?=\\n\\s*(?:" + SPK + "|SHOT):|$)", "i"));
       const dawnMatch = text.match(speakRe);
       const shotMatch = text.match(/(?:^|\n)\s*SHOT:\s*([a-z]+)/i);
       let moment = momentMatch ? momentMatch[1].trim() : "";
@@ -8003,6 +8050,12 @@ Never copy SPEECH: or ACTION: into your reply. Reply only with MOMENT, SAY, SHOT
           else if (kind === "beg") composed = "ACTION: I press toward her.\nSPEECH: Please. Don't do this.";
           else if (kind === "attempt") composed = "ACTION: I try to get back the way I came.";
           else if (kind === "struggle") composed = "ACTION: I kick and twist so she has to feel it.";
+          // The outside tier (depth 0) had no fallback at all, so an empty parse
+          // ate the tap: spinner cleared, nothing sent, nothing on screen.
+          else if (kind === "look") composed = "ACTION: I turn and look up at her from where I am.";
+          else if (kind === "talk") composed = "ACTION: I wave both arms to be seen.\nSPEECH: Hey — down here.";
+          else if (kind === "hide") composed = "ACTION: I duck out of sight and keep still.";
+          else if (kind === "tease") composed = "ACTION: I poke at her to get a reaction.\nSPEECH: Careful where you step.";
         }
         addTurn({ think: parsed.think || "…", you: composed });
         persist();
