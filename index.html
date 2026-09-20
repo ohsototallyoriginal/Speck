@@ -3296,6 +3296,172 @@
     #home.land h1 { font-size: clamp(2rem, 9vw, 2.8rem); margin: 0 0 10px; }
     #home.land .land-note { display: block; margin: 0 0 18px; }
 
+    /* ---------------------------------------------------------------
+       Landing: centered stack + live background.
+       `margin: auto` on the inner block (not justify-content: center) so a
+       short viewport still scrolls instead of clipping the top of the card —
+       centering a flex child with justify-content cuts off overflow in
+       Safari/Firefox, which is exactly what a landscape phone hits.
+       --------------------------------------------------------------- */
+    #home.land .home-inner {
+      margin: auto;
+      width: min(430px, 100%);
+      padding: 28px 0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      text-align: center;
+    }
+    #home.land .home-top {
+      display: block;
+      max-width: 30rem;
+      width: 100%;
+      text-align: center;
+    }
+    #home.land .eyebrow {
+      margin: 0 0 10px;
+      font-size: .72rem;
+      letter-spacing: .34em;
+      text-indent: .34em; /* letter-spacing pads the right edge; re-centre it */
+    }
+    #home.land h1 {
+      margin: 0 0 14px;
+      line-height: 1.02;
+      background: linear-gradient(
+        100deg,
+        var(--ink) 0%,
+        var(--ink) 34%,
+        color-mix(in srgb, var(--neon) 85%, #fff) 50%,
+        var(--ink) 66%,
+        var(--ink) 100%
+      );
+      background-size: 280% 100%;
+      -webkit-background-clip: text;
+      background-clip: text;
+      color: transparent;
+      animation: landSheen 7s ease-in-out infinite;
+    }
+    #home.land .land-note {
+      margin: 0 auto 26px;
+      max-width: 24rem;
+      text-align: center;
+      font-size: .95rem;
+    }
+    #home.land .home-actions {
+      width: min(300px, 100%);
+      margin: 0 auto;
+      gap: 10px;
+    }
+    #home.land .home-actions button {
+      width: 100%;
+      min-height: 50px;
+      font-size: .98rem;
+      letter-spacing: .01em;
+      transition: transform .16s ease, box-shadow .22s ease, filter .22s ease;
+    }
+    #home.land .home-primary,
+    #home.land #homeAuth,
+    #home.land #homeCreate {
+      box-shadow: 0 10px 30px -12px color-mix(in srgb, var(--neon) 70%, transparent);
+    }
+    #home.land .home-actions button:hover,
+    #home.land .home-actions button:focus-visible {
+      transform: translateY(-2px);
+      filter: saturate(1.1) brightness(1.06);
+      box-shadow: 0 16px 38px -12px color-mix(in srgb, var(--neon) 80%, transparent);
+    }
+    #home.land .home-actions button:active { transform: translateY(0) scale(.985); }
+
+    /* Staggered entrance — runs once each time the landing is shown. */
+    #home.land.show .home-top > *,
+    #home.land.show .home-actions {
+      animation: landRise .62s cubic-bezier(.2, .7, .25, 1) backwards;
+    }
+    #home.land.show .eyebrow { animation-delay: .04s; }
+    #home.land.show h1 { animation-delay: .12s; }
+    #home.land.show .land-note { animation-delay: .2s; }
+    #home.land.show .home-actions { animation-delay: .28s; }
+
+    @keyframes landRise {
+      from { opacity: 0; transform: translate3d(0, 14px, 0); filter: blur(5px); }
+      to   { opacity: 1; transform: none; filter: blur(0); }
+    }
+    @keyframes landSheen {
+      0%, 100% { background-position: 120% 50%; }
+      50%      { background-position: -20% 50%; }
+    }
+
+    /* Background field: soft drifting aura blobs behind a particle canvas. */
+    #home .home-orbit { z-index: 0; }
+    #home .home-inner { z-index: 1; }
+    #home .home-orbit canvas.orbit-canvas {
+      position: absolute; inset: 0;
+      width: 100%; height: 100%;
+      display: block;
+    }
+    #home .home-aura {
+      position: absolute; inset: -25%;
+      pointer-events: none;
+      filter: blur(70px);
+      opacity: .55;
+    }
+    #home .home-aura i {
+      position: absolute;
+      width: 46%; aspect-ratio: 1 / 1;
+      border-radius: 50%;
+      mix-blend-mode: screen;
+      will-change: transform;
+    }
+    #home .home-aura i:nth-child(1) {
+      left: 4%; top: 6%;
+      background: radial-gradient(circle, color-mix(in srgb, var(--neon) 60%, transparent), transparent 68%);
+      animation: auraDriftA 19s ease-in-out infinite;
+    }
+    #home .home-aura i:nth-child(2) {
+      right: 0%; top: 34%;
+      background: radial-gradient(circle, color-mix(in srgb, var(--cyan) 42%, transparent), transparent 68%);
+      animation: auraDriftB 24s ease-in-out infinite;
+    }
+    #home .home-aura i:nth-child(3) {
+      left: 22%; bottom: 2%;
+      background: radial-gradient(circle, color-mix(in srgb, var(--neon) 34%, #4a2048), transparent 70%);
+      animation: auraDriftC 29s ease-in-out infinite;
+    }
+    @keyframes auraDriftA {
+      0%, 100% { transform: translate3d(0, 0, 0) scale(1); }
+      50%      { transform: translate3d(14%, 10%, 0) scale(1.18); }
+    }
+    @keyframes auraDriftB {
+      0%, 100% { transform: translate3d(0, 0, 0) scale(1.06); }
+      50%      { transform: translate3d(-16%, -12%, 0) scale(.9); }
+    }
+    @keyframes auraDriftC {
+      0%, 100% { transform: translate3d(0, 0, 0) scale(.95); }
+      50%      { transform: translate3d(10%, -14%, 0) scale(1.2); }
+    }
+
+    /* Pointer-tracked vignette: CSS reads the coords the canvas writes. */
+    #home .home-glow {
+      position: absolute; inset: 0;
+      pointer-events: none;
+      background: radial-gradient(
+        260px 260px at var(--px, 50%) var(--py, 40%),
+        color-mix(in srgb, var(--neon) 20%, transparent),
+        transparent 70%
+      );
+      opacity: 0;
+      transition: opacity .5s ease;
+    }
+    #home.pointing .home-glow { opacity: 1; }
+
+    @media (prefers-reduced-motion: reduce) {
+      #home .home-aura i { animation: none; }
+      #home .home-glow { display: none; }
+      #home.land h1 { animation: none; background: none; color: var(--ink); -webkit-text-fill-color: currentColor; }
+      #home.land.show .home-top > *,
+      #home.land.show .home-actions { animation: none; }
+    }
+
   </style>
 </head>
 <body>
@@ -5222,6 +5388,10 @@ If STATE says she is asleep: she stays asleep. MOMENT is narrator + body (breath
       opts = opts || {};
       if (digestTimer) { clearInterval(digestTimer); digestTimer = null; }
       if (opts.clear && bowelTimer) { clearInterval(bowelTimer); bowelTimer = null; }
+      // A hard clear happens on newChat / openChat / reset. The settle tick was
+      // not in this list, so switching chats out of a gut scene left a 1Hz
+      // interval running against the *new* game object.
+      if (opts.clear && gutSettleTick) { clearInterval(gutSettleTick); gutSettleTick = null; }
       const root = document.documentElement;
       root.classList.remove("digest-hot", "digest-critical", "bowel-mode", "bowel-hot", "bowel-critical");
       root.style.setProperty("--gut-danger", "0");
@@ -5954,6 +6124,14 @@ If STATE says she is asleep: she stays asleep. MOMENT is narrator + body (breath
 
       // Harsh, time-scaled penalties (~210% harder than prior baseline)
       // Burp: ~1.5 min → 9–15 min | Squirm: ~2.3 min → ~12 min | Churn: ~1.3 min → ~8 min
+      // `blob` mixes the player's text with HER narration of the same beat.
+      // Because the struggle/churn tests run before the calm test, a deliberate
+      // Rub was being scored as a struggle whenever she happened to narrate a
+      // kick or a gurgle — the button punished the player for its own effect.
+      // A clean player-side rub now blocks those two model-only reads.
+      const playerCalm = RE_CALM.test(userBlob) && !RE_SQUIRM.test(userBlob);
+      const squirmed = RE_SQUIRM.test(userBlob) || (!playerCalm && RE_SQUIRM.test(blob));
+      const churned = !playerCalm && (RE_CHURN.test(blob) || shot === "digest" || shot === "taut");
       const teased = /\b(tease|brat|dare|snack|eat me|you won.?t)\b/i.test(userBlob);
       const begging = /\b(beg(s|ged|ging)?|please|let me out|get me out|don't (finish|digest) me)\b/i.test(userBlob);
       const escaping = /\b(climb(s|ed|ing)?|escape|cardia|way I came|back toward)\b/i.test(userBlob)
@@ -5999,7 +6177,7 @@ If STATE says she is asleep: she stays asleep. MOMENT is narrator + body (breath
         dm.factors.pace = clamp01(dm.factors.pace - 0.03);
         hpHit = 1;
         gasHit = -4;
-      } else if (RE_SQUIRM.test(blob) || RE_SQUIRM.test(userBlob)) {
+      } else if (squirmed) {
         const tags = nightTags();
         const hit = Math.round(scaledHitSeconds(dm, 40, 120) * wHit * (tags.indexOf("caring") >= 0 ? 0.75 : 1));
         delta -= hit * 1000;
@@ -6022,7 +6200,7 @@ If STATE says she is asleep: she stays asleep. MOMENT is narrator + body (breath
         bumpEscape(-25);
         hpHit = -(2 + Math.round(Math.random() * 3));
         gasHit = 10 + Math.random() * 8;
-      } else if (RE_CHURN.test(blob) || shot === "digest" || shot === "taut") {
+      } else if (churned) {
         const hit = Math.round(scaledHitSeconds(dm, 22, 75) * wHit);
         delta -= hit * 1000;
         note = formatHitNote("Chamber works you", hit);
@@ -6067,9 +6245,9 @@ If STATE says she is asleep: she stays asleep. MOMENT is narrator + body (breath
       const why = (RE_BURP.test(blob) || shot === "burp" || shot === "belch") ? "burp"
         : escaping ? "escape"
         : begging ? "beg"
-        : (RE_SQUIRM.test(blob) || RE_SQUIRM.test(userBlob)) ? "struggle"
+        : squirmed ? "struggle"
         : teased ? "tease"
-        : (RE_CHURN.test(blob) || shot === "digest" || shot === "taut") ? "churn"
+        : churned ? "churn"
         : (RE_CALM.test(blob) || shot === "lounge" || shot === "hold" || shot === "rub" || shot === "pat") ? "rub"
         : RE_FEED.test(blob) ? "full"
         : RE_HUNGER.test(blob) ? "empty"
@@ -6592,7 +6770,17 @@ If STATE says she is asleep: she stays asleep. MOMENT is narrator + body (breath
     const LOG_CAP = 400;
     function trimHistory() {
       if (history.length > HISTORY_CAP) history = history.slice(-HISTORY_CAP);
-      if (logTurns && logTurns.length > LOG_CAP) logTurns = logTurns.slice(-LOG_CAP);
+      if (logTurns && logTurns.length > LOG_CAP) {
+        logTurns = logTurns.slice(-LOG_CAP);
+        // logTurns was capped without touching the DOM, so a long night ended
+        // up showing more turns on screen than it would after a reload. Drop
+        // the same rows off the front of the log. Pending wraps and notices are
+        // left alone — they are not rows in logTurns.
+        try {
+          const rows = els.log ? els.log.querySelectorAll(".turn:not(.pending):not(.pending-dawn)") : [];
+          for (let i = 0; i < rows.length - LOG_CAP; i++) rows[i].remove();
+        } catch {}
+      }
     }
 
     function cloneState(v) {
@@ -7830,16 +8018,19 @@ Never copy SPEECH: or ACTION: into your reply. Reply only with MOMENT, SAY, SHOT
       }
       if (!game.gone && (game.depth || 0) >= 3) {
         const es = escapeState();
+        // These used to assign, not append — so a player who escaped once and
+        // got taken again lost the "ESCAPED BEFORE" line the moment they were
+        // back at depth 3, which is exactly when she should still remember it.
         if (es.ready) {
-          escapeNote = " ESCAPE WINDOW (earned — this is the ONLY turn-type where it is allowed):"
+          escapeNote += " ESCAPE WINDOW (earned — this is the ONLY turn-type where it is allowed):"
             + " they have climbed the folds back to the way in and she is settled enough that it could happen."
             + " If it fits her character she MAY bring them up this turn — spit them out onto her tongue, palm, or hand."
             + " She is allowed to refuse. Do not narrate it as easy and do not make it clean.";
         } else if (es.prog > 55) {
-          escapeNote = " They are working their way up toward the cardia. She can feel something moving with purpose."
+          escapeNote += " They are working their way up toward the cardia. She can feel something moving with purpose."
             + " She does NOT let them out this turn. No spitting out, no coughing up, no bringing them back up.";
         } else {
-          escapeNote = " NO EXIT this turn. She does not spit them out, cough them up, or let them back up, however they ask.";
+          escapeNote += " NO EXIT this turn. She does not spit them out, cough them up, or let them back up, however they ask.";
         }
       }
       const recap = sceneRecap();
@@ -8180,14 +8371,24 @@ Never copy SPEECH: or ACTION: into your reply. Reply only with MOMENT, SAY, SHOT
           else if (kind === "hide") composed = "ACTION: I duck out of sight and keep still.";
           else if (kind === "tease") composed = "ACTION: I poke at her to get a reaction.\nSPEECH: Careful where you step.";
         }
-        addTurn({ think: parsed.think || "…", you: composed });
-        persist();
+        // An empty parse used to still push { think: "…" } into logTurns, so a
+        // dud Think tap left a permanent ellipsis row that came back on reload.
+        // Only write a row when there is something actually in it.
+        if (parsed.think || composed) {
+          addTurn({ think: parsed.think || "", you: composed });
+          persist();
+        }
         if (composed) {
           // speak() owns busy from here — do not drop it or a second click can double-fire
           await speak(composed, { silentYou: true, keepBusy: true });
         } else {
           setBusy(false);
           paintThinkBtn();
+          // Nothing parsed and nothing composed: the tap would otherwise just
+          // vanish. Say so and offer the retry rather than eating it.
+          if (!parsed.think) {
+            addNotice("Nothing came back that time.", () => firePlayerAct(kind));
+          }
         }
       } catch (err) {
         wrap.remove();
@@ -8210,7 +8411,14 @@ Never copy SPEECH: or ACTION: into your reply. Reply only with MOMENT, SAY, SHOT
 
     async function speak(userText, opts) {
       opts = opts || {};
-      if (game.gone || !CLOUD_ACTOR_URL) return;
+      // firePlayerAct hands the turn over with keepBusy, so it has already
+      // stopped owning `busy`. If we bail here without releasing it, the dock
+      // stays disabled until a reload — e.g. the act landed on the same beat
+      // she finished the speck, so game.gone flipped mid-flight.
+      if (game.gone || !CLOUD_ACTOR_URL) {
+        if (opts.keepBusy) { setBusy(false); paintThinkBtn(); }
+        return;
+      }
       if (busy && !opts.keepBusy) return;
       const hadFocus = document.activeElement === els.input;
       applyActionHints(userText);
@@ -8476,10 +8684,12 @@ Never copy SPEECH: or ACTION: into your reply. Reply only with MOMENT, SAY, SHOT
       if (authChip) authChip.textContent = !cloudReady ? "Setup" : (sessionUser ? "Signed in" : "Log in");
     }
 
-    function paintHomeOrbit() {
-      const layer = document.getElementById("homeOrbit");
-      if (!layer || layer.dataset.ready) return;
-      layer.dataset.ready = "1";
+    // The landing background used to be 14 CSS-animated dots that rose and
+    // reset forever. It now paints a pointer-reactive mote field on a canvas,
+    // with the old dots kept as the fallback for reduced-motion / FX-off.
+    // The loop only runs while #home actually has .show, so it costs nothing
+    // once the player is in a night.
+    function paintHomeOrbitFallback(layer) {
       for (let i = 0; i < 14; i++) {
         const d = document.createElement("i");
         d.style.left = (6 + Math.random() * 88) + "%";
@@ -8489,6 +8699,247 @@ Never copy SPEECH: or ACTION: into your reply. Reply only with MOMENT, SAY, SHOT
         d.style.animationDuration = (7 + Math.random() * 6) + "s";
         layer.appendChild(d);
       }
+    }
+
+    function paintHomeOrbit() {
+      const layer = document.getElementById("homeOrbit");
+      if (!layer || layer.dataset.ready) return;
+      layer.dataset.ready = "1";
+
+      const home = document.getElementById("home");
+      let reduce = false;
+      try { reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches; } catch {}
+      if (reduce || !fxOn() || !home) { paintHomeOrbitFallback(layer); return; }
+
+      // Aura blobs and the pointer vignette are pure CSS; the canvas is the
+      // only thing that costs frames.
+      const aura = document.createElement("div");
+      aura.className = "home-aura";
+      aura.appendChild(document.createElement("i"));
+      aura.appendChild(document.createElement("i"));
+      aura.appendChild(document.createElement("i"));
+      layer.appendChild(aura);
+
+      const glow = document.createElement("div");
+      glow.className = "home-glow";
+      layer.appendChild(glow);
+
+      const canvas = document.createElement("canvas");
+      canvas.className = "orbit-canvas";
+      layer.appendChild(canvas);
+      const ctx = canvas.getContext("2d", { alpha: true });
+      if (!ctx) return;
+
+      let W = 0, H = 0, dpr = 1;
+      const motes = [];
+      const rings = [];
+      const pointer = { x: -999, y: -999, on: false, vx: 0, vy: 0, lx: -999, ly: -999 };
+
+      // Accent follows whatever face the theme is on. Re-sprite only on change.
+      let accent = "";
+      let sprite = null;
+      function readAccent() {
+        let v = "";
+        try {
+          v = getComputedStyle(document.documentElement).getPropertyValue("--neon").trim();
+        } catch {}
+        return v || "#ff4fd8";
+      }
+      function buildSprite(color) {
+        const size = 64;
+        const c = document.createElement("canvas");
+        c.width = c.height = size;
+        const g = c.getContext("2d");
+        if (!g) return null;
+        const grad = g.createRadialGradient(size / 2, size / 2, 0, size / 2, size / 2, size / 2);
+        grad.addColorStop(0, "rgba(255,255,255,0.95)");
+        grad.addColorStop(0.28, color);
+        grad.addColorStop(1, "rgba(0,0,0,0)");
+        g.fillStyle = grad;
+        g.beginPath();
+        g.arc(size / 2, size / 2, size / 2, 0, Math.PI * 2);
+        g.fill();
+        return c;
+      }
+      function syncAccent() {
+        const next = readAccent();
+        if (next === accent && sprite) return;
+        accent = next;
+        sprite = buildSprite(accent);
+      }
+
+      function moteCount() {
+        const area = W * H;
+        // ~1 mote per 14k px², clamped so a phone never pays desktop cost.
+        return Math.max(26, Math.min(78, Math.round(area / 14000)));
+      }
+      function seedMote(m, firstFill) {
+        m.x = Math.random() * W;
+        m.y = firstFill ? Math.random() * H : H + 20 + Math.random() * 60;
+        m.r = 1.1 + Math.random() * 3.4;
+        m.vx = (Math.random() - 0.5) * 0.09;
+        m.vy = -(0.14 + Math.random() * 0.34);
+        m.sway = 0.25 + Math.random() * 0.75;
+        m.phase = Math.random() * Math.PI * 2;
+        m.alpha = 0.22 + Math.random() * 0.5;
+        m.lit = 0;
+        return m;
+      }
+      let sizeDirty = true;
+      function resize() {
+        sizeDirty = false;
+        const rect = layer.getBoundingClientRect();
+        const w = Math.max(1, Math.round(rect.width));
+        const h = Math.max(1, Math.round(rect.height));
+        dpr = Math.min(2, window.devicePixelRatio || 1);
+        if (w === W && h === H && canvas.width) return;
+        W = w; H = h;
+        canvas.width = Math.round(W * dpr);
+        canvas.height = Math.round(H * dpr);
+        ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+        const want = moteCount();
+        while (motes.length > want) motes.pop();
+        while (motes.length < want) motes.push(seedMote({}, true));
+      }
+
+      function burst(x, y) {
+        rings.push({ x, y, r: 6, a: 0.5 });
+        for (let i = 0; i < 10; i++) {
+          const m = seedMote({}, true);
+          const ang = (Math.PI * 2 * i) / 10 + Math.random() * 0.4;
+          const sp = 1.6 + Math.random() * 2.2;
+          m.x = x; m.y = y;
+          m.vx = Math.cos(ang) * sp;
+          m.vy = Math.sin(ang) * sp - 0.4;
+          m.alpha = 0.85;
+          m.lit = 1;
+          motes.push(m);
+        }
+        // Keep the spawned confetti from growing the field forever.
+        const cap = moteCount() + 40;
+        while (motes.length > cap) motes.shift();
+      }
+
+      function step() {
+        syncAccent();
+        ctx.clearRect(0, 0, W, H);
+        ctx.globalCompositeOperation = "lighter";
+
+        pointer.vx = pointer.x - pointer.lx;
+        pointer.vy = pointer.y - pointer.ly;
+        pointer.lx = pointer.x;
+        pointer.ly = pointer.y;
+        const reach = Math.min(190, Math.max(110, W * 0.22));
+
+        for (let i = 0; i < motes.length; i++) {
+          const m = motes[i];
+          m.phase += 0.01 * m.sway;
+          m.x += m.vx + Math.sin(m.phase) * 0.22 * m.sway;
+          m.y += m.vy;
+          m.vx *= 0.985;
+          if (m.vy > -0.06) m.vy += (-0.24 - m.vy) * 0.02;
+
+          if (pointer.on) {
+            const dx = m.x - pointer.x;
+            const dy = m.y - pointer.y;
+            const d2 = dx * dx + dy * dy;
+            if (d2 < reach * reach && d2 > 0.01) {
+              const d = Math.sqrt(d2);
+              const force = (1 - d / reach);
+              // Push out of the way, and carry a little of the pointer's motion.
+              m.vx += (dx / d) * force * 0.5 + pointer.vx * 0.006 * force;
+              m.vy += (dy / d) * force * 0.5 + pointer.vy * 0.006 * force;
+              m.lit = Math.max(m.lit, force);
+              if (force > 0.45) {
+                ctx.globalAlpha = (force - 0.45) * 0.5;
+                ctx.strokeStyle = accent;
+                ctx.lineWidth = 0.7;
+                ctx.beginPath();
+                ctx.moveTo(pointer.x, pointer.y);
+                ctx.lineTo(m.x, m.y);
+                ctx.stroke();
+              }
+            }
+          }
+          m.lit *= 0.94;
+
+          if (m.y < -30 || m.x < -40 || m.x > W + 40 || m.y > H + 90) seedMote(m, false);
+
+          const size = (m.r + m.lit * 2.6) * 4;
+          ctx.globalAlpha = Math.min(1, m.alpha + m.lit * 0.5);
+          if (sprite) ctx.drawImage(sprite, m.x - size / 2, m.y - size / 2, size, size);
+        }
+
+        for (let i = rings.length - 1; i >= 0; i--) {
+          const rg = rings[i];
+          rg.r += 5.2;
+          rg.a *= 0.94;
+          if (rg.a < 0.02 || rg.r > Math.max(W, H)) { rings.splice(i, 1); continue; }
+          ctx.globalAlpha = rg.a;
+          ctx.strokeStyle = accent;
+          ctx.lineWidth = 1.6;
+          ctx.beginPath();
+          ctx.arc(rg.x, rg.y, rg.r, 0, Math.PI * 2);
+          ctx.stroke();
+        }
+
+        ctx.globalAlpha = 1;
+        ctx.globalCompositeOperation = "source-over";
+      }
+
+      let raf = 0;
+      let idleTimer = 0;
+      function frame() {
+        raf = 0;
+        const live = home.classList.contains("show") && !document.hidden;
+        if (live) {
+          // Only measure when something could have changed — a
+          // getBoundingClientRect every frame forces a layout read at 60fps.
+          if (sizeDirty) resize();
+          step();
+          raf = requestAnimationFrame(frame);
+        } else {
+          // Not on screen: stop burning frames, re-check occasionally. The
+          // layout may well have changed by the time it comes back.
+          sizeDirty = true;
+          idleTimer = setTimeout(() => { idleTimer = 0; kick(); }, 500);
+        }
+      }
+      function kick() {
+        if (raf || idleTimer) return;
+        raf = requestAnimationFrame(frame);
+      }
+
+      const onMove = (e) => {
+        const rect = layer.getBoundingClientRect();
+        const x = e.clientX - rect.left;
+        const y = e.clientY - rect.top;
+        if (!pointer.on) { pointer.lx = x; pointer.ly = y; }
+        pointer.x = x; pointer.y = y; pointer.on = true;
+        home.classList.add("pointing");
+        home.style.setProperty("--px", x + "px");
+        home.style.setProperty("--py", y + "px");
+      };
+      const onLeave = () => {
+        pointer.on = false;
+        pointer.x = pointer.y = -999;
+        home.classList.remove("pointing");
+      };
+      const onDown = (e) => {
+        onMove(e);
+        burst(pointer.x, pointer.y);
+      };
+
+      home.addEventListener("pointermove", onMove, { passive: true });
+      home.addEventListener("pointerdown", onDown, { passive: true });
+      home.addEventListener("pointerleave", onLeave, { passive: true });
+      home.addEventListener("pointercancel", onLeave, { passive: true });
+      window.addEventListener("resize", () => { sizeDirty = true; }, { passive: true });
+      window.addEventListener("orientationchange", () => { sizeDirty = true; }, { passive: true });
+      document.addEventListener("visibilitychange", () => { sizeDirty = true; kick(); });
+
+      resize();
+      kick();
     }
 
     let bootSettled = false;
