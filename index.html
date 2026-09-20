@@ -1532,6 +1532,11 @@
       border-radius: 18px;
       padding: 14px;
     }
+    .set-select {
+      width: 100%; min-height: 44px; border-radius: 12px;
+      border: 1px solid var(--hair); background: var(--panel2); color: var(--ink);
+      font: inherit; font-size: 16px; padding: 10px 12px;
+    }
     #settings label { display:block; font-size:.72rem; letter-spacing:.08em; text-transform:uppercase; color:var(--muted); margin: 8px 0 4px; }
     #settings input {
       width: 100%; min-height: 44px; border-radius: 12px;
@@ -1560,6 +1565,20 @@
       background: color-mix(in srgb, var(--panel2) 92%, #000);
     }
     #library .sheet.dragging { transition: none; }
+    #library.closing {
+      transition: opacity .34s ease, background .34s ease, visibility 0s linear .34s;
+      opacity: 0;
+      background: rgba(8,4,10,0);
+      pointer-events: none;
+    }
+    #library.closing .sheet {
+      transform: translateY(100%);
+      opacity: 1;
+      transition: transform .34s cubic-bezier(.32,.72,0,1), opacity .34s ease;
+    }
+    @media (prefers-reduced-motion: reduce) {
+      #library.closing, #library.closing .sheet { transition-duration: .01s; }
+    }
     .lib-head {
       position: sticky; top: 0; z-index: 3;
       display: grid;
@@ -1669,9 +1688,8 @@
     }
     #nightTabBegin { --tab: #7ec8ff; }
     #nightTabGut { --tab: #c8f06a; }
-    #nightTabConor { --tab: #ffb060; }
     #nightTabAll { --tab: var(--neon); }
-    #nightTabBegin.on, #nightTabGut.on, #nightTabConor.on, #nightTabAll.on {
+    #nightTabBegin.on, #nightTabGut.on, #nightTabAll.on {
       border-color: var(--tab); background: var(--tab); color: #0a0810;
     }
     .face-group { margin-bottom: 18px; }
@@ -1704,7 +1722,6 @@
       font-size: .58rem; letter-spacing: .08em; text-transform: uppercase; font-weight: 800;
       padding: 2px 6px; border-radius: 999px; border: 1px solid var(--hair); color: var(--muted);
     }
-    .night-card .badge.conor { color: var(--cyan); border-color: color-mix(in srgb, var(--cyan) 40%, var(--hair)); }
     .night-card .badge.gut { color: #d8f090; border-color: color-mix(in srgb, #d8f090 35%, var(--hair)); }
     .night-card .badge.giant { color: #ffb060; border-color: color-mix(in srgb, #ffb060 40%, var(--hair)); }
     .night-card .badge.aware { color: #9fe8c0; border-color: color-mix(in srgb, #9fe8c0 40%, var(--hair)); }
@@ -1811,12 +1828,30 @@
       padding: 16px; border: 1px dashed var(--hair); border-radius: 14px;
       color: var(--muted); margin: 8px 0 16px;
     }
-    .lib-create { display: flex; gap: 8px; margin: 8px 0 4px; }
+    .lib-create { display: grid; gap: 8px; margin: 10px 0 6px; }
     .lib-create button {
-      flex: 1; min-height: 40px; border-radius: 999px;
+      min-height: 42px; border-radius: 12px;
       border: 1px solid var(--hair); background: var(--panel); color: var(--ink);
-      font-size: .68rem; font-weight: 800; letter-spacing: .06em; text-transform: uppercase;
+      font-size: .7rem; font-weight: 800; letter-spacing: .05em; text-transform: uppercase;
+      display: inline-flex; align-items: center; justify-content: center; gap: 6px;
+      padding: 0 12px; cursor: pointer;
+      transition: border-color .16s ease, color .16s ease, background .16s ease, transform .1s ease;
     }
+    .lib-create button:hover { border-color: color-mix(in srgb, var(--neon) 55%, var(--hair)); }
+    .lib-create button:active { transform: scale(.985); }
+    .lib-create .lc-primary {
+      border-color: transparent;
+      background: var(--neon);
+      color: #140814;
+      min-height: 46px;
+      font-size: .74rem;
+    }
+    .lib-create .lc-primary:hover { border-color: transparent; filter: brightness(1.06); }
+    .lib-create .lc-ico {
+      font-size: 1.05rem; font-weight: 700; line-height: 1;
+      margin-top: -1px; opacity: .85;
+    }
+    .lc-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
     .night-card .badge.unintentional { color: #f0e090; border-color: color-mix(in srgb, #f0e090 40%, var(--hair)); }
     .night-card .badge.mean { color: #ff7a8a; border-color: color-mix(in srgb, #ff7a8a 40%, var(--hair)); }
     .night-card .badge.caring { color: #8ad4ff; border-color: color-mix(in srgb, #8ad4ff 40%, var(--hair)); }
@@ -2293,6 +2328,33 @@
     #meter.digest-mode .meter-track { display: none; }
     #meter.digest-mode #digestMeter { margin-top: 0; }
     #meter.digest-mode #gutPhase { display: none; }
+    #escapeBar {
+      margin-top: 8px; padding: 7px 10px 9px;
+      border-radius: 12px;
+      border: 1px solid rgba(120, 200, 255, .3);
+      background: linear-gradient(180deg, rgba(14, 26, 36, .88), rgba(8, 14, 20, .9));
+      width: 100%; box-sizing: border-box;
+    }
+    #escapeBar[hidden] { display: none !important; }
+    #escapeBar .esc-row {
+      display: flex; justify-content: space-between; align-items: baseline;
+      font-size: .6rem; letter-spacing: .1em; text-transform: uppercase;
+      color: var(--muted); font-weight: 800;
+    }
+    #escapeBar .esc-row b { color: #8ad4ff; font-size: .72rem; letter-spacing: .04em; }
+    #escapeBar .esc-track {
+      margin-top: 5px; height: 5px; border-radius: 999px;
+      background: rgba(255,255,255,.09); overflow: hidden;
+    }
+    #escapeBar .esc-fill {
+      display: block; height: 100%; width: 100%;
+      transform: scaleX(0); transform-origin: left center;
+      background: linear-gradient(90deg, #4a86b8, #8ad4ff);
+      transition: transform .5s cubic-bezier(.2,.9,.2,1);
+    }
+    #escapeBar.ready { border-color: rgba(140, 240, 180, .6); }
+    #escapeBar.ready .esc-fill { background: linear-gradient(90deg, #5ce0a0, #c8f06a); }
+    #escapeBar.ready .esc-row b { color: #c8f06a; }
     #digestMeter.hot { border-color: rgba(255, 140, 60, .55); }
     #digestMeter.critical {
       border-color: rgba(255, 70, 50, .75);
@@ -3163,6 +3225,8 @@
         <input id="scBlurb" maxlength="80" placeholder="One line" />
         <label for="scVoice">Voice / prompt</label>
         <textarea id="scVoice" placeholder="You play NAME. How she talks. What she will and will not do."></textarea>
+        <label for="scPace">Pacing</label>
+        <select id="scPace"></select>
         <label for="scAccent">Accent color</label>
         <input id="scAccent" type="color" value="#7cff9a" />
         <div class="row">
@@ -3356,6 +3420,10 @@
       </div>
       <div class="dm-toast" id="dmToast"></div>
     </div>
+    <div id="escapeBar" hidden role="status" aria-label="Escape progress">
+      <div class="esc-row"><span>Way back up</span><b id="escVal">0%</b></div>
+      <div class="esc-track"><i class="esc-fill" id="escFill"></i></div>
+    </div>
     <div id="skullBar" hidden>
       <span class="skull" aria-hidden="true">☠</span>
       <span class="skull-copy">Gone</span>
@@ -3402,11 +3470,15 @@
       </div>
       <div id="libStoriesPane">
         <div class="lib-create">
-          <button type="button" id="btnNewChar">New character</button>
-          <button type="button" id="btnEditChar">Edit</button>
-          <button type="button" id="btnNewNight">New night</button>
-          <button type="button" id="btnWhoYouAre">Who you are</button>
-          <button type="button" id="btnSections">Sections</button>
+          <button type="button" id="btnNewChar" class="lc-primary">
+            <span class="lc-ico" aria-hidden="true">+</span>New character
+          </button>
+          <div class="lc-grid">
+            <button type="button" id="btnEditChar">Edit face</button>
+            <button type="button" id="btnNewNight">New night</button>
+            <button type="button" id="btnWhoYouAre">Who you are</button>
+            <button type="button" id="btnSections">Sections</button>
+          </div>
         </div>
         <div id="faceList"></div>
         <hr class="lib-split" />
@@ -3415,7 +3487,6 @@
             <button type="button" id="nightTabAll" class="on">All</button>
             <button type="button" id="nightTabBegin">Outside</button>
             <button type="button" id="nightTabGut">Inside</button>
-            <button type="button" id="nightTabConor">Conor</button>
           </div>
           <div class="tag-tabs" id="tagTabs" role="tablist" aria-label="Night tags"></div>
           <input id="nightSearch" type="search" placeholder="Search stories" enterkeyhint="search" autocomplete="off" />
@@ -3516,6 +3587,9 @@
       <label style="margin-top:14px;display:flex;gap:8px;align-items:center;text-transform:none;letter-spacing:0;font-size:.9rem;color:var(--ink)">
         <input id="fxToggle" type="checkbox" checked /> Swallow sound and haptics
       </label>
+      <p class="set-label">Pacing</p>
+      <select id="paceDefault" class="set-select"></select>
+      <p class="set-note">How long a night runs before the chamber finishes. Applies to characters that don't set their own.</p>
       <p class="set-label">This night</p>
       <button type="button" id="reset" class="set-reset">Restart this night</button>
       <p class="set-note">Clears this chat on this phone and starts the scene over.</p>
@@ -4012,7 +4086,7 @@ If STATE says she is asleep: she stays asleep. MOMENT is narrator + body (breath
     }
 
     const STUDIO_SHOTS = ["look","palm","hold","wave","street","swallow","inside","gut","after","burp","lounge","bed","sit","tongue"];
-    let studioPack = { characters: {}, scenarios: {}, players: {}, activePlayerId: "", sections: [], faceSection: {} };
+    let studioPack = { characters: {}, scenarios: {}, players: {}, activePlayerId: "", sections: [], faceSection: {}, pace: { default: "standard", byFace: {} } };
     let studioMode = "char";
     let studioEditId = "";
 
@@ -4025,6 +4099,7 @@ If STATE says she is asleep: she stays asleep. MOMENT is narrator + body (breath
         if (raw && raw.characters) studioPack = raw;
         ensurePlayerPack();
         ensureSections();
+        ensurePacePack();
       } catch {}
     }
     function writeStudioLocal() {
@@ -4085,6 +4160,7 @@ If STATE says she is asleep: she stays asleep. MOMENT is narrator + body (breath
           if (data && data.pack && data.pack.characters) studioPack = data.pack;
           ensurePlayerPack();
           ensureSections();
+          ensurePacePack();
         } catch (e) { console.warn("studio pull", e); }
       }
       applyStudioPack();
@@ -4228,6 +4304,7 @@ If STATE says she is asleep: she stays asleep. MOMENT is narrator + body (breath
       applyScene();
       paintSkullBar();
       paintGutPhase();
+      paintEscapeBar();
       paintVitals();
       paintActions();
     }
@@ -4467,8 +4544,135 @@ If STATE says she is asleep: she stays asleep. MOMENT is narrator + body (breath
       return "Critical";
     }
 
+    // --- Relationship → mechanics -------------------------------------------
+    // The persona's relationship field used to be prose the model read and
+    // nothing else. It now seeds how she starts the night.
+    const REL_PROFILE = [
+      { re: /\b(best friend|bestie)\b/i,                 mood: -0.10, pace: -0.08, temper: -0.22 },
+      { re: /\b(ex[- ]?(girlfriend|boyfriend|partner)?)\b/i, mood: +0.10, pace: +0.06, temper: +0.18 },
+      { re: /\b(sibling|brother|sister)\b/i,             mood: -0.08, pace: -0.06, temper: -0.18 },
+      { re: /\b(rival|enemy|nemesis)\b/i,                mood: +0.14, pace: +0.10, temper: +0.30 },
+      { re: /\b(roommate|neighbou?r|coworker|colleague)\b/i, mood: -0.03, pace: -0.02, temper: -0.05 },
+      { re: /\b(crush)\b/i,                              mood: -0.04, pace: +0.04, temper: -0.05 },
+      { re: /\b(friend)\b/i,                             mood: -0.06, pace: -0.04, temper: -0.10 },
+      { re: /\b(stranger)\b/i,                           mood: +0.05, pace: +0.04, temper: +0.08, unknown: true },
+    ];
+    function relProfile() {
+      const p = (typeof activePlayer === "function") ? activePlayer() : null;
+      const rel = (p && p.relationship) || "";
+      if (!rel) return null;
+      // First match wins, so "best friend" beats the looser "friend" rule above it.
+      return REL_PROFILE.find((x) => x.re.test(rel)) || null;
+    }
+
+    // --- Live stance ---------------------------------------------------------
+    // temper: -1 (softening toward care) .. +1 (hardening toward cruelty).
+    const STANCE_FLIP = 0.6;
+    function temperNow() {
+      const t = Number(game.temper);
+      return Number.isFinite(t) ? Math.max(-1, Math.min(1, t)) : 0;
+    }
     function nightTags() {
-      return (typeof scenarioTags === "function") ? scenarioTags(scenarioOf(game.scenarioId)) : [];
+      const base = (typeof scenarioTags === "function") ? scenarioTags(scenarioOf(game.scenarioId)) : [];
+      const out = base.slice();
+      const has = (x) => out.indexOf(x) >= 0;
+      const add = (x) => { if (!has(x)) out.push(x); };
+      const drop = (x) => { const i = out.indexOf(x); if (i >= 0) out.splice(i, 1); };
+      // Awareness is one-way: once she knows someone is there, she knows.
+      if (game.noticed && has("unaware")) { drop("unaware"); add("aware"); }
+      // A sleeping night is never re-tempered — she isn't reacting to anything.
+      if (has("sleeping")) return out;
+      const t = temperNow();
+      if (t >= STANCE_FLIP) { drop("caring"); add("mean"); }
+      else if (t <= -STANCE_FLIP) { drop("mean"); add("caring"); }
+      return out;
+    }
+
+    // Signals read off every beat, whatever the depth.
+    const TEMPER_HARDEN = /\b(tease|teasing|brat|bratty|dare|daring|taunt|mock|smug|snack|eat me|you won.?t|bite me|do it then)\b/i;
+    const TEMPER_FIGHT  = /\b(thrash|kick(s|ed|ing)?|punch|claw|bite|struggl(e|es|ed|ing)|fight(s|ing)?|scream(s|ed|ing)?)\b/i;
+    const TEMPER_SOFTEN = /\b(beg(s|ged|ging)?|please|sorry|apolog|thank you|rub(s|bed|bing)?|nuzzl|soothe|settle(s|d)?|go(es|ing)? limp|limp|still(s|ed)?|calm|quiet|trust)\b/i;
+    function nudgeTemper(n, why) {
+      const before = nightTags();
+      game.temper = Math.max(-1, Math.min(1, temperNow() + n));
+      const after = nightTags();
+      const gained = after.filter((x) => before.indexOf(x) < 0);
+      if (gained.indexOf("mean") >= 0) addNotice("She's hardened toward you.");
+      else if (gained.indexOf("caring") >= 0) addNotice("She's softened toward you.");
+      else if (gained.indexOf("aware") >= 0) addNotice("She knows you're a person now.");
+      return game.temper;
+    }
+    // Called once per completed turn with everything that happened in it.
+    function readTemperSignals(userText, moment, line) {
+      if (game.gone) return;
+      if (nightTags().indexOf("sleeping") >= 0) return;
+      const mine = String(userText || "");
+      const hers = [moment, line].join(" \n ");
+      let n = 0;
+      if (TEMPER_HARDEN.test(mine)) n += 0.08;
+      if (TEMPER_FIGHT.test(mine)) n += 0.05;
+      if (TEMPER_SOFTEN.test(mine)) n -= 0.07;
+      // Her own prose counts for less — it's a reading, not a choice.
+      if (TEMPER_HARDEN.test(hers)) n += 0.02;
+      if (TEMPER_SOFTEN.test(hers)) n -= 0.02;
+      if (n) nudgeTemper(n);
+    }
+
+    // --- Escape track --------------------------------------------------------
+    // Deliberately hard. The bar only moves on a clean climb, while she is
+    // genuinely settled, with something left in the tank — and nothing can
+    // eject the player until the bar is full.
+    const ESCAPE_TARGET = 100;
+    const ESCAPE_MIN_GUT_TURNS = 8;
+    function escapeState() {
+      if (!game.escape || typeof game.escape !== "object") {
+        game.escape = { prog: 0, ready: false, gutTurns: 0 };
+      }
+      return game.escape;
+    }
+    function escapeGain(dm) {
+      if (!dm || !dm.factors) return 0;
+      // She has to be calm. A busy stomach gives you nothing to climb.
+      const calm = (1 - dm.factors.mood) * 0.5 + (1 - dm.factors.pace) * 0.5;
+      if (calm < 0.6) return 0;
+      if (game.hp < 40) return 0;          // no strength left to climb with
+      if (temperNow() > 0.2) return 0;     // if she's hardening, forget it
+      if (escapeState().gutTurns < ESCAPE_MIN_GUT_TURNS) return 0;
+      return 4 + (calm - 0.6) * 16;        // ~4–10 per clean beat
+    }
+    function bumpEscape(n, why) {
+      const es = escapeState();
+      const was = es.prog;
+      es.prog = Math.max(0, Math.min(ESCAPE_TARGET, es.prog + n));
+      if (!es.ready && es.prog >= ESCAPE_TARGET) {
+        es.ready = true;
+        addNotice("You're at the way you came in. She'd have to want it — but she could.");
+      }
+      if (es.ready && es.prog < ESCAPE_TARGET * 0.5) es.ready = false;
+      if (n && Math.abs(es.prog - was) >= 1) paintEscapeBar();
+      return es.prog;
+    }
+    function resetEscape(reason) {
+      const es = escapeState();
+      if (!es.prog && !es.ready) return;
+      es.prog = 0;
+      es.ready = false;
+      paintEscapeBar();
+      if (reason) addNotice(reason);
+    }
+    function paintEscapeBar() {
+      const wrap = document.getElementById("escapeBar");
+      if (!wrap) return;
+      const es = escapeState();
+      const live = !game.gone && (game.depth || 0) >= 3 && es.prog > 0;
+      wrap.hidden = !live;
+      if (!live) return;
+      const fill = document.getElementById("escFill");
+      const val = document.getElementById("escVal");
+      const pct = Math.max(0, Math.min(100, es.prog));
+      if (fill) fill.style.transform = "scaleX(" + (pct / 100).toFixed(4) + ")";
+      if (val) val.textContent = es.ready ? "Ready" : Math.round(pct) + "%";
+      wrap.classList.toggle("ready", !!es.ready);
     }
 
     function harshPred() {
@@ -4612,6 +4816,13 @@ If STATE says she is asleep: she stays asleep. MOMENT is narrator + body (breath
       if (tags.indexOf("sleeping") >= 0) { mood -= 0.12; pace -= 0.04; }
       const named = game.playerName || scenarioOf(game.scenarioId).playerName || "";
       if (named) { mood -= 0.08; pace -= 0.06; }
+      // Who you are to her colours the whole chamber.
+      const rel = relProfile();
+      if (rel) { mood += rel.mood || 0; pace += rel.pace || 0; }
+      // Where her temper has drifted to by the time the meter starts.
+      const t = temperNow();
+      mood += t * 0.12;
+      pace += t * 0.1;
       return migrateFactors({ mood, stomach, pace });
     }
 
@@ -4937,6 +5148,7 @@ If STATE says she is asleep: she stays asleep. MOMENT is narrator + body (breath
       const host = document.getElementById("digestBubbles");
       if (host && host.childElementCount !== bubbleN) spawnBubbles(bubbleN);
       if (toastMsg) dmToast(toastMsg);
+      paintEscapeBar();
       paintGutPhase();
       paintVitals();
       paintActions();
@@ -5149,6 +5361,7 @@ If STATE says she is asleep: she stays asleep. MOMENT is narrator + body (breath
       const fx = document.getElementById("digestFx");
       if (fx) fx.classList.add("on");
       if (toastMsg) dmToast(toastMsg);
+      paintEscapeBar();
       paintGutPhase();
       paintVitals();
       paintActions();
@@ -5542,9 +5755,16 @@ If STATE says she is asleep: she stays asleep. MOMENT is narrator + body (breath
         dm.remainingMs = Math.max(0, Math.min(DIGEST_MAX_MS, dm.remainingMs + delta));
         if (dm.remainingMs > dm.totalMs) dm.totalMs = dm.remainingMs;
         paintDigestMeter(note);
-        // Eject only if the text is unmistakably letting them out
+        // Eject only if the text is unmistakably letting them out AND the player
+        // has actually earned it. Without the gate the model could spit them out
+        // by accident on any turn it happened to reach for that phrasing.
         if (/\b(spit(s|ting)? (you )?out|lets? (you )?out|onto her (tongue|palm|hand)|out of her mouth)\b/i.test(blob)) {
-          setDepth(shot === "palm" || shot === "look" ? 0 : 1, { absolute: true, allowExit: true });
+          if (escapeState().ready) {
+            setDepth(shot === "palm" || shot === "look" ? 0 : 1, { absolute: true, allowExit: true });
+            resetEscape("");
+            game.escaped = true;
+            addNotice("You're out. Wet, wrecked, and still here.");
+          }
         }
         persist();
         return;
@@ -5570,10 +5790,15 @@ If STATE says she is asleep: she stays asleep. MOMENT is narrator + body (breath
         hpHit = -(7 + Math.round(Math.random() * 7));
         gasHit = -game.gas + (8 + Math.random() * 12);
         game._gasBurstAt = Date.now();
+        bumpEscape(-30);
       } else if (escaping) {
         const hit = Math.round(scaledHitSeconds(dm, 16, 48) * wHit);
         delta -= hit * 1000;
-        note = formatHitNote("Escape try — no lift", hit);
+        const gain = escapeGain(dm);
+        if (gain) bumpEscape(gain);
+        note = gain
+          ? formatHitNote("Climbing — you gain a little ground", hit)
+          : formatHitNote("Escape try — no lift", hit);
         triggerDigestFx("gurgle");
         dm.factors.mood = clamp01(dm.factors.mood + 0.06);
         dm.factors.stomach = clamp01(dm.factors.stomach + 0.08);
@@ -5603,6 +5828,7 @@ If STATE says she is asleep: she stays asleep. MOMENT is narrator + body (breath
         dm.factors.pace = clamp01(dm.factors.pace + 0.1);
         hpHit = -(6 + Math.round(Math.random() * 6));
         gasHit = 16 + Math.random() * 12;
+        resetEscape(escapeState().prog > 12 ? "Thrashing costs you the ground you'd gained." : "");
       } else if (teased) {
         const hit = Math.round(scaledHitSeconds(dm, 28, 90) * wHit);
         delta -= hit * 1000;
@@ -5611,6 +5837,7 @@ If STATE says she is asleep: she stays asleep. MOMENT is narrator + body (breath
         dm.factors.mood = clamp01(dm.factors.mood + 0.14);
         dm.factors.pace = clamp01(dm.factors.pace + 0.16);
         dm.factors.stomach = clamp01(dm.factors.stomach + 0.06);
+        bumpEscape(-25);
         hpHit = -(2 + Math.round(Math.random() * 3));
         gasHit = 10 + Math.random() * 8;
       } else if (RE_CHURN.test(blob) || shot === "digest" || shot === "taut") {
@@ -5839,7 +6066,10 @@ If STATE says she is asleep: she stays asleep. MOMENT is narrator + body (breath
         // Your own character wins over whatever name the night shipped with.
         playerName: activePlayerName() || s.playerName || "",
         mood: s.mood,
-        noticed: true,
+        // A stranger hasn't been clocked yet; anyone else she already knows.
+        noticed: !(relProfile() && relProfile().unknown),
+        temper: (relProfile() && relProfile().temper) || 0,
+        escape: { prog: 0, ready: false, gutTurns: 0 },
         shot: s.shot,
         fate: s.gut ? "swallowed" : "",
         depth: s.gut ? 3 : 0,
@@ -5862,7 +6092,8 @@ If STATE says she is asleep: she stays asleep. MOMENT is narrator + body (breath
     }
     let game = {
       characterId: "", scenarioId: "", location: "", playerPlace: "", playerName: "",
-      mood: "", noticed: false, shot: "look", fate: "", depth: 0, hp: 100, gone: false
+      mood: "", noticed: false, shot: "look", fate: "", depth: 0, hp: 100, gone: false,
+      temper: 0, escape: { prog: 0, ready: false, gutTurns: 0 }
     };
     let activeChatId = null;
 
@@ -6351,12 +6582,22 @@ If STATE says she is asleep: she stays asleep. MOMENT is narrator + body (breath
       return scenarioOf(game.scenarioId).opening;
     }
 
+    let libCloseTimer = null;
     function closeLibrary() {
-      els.library.classList.remove("show");
+      const lib = els.library;
+      if (!lib || !lib.classList.contains("show") || lib.classList.contains("closing")) return;
+      const sheet = lib.querySelector(".sheet");
+      // Drop any inline transform left by a drag so the class animation owns it.
+      if (sheet) sheet.style.transform = "";
+      lib.classList.add("closing");
       if (els.stories) els.stories.classList.remove("on");
       if (els.chats) els.chats.classList.remove("on");
-      applyTheme(game.characterId);
-      syncGutTimer();
+      clearTimeout(libCloseTimer);
+      libCloseTimer = setTimeout(() => {
+        lib.classList.remove("show", "closing");
+        applyTheme(game.characterId);
+        syncGutTimer();
+      }, 340);
     }
 
     function setLibraryMode(mode) {
@@ -6382,6 +6623,8 @@ If STATE says she is asleep: she stays asleep. MOMENT is narrator + body (breath
     }
 
     function openLibrary(mode) {
+      if (els.library) els.library.classList.remove("closing");
+      clearTimeout(libCloseTimer);
       if (!libFace) libFace = characterOf(game.characterId).id;
       const pack0 = CHARACTERS[libFace];
       if (libNightTabs.has("begin") && libNightTabs.size === 1 && pack0 && !(pack0.scenarios && pack0.scenarios.length) && (pack0.gutNights || []).length) {
@@ -6536,6 +6779,7 @@ If STATE says she is asleep: she stays asleep. MOMENT is narrator + body (breath
     // Which character's nights the Stories sheet is showing (does not start a chat)
     let libFace = null;
     let libNightTabs = new Set(["all"]);
+    libNightTabs.delete("conor");
     let libNightTags = new Set();
     const NIGHT_TAG_OPTS = ["aware","unaware","intentional","unintentional","mean","caring","sleeping"];
     function browseFace(id) {
@@ -6561,16 +6805,13 @@ If STATE says she is asleep: she stays asleep. MOMENT is narrator + body (breath
     function nightMatches(s, tabs, q) {
       if (!s) return false;
       const set = tabs instanceof Set ? tabs : new Set([tabs || "all"]);
-      const conor = /^conor$/i.test(s.playerName || "");
       const gut = !!s.gut;
       const wantAll = set.has("all") || set.size === 0;
       if (!wantAll) {
         const wantOut = set.has("begin");
         const wantIn = set.has("gut");
-        const wantConor = set.has("conor");
         if (wantOut && !wantIn && gut) return false;
         if (wantIn && !wantOut && !gut) return false;
-        if (wantConor && !conor) return false;
       }
       if (libNightTags && libNightTags.size) {
         const have = scenarioTags(s);
@@ -6591,9 +6832,6 @@ If STATE says she is asleep: she stays asleep. MOMENT is narrator + body (breath
       b.className = "card night-card" + (s.id === game.scenarioId && pack.id === game.characterId ? " active" : "");
       const badges = document.createElement("div");
       badges.className = "badges";
-      if (/^conor$/i.test(s.playerName || "")) {
-        const g = document.createElement("span"); g.className = "badge conor"; g.textContent = "Conor"; badges.appendChild(g);
-      }
       if (s.gut) {
         const g = document.createElement("span"); g.className = "badge gut"; g.textContent = "Inside"; badges.appendChild(g);
       }
@@ -6683,10 +6921,10 @@ If STATE says she is asleep: she stays asleep. MOMENT is narrator + body (breath
       const pack = (libFace && CHARACTERS[libFace] && visibleIds.has(libFace)) ? CHARACTERS[libFace] : null;
       const q = ((document.getElementById("nightSearch") || {}).value || "").trim().toLowerCase();
       const tabSet = (libNightTabs && libNightTabs.size) ? libNightTabs : new Set(["all"]);
-      ["nightTabBegin","nightTabGut","nightTabConor","nightTabAll"].forEach((id) => {
+      ["nightTabBegin","nightTabGut","nightTabAll"].forEach((id) => {
         const el = document.getElementById(id);
         if (!el) return;
-        const map = { nightTabBegin: "begin", nightTabGut: "gut", nightTabConor: "conor", nightTabAll: "all" };
+        const map = { nightTabBegin: "begin", nightTabGut: "gut", nightTabAll: "all" };
         el.classList.toggle("on", tabSet.has(map[id]));
         el.setAttribute("aria-pressed", String(tabSet.has(map[id])));
       });
@@ -6730,7 +6968,7 @@ If STATE says she is asleep: she stays asleep. MOMENT is narrator + body (breath
         const empty = document.createElement("div");
         empty.className = "lib-empty";
         empty.innerHTML = "<b></b><span></span>";
-        empty.querySelector("b").textContent = tabSet.has("conor") && !begins.length && !guts.length ? "No Conor nights" : "Nothing here";
+        empty.querySelector("b").textContent = "Nothing here";
         empty.querySelector("span").textContent = "Try All, or pick another face.";
         els.scenarioList.appendChild(empty);
         if (begWrap) begWrap.hidden = false;
@@ -7320,7 +7558,7 @@ Never copy SPEECH: or ACTION: into your reply. Reply only with MOMENT, SAY, SHOT
           + " Continue from the last MOMENT — same clothes, same room or the next room she would actually walk to (bathroom only if disposal is running)."
           + " Never bring " + idName + " back as a living voice.";
       }
-      const tags = scenarioTags(s);
+      const tags = nightTags();
       let stanceNote = "";
       if (tags.length) {
         stanceNote = " STANCE TAGS: " + tags.join(", ") + "."
@@ -7331,6 +7569,19 @@ Never copy SPEECH: or ACTION: into your reply. Reply only with MOMENT, SAY, SHOT
           + (tags.indexOf("intentional") >= 0 ? " She allowed this. She is not rushing to spit them out." : "")
           + (tags.indexOf("caring") >= 0 ? " Tone is care, guilt, help — not cruelty." : "")
           + (tags.indexOf("mean") >= 0 ? " Tone can be selfish, teasing, or unapologetic." : "");
+        // Tell her which way she has been drifting, not just where she started.
+        const t = temperNow();
+        const base = scenarioTags(s);
+        if (t >= 0.25) {
+          stanceNote += " DRIFT: she has hardened over this night" + (base.indexOf("caring") >= 0 ? " — the patience she started with is spent." : ".")
+            + " Less apology, shorter fuse.";
+        } else if (t <= -0.25) {
+          stanceNote += " DRIFT: she has softened over this night" + (base.indexOf("mean") >= 0 ? " — the cruelty she started with has thinned." : ".")
+            + " More care, more hesitation.";
+        }
+        if (game.noticed && base.indexOf("unaware") >= 0) {
+          stanceNote += " She has WORKED OUT that the speck is a person. She cannot un-know it.";
+        }
       }
       const packId = c.id || "";
       const caringNight = tags.indexOf("caring") >= 0 || tags.indexOf("unintentional") >= 0;
@@ -7346,6 +7597,21 @@ Never copy SPEECH: or ACTION: into your reply. Reply only with MOMENT, SAY, SHOT
         stanceNote += " PACK: starts protective; may lean in later.";
       } else if (/nat|fran|maggie|alex|priya/.test(packId)) {
         stanceNote += " PACK: she tries to help / undo. Not a predator bit.";
+      }
+      let escapeNote = "";
+      if (!game.gone && (game.depth || 0) >= 3) {
+        const es = escapeState();
+        if (es.ready) {
+          escapeNote = " ESCAPE WINDOW (earned — this is the ONLY turn-type where it is allowed):"
+            + " they have climbed the folds back to the way in and she is settled enough that it could happen."
+            + " If it fits her character she MAY bring them up this turn — spit them out onto her tongue, palm, or hand."
+            + " She is allowed to refuse. Do not narrate it as easy and do not make it clean.";
+        } else if (es.prog > 55) {
+          escapeNote = " They are working their way up toward the cardia. She can feel something moving with purpose."
+            + " She does NOT let them out this turn. No spitting out, no coughing up, no bringing them back up.";
+        } else {
+          escapeNote = " NO EXIT this turn. She does not spit them out, cough them up, or let them back up, however they ask.";
+        }
       }
       const recap = sceneRecap();
       const sleepNight = nightIsAsleep();
@@ -7371,7 +7637,7 @@ Never copy SPEECH: or ACTION: into your reply. Reply only with MOMENT, SAY, SHOT
         + recap
         + (persona ? (" PLAYER: " + playerPersonaShort() + ".") : "")
         + " SAY variety: do not reuse any previous SAY sentence from this chat."
-        + snack + earlyNote + meterNote + sleepNote + stanceNote + (opts.extra || "");
+        + snack + earlyNote + meterNote + sleepNote + stanceNote + escapeNote + (opts.extra || "");
       return [
         { role: "system", content: SYSTEM + "\n\n" + PLAYER_FORMAT + (persona ? "\n\n" + persona : "") + "\n\n" + c.voice + "\nLabel spoken lines SAY:.\n\n" + s.hook + "\n\n" + state },
         ...history.slice(-(ACTOR_QUALITY.historyTurns || 36)),
@@ -7573,7 +7839,7 @@ Never copy SPEECH: or ACTION: into your reply. Reply only with MOMENT, SAY, SHOT
         if (t.line) bits.push(her.toUpperCase() + ": " + String(t.line).replace(/\s+/g, " ").slice(0, 200));
         return bits.join(" | ");
       }).filter(Boolean).join("\n");
-      const tags = (typeof scenarioTags === "function") ? scenarioTags(s) : (s.tags || []);
+      const tags = nightTags();
       const asleep = nightIsAsleep();
       const depth = game.depth || 0;
       const sceneLock = "SCENARIO LOCK: " + (s.title || s.id) + " — " + (s.blurb || "") + " Location stays " + loc + ". Speck is " + place + "."
@@ -7716,6 +7982,8 @@ Never copy SPEECH: or ACTION: into your reply. Reply only with MOMENT, SAY, SHOT
         history.push({ role: "user", content: userText });
         history.push({ role: "assistant", content: raw });
         trimHistory();
+        readTemperSignals(userText, moment, line);
+        if ((game.depth || 0) >= 3 && !game.gone) escapeState().gutTurns++;
         persist();
         const early = turnNo <= 2;
         // readFate finishes the digest meter itself and only ever returns "gulp".
@@ -8379,7 +8647,7 @@ Never copy SPEECH: or ACTION: into your reply. Reply only with MOMENT, SAY, SHOT
       try { localStorage.removeItem("speckAuthHint"); localStorage.removeItem("speckLastFace"); } catch {}
       unloadCanon();
       dropCanonCache();
-      studioPack = { characters: {}, scenarios: {}, players: {}, activePlayerId: "", sections: [], faceSection: {} };
+      studioPack = { characters: {}, scenarios: {}, players: {}, activePlayerId: "", sections: [], faceSection: {}, pace: { default: "standard", byFace: {} } };
       applyStudioPack();
       activeChatId = null;
       history = [];
@@ -8678,6 +8946,11 @@ Never copy SPEECH: or ACTION: into your reply. Reply only with MOMENT, SAY, SHOT
         document.getElementById("scBlurb").value = c ? (c.blurb || "") : "";
         document.getElementById("scVoice").value = c ? (c.voice || "") : "";
         document.getElementById("scAccent").value = (c && c.accent) || (typeof FACE_ACCENT === "object" && FACE_ACCENT[studioEditId]) || "#7cff9a";
+        const pc = document.getElementById("scPace");
+        if (pc) {
+          fillPaceSelect(pc, { inherit: true });
+          pc.value = (studioEditId && ensurePacePack().byFace[studioEditId]) || "";
+        }
         paintStillMap();
       } else {
         const sel = document.getElementById("snShot");
@@ -8719,6 +8992,12 @@ Never copy SPEECH: or ACTION: into your reply. Reply only with MOMENT, SAY, SHOT
         gutNights: (studioPack.characters[id] && studioPack.characters[id].gutNights) || [],
       });
       studioEditId = id;
+      const pcSel = document.getElementById("scPace");
+      if (pcSel) {
+        const pp = ensurePacePack();
+        if (pcSel.value) pp.byFace[id] = pcSel.value;
+        else delete pp.byFace[id];
+      }
       applyStudioPack();
       await pushStudio();
       paintStillMap();
@@ -8824,11 +9103,40 @@ Never copy SPEECH: or ACTION: into your reply. Reply only with MOMENT, SAY, SHOT
     const scDraft = document.getElementById("scDraft");
     if (scDraft) scDraft.addEventListener("click", draftStudioVoice);
 
+    function fillPaceSelect(el, opts) {
+      if (!el) return;
+      el.innerHTML = "";
+      if (opts && opts.inherit) {
+        const o = document.createElement("option");
+        o.value = "";
+        o.textContent = "Use my default (" + PACE_PRESETS[ensurePacePack().default].label + ")";
+        el.appendChild(o);
+      }
+      Object.keys(PACE_PRESETS).forEach((key) => {
+        const o = document.createElement("option");
+        o.value = key;
+        o.textContent = PACE_PRESETS[key].label;
+        el.appendChild(o);
+      });
+    }
+
     function openSettings() {
+      const sel = document.getElementById("paceDefault");
+      if (sel) {
+        fillPaceSelect(sel);
+        sel.value = ensurePacePack().default;
+      }
       els.setMsg.textContent = sessionUser ? ("Signed in as " + sessionUser.email) : "Log in to change password.";
       els.settings.classList.add("show");
     }
     els.gear.addEventListener("click", openSettings);
+    const paceDefault = document.getElementById("paceDefault");
+    if (paceDefault) paceDefault.addEventListener("change", async () => {
+      const pp = ensurePacePack();
+      pp.default = PACE_PRESETS[paceDefault.value] ? paceDefault.value : "standard";
+      await pushStudio();
+      pushToast("Pacing set to " + PACE_PRESETS[pp.default].label + ". Takes effect on the next night.", "ok");
+    });
     els.setClose.addEventListener("click", () => els.settings.classList.remove("show"));
     els.settings.addEventListener("click", (e) => { if (e.target === els.settings) els.settings.classList.remove("show"); });
     els.savePass.addEventListener("click", async () => {
@@ -8978,7 +9286,7 @@ Never copy SPEECH: or ACTION: into your reply. Reply only with MOMENT, SAY, SHOT
     els.talk.addEventListener("click", () => clickAction("talk"));
     els.hide.addEventListener("click", () => clickAction("hide"));
     els.tease.addEventListener("click", () => clickAction("tease"));
-    [["nightTabBegin","begin"],["nightTabGut","gut"],["nightTabConor","conor"],["nightTabAll","all"]].forEach((pair) => {
+    [["nightTabBegin","begin"],["nightTabGut","gut"],["nightTabAll","all"]].forEach((pair) => {
       const el = document.getElementById(pair[0]);
       if (!el) return;
       el.addEventListener("click", () => {
