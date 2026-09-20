@@ -2276,17 +2276,6 @@
     }
     .gut-settle .gs-skip:hover { border-color: #c8f06a; color: #f0ffc0; }
     @media (prefers-reduced-motion: reduce) { #meterFill::after { animation: none !important; } }
-    #goneBanner {
-      display: none;
-      margin: 8px 12px 0;
-      padding: 10px 12px;
-      border-radius: 12px;
-      background: rgba(40,8,12,.72);
-      color: var(--muted);
-      font-size: .86rem;
-    }
-    #goneBanner.show { display: block; }
-
     /* ——— Digest-O Meter (compact, under depth meter) ——— */
     #digestMeter {
       display: none;
@@ -2304,7 +2293,6 @@
     #meter.digest-mode .meter-track { display: none; }
     #meter.digest-mode #digestMeter { margin-top: 0; }
     #meter.digest-mode #gutPhase { display: none; }
-    #goneBanner { display: none !important; }
     #digestMeter.hot { border-color: rgba(255, 140, 60, .55); }
     #digestMeter.critical {
       border-color: rgba(255, 70, 50, .75);
@@ -3012,7 +3000,7 @@
       html.kb-open #sceneBar.big { flex-direction: row; align-items: center; }
       html.kb-open #sceneBar.big #shotchip { display: none; }
       html.kb-open #thumbHint { display: none; }
-      #gate, #goneBanner { flex: 0 0 auto; }
+      #gate { flex: 0 0 auto; }
 
       /* Chat log takes the remaining space and scrolls on its own */
       #log {
@@ -3255,12 +3243,6 @@
     <p id="gulpLine">Down. Heat. A swallow that does not take it back. You are a snack now.</p>
     <button type="button" id="gulpOk">Stay down</button>
   </div>
-  <div id="digest" class="fate" role="dialog" aria-label="Digested">
-    <h2 id="digestTitle">Soft end</h2>
-    <p id="digestLine">She kept you. The chamber finishes what the tongue started.</p>
-    <button type="button" id="digestStay">Stay gone</button>
-    <button type="button" id="digestOk">Another night</button>
-  </div>
 
   <div id="home">
     <div class="home-orbit" aria-hidden="true" id="homeOrbit"></div>
@@ -3390,7 +3372,6 @@
     </div>
   </div>
   </div>
-  <div id="goneBanner">You are gone. The log stays. She can keep going below, or start a new night.</div>
 
   <div id="digestFx" aria-hidden="true">
     <div class="fx-walls"></div>
@@ -4245,7 +4226,6 @@ If STATE says she is asleep: she stays asleep. MOMENT is narrator + body (breath
         els.meter.classList.toggle("bowel-mode", bowelOn);
       }
       applyScene();
-      if (els.goneBanner) els.goneBanner.classList.remove("show");
       paintSkullBar();
       paintGutPhase();
       paintVitals();
@@ -5876,8 +5856,6 @@ If STATE says she is asleep: she stays asleep. MOMENT is narrator + body (breath
         digestAcked: false,
         usedLines: [],
         shownGulp: false,
-        shownDigest: false,
-        shownBowel: false,
         hp: 100,
         gas: 0,
       };
@@ -5905,15 +5883,10 @@ If STATE says she is asleep: she stays asleep. MOMENT is narrator + body (breath
       shotchip: document.getElementById("shotchip"),
       reset: document.getElementById("reset"),
       gulp: document.getElementById("gulp"),
-      digest: document.getElementById("digest"),
       gulpOk: document.getElementById("gulpOk"),
-      digestOk: document.getElementById("digestOk"),
-      digestStay: document.getElementById("digestStay"),
       gulpLine: document.getElementById("gulpLine"),
-      digestLine: document.getElementById("digestLine"),
       meter: document.getElementById("meter"),
       meterFill: document.getElementById("meterFill"),
-      goneBanner: document.getElementById("goneBanner"),
       gutList: document.getElementById("gutList"),
       fxToggle: document.getElementById("fxToggle"),
       dock: document.querySelector(".dock"),
@@ -6345,7 +6318,6 @@ If STATE says she is asleep: she stays asleep. MOMENT is narrator + body (breath
       applyPlace();
       paintOpening();
       els.gulp.classList.remove("show");
-      els.digest.classList.remove("show");
       paintThinkBtn();
       if (els.input && !els.input.disabled) {
         try { els.input.focus({ preventScroll: true }); } catch {}
@@ -6455,7 +6427,6 @@ If STATE says she is asleep: she stays asleep. MOMENT is narrator + body (breath
         applyPlace();
         if (s.opening) addTurn(s.opening);
         els.gulp.classList.remove("show");
-        els.digest.classList.remove("show");
         // Gut-start scenarios arm the meter after 2 minutes inside
         if (game.depth >= 3 || s.gut || /^(inside|hold|rest|digest|full|after|rub|taut|burp)$/.test(s.shot || "")) {
           game.depth = Math.max(game.depth || 0, 3);
@@ -6486,7 +6457,6 @@ If STATE says she is asleep: she stays asleep. MOMENT is narrator + body (breath
         const turns = (data.logTurns && data.logTurns.length) ? data.logTurns : [openingOf()];
         turns.forEach((turn) => addTurn(turn));
         els.gulp.classList.remove("show");
-        els.digest.classList.remove("show");
         resumeDigestMeterFromSave();
         paintVitals();
       });
@@ -7025,7 +6995,6 @@ If STATE says she is asleep: she stays asleep. MOMENT is narrator + body (breath
 
     function hideFateOverlays() {
       if (els.gulp) els.gulp.classList.remove("show");
-      if (els.digest) els.digest.classList.remove("show");
     }
 
     function alreadySwallowed() {
@@ -7036,9 +7005,9 @@ If STATE says she is asleep: she stays asleep. MOMENT is narrator + body (breath
       return !!(s && s.gut);
     }
 
+    // The swallow overlay is the only blocking beat left. Digestion and disposal
+    // are carried by the Digest-O panel, its notices, and continueNight().
     function showFate(kind) {
-      const titleEl = document.getElementById("digestTitle");
-      const stayBtn = document.getElementById("digestStay");
       if (kind === "gulp") {
         if (alreadySwallowed() || game.shownGulp) return;
         hideFateOverlays();
@@ -7047,28 +7016,6 @@ If STATE says she is asleep: she stays asleep. MOMENT is narrator + body (breath
         game.shownGulp = true;
         game.fate = "swallowed";
         setDepth(Math.max(game.depth || 0, 2));
-        gulpFx();
-      } else if (kind === "bowel") {
-        if (game.shownBowel) return;
-        hideFateOverlays();
-        if (titleEl) titleEl.textContent = "Disposal";
-        els.digestLine.textContent = pickFreshLine("bowel");
-        if (stayBtn) stayBtn.textContent = "Stay with it";
-        els.digest.classList.add("show");
-        game.shownBowel = true;
-        if (!game.bowel || !game.bowel.alive) game.fate = "digested";
-        setDepth(3);
-        gulpFx();
-      } else if (kind === "digest") {
-        if (game.shownDigest) return;
-        hideFateOverlays();
-        if (titleEl) titleEl.textContent = "Soft end";
-        els.digestLine.textContent = pickFreshLine("digest");
-        if (stayBtn) stayBtn.textContent = "Stay gone";
-        els.digest.classList.add("show");
-        game.shownDigest = true;
-        game.fate = "digested";
-        setDepth(3);
         gulpFx();
       }
       applyScene();
@@ -7769,10 +7716,9 @@ Never copy SPEECH: or ACTION: into your reply. Reply only with MOMENT, SAY, SHOT
         trimHistory();
         persist();
         const early = turnNo <= 2;
+        // readFate finishes the digest meter itself and only ever returns "gulp".
         const fate = readFate(shot, moment, line, { early, asked: PLAYER_WANTS_DIGEST.test(userText) });
-        if (fate === "digest" && game.fate !== "digested" && !(game.bowel && game.bowel.active)) {
-          showFate("digest");
-        } else if (fate === "gulp" && game.fate !== "swallowed" && game.fate !== "digested") showFate("gulp");
+        if (fate === "gulp" && game.fate !== "swallowed" && game.fate !== "digested") showFate("gulp");
         // Digest-O / bowel meters react to this beat
         if (game.bowel && game.bowel.active) {
           applyBowelBeat(shot, moment, line, userText);
@@ -7921,7 +7867,7 @@ Never copy SPEECH: or ACTION: into your reply. Reply only with MOMENT, SAY, SHOT
       if (bowelTimer) { clearInterval(bowelTimer); bowelTimer = null; }
       stopDigestMeter({ clear: true });
       clearSave();
-      const sid = game.scenarioId || "mara-laundry";
+      const sid = game.scenarioId || fallbackNightId(fallbackFaceId());
       game = freshGame(sid, game.characterId);
       history = [];
       els.log.innerHTML = "";
@@ -7929,7 +7875,6 @@ Never copy SPEECH: or ACTION: into your reply. Reply only with MOMENT, SAY, SHOT
       applyPlace();
       paintOpening();
       els.gulp.classList.remove("show");
-      els.digest.classList.remove("show");
     }
 
 
@@ -8922,26 +8867,6 @@ Never copy SPEECH: or ACTION: into your reply. Reply only with MOMENT, SAY, SHOT
         localStorage.setItem("speckFx", els.fxToggle.checked ? "on" : "off");
       });
     }
-    els.digestStay.addEventListener("click", () => {
-      els.digest.classList.remove("show");
-      game.fate = "digested";
-      game.digestDone = true;
-      setDepth(3);
-      if (!game.bowelDone && !(game.bowel && game.bowel.active)) {
-        startBowelMovement({ path: "dead", silent: true });
-        addTurn({
-          moment: "The chamber is finished with you. What is left of you is already moving on.",
-          line: pickFreshLine("bowel"),
-        });
-        addNotice("Digest-O is done. Disposal meter is running.");
-      } else if (game.bowelDone) {
-        game.gone = true;
-        paintSkullBar();
-      }
-      paintMeter();
-      persist();
-      setBusy(false);
-    });
     const homeNew = document.getElementById("homeNew");
     if (homeNew) homeNew.addEventListener("click", () => {
       if (!sessionUser) { openAuth(); return; }
@@ -9043,9 +8968,7 @@ Never copy SPEECH: or ACTION: into your reply. Reply only with MOMENT, SAY, SHOT
       if (e.key === "Escape") closeLibrary();
     });
     els.gulpOk.addEventListener("click", () => hideFateOverlays());
-    els.digestOk.addEventListener("click", resetNight);
     if (els.gulp) els.gulp.addEventListener("click", (e) => { if (e.target === els.gulp) hideFateOverlays(); });
-    if (els.digest) els.digest.addEventListener("click", (e) => { if (e.target === els.digest) hideFateOverlays(); });
     document.getElementById("continueNight").addEventListener("click", continueNight);
     document.getElementById("newNight").addEventListener("click", resetNight);
     els.look.addEventListener("click", () => clickAction("look"));
