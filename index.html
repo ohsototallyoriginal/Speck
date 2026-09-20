@@ -1776,6 +1776,23 @@
     .me-slot span { display: block; font-size: .64rem; color: var(--muted); margin-top: 3px; }
     .me-slot span.live { color: var(--neon); font-weight: 800; letter-spacing: .06em; text-transform: uppercase; }
     .me-slot.on { border-color: var(--neon); box-shadow: inset 0 0 0 1px var(--neon); }
+    #studio #secNew { flex: 1 1 140px; width: auto; }
+    .sec-row button.danger { color: #ff9aa6; border-color: #7a3044; }
+    .sec-list { display: flex; flex-direction: column; gap: 6px; margin-top: 8px; }
+    .sec-row {
+      display: flex; align-items: center; gap: 8px;
+      border: 1px solid var(--hair); border-radius: 12px; padding: 8px 10px; background: var(--panel);
+    }
+    .sec-row b { flex: 1; font-size: .82rem; font-weight: 800; }
+    .sec-row em { font-style: normal; font-size: .62rem; color: var(--muted); letter-spacing: .08em; text-transform: uppercase; }
+    .sec-row button { width: auto; flex: 0 0 auto; border-radius: 10px; padding: 6px 10px; font-size: .72rem; }
+    .sec-assign { display: flex; flex-direction: column; gap: 6px; margin-top: 8px; }
+    .sec-assign .row2 {
+      display: grid; grid-template-columns: 1fr 1.1fr; gap: 8px; align-items: center;
+      border: 1px solid var(--hair); border-radius: 12px; padding: 8px 10px; background: var(--panel);
+    }
+    .sec-assign .row2 b { font-size: .8rem; font-weight: 800; overflow: hidden; text-overflow: ellipsis; }
+    .sec-assign .row2 select { padding: 7px 9px; font-size: .78rem; }
     .rel-chips { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 8px; }
     .rel-chips button {
       border: 1px solid var(--hair); background: var(--panel); color: var(--muted);
@@ -3191,6 +3208,17 @@
           <button type="button" id="snSave">Save night</button>
         </div>
       </div>
+      <div id="studioSectionsPane" hidden>
+        <label for="secNew">New section</label>
+        <div class="row" style="margin-top:0">
+          <input id="secNew" maxlength="30" placeholder="Work friends, Originals, Celebs…" />
+          <button type="button" id="secAdd">Add</button>
+        </div>
+        <label>Sections</label>
+        <div class="sec-list" id="secList"></div>
+        <label>Who goes where</label>
+        <div class="sec-assign" id="secAssign"></div>
+      </div>
       <div id="studioMePane" hidden>
         <div class="me-slots" id="meSlots"></div>
         <label for="mpName">Name</label>
@@ -3253,7 +3281,7 @@
         <button type="button" id="homeChats">Saved chats</button>
       </div>
       <div class="home-faces-block">
-      <p class="home-label">Friend group</p>
+      <p class="home-label" id="homeFeaturedLabel">Friend group</p>
       <div class="faces" id="homeFaces"></div>
       <p class="home-label">Everyone</p>
       <input id="homeFilter" type="search" placeholder="Filter faces" autocomplete="off" />
@@ -3397,6 +3425,7 @@
           <button type="button" id="btnEditChar">Edit</button>
           <button type="button" id="btnNewNight">New night</button>
           <button type="button" id="btnWhoYouAre">Who you are</button>
+          <button type="button" id="btnSections">Sections</button>
         </div>
         <div id="faceList"></div>
         <hr class="lib-split" />
@@ -3845,9 +3874,91 @@ If STATE says she is asleep: she stays asleep. MOMENT is narrator + body (breath
       { id: "orbit", label: "Conor's people", ids: ["keke"] },
       { id: "originals", label: "Originals", ids: ["mara", "sable", "tessa", "priya", "wren"] },
     ];
-    function faceGroupOf(id) {
+    // Built-in sections, plus "yours" as the default home for anything you made.
+    const BUILTIN_SECTIONS = FACE_GROUPS.map((g) => ({ id: g.id, label: g.label }))
+      .concat([{ id: "yours", label: "Yours" }]);
+
+    function ensureSections() {
+      if (!Array.isArray(studioPack.sections)) studioPack.sections = [];
+      if (!studioPack.faceSection || typeof studioPack.faceSection !== "object") studioPack.faceSection = {};
+      return studioPack.sections;
+    }
+    // Built-ins first, then whatever the user added, in their own order.
+    function allSections() {
+      ensureSections();
+      const out = BUILTIN_SECTIONS.map((x) => ({ id: x.id, label: x.label, builtin: true }));
+      studioPack.sections.forEach((x) => {
+        if (!x || !x.id) return;
+        if (out.some((o) => o.id === x.id)) return;
+        out.push({ id: x.id, label: x.label || x.id, builtin: false });
+      });
+      return out;
+    }
+    function sectionLabel(id) {
+      const hit = allSections().find((x) => x.id === id);
+      return hit ? hit.label : "Other";
+    }
+    // Where a face lives: your override wins, then the built-in map, then a sane default.
+    function faceSectionOf(id) {
+      ensureSections();
+      const ov = studioPack.faceSection[id];
+      if (ov && allSections().some((x) => x.id === ov)) return ov;
       const g = FACE_GROUPS.find((x) => x.ids.indexOf(id) >= 0);
-      return g ? g.id : "originals";
+      if (g) return g.id;
+      return (CHARACTERS[id] && CHARACTERS[id].custom) ? "yours" : "originals";
+    }
+    // Back-compat: older call sites still ask for the "group".
+    function faceGroupOf(id) {
+      return faceSectionOf(id);
+    }
+    // [{ id, label, items: [character] }] for every section that has anyone in it.
+    function groupedFaces(list) {
+      const order = allSections();
+      const buckets = new Map(order.map((x) => [x.id, { id: x.id, label: x.label, items: [] }]));
+      (list || []).forEach((c) => {
+        if (!c) return;
+        const sid = faceSectionOf(c.id);
+        if (!buckets.has(sid)) buckets.set(sid, { id: sid, label: sectionLabel(sid), items: [] });
+        buckets.get(sid).items.push(c);
+      });
+      return Array.from(buckets.values()).filter((b) => b.items.length);
+    }
+    async function setFaceSection(faceId, sectionId) {
+      ensureSections();
+      if (!sectionId) delete studioPack.faceSection[faceId];
+      else studioPack.faceSection[faceId] = sectionId;
+      await pushStudio();
+    }
+    async function addSection(label) {
+      ensureSections();
+      const name = String(label || "").trim();
+      if (!name) return "";
+      const existing = allSections().find((x) => x.label.toLowerCase() === name.toLowerCase());
+      if (existing) return existing.id;
+      const id = "sec-" + Date.now().toString(36);
+      studioPack.sections.push({ id, label: name });
+      await pushStudio();
+      return id;
+    }
+    async function renameSection(id, label) {
+      ensureSections();
+      const hit = studioPack.sections.find((x) => x.id === id);
+      if (!hit) return false;
+      hit.label = String(label || "").trim() || hit.label;
+      await pushStudio();
+      return true;
+    }
+    async function removeSection(id) {
+      ensureSections();
+      const i = studioPack.sections.findIndex((x) => x.id === id);
+      if (i < 0) return false;
+      studioPack.sections.splice(i, 1);
+      // Anyone parked in it falls back to their default home.
+      Object.keys(studioPack.faceSection).forEach((face) => {
+        if (studioPack.faceSection[face] === id) delete studioPack.faceSection[face];
+      });
+      await pushStudio();
+      return true;
     }
 
     function isOwner() {
@@ -3876,7 +3987,7 @@ If STATE says she is asleep: she stays asleep. MOMENT is narrator + body (breath
     }
 
     const STUDIO_SHOTS = ["look","palm","hold","wave","street","swallow","inside","gut","after","burp","lounge","bed","sit","tongue"];
-    let studioPack = { characters: {}, scenarios: {}, players: {}, activePlayerId: "" };
+    let studioPack = { characters: {}, scenarios: {}, players: {}, activePlayerId: "", sections: [], faceSection: {} };
     let studioMode = "char";
     let studioEditId = "";
 
@@ -3888,6 +3999,7 @@ If STATE says she is asleep: she stays asleep. MOMENT is narrator + body (breath
         const raw = JSON.parse(localStorage.getItem(studioKey()) || "null");
         if (raw && raw.characters) studioPack = raw;
         ensurePlayerPack();
+        ensureSections();
       } catch {}
     }
     function writeStudioLocal() {
@@ -3947,6 +4059,7 @@ If STATE says she is asleep: she stays asleep. MOMENT is narrator + body (breath
           const { data } = await supabase.from("studio_packs").select("pack").eq("user_id", sessionUser.id).maybeSingle();
           if (data && data.pack && data.pack.characters) studioPack = data.pack;
           ensurePlayerPack();
+          ensureSections();
         } catch (e) { console.warn("studio pull", e); }
       }
       applyStudioPack();
@@ -6100,8 +6213,10 @@ If STATE says she is asleep: she stays asleep. MOMENT is narrator + body (breath
       const lib = readLib();
       const id = lib.activeId;
       if (id && lib.chats[id]) return lib.chats[id];
-      const ids = Object.keys(lib.chats || {});
-      return ids.length ? lib.chats[ids[ids.length - 1]] : null;
+      // Object key order is insertion order, not recency — sort by timestamp.
+      const all = Object.values(lib.chats || {});
+      if (!all.length) return null;
+      return all.sort((a, b) => (b.at || 0) - (a.at || 0))[0];
     }
 
     function clearSave() {
@@ -6246,12 +6361,23 @@ If STATE says she is asleep: she stays asleep. MOMENT is narrator + body (breath
       }, 220);
     }
 
+    function fallbackFaceId() {
+      const list = characterList().filter((c) => c.ready);
+      if (game && game.characterId && CHARACTERS[game.characterId]) return game.characterId;
+      return (list[0] && list[0].id) || "";
+    }
+    function fallbackNightId(faceId) {
+      const c = CHARACTERS[faceId];
+      if (!c) return "";
+      const first = (c.scenarios || [])[0] || (c.gutNights || [])[0] || "";
+      return first;
+    }
     function newChat(scenarioId, characterId) {
       const s = scenarioOf(scenarioId);
       swapView(() => {
         stopDigestMeter({ clear: true });
         activeChatId = "chat-" + Date.now();
-        game = freshGame(s.id, characterId || game.characterId || "mara");
+        game = freshGame(s.id, characterId || game.characterId || fallbackFaceId());
         history = [];
         els.log.innerHTML = "";
         logTurns = [];
@@ -6281,7 +6407,6 @@ If STATE says she is asleep: she stays asleep. MOMENT is narrator + body (breath
         const next = readLib();
         next.activeId = id;
         writeLib(next);
-        const face = data.characterId || (data.game && data.game.characterId) || ownerOfScenario(data.scenarioId) || "mara";
         hydrateGame(data);
         history = (data.history || []).slice();
         logTurns = [];
@@ -6346,9 +6471,15 @@ If STATE says she is asleep: she stays asleep. MOMENT is narrator + body (breath
       writeLib(lib);
       cloudDelete(id);
       if (activeChatId === id) {
-        const leftover = Object.keys(lib.chats)[0];
-        if (leftover) openChat(leftover);
-        else newChat("mara-laundry", "mara");
+        // Most recent survivor, not whichever key happens to be first.
+        const leftover = Object.values(lib.chats || {}).sort((a, b) => (b.at || 0) - (a.at || 0))[0];
+        if (leftover) openChat(leftover.id);
+        else {
+          const face = fallbackFaceId();
+          const night = fallbackNightId(face);
+          if (face && night) newChat(night, face);
+          else { activeChatId = null; renderLibrary(); showHome(); }
+        }
       } else {
         renderLibrary();
       }
@@ -6466,32 +6597,18 @@ If STATE says she is asleep: she stays asleep. MOMENT is narrator + body (breath
         else b.addEventListener("click", () => browseFace(c.id));
         return b;
       };
-      FACE_GROUPS.forEach((g) => {
-        const pack = g.ids.map((id) => CHARACTERS[id]).filter((c) => c && c.ready && visibleIds.has(c.id));
-        if (!pack.length) return;
-        pack.forEach((c) => used.add(c.id));
+      groupedFaces(visible).forEach((g) => {
+        g.items.forEach((c) => used.add(c.id));
         const wrap = document.createElement("div");
         wrap.className = "face-group";
         const h = document.createElement("h4");
-        h.textContent = g.label;
+        h.textContent = g.label + " · " + g.items.length;
         const rail = document.createElement("div");
         rail.className = "face-tabs";
-        pack.forEach((c) => rail.appendChild(makeChip(c)));
+        g.items.forEach((c) => rail.appendChild(makeChip(c)));
         wrap.append(h, rail);
         els.faceList.appendChild(wrap);
       });
-      const leftover = characterList().filter((c) => c.ready && !used.has(c.id));
-      if (leftover.length) {
-        const wrap = document.createElement("div");
-        wrap.className = "face-group";
-        const h = document.createElement("h4");
-        h.textContent = leftover.some((c) => c.custom) ? "Yours" : "More";
-        const rail = document.createElement("div");
-        rail.className = "face-tabs";
-        leftover.forEach((c) => rail.appendChild(makeChip(c)));
-        wrap.append(h, rail);
-        els.faceList.appendChild(wrap);
-      }
       if (!characterList().length) {
         const empty = document.createElement("div");
         empty.className = "studio-empty";
@@ -6595,18 +6712,19 @@ If STATE says she is asleep: she stays asleep. MOMENT is narrator + body (breath
         empty.querySelector("span").textContent = cq ? "Clear the search." : "Start a story and it will land here.";
         els.chatList.appendChild(empty);
       } else {
-        const buckets = { friends: [], originals: [], celebs: [] };
+        // Bucket by whatever sections actually exist, in section order.
+        const buckets = new Map(allSections().map((x) => [x.id, []]));
         chats.forEach((c) => {
-          const face = c.characterId || (c.game && c.game.characterId) || ownerOfScenario(c.scenarioId) || "mara";
-          const g = faceGroupOf(face);
-          (buckets[g] || buckets.originals).push(c);
+          const face = c.characterId || (c.game && c.game.characterId) || ownerOfScenario(c.scenarioId) || "";
+          const g = face ? faceSectionOf(face) : "originals";
+          if (!buckets.has(g)) buckets.set(g, []);
+          buckets.get(g).push(c);
         });
-        const labels = { friends: "Friend group", originals: "Originals", celebs: "Celebrities" };
-        ["friends", "originals", "celebs"].forEach((key) => {
-          const list = buckets[key];
+        Array.from(buckets.keys()).forEach((key) => {
+          const list = buckets.get(key);
           if (!list.length) return;
           const h = document.createElement("h3");
-          h.textContent = labels[key] + " · " + list.length;
+          h.textContent = sectionLabel(key) + " · " + list.length;
           els.chatList.appendChild(h);
           list.forEach((c) => {
             const row = document.createElement("div");
@@ -7599,7 +7717,7 @@ Never copy SPEECH: or ACTION: into your reply. Reply only with MOMENT, SAY, SHOT
         console.error(err);
         setBusy(false);
         setLive("Error", "bad");
-        addNotice(String(err && err.message ? err.message : "Something went wrong."), () => speak(userText));
+        addNotice(String(err && err.message ? err.message : "Something went wrong."), () => speak(userText, opts));
         return;
       }
       setBusy(false);
@@ -7611,7 +7729,7 @@ Never copy SPEECH: or ACTION: into your reply. Reply only with MOMENT, SAY, SHOT
       const bits = [];
       const s = scenarioOf(game.scenarioId);
       if (s && s.title) bits.push("Night is \"" + s.title + "\".");
-      const who = game.playerName || (s && s.playerName) || "";
+      const who = namedPlayer() || (s && s.playerName) || "";
       if (who) bits.push("The snack was " + who + " — remember that name.");
       if (game.location) bits.push("Place: " + game.location + ".");
       const recent = (typeof logTurns !== "undefined" ? logTurns : []).slice(-3);
@@ -7626,7 +7744,7 @@ Never copy SPEECH: or ACTION: into your reply. Reply only with MOMENT, SAY, SHOT
       const n = (game.afterPasses || 0) + 1;
       const bowelOn = !!(game.bowel && game.bowel.active);
       const place = game.location || scenarioOf(game.scenarioId).location || "the same scene";
-      const whoSnack = game.playerName || scenarioOf(game.scenarioId).playerName || "";
+      const whoSnack = namedPlayer() || scenarioOf(game.scenarioId).playerName || "";
       const bathroom = bowelOn
         ? "Disposal is running. She may walk to a bathroom FROM " + place + " — do not teleport to a new city or a new night."
         : (game.bowelDone
@@ -7758,7 +7876,6 @@ Never copy SPEECH: or ACTION: into your reply. Reply only with MOMENT, SAY, SHOT
       newChat("ang-booth", "ang");
     }
     function paintHomeFaces() {
-      const featuredIds = ["ang", "maddy", "maggie", "fran", "nat", "alex"];
       const makeFace = (c) => {
         const b = document.createElement("button");
         b.type = "button";
@@ -7779,10 +7896,16 @@ Never copy SPEECH: or ACTION: into your reply. Reply only with MOMENT, SAY, SHOT
       els.homeFaces.innerHTML = "";
       const rest = document.getElementById("homeRest");
       if (rest) rest.innerHTML = "";
-      characterList().forEach((c) => {
-        if (!c.ready) return;
-        if (featuredIds.indexOf(c.id) >= 0) els.homeFaces.appendChild(makeFace(c));
-        else if (rest) rest.appendChild(makeFace(c));
+      // First non-empty section is the featured row; the label follows it.
+      const groups = groupedFaces(characterList().filter((c) => c.ready));
+      const featured = groups[0] || null;
+      const featLabel = document.getElementById("homeFeaturedLabel");
+      if (featLabel) featLabel.textContent = featured ? featured.label : "Characters";
+      groups.forEach((g, i) => {
+        g.items.forEach((c) => {
+          if (i === 0) els.homeFaces.appendChild(makeFace(c));
+          else if (rest) rest.appendChild(makeFace(c));
+        });
       });
       const q = ((document.getElementById("homeFilter") || {}).value || "").trim().toLowerCase();
       if (rest && q) {
@@ -8258,6 +8381,101 @@ Never copy SPEECH: or ACTION: into your reply. Reply only with MOMENT, SAY, SHOT
       }
     }
 
+
+    // ---- "Sections" pane ---------------------------------------------------
+    function paintSectionList() {
+      const host = document.getElementById("secList");
+      if (!host) return;
+      host.textContent = "";
+      const counts = {};
+      characterList().filter((c) => c.ready).forEach((c) => {
+        const sid = faceSectionOf(c.id);
+        counts[sid] = (counts[sid] || 0) + 1;
+      });
+      allSections().forEach((sec) => {
+        const row = document.createElement("div");
+        row.className = "sec-row";
+        const name = document.createElement("b");
+        name.textContent = sec.label + " · " + (counts[sec.id] || 0);
+        row.appendChild(name);
+        if (sec.builtin) {
+          const tag = document.createElement("em");
+          tag.textContent = "built in";
+          row.appendChild(tag);
+        } else {
+          const rn = document.createElement("button");
+          rn.type = "button";
+          rn.textContent = "Rename";
+          rn.addEventListener("click", async () => {
+            const next = prompt("Rename section", sec.label);
+            if (next == null || !next.trim()) return;
+            await renameSection(sec.id, next);
+            paintSectionsPane();
+            renderLibrary();
+            paintHomeFaces();
+          });
+          const del = document.createElement("button");
+          del.type = "button";
+          del.className = "danger";
+          del.textContent = "Delete";
+          del.addEventListener("click", async () => {
+            const ok = await askConfirm("Delete \"" + sec.label + "\"? Anyone in it moves back to their default section.", "Delete");
+            if (!ok) return;
+            await removeSection(sec.id);
+            paintSectionsPane();
+            renderLibrary();
+            paintHomeFaces();
+          });
+          row.append(rn, del);
+        }
+        host.appendChild(row);
+      });
+    }
+
+    function paintSectionAssign() {
+      const host = document.getElementById("secAssign");
+      if (!host) return;
+      host.textContent = "";
+      const faces = characterList().filter((c) => c.ready);
+      if (!faces.length) {
+        const empty = document.createElement("div");
+        empty.className = "sec-row";
+        const b = document.createElement("b");
+        b.textContent = "No characters yet.";
+        empty.appendChild(b);
+        host.appendChild(empty);
+        return;
+      }
+      const sections = allSections();
+      faces.forEach((c) => {
+        const row = document.createElement("div");
+        row.className = "row2";
+        const name = document.createElement("b");
+        name.textContent = c.name;
+        const sel = document.createElement("select");
+        sections.forEach((sec) => {
+          const o = document.createElement("option");
+          o.value = sec.id;
+          o.textContent = sec.label;
+          sel.appendChild(o);
+        });
+        sel.value = faceSectionOf(c.id);
+        sel.addEventListener("change", async () => {
+          await setFaceSection(c.id, sel.value);
+          paintSectionList();
+          renderLibrary();
+          paintHomeFaces();
+        });
+        row.append(name, sel);
+        host.appendChild(row);
+      });
+    }
+
+    function paintSectionsPane() {
+      paintSectionList();
+      paintSectionAssign();
+    }
+
     // ---- "Who you are" pane ------------------------------------------------
     let mePaneSlot = "p1";
 
@@ -8365,19 +8583,27 @@ Never copy SPEECH: or ACTION: into your reply. Reply only with MOMENT, SAY, SHOT
       const charPane = document.getElementById("studioCharPane");
       const nightPane = document.getElementById("studioNightPane");
       const mePane = document.getElementById("studioMePane");
-      document.getElementById("studioTitle").textContent = studioMode === "night"
-        ? "New night"
-        : (studioMode === "me" ? "Who you are" : (studioEditId ? "Edit character" : "New character"));
+      const secPane = document.getElementById("studioSectionsPane");
+      const titles = { night: "New night", me: "Who you are", sections: "Sections" };
+      document.getElementById("studioTitle").textContent = titles[studioMode]
+        || (studioEditId ? "Edit character" : "New character");
       const hint = document.getElementById("studioHint");
       if (hint) {
-        hint.textContent = studioMode === "me"
-          ? "Two slots. Pick one to play as and she'll know your name, your pronouns, and what you are to her."
-          : "Private to this login. Gemini plays her from the voice you write.";
+        const hints = {
+          me: "Two slots. Pick one to play as and she'll know your name, your pronouns, and what you are to her.",
+          sections: "Group your characters however you like. Sections show up on the home screen, in Stories, and over your saved chats.",
+        };
+        hint.textContent = hints[studioMode] || "Private to this login. Gemini plays her from the voice you write.";
       }
       charPane.hidden = studioMode !== "char";
       nightPane.hidden = studioMode !== "night";
       if (mePane) mePane.hidden = studioMode !== "me";
-      if (studioMode === "me") {
+      if (secPane) secPane.hidden = studioMode !== "sections";
+      if (studioMode === "sections") {
+        const nf = document.getElementById("secNew");
+        if (nf) nf.value = "";
+        paintSectionsPane();
+      } else if (studioMode === "me") {
         mePaneSlot = studioPack.activePlayerId || mePaneSlot || "p1";
         paintRelChips();
         loadMeSlot();
@@ -8500,6 +8726,20 @@ Never copy SPEECH: or ACTION: into your reply. Reply only with MOMENT, SAY, SHOT
     if (btnNewNight) btnNewNight.addEventListener("click", () => openStudio("night"));
     const btnWhoYouAre = document.getElementById("btnWhoYouAre");
     if (btnWhoYouAre) btnWhoYouAre.addEventListener("click", () => openStudio("me"));
+    const btnSections = document.getElementById("btnSections");
+    if (btnSections) btnSections.addEventListener("click", () => openStudio("sections"));
+    const secAdd = document.getElementById("secAdd");
+    if (secAdd) secAdd.addEventListener("click", async () => {
+      const field = document.getElementById("secNew");
+      const label = (field.value || "").trim();
+      if (!label) { pushToast("Name the section first.", "bad"); return; }
+      await addSection(label);
+      field.value = "";
+      paintSectionsPane();
+      renderLibrary();
+      paintHomeFaces();
+      pushToast("Added " + label + ".", "ok");
+    });
     const studioClose = document.getElementById("studioClose");
     if (studioClose) studioClose.addEventListener("click", closeStudio);
     const mpUse = document.getElementById("mpUse");
