@@ -1460,9 +1460,12 @@
       padding: 16px;
     }
     .pwwrap { position: relative; display: block; }
-    .pwwrap input { width: 100%; padding-right: 4.2rem; }
+    /* Must out-specify `#auth input`'s padding shorthand, or the revealed text
+       runs underneath the Show/Hide button. */
+    #auth .pwwrap input, .pwwrap input { width: 100%; padding-right: 4.6rem; }
     .pwtoggle {
       position: absolute; right: 6px; top: 50%; transform: translateY(-50%);
+      z-index: 2;
       background: transparent; border: 0; padding: 6px 8px; cursor: pointer;
       font-size: .72rem; font-weight: 800; letter-spacing: .06em;
       text-transform: uppercase; color: var(--neon); min-height: 32px;
@@ -1739,7 +1742,9 @@
     .night-card .badge.mean { color: #ff8aa0; border-color: color-mix(in srgb, #ff8aa0 40%, var(--hair)); background: color-mix(in srgb, #ff8aa0 10%, transparent); }
     .night-card .badge.sleeping { color: #b8c0ff; border-color: color-mix(in srgb, #b8c0ff 40%, var(--hair)); background: color-mix(in srgb, #b8c0ff 10%, transparent); }
     .ask-sheet {
-      position: fixed; inset: 0; z-index: 90;
+      /* Above the library (94), studio (96) and settings (95) — a confirm
+         prompt must always sit on top of whatever raised it. */
+      position: fixed; inset: 0; z-index: 120;
       display: none; place-items: center;
       background: rgba(6,4,8,.55);
       padding: 24px;
@@ -4539,6 +4544,30 @@ If STATE says she is asleep: she stays asleep. MOMENT is narrator + body (breath
     }
 
     /* ——— Digest-O Meter system ——— */
+    // How long a night runs. The player picks a default, and any character can
+    // carry their own feel — some faces are meant to be slow, some are not.
+    const PACE_PRESETS = {
+      slow:     { label: "Slow burn", mult: 1.9 },
+      standard: { label: "Standard",  mult: 1 },
+      quick:    { label: "Quick",     mult: 0.55 },
+    };
+    function ensurePacePack() {
+      if (!studioPack.pace || typeof studioPack.pace !== "object") {
+        studioPack.pace = { default: "standard", byFace: {} };
+      }
+      if (!PACE_PRESETS[studioPack.pace.default]) studioPack.pace.default = "standard";
+      if (!studioPack.pace.byFace || typeof studioPack.pace.byFace !== "object") studioPack.pace.byFace = {};
+      return studioPack.pace;
+    }
+    function paceKeyFor(faceId) {
+      const p = ensurePacePack();
+      const own = p.byFace[faceId || (game && game.characterId) || ""];
+      return PACE_PRESETS[own] ? own : p.default;
+    }
+    function paceMult(faceId) {
+      return PACE_PRESETS[paceKeyFor(faceId)].mult;
+    }
+
     const GUT_ARM_MS = 2 * 60 * 1000;          // 2 min of *active* gut time before meter appears
     const DIGEST_MIN_MS = 5 * 60 * 1000;       // 5 min floor
     const DIGEST_MAX_MS = 20 * 60 * 1000;      // 20 min ceiling
@@ -4855,7 +4884,13 @@ If STATE says she is asleep: she stays asleep. MOMENT is narrator + body (breath
       const danger = f.pace * 0.42 + f.stomach * 0.32 + f.mood * 0.26;
       const ms = DIGEST_MAX_MS - danger * (DIGEST_MAX_MS - DIGEST_MIN_MS);
       const jitter = (Math.random() - 0.5) * 60 * 1000;
-      return Math.round(Math.max(DIGEST_MIN_MS, Math.min(DIGEST_MAX_MS, ms + jitter)));
+      const mult = paceMult();
+      // Floor and ceiling both scale, so "slow burn" really is longer rather
+      // than just starting further from a fixed cap.
+      return Math.round(Math.max(
+        DIGEST_MIN_MS * mult,
+        Math.min(DIGEST_MAX_MS * mult, (ms + jitter) * mult)
+      ));
     }
 
     /* ——— Gut settle timer (2 min of *active* story time) ———
@@ -4877,7 +4912,7 @@ If STATE says she is asleep: she stays asleep. MOMENT is narrator + body (breath
     function ensureGutTimer() {
       if (!game.gutTimer) {
         game.gutTimer = {
-          neededMs: GUT_ARM_MS,
+          neededMs: Math.round(GUT_ARM_MS * paceMult()),
           accruedMs: 0,
           runningSince: null,
         };
@@ -6223,6 +6258,9 @@ If STATE says she is asleep: she stays asleep. MOMENT is narrator + body (breath
       if (!c) return true;
       const face = c.characterId || (c.game && c.game.characterId);
       const scen = c.scenarioId || (c.game && c.game.scenarioId);
+      // Sweep up the empty rows older builds could mint: no face, no night,
+      // and nothing ever said.
+      if (!face && !scen && !(c.history && c.history.length)) return true;
       return face === "dawn" || REMOVED_SCENARIOS.has(scen);
     }
     function pruneLib(lib) {
@@ -6469,6 +6507,8 @@ If STATE says she is asleep: she stays asleep. MOMENT is narrator + body (breath
     function persist(opts) {
       opts = opts || {};
       if (!sessionUser || !sessionUser.id) return;
+      // No character or no night means there is no scene to save.
+      if (!game || !game.characterId || !game.scenarioId) return;
       const hasStory = !!(history.length || (logTurns && logTurns.length) || (game && ((game.depth || 0) >= 2 || (game.digestMeter && game.digestMeter.active) || game.hp < 100 || game.gas > 0)));
       if (!opts.force && !hasStory) return;
       const lib = readLib();
@@ -6650,6 +6690,9 @@ If STATE says she is asleep: she stays asleep. MOMENT is narrator + body (breath
     function openLibrary(mode) {
       if (els.library) els.library.classList.remove("closing");
       clearTimeout(libCloseTimer);
+      // Always open on All rather than inheriting the last session's filter.
+      libNightTabs = new Set(["all"]);
+      if (libNightTags) libNightTags.clear();
       if (!libFace) libFace = characterOf(game.characterId).id;
       const pack0 = CHARACTERS[libFace];
       if (libNightTabs.has("begin") && libNightTabs.size === 1 && pack0 && !(pack0.scenarios && pack0.scenarios.length) && (pack0.gutNights || []).length) {
