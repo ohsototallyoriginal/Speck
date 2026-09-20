@@ -3572,6 +3572,117 @@
       border: 1px solid var(--hair); font-weight: 700;
     }
     #studioNightPane #snDelete:hover { color: var(--danger); border-color: var(--danger); }
+
+    /* ===============================================================
+       BUTTON NORMALISATION
+       The app grew five different "text on accent" colours (#140814,
+       #1a0c10, #2a0818, #081018), seven corner radii and twelve
+       min-heights. This block defines one scale and snaps the strays
+       onto it. Selectors mirror the originals so specificity matches
+       and the cascade decides by order.
+       =============================================================== */
+    :root {
+      --on-accent: #140814;   /* ink on a --neon fill  */
+      --on-cool:   #06121a;   /* ink on a --cyan fill  */
+      --r-ctl:  12px;         /* inputs, sheet rows    */
+      --r-card: 14px;         /* stacked card buttons  */
+      --r-lg:   16px;         /* large surfaces        */
+      --r-pill: 999px;        /* chips, toggles        */
+      --h-chip: 32px;
+      --h-sm:   40px;
+      --h-ctl:  44px;
+      --h-card: 48px;
+      --h-hero: 52px;
+    }
+
+    /* -- one ink colour on every accent fill -- */
+    #home.land #homeNew,
+    #homeNew,
+    #continueNight,
+    .notice button,
+    .compose-modes button.on,
+    .fate button,
+    .lib-switch button.on,
+    #home .home-primary,
+    #home #homeAuth,
+    #studioMePane .row #mpUse { color: var(--on-accent); }
+    .night-tabs button.on { color: var(--on-cool); }
+
+    /* -- radii snapped to the scale -- */
+    .notice button,
+    .sec-row button,
+    #studioCharPane #scPalReset,
+    #studioCharPane #scPalPreview,
+    #studioMePane .row button { border-radius: var(--r-ctl); }
+    #home .home-actions button,
+    #homeContinue,
+    .gone-actions button,
+    #home .faces button { border-radius: var(--r-card); }
+    .actions button,
+    #send { border-radius: var(--r-lg); }
+
+    /* -- heights snapped to the scale -- */
+    .notice button { min-height: var(--h-sm); }
+    #send,
+    #homeFilter,
+    .ask-actions button,
+    #studio .row button,
+    .lib-create button,
+    #studioMePane .row button,
+    #studioCharPane #scPalReset,
+    #studioCharPane #scPalPreview { min-height: var(--h-ctl); }
+    #home.land .home-actions button,
+    #home .home-actions button,
+    #homeContinue,
+    .gone-actions button { min-height: var(--h-card); }
+
+    /* -- one focus ring everywhere, instead of the browser default -- */
+    button:focus-visible {
+      outline: 2px solid var(--neon);
+      outline-offset: 2px;
+    }
+    .night-tabs button:focus-visible,
+    .compose-modes button:focus-visible,
+    #thinkBtn:focus-visible { outline-color: var(--cyan); }
+
+    /* -- one disabled treatment; several rules had their own -- */
+    button:disabled,
+    button[disabled] {
+      opacity: .38;
+      cursor: not-allowed;
+      filter: saturate(.6);
+    }
+
+    /* -- press feedback on everything that did not already have it -- */
+    .actions button,
+    .gone-actions button,
+    .ask-actions button,
+    #studio .row button,
+    .lib-create button,
+    .lib-switch button,
+    #send { transition: transform .13s ease, filter .18s ease, background .16s ease; }
+    .actions button:active:not(:disabled),
+    .gone-actions button:active:not(:disabled),
+    .ask-actions button:active:not(:disabled),
+    #studio .row button:active:not(:disabled),
+    .lib-create button:active:not(:disabled),
+    #send:active:not(:disabled) { transform: scale(.975); }
+
+    @media (prefers-reduced-motion: reduce) {
+      .actions button,
+      .gone-actions button,
+      .ask-actions button,
+      #studio .row button,
+      .lib-create button,
+      .lib-switch button,
+      #send { transition: none; }
+      .actions button:active:not(:disabled),
+      .gone-actions button:active:not(:disabled),
+      .ask-actions button:active:not(:disabled),
+      #studio .row button:active:not(:disabled),
+      .lib-create button:active:not(:disabled),
+      #send:active:not(:disabled) { transform: none; }
+    }
   </style>
 </head>
 <body>
@@ -6797,6 +6908,12 @@ If STATE says she is asleep: she stays asleep. MOMENT is narrator + body (breath
         els.authTitle.textContent = "Signed in";
         els.authStatus.textContent = sessionUser.email + ". Your nights live on this account.";
         showAuthPane("signed");
+        // Only the logged-OUT branch used to resync the shell, which is why the
+        // deck still read "Welcome" until the page was reloaded.
+        try {
+          if (typeof syncGuestShell === "function") syncGuestShell();
+          if (els.home && els.home.classList.contains("show")) showHome();
+        } catch {}
       } else {
         els.account.textContent = "Log in";
         try { if (typeof syncGuestShell === "function") syncGuestShell(); } catch {}
@@ -6844,6 +6961,12 @@ If STATE says she is asleep: she stays asleep. MOMENT is narrator + body (breath
       setAuthUi();
       renderLibrary();
       paintHomeFaces();
+      if (sessionUser) {
+        // Close the sheet and repaint the deck with the signed-in copy and
+        // actions, rather than leaving the pre-login screen on screen.
+        try { closeAuth(); } catch {}
+        try { showHome(); } catch {}
+      }
       if (sessionUser && !isOwner() && !characterList().length) {
         openStudio("char");
       }
@@ -7075,6 +7198,26 @@ If STATE says she is asleep: she stays asleep. MOMENT is narrator + body (breath
       const s = scenarioOf(scenarioId || game.scenarioId);
       return !s.opening || s.id === "blank" || /-blank$/.test(s.id);
     }
+    // New chat: latest character if we can name one, otherwise send the player
+    // somewhere they can pick or make one — never a dead tap.
+    function startNewChat() {
+      if (!sessionUser) { showHome(); openAuth(); return; }
+      if (deckIsEmpty()) {
+        pushToast("Make a character first.", "bad");
+        openStudio("char");
+        return;
+      }
+      const face = lastFaceId();
+      if (!face) {
+        showHome();
+        pushToast("Pick a character to start with.");
+        return;
+      }
+      hideHome();
+      closeLibrary();
+      startOpenChat(face);
+    }
+
     function startOpenChat(faceId) {
       if (deckIsEmpty()) { showHome(); return; }
       const vis = characterList().filter((c) => c.ready);
@@ -10163,17 +10306,7 @@ Never copy SPEECH: or ACTION: into your reply. Reply only with MOMENT, SAY, SHOT
     const touch = document.querySelector('link[rel="apple-touch-icon"]');
     if (touch) touch.setAttribute("href", "logo.png");
     const newChatBtn = document.getElementById("newChatBtn");
-    if (newChatBtn) {
-      newChatBtn.addEventListener("click", () => {
-        if (!sessionUser) { showHome(); openAuth(); return; }
-        if (deckIsEmpty()) { openStudio("char"); return; }
-        const face = characterOf(game.characterId).id;
-        if (!face) { showHome(); return; }
-        hideHome();
-        closeLibrary();
-        startOpenChat(face);
-      });
-    }
+    if (newChatBtn) newChatBtn.addEventListener("click", startNewChat);
     els.stories.addEventListener("click", () => openLibrary("stories"));
     if (els.chats) els.chats.addEventListener("click", () => openLibrary("chats"));
     document.querySelector("#home h1").addEventListener("click", maybeBooth);
@@ -10187,12 +10320,7 @@ Never copy SPEECH: or ACTION: into your reply. Reply only with MOMENT, SAY, SHOT
       });
     }
     const homeNew = document.getElementById("homeNew");
-    if (homeNew) homeNew.addEventListener("click", () => {
-      if (!sessionUser) { openAuth(); return; }
-      if (deckIsEmpty()) { openStudio("char"); return; }
-      hideHome();
-      startOpenChat(lastFaceId());
-    });
+    if (homeNew) homeNew.addEventListener("click", startNewChat);
     const homeCreate = document.getElementById("homeCreate");
     if (homeCreate) homeCreate.addEventListener("click", () => {
       if (!sessionUser) { openAuth(); return; }
