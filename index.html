@@ -734,7 +734,11 @@
     #home.land #homeCreate { display: block; }
     #home #homeCreate { display: none; }
     #home.bare .lede { display: none; }
-    #home.land #homeClose { display: none !important; }
+    /* Hiding Close made sense when the landing only appeared on an empty
+       account — there was nothing behind it. The deck now sits on top of a
+       restored chat, so Close has to be reachable; only hide it when there is
+       genuinely nothing to go back to. */
+    #home.bare #homeClose { display: none !important; }
     #home button { cursor: pointer; }
     .scene-who { display: none !important; }
     .scene-who h1 {
@@ -7018,10 +7022,17 @@ conversation, it is a conversation.`;
     async function afterLogin() {
       await authUser();
       adoptLegacyLib();
-      await loadCanon();
-      await pullStudio();
-      await uploadLocalChats();
-      await pullChats();
+      // Each of these is a network round-trip. Unguarded, a single rejection
+      // aborted the whole function and the UI repaint below never ran — the
+      // user stayed staring at the pre-login screen with no error shown. Sync
+      // is best-effort; the repaint is not.
+      const step = async (label, fn) => {
+        try { await fn(); } catch (e) { console.warn("afterLogin:" + label, e); }
+      };
+      await step("canon", loadCanon);
+      await step("studio", pullStudio);
+      await step("upload", uploadLocalChats);
+      await step("chats", pullChats);
       setAuthUi();
       renderLibrary();
       paintHomeFaces();
@@ -9553,8 +9564,7 @@ Never copy SPEECH: or ACTION: into your reply. Reply only with MOMENT, SAY, SHOT
         restoreSave(saved);
         applyPlace();
       } else if (!deckIsEmpty()) {
-        // Only mint a blank night if there is a character to mint it for;
-        // otherwise leave the scene empty and let the deck do the talking.
+        // Only mint a blank night if there is a character to mint it for.
         startOpenChat(lastFaceId());
       }
       if (!game.gone) resumeDigestMeterFromSave();
