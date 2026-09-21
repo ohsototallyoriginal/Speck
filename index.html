@@ -7176,6 +7176,19 @@ conversation, it is a conversation.`;
     }
 
     let persistTimer = null;
+    // Never let an empty in-memory transcript overwrite a stored one. If the
+    // session has nothing loaded, the previously saved beats are the better
+    // copy — keep them and let the next real turn extend them.
+    function keepIfEmptied(next, prev) {
+      const n = Array.isArray(next) ? next : [];
+      const p = Array.isArray(prev) ? prev : [];
+      if (!n.length && p.length) {
+        console.warn("persist: refusing to blank " + p.length + " saved entries");
+        return p;
+      }
+      return n;
+    }
+
     function persist(opts) {
       opts = opts || {};
       if (!sessionUser || !sessionUser.id) return;
@@ -7210,8 +7223,8 @@ conversation, it is a conversation.`;
           gutTimer: snap.gutTimer,
           gutEnteredAt: snap.gutEnteredAt,
         },
-        history: cloneState(history) || [],
-        logTurns: cloneState(logTurns) || [],
+        history: keepIfEmptied(cloneState(history), prev.history),
+        logTurns: keepIfEmptied(cloneState(logTurns), prev.logTurns),
         at: Date.now(),
       };
       writeLib(lib);
@@ -7469,7 +7482,14 @@ conversation, it is a conversation.`;
         els.log.innerHTML = "";
         applyPlace();
         setStill(game.shot || scenarioOf(game.scenarioId).shot);
-        const turns = (data.logTurns && data.logTurns.length) ? data.logTurns : [openingOf()];
+        // Same recovery as restoreSave: a row with history but no logTurns
+        // still has its beats, just not in display form.
+        let turns = (data.logTurns && data.logTurns.length) ? data.logTurns : null;
+        if (!turns && data.history && data.history.length) {
+          const rebuilt = rebuildLogFromHistory(data.history);
+          if (rebuilt.length) turns = rebuilt;
+        }
+        if (!turns) turns = [openingOf()];
         turns.forEach((turn) => addTurn(turn));
         els.gulp.classList.remove("show");
         resumeDigestMeterFromSave();
@@ -9042,6 +9062,32 @@ Never copy SPEECH: or ACTION: into your reply. Reply only with MOMENT, SAY, SHOT
       paintThinkBtn();
     }
 
+    // Rebuild the readable log from the model-facing history. Used when a row
+    // has history but no logTurns — otherwise those beats are invisible even
+    // though they are still on disk.
+    function rebuildLogFromHistory(hist) {
+      const out = [];
+      let pendingYou = "";
+      (hist || []).forEach((msg) => {
+        if (!msg || !msg.content) return;
+        const text = String(msg.content);
+        if (msg.role === "user") {
+          if (/^\s*\[(CLOCK|CONTINUE)\]/i.test(text)) { pendingYou = ""; return; }
+          pendingYou = text.replace(/^\s*(ACTION|SPEECH):\s*/i, "").trim();
+          return;
+        }
+        if (msg.role !== "assistant") return;
+        let parsed = null;
+        try { parsed = parseActor(text); } catch {}
+        const moment = (parsed && parsed.moment) || "";
+        const line = (parsed && parsed.line) || "";
+        if (!moment && !line) { pendingYou = ""; return; }
+        out.push({ you: pendingYou, moment, line });
+        pendingYou = "";
+      });
+      return out;
+    }
+
     function restoreSave(data) {
       stopDigestMeter({ clear: true });
       hydrateGame(data);
@@ -9049,7 +9095,17 @@ Never copy SPEECH: or ACTION: into your reply. Reply only with MOMENT, SAY, SHOT
       logTurns = [];
       els.log.innerHTML = "";
       setStill(game.shot || "establish");
-      const turns = (data.logTurns && data.logTurns.length) ? data.logTurns : [openingOf()];
+      let turns = (data.logTurns && data.logTurns.length) ? data.logTurns : null;
+      if (!turns && data.history && data.history.length) {
+        // Recover beats from the model transcript rather than showing a bare
+        // opening over a scene that clearly progressed.
+        const rebuilt = rebuildLogFromHistory(data.history);
+        if (rebuilt.length) {
+          turns = rebuilt;
+          console.warn("restoreSave: rebuilt " + rebuilt.length + " turns from history");
+        }
+      }
+      if (!turns) turns = [openingOf()];
       turns.forEach((turn) => addTurn(turn));
       resumeDigestMeterFromSave();
       paintVitals();
