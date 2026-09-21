@@ -724,16 +724,16 @@
     #settings .set-note { margin: 6px 0 0; font-size: .78rem; color: var(--muted); }
     #home .home-dismiss { display: none; }
     #home { cursor: default; }
-    #home.land .home-faces-block { display: none; }
-    #home.land .home-actions #homeContinue,
-    #home.land .home-actions #homeStories,
-    #home.land .home-actions #homeChats { display: none; }
+    #home.bare .home-faces-block { display: none; }
+    #home.bare .home-actions #homeContinue,
+    #home.bare .home-actions #homeStories,
+    #home.bare .home-actions #homeChats { display: none; }
     #home .land-note { display: none; margin: 0 0 16px; color: var(--muted); font-size: .92rem; line-height: 1.45; }
     #home.land .land-note { display: block; }
     #home.land #homeNew { flex: 1; background: var(--neon); color: #140814; border-color: transparent; font-weight: 800; }
     #home.land #homeCreate { display: block; }
     #home #homeCreate { display: none; }
-    #home.land .lede { display: none; }
+    #home.bare .lede { display: none; }
     #home.land #homeClose { display: none !important; }
     #home button { cursor: pointer; }
     .scene-who { display: none !important; }
@@ -3286,7 +3286,7 @@
 
   
     #home .home-top { display: block; max-width: 26rem; }
-    #home.land .home-actions { grid-template-columns: 1fr; }
+    #home.land.bare .home-actions { grid-template-columns: 1fr; }
     #home.land:not(.signed) #homeNew,
     #home.land:not(.signed) #homeContinue,
     #home.land:not(.signed) #homeStories,
@@ -3298,7 +3298,7 @@
     #home.land.signed #homeNewStory { display: block; }
     #home:not(.land) #homeNewStory,
     #home.land:not(.signed) #homeNewStory { display: none !important; }
-    #home.land.signed .home-actions { grid-template-columns: 1fr 1fr; }
+    #home.land.signed:not(.bare) .home-actions { grid-template-columns: 1fr 1fr; }
     #home.land.signed #homeNew,
     #home.land.signed #homeContinue { grid-column: 1 / -1; }
     #home.land.signed .home-actions button { width: 100%; }
@@ -3308,7 +3308,7 @@
     #home:not(.land) #homeCreate { display: none; }
     #home.land #homeCreate { display: none; }
     #home.land.signed #homeCreate { display: block; }
-    #home.land #homeMe { display: none !important; }
+    #home.bare #homeMe { display: none !important; }
     #home:not(.signed) #homeMe { display: none !important; }
     #home .home-primary,
     #home #homeAuth {
@@ -9438,9 +9438,12 @@ Never copy SPEECH: or ACTION: into your reply. Reply only with MOMENT, SAY, SHOT
     }
     function syncGuestShell() {
       const land = landingNeeded();
+      // land = "home is the landing screen". bare = "there is nothing on it".
+      const bare = !sessionUser || deckIsEmpty();
       document.body.classList.toggle("guest", land);
       if (els.home) {
         els.home.classList.toggle("land", land);
+        els.home.classList.toggle("bare", bare);
         if (land) els.home.classList.add("show");
       }
       return land;
@@ -9451,13 +9454,13 @@ Never copy SPEECH: or ACTION: into your reply. Reply only with MOMENT, SAY, SHOT
       const title = document.getElementById("homeTitle");
       const lede = document.getElementById("homeLede");
       const note = document.getElementById("landNote");
-      const bare = sessionUser && !characterList().some((c) => c.ready);
+      const bare = !sessionUser || deckIsEmpty();
       if (title) title.textContent = sessionUser ? "Your deck" : "Welcome";
-      if (lede) lede.hidden = !!land;
+      if (lede) lede.hidden = bare;
       if (note) {
         note.textContent = !sessionUser
           ? "Log in from here or the header. Nights stay on your account."
-          : (bare
+          : (deckIsEmpty()
             ? "No characters yet. Make one, then start a chat."
             : "Pick up where you left off, or start something new.");
       }
@@ -9527,14 +9530,13 @@ Never copy SPEECH: or ACTION: into your reply. Reply only with MOMENT, SAY, SHOT
       }
       bootSettled = true;
       setAuthUi();
-      if (landingNeeded()) {
-        try { showHome(); } catch (e) { console.warn(e); }
-        preloadStills();
-        setLive("Live", "ready");
-        setBusy(false);
-        hideSplash();
-        return;
-      }
+      // REGRESSION FIX: this used to `return` here, which was fine when
+      // landingNeeded() meant "this account is empty". Now that the deck is
+      // home for every signed-in user, returning skipped restoreSave(),
+      // renderLibrary() and paintHomeFaces() on every boot — so no chat ever
+      // loaded. The scene is always restored underneath; the deck is just
+      // shown on top of it when it should be.
+      const showDeck = landingNeeded();
       const saved = loadSave();
       const g = saved && (saved.game || saved.vitals || {});
       const leftOnChat = !!(saved && (
@@ -9545,12 +9547,14 @@ Never copy SPEECH: or ACTION: into your reply. Reply only with MOMENT, SAY, SHOT
         (g.depth || 0) >= 3 ||
         (typeof g.hp === "number" && g.hp < 100)
       ));
-      hideHome();
+      if (!showDeck) hideHome();
       if (leftOnChat) {
         activeChatId = saved.id || activeChatId;
         restoreSave(saved);
         applyPlace();
-      } else {
+      } else if (!deckIsEmpty()) {
+        // Only mint a blank night if there is a character to mint it for;
+        // otherwise leave the scene empty and let the deck do the talking.
         startOpenChat(lastFaceId());
       }
       if (!game.gone) resumeDigestMeterFromSave();
@@ -9558,6 +9562,8 @@ Never copy SPEECH: or ACTION: into your reply. Reply only with MOMENT, SAY, SHOT
       preloadStills();
       setAuthUi();
       try { renderLibrary(); paintHomeFaces(); } catch {}
+      // Deck last, so it sits over a fully restored scene and Continue works.
+      if (showDeck) { try { showHome(); } catch (e) { console.warn(e); } }
       setLive("Live", "ready");
       setBusy(false);
       if (els.progress) els.progress.hidden = true;
