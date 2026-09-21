@@ -4872,7 +4872,7 @@ conversation, it is a conversation.`;
       if (els.meterFill) els.meterFill.style.width = ((d + 1) / 4 * 100) + "%";
       if (els.meter) els.meter.dataset.step = DEPTH_ORDER[d] || "palm";
       const digActive = !!(game.digestMeter && game.digestMeter.active);
-      const bowelOn = sizeMode !== "same" && !!(game.bowel && game.bowel.active);
+      const bowelOn = !!(game.bowel && game.bowel.active);
       if (els.meter) {
         els.meter.classList.toggle("digest-mode", digActive || bowelOn);
         els.meter.classList.toggle("bowel-mode", bowelOn);
@@ -7350,6 +7350,7 @@ conversation, it is a conversation.`;
 
     let libCloseTimer = null;
     function closeLibrary() {
+      setTimeout(resumeTickers, 0);
       const lib = els.library;
       if (!lib || !lib.classList.contains("show") || lib.classList.contains("closing")) return;
       const sheet = lib.querySelector(".sheet");
@@ -8708,7 +8709,7 @@ Never copy SPEECH: or ACTION: into your reply. Reply only with MOMENT, SAY, SHOT
       // scene there is no inside to be in.
       const inside = sizeMode !== "same"
         && ((game.depth || 0) >= 3 || (game.digestMeter && game.digestMeter.active));
-      const bowelOn = !!(game.bowel && game.bowel.active);
+      const bowelOn = sizeMode !== "same" && !!(game.bowel && game.bowel.active);
       const who = playerActorName();
       const conor = isConorPlay();
       const recap = (logTurns || []).slice(-4).map((t) => {
@@ -9485,12 +9486,30 @@ Never copy SPEECH: or ACTION: into your reply. Reply only with MOMENT, SAY, SHOT
       pauseGutTimer();
     }
 
+    // One place that puts every clock back in motion once the story is
+    // visible again. Safe to call more often than needed: each branch checks
+    // that its meter is actually active and that no ticker is already running.
+    function resumeTickers() {
+      if (!storyIsFocused()) return;
+      try { syncGutTimer(); } catch {}
+      try {
+        if (game.bowel && game.bowel.active) {
+          game.bowel.lastTick = Date.now();
+          if (!bowelTimer) startBowelTicker();
+        } else if (game.digestMeter && game.digestMeter.active) {
+          game.digestMeter.lastTick = Date.now();
+          if (!digestTimer) startDigestTicker();
+        }
+      } catch {}
+      try { paintMeter(); paintVitals(); } catch {}
+    }
+
     function hideHome() {
       document.body.classList.remove("guest");
       els.home.classList.remove("show");
       // Snap palette back to whoever is actually in play
       applyTheme(game.characterId);
-      syncGutTimer();
+      resumeTickers();
     }
 
     async function boot() {
@@ -9718,7 +9737,7 @@ Never copy SPEECH: or ACTION: into your reply. Reply only with MOMENT, SAY, SHOT
       setAuthUi();
       els.auth.classList.add("show");
     }
-    function closeAuth() { els.auth.classList.remove("show"); }
+    function closeAuth() { els.auth.classList.remove("show"); resumeTickers(); }
 
     els.account.addEventListener("click", openAuth);
     ["authClose","authClose2","authClose3","authClose4"].forEach((id) => {
@@ -10191,6 +10210,7 @@ Never copy SPEECH: or ACTION: into your reply. Reply only with MOMENT, SAY, SHOT
     }
     function closeStudio() {
       document.getElementById("studio").classList.remove("show");
+      resumeTickers();
     }
     async function saveStudioChar() {
       const name = document.getElementById("scName").value.trim();
