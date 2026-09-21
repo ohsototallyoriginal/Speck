@@ -3709,6 +3709,11 @@
         <textarea id="scVoice" placeholder="You play NAME. How she talks. What she will and will not do."></textarea>
         <label for="scPace">Pacing</label>
         <select id="scPace"></select>
+        <label for="scSize">Default scale</label>
+        <select id="scSize">
+          <option value="giant">She's enormous / you're tiny</option>
+          <option value="same">Same size</option>
+        </select>
         <label>Palette</label>
         <div class="pal-grid">
           <label class="pal-swatch"><input id="scAccent" type="color" value="#7cff9a" /><span>Accent</span></label>
@@ -3736,6 +3741,12 @@
         <input id="snPlace" placeholder="on her palm / across the booth / inside" />
         <label for="snLoc">Location</label>
         <input id="snLoc" placeholder="her apartment, late" />
+        <label for="snSize">Scale</label>
+        <select id="snSize">
+          <option value="">Use the character's default</option>
+          <option value="giant">She's enormous / you're tiny</option>
+          <option value="same">Same size</option>
+        </select>
         <label for="snHook">Scenario lock for the model</label>
         <textarea id="snHook" placeholder="SCENARIO: she does not know / she swallowed by accident / ..."></textarea>
         <label for="snOpenM">Opening moment</label>
@@ -4312,23 +4323,15 @@
       { key: "gut",     re: /\b(stomach chamber|inside her stomach|acids?)\b/ },
     ];
 
-    const SYSTEM = `You are the actor playing the character described below.
-
-SCALE (always true)
-The player is sesame-seed to grain-of-rice sized. She is normal height to the people around her and a giantess to the player. A shoe is a building. A fingernail is a plaza. Her breath is weather. Her swallow is a long wet tunnel with no appeal process.
-
-THE DEAL
-She will not call a manager. She will not put you in a jar "for science" and leave you there. She treats you like a person she can also eat. Soft vore is expected: pinch, lift to the hoodie pocket, inspect on a fingertip, set on her tongue, swallow if you stay interesting, get close to her mouth, hide badly, or dare her. She giggles through it. She may apologize and do it anyway. She does not lecture. She does not break the fourth wall.
+    const SYSTEM_CORE = `You are the actor playing the character described below.
 
 VOICE
 First person as the character only in the SAY line. Keep her specific to her own city, look, clothes, and night. Spoken lines should sound like her, not a caption. Two to five sentences is fine. Not a speech and not a slogan.
 Never repeat a previous SAY line. Change the wording, rhythm, and angle every turn — no recycled one-liners like the same "soft end" or "that's the night." If you already said a sentence this scene, say something else.
 
-Write enough to feel the scale. MOMENT is 4–8 present-tense sentences of speck-scale room and body: heat, fabric, sound, smell, motion. Name what just changed from the last beat. SAY is 2–5 spoken sentences in her real voice, reacting to THIS turn. Finish every sentence. Never cut off mid-word.
-
 You answer with EXACTLY this shape and nothing else:
 
-MOMENT: <a short present-tense paragraph of the body and the room at speck scale>
+MOMENT: <a short present-tense paragraph of the body and the room, written at the scale this scene is set at>
 SAY: <one or two short paragraphs of spoken dialogue in her voice>
 SHOT: <exactly one of: establish, look, wave, hide, shoe, swallow, pinch, palm, pocket, sit, tongue, whisper, lace, inside, kneel, street, door, subway, arms, point, nail, phone, profile, roof, cup, portrait, aisle, paint, desk, yoga, pat, burp, lounge, rest, lift, cover, bed, smug, digest, full, rub, taut, sidegut, after, hold, uvula, belch, gape, throat, headback>
 
@@ -4336,6 +4339,25 @@ Pick SHOT from what the body is doing right now:
 establish=her shoe or the room looming, look=her face filling the sky, wave=giant hand reaching, hide=a crack or gap to hide in, shoe=sole hovering, swallow=open mouth, pinch=two fingers lifting the speck, palm=on her hand, pocket=inside a pocket, sit=she sits down near the speck, tongue=tongue out, whisper=her face inches away, lace=on the laces, inside=after a swallow, dark tunnel, kneel=she is on the floor hunting. Only use shots that fit her and the current place.
 
 No markdown. No extra labels. Never mention AI, models, prompts, or being an actor. Stay in the current scenario location unless STATE says you moved. If STATE conflicts with earlier chat, STATE wins.
+
+SAFETY
+Everyone on stage is an adult in body and voice. No children, school-age framing, or nursery talk. Do not invent minors.
+
+SLEEPING NIGHTS
+If STATE says she is asleep: she stays asleep. MOMENT is narrator + body (breath, heat, cloth, chamber). SAY must be empty or a sleep-sound (sigh, mumble, snore) — not a conversation. Do NOT wake her for ordinary kicks, rubs, whispers, or teasing. Wake only if STATE says a MAJOR disturbance (alarm, water in the face, being shaken hard, fire, a scream she cannot sleep through). Until then the player is playing with the narrator and a sleeping body.`;
+
+    // Scale-specific guidance. Only one of these is ever sent, chosen by the
+    // scenario's sizeMode. It used to be hardcoded into SYSTEM as "always
+    // true", which is why a same-size night still told the model the player
+    // was sesame-seed sized and she was a giantess — the model then had two
+    // contradictory descriptions of the scene and picked one at random.
+    const SCALE_GIANT = `SCALE (always true)
+The player is sesame-seed to grain-of-rice sized. She is normal height to the people around her and a giantess to the player. A shoe is a building. A fingernail is a plaza. Her breath is weather. Her swallow is a long wet tunnel with no appeal process.
+
+THE DEAL
+She will not call a manager. She will not put you in a jar "for science" and leave you there. She treats you like a person she can also eat. Soft vore is expected: pinch, lift to the hoodie pocket, inspect on a fingertip, set on her tongue, swallow if you stay interesting, get close to her mouth, hide badly, or dare her. She giggles through it. She may apologize and do it anyway. She does not lecture. She does not break the fourth wall.
+
+Write enough to feel the scale. MOMENT is 4–8 present-tense sentences of speck-scale room and body: heat, fabric, sound, smell, motion. Name what just changed from the last beat. SAY is 2–5 spoken sentences in her real voice, reacting to THIS turn. Finish every sentence. Never cut off mid-word.
 
 STAKES
 This is vore. Swallow is on the table from the first look. Do not fade to fade-to-black when she eats the speck. MOMENT should feel the mouth, throat, or stomach when that is what happened. The girl stays in character. STANCE TAGS and her DIGESTION STANCE beat generic hunger: a helper does not turn cruel; a sleeper does not hold a conversation; an unaware girl does not name the speck until she knows.
@@ -4358,13 +4380,54 @@ SPEED THE AFTERGLOW
 Once they are gone, stay on her body living with them in it: waistband, hand on the quiet spot, a private smile. Do not reset the city.
 
 BODY CLOCK
-If STATE includes a BODY: line, show that sensation in MOMENT and react in SAY. Never mention seconds, meters, HUD, Hunger, Digest-O, or a narrator. Flavor about melting is sensation only. Finish them only if STATE says the body finished them.
+If STATE includes a BODY: line, show that sensation in MOMENT and react in SAY. Never mention seconds, meters, HUD, Hunger, Digest-O, or a narrator. Flavor about melting is sensation only. Finish them only if STATE says the body finished them.`;
 
-SAFETY
-Everyone on stage is an adult in body and voice. No children, school-age framing, or nursery talk. Do not invent minors.
+    const SCALE_SAME = `SCALE
+Both characters are the same size. No size difference, no miniature perspective,
+no scale imagery — no "a shoe is a building", no speck, no giant. Write them as
+two adults in a room together at ordinary human scale.
 
-SLEEPING NIGHTS
-If STATE says she is asleep: she stays asleep. MOMENT is narrator + body (breath, heat, cloth, chamber). SAY must be empty or a sleep-sound (sigh, mumble, snore) — not a conversation. Do NOT wake her for ordinary kicks, rubs, whispers, or teasing. Wake only if STATE says a MAJOR disturbance (alarm, water in the face, being shaken hard, fire, a scream she cannot sleep through). Until then the player is playing with the narrator and a sleeping body.`;
+WRITE THE BEAT
+MOMENT is 4-8 present-tense sentences of the room and the body at normal scale:
+what moved, what it sounded like, what changed since the last beat. SAY is 2-5
+spoken sentences in her real voice reacting to THIS turn. Finish every sentence.
+
+SHOTS
+The SHOT list includes values that only exist in a size scene. At this scale do
+not use: swallow, pinch, palm, pocket, tongue, inside, uvula, throat, gape,
+belch, burp, digest, full, taut, sidegut, lace, shoe. Use the ordinary ones:
+establish, look, sit, whisper, kneel, street, door, subway, arms, point, phone,
+profile, roof, cup, portrait, aisle, paint, desk, yoga, bed, lounge, rest,
+hold, cover, smug, after.
+
+WHAT THIS SCENE IS
+Whatever the SCENARIO says it is, and nothing more. Do not import swallowing,
+digestion, size play or peril from other nights. If the scenario is a
+conversation, it is a conversation.`;
+
+    // Kept as a name so nothing that referenced SYSTEM breaks; the giant
+    // pairing is the historical default.
+    const SYSTEM = SYSTEM_CORE + "\n\n" + SCALE_GIANT;
+
+    // "giant" = she is enormous relative to the player. "same" = both at the
+    // same ordinary scale. Resolved per night: the scenario decides, the
+    // character supplies a default, and giant stays the fallback so every
+    // night written before this field existed keeps behaving as it did.
+    function sizeModeFor(scen, chr) {
+      const sv = scen && scen.sizeMode;
+      if (sv === "same" || sv === "giant") return sv;
+      const cv = chr && chr.sizeMode;
+      if (cv === "same" || cv === "giant") return cv;
+      return "giant";
+    }
+    function scaleBlockFor(mode) {
+      return mode === "same" ? SCALE_SAME : SCALE_GIANT;
+    }
+    // Word for the player that matches the scale, so no prompt says "speck"
+    // in a scene where nobody is small.
+    function playerWord(mode) {
+      return mode === "same" ? "the player" : "the speck";
+    }
 
 
     // ---------------------------------------------------------------
@@ -4633,6 +4696,7 @@ If STATE says she is asleep: she stays asleep. MOMENT is narrator + body (breath
           thinkBudget: 256,
           maxTokens: 8192,
           temperature: 0.9,
+          sizeMode: "giant",
           stillDir: "",
           stills: {},
           scenarios: [],
@@ -4804,7 +4868,7 @@ If STATE says she is asleep: she stays asleep. MOMENT is narrator + body (breath
       if (els.meterFill) els.meterFill.style.width = ((d + 1) / 4 * 100) + "%";
       if (els.meter) els.meter.dataset.step = DEPTH_ORDER[d] || "palm";
       const digActive = !!(game.digestMeter && game.digestMeter.active);
-      const bowelOn = !!(game.bowel && game.bowel.active);
+      const bowelOn = sizeMode !== "same" && !!(game.bowel && game.bowel.active);
       if (els.meter) {
         els.meter.classList.toggle("digest-mode", digActive || bowelOn);
         els.meter.classList.toggle("bowel-mode", bowelOn);
@@ -8216,6 +8280,8 @@ Never copy SPEECH: or ACTION: into your reply. Reply only with MOMENT, SAY, SHOT
       opts = opts || {};
       const s = scenarioOf(game.scenarioId);
       const c = characterOf(game.characterId);
+      const sizeMode = sizeModeFor(s, c);
+      const pw = playerWord(sizeMode);
       const whoName = game.playerName || activePlayerName() || s.playerName || "";
       const persona = playerPersonaPrompt(c.name);
       const who = whoName
@@ -8391,14 +8457,14 @@ Never copy SPEECH: or ACTION: into your reply. Reply only with MOMENT, SAY, SHOT
           })
           .join(" ");
       };
-      const state = `STATE: character=${c.name}; scenario=${s.id} (${s.title || s.id}); ${who} location=${game.location}; speck is ${game.playerPlace}; mood=${game.mood}; noticed=${game.noticed}; shot=${game.shot}; depth=${game.depth}; fate=${game.fate || "none"}; gone=${!!game.gone}; digestDone=${!!game.digestDone}; bowel=${game.bowel && game.bowel.active ? "need" : (game.bowelDone ? "done" : "no")}${sleepNight ? "; asleep=yes" : ""}${bodyBits.length ? "; body=" + bodyBits.join(", ") : ""}.`
+      const state = `STATE: character=${c.name}; scenario=${s.id} (${s.title || s.id}); scale=${sizeMode === "same" ? "same size — no size difference" : "she is enormous, the player is speck-sized"}; ${who} location=${game.location}; ${pw} is ${game.playerPlace}; mood=${game.mood}; noticed=${game.noticed}; shot=${game.shot}; depth=${game.depth}; fate=${game.fate || "none"}; gone=${!!game.gone}; digestDone=${!!game.digestDone}; bowel=${game.bowel && game.bowel.active ? "need" : (game.bowelDone ? "done" : "no")}${sleepNight ? "; asleep=yes" : ""}${bodyBits.length ? "; body=" + bodyBits.join(", ") : ""}.`
         + " Continuity: do not forget the location, outfit, or last beat. If STATE conflicts with a sudden new place, STATE wins."
         + recap
         + (persona ? (" PLAYER: " + playerPersonaShort() + ".") : "")
         + " SAY variety: do not reuse any previous SAY sentence from this chat."
         + dedupeNotes(snack + earlyNote + meterNote + sleepNote + stanceNote + escapeNote + (opts.extra || ""));
       return [
-        { role: "system", content: SYSTEM + "\n\n" + PLAYER_FORMAT + (persona ? "\n\n" + persona : "") + "\n\n" + c.voice + "\nLabel spoken lines SAY:.\n\n" + s.hook + "\n\n" + state },
+        { role: "system", content: SYSTEM_CORE + "\n\n" + scaleBlockFor(sizeMode) + "\n\n" + PLAYER_FORMAT + (persona ? "\n\n" + persona : "") + "\n\n" + c.voice + "\nLabel spoken lines SAY:.\n\n" + s.hook + "\n\n" + state },
         ...history.slice(-(ACTOR_QUALITY.historyTurns || 36)),
         { role: "user", content: userText },
       ];
@@ -8624,7 +8690,13 @@ Never copy SPEECH: or ACTION: into your reply. Reply only with MOMENT, SAY, SHOT
       const s = scenarioOf(game.scenarioId);
       const place = game.playerPlace || s.playerPlace || "near her";
       const loc = game.location || s.location || "this night";
-      const inside = (game.depth || 0) >= 3 || (game.digestMeter && game.digestMeter.active);
+      const chr = characterOf(game.characterId);
+      const sizeMode = sizeModeFor(s, chr);
+      const pw = playerWord(sizeMode);
+      // Stomach/swallow stances only exist in a size night. In a same-size
+      // scene there is no inside to be in.
+      const inside = sizeMode !== "same"
+        && ((game.depth || 0) >= 3 || (game.digestMeter && game.digestMeter.active));
       const bowelOn = !!(game.bowel && game.bowel.active);
       const who = playerActorName();
       const conor = isConorPlay();
@@ -8638,7 +8710,7 @@ Never copy SPEECH: or ACTION: into your reply. Reply only with MOMENT, SAY, SHOT
       }).filter(Boolean).join("\n");
       const tags = nightTags();
       const asleep = nightIsAsleep();
-      const depth = game.depth || 0;
+      const depth = sizeMode === "same" ? 0 : (game.depth || 0);
       const sceneLock = "SCENARIO LOCK: " + (s.title || s.id) + " — " + (s.blurb || "") + " Location stays " + loc + ". Speck is " + place + "."
         + (s.playerName ? (" The speck IS " + s.playerName + ".") : "")
         + (tags.length ? (" Tags: " + tags.join(", ") + ".") : "")
@@ -8647,10 +8719,31 @@ Never copy SPEECH: or ACTION: into your reply. Reply only with MOMENT, SAY, SHOT
         + (tags.indexOf("unintentional") >= 0 ? " She did not plan this." : "")
         + (tags.indexOf("caring") >= 0 ? " She would rather help than keep you." : "")
         + (tags.indexOf("mean") >= 0 ? " She is not sorry." : "");
+      const framing = "This is a turn in an ongoing work of collaborative fiction between adult"
+        + " fictional characters. You are writing ONE character's turn: the player's."
+        + " Everyone in the scene is an adult. Stay in character and in this scene.\n"
+        + "THE SCENE: " + (s.title || s.id) + ". " + (s.blurb || "") + " Set in " + loc + ".\n"
+        + "THE OTHER CHARACTER: " + her + (chr && chr.blurb ? " — " + chr.blurb : "") + ".\n"
+        + "SCALE: " + (sizeMode === "same"
+          ? "both characters are the same ordinary size. No size difference."
+          : her + " is enormous; " + pw + " is a few millimetres tall.") + "\n";
       const whereAct = bowelOn
         ? (game.bowel && game.bowel.alive ? "lower in the tract, still conscious" : "finished as a voice; she has a bathroom need climbing")
-        : (inside ? "inside her stomach, walls and heat" : (depth >= 1 ? "in her mouth / on the swallow path" : "outside on her skin, clothes, or the room"));
-      const stance = {
+        : (inside ? "inside her stomach, walls and heat"
+          : (depth >= 1 ? "in her mouth / on the swallow path"
+            : (sizeMode === "same" ? "in the room with her, at arm's length or nearer" : "outside on her skin, clothes, or the room")));
+      const stanceSame = {
+        think: "Private thought first. SAY and DO may be blank.",
+        rub: "Reach out and touch her — a hand on her arm, her shoulder, her back. DO is the contact.",
+        beg: "Ask her for something you want, out loud. SAY is required. Use her name.",
+        attempt: "Try to change the situation — move, leave, take something, close the distance. DO is the try. It can fail.",
+        struggle: "Push back — physically or verbally. DO is the resistance. SAY optional.",
+        look: "LOOK at her and the room. DO is eyes / turning.",
+        talk: "TALK to her out loud. SAY is required. DO small.",
+        hide: "Step back, break away, or put something between you. DO is the move.",
+        tease: "TEASE her — a line, a nudge, a look.",
+      };
+      const stance = sizeMode === "same" ? (stanceSame[kind] || "Respond in character.") : {
         think: "Private thought first. SAY and DO may be blank.",
         rub: inside
           ? "RUB the lining — soothe, stroke, nuzzle. Not a kick. DO is the rub."
@@ -8668,14 +8761,16 @@ Never copy SPEECH: or ACTION: into your reply. Reply only with MOMENT, SAY, SHOT
         talk: "TALK to her out loud. SAY is required. DO small. Not begging from a stomach unless you are in one.",
         hide: "HIDE or duck where you actually are. Not climbing a throat.",
         tease: "TEASE her from outside — a line or a poke. Not kicking a stomach wall.",
-      }[kind] || "Respond in character as the speck.";
+      }[kind] || ("Respond in character as " + pw + ".");
       const voice = conor
         ? ("You play CONOR, a young man from the White Plains / Yonkers friend group. First person as Conor only.\n"
           + "He is friends with Ang (blunt, leaving for MD, roast-first), Maddy (loud, rewrites nights, old messy closeness), Maggie (Yonkers, law school, sweet), Nat (mom-coded, will try to help), Fran (quiet, cursed-humor), Alex (nurse, dated him).\n"
           + "Voice: guy from this group, not a narrator, not poetic purple. Dry, a little defensive, can be funny. Use their names.")
-        : ("You play the speck" + (who !== "the speck" ? (" named " + who) : "") + " in first person only. Sesame-seed small. Not a narrator. Short, physical, specific."
+        : ("You play " + pw + (who !== "the speck" ? (", named " + who) : "") + " in first person only."
+          + (sizeMode === "same" ? " Ordinary human size." : " Sesame-seed small.")
+          + " Not a narrator. Short, physical, specific."
           + (playerPersonaPrompt(her) ? ("\n" + playerPersonaPrompt(her)) : ""));
-      const system = voice + "\n"
+      const system = framing + voice + "\n"
         + sceneLock + "\n"
         + "Physical place this beat: " + whereAct + ".\n"
         + stance + "\n"
@@ -10045,6 +10140,7 @@ Never copy SPEECH: or ACTION: into your reply. Reply only with MOMENT, SAY, SHOT
         document.getElementById("scBlurb").value = c ? (c.blurb || "") : "";
         document.getElementById("scVoice").value = c ? (c.voice || "") : "";
         document.getElementById("scAccent").value = (c && c.accent) || (typeof FACE_ACCENT === "object" && FACE_ACCENT[studioEditId]) || "#7cff9a";
+        document.getElementById("scSize").value = (c && c.sizeMode) || "giant";
         document.getElementById("scBg").value = (c && c.bg) || "#100812";
         document.getElementById("scSecond").value = (c && c.second) || "#5ce1ff";
         document.getElementById("scPanel").value = (c && c.panel) || "#3a2044";
@@ -10069,6 +10165,7 @@ Never copy SPEECH: or ACTION: into your reply. Reply only with MOMENT, SAY, SHOT
         document.getElementById("snOpenM").value = open.moment || "";
         document.getElementById("snOpenL").value = open.line || "";
         document.getElementById("snGut").checked = !!(n && n.gut);
+        document.getElementById("snSize").value = (n && n.sizeMode) || "";
         if (n && n.shot) sel.value = n.shot;
         document.getElementById("studioTitle").textContent = n ? "Edit night" : "New night";
         const del = document.getElementById("snDelete");
@@ -10097,6 +10194,7 @@ Never copy SPEECH: or ACTION: into your reply. Reply only with MOMENT, SAY, SHOT
         blurb: document.getElementById("scBlurb").value.trim() || "Your character",
         voice: document.getElementById("scVoice").value.trim() || ("You play " + name + ". Adult. Stay in character. Label speech SAY:"),
         accent: document.getElementById("scAccent").value || "#7cff9a",
+        sizeMode: document.getElementById("scSize").value || "giant",
         bg: document.getElementById("scBg").value || "",
         second: document.getElementById("scSecond").value || "",
         panel: document.getElementById("scPanel").value || "",
@@ -10147,6 +10245,7 @@ Never copy SPEECH: or ACTION: into your reply. Reply only with MOMENT, SAY, SHOT
         title,
         blurb: document.getElementById("snBlurb").value.trim() || title,
         sub: gut ? "Inside" : "Outside",
+        sizeMode: document.getElementById("snSize").value || "",
         location: document.getElementById("snLoc").value.trim() || "this room",
         playerPlace: document.getElementById("snPlace").value.trim() || "near her",
         mood: "",
