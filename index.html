@@ -6903,12 +6903,17 @@ conversation, it is a conversation.`;
     let busy = false;
     let composeReady = false;
 
-    // Runtime auth coordination. Async auth/canon/cloud work can complete after a
-    // user has signed out or switched accounts; these guards prevent stale work
-    // from repainting or saving into a newer session.
+    // Runtime coordination. Auth, panel navigation, and cloud sync can all
+    // complete asynchronously; these guards keep an old operation from
+    // repainting or saving into a newer account/session.
     let authEpoch = 0;
     let authBooting = true;
     let authBusy = false;
+    let viewTransitionSeq = 0;
+    let viewTransitionTimer = null;
+    let chatWriteTimer = null;
+    let pendingChatWrite = null;
+    let chatWriteInFlight = false;
 
     function authIsCurrent(userId, epoch) {
       return !!sessionUser && sessionUser.id === userId && authEpoch === epoch;
@@ -6943,7 +6948,16 @@ conversation, it is a conversation.`;
     }
 
     function clearAccountRuntime() {
+      // Do not touch per-account localStorage here. Only discard in-memory
+      // state and UI that belongs to the account that just ended.
       if (persistTimer) { clearTimeout(persistTimer); persistTimer = null; }
+      if (chatWriteTimer) { clearTimeout(chatWriteTimer); chatWriteTimer = null; }
+      pendingChatWrite = null;
+      viewTransitionSeq += 1;
+      if (viewTransitionTimer) { clearTimeout(viewTransitionTimer); viewTransitionTimer = null; }
+      try { stopDigestMeter({ clear: true }); } catch {}
+      try { if (bowelTimer) { clearInterval(bowelTimer); bowelTimer = null; } } catch {}
+      try { if (gutSettleTick) { clearInterval(gutSettleTick); gutSettleTick = null; } } catch {}
       unloadCanon();
       dropCanonCache();
       studioPack = emptyStudioPack();
@@ -6970,6 +6984,43 @@ conversation, it is a conversation.`;
           btn.setAttribute("aria-busy", String(authBusy));
         }
       });
+    }
+
+    function queueChatPush(chat, immediate) {
+      if (!supabase || !sessionUser || !chat || !(chat.history && chat.history.length)) return;
+      pendingChatWrite = { snapshot: cloneState(chat), userId: sessionUser.id };
+      const run = () => {
+        chatWriteTimer = null;
+        if (chatWriteInFlight || !pendingChatWrite) return;
+        const item = pendingChatWrite;
+        pendingChatWrite = null;
+        chatWriteInFlight = true;
+        pushChat(item.snapshot, item.userId)
+          .catch((e) => console.warn("chat sync", e))
+          .finally(() => {
+            chatWriteInFlight = false;
+            if (pendingChatWrite && !chatWriteTimer) chatWriteTimer = setTimeout(run, 0);
+          });
+      };
+      if (immediate) {
+        if (chatWriteTimer) { clearTimeout(chatWriteTimer); chatWriteTimer = null; }
+        run();
+      } else {
+        if (chatWriteTimer) clearTimeout(chatWriteTimer);
+        chatWriteTimer = setTimeout(run, 550);
+      }
+    }
+
+    function commitActiveChat() {
+      if (!sessionUser || !activeChatId) return;
+      try {
+        persist({ quiet: true });
+        const lib = readLib();
+        const chat = lib.chats && lib.chats[activeChatId];
+        if (chat) queueChatPush(chat, false);
+      } catch (e) {
+        console.warn("commit active chat", e);
+      }
     }
 
     const REMOVED_SCENARIOS = new Set(["lanes", "hoodie", "bedroom", "tongue"]);
@@ -7331,7 +7382,7 @@ conversation, it is a conversation.`;
         at: Date.now(),
       };
       writeLib(lib);
-      if (!opts.quiet) pushChat(lib.chats[activeChatId]);
+      if (!opts.quiet) queueChatPush(lib.chats[activeChatId], false);
     }
 
     function persistSoon() {
@@ -7411,6 +7462,7 @@ conversation, it is a conversation.`;
 
     function startOpenChat(faceId) {
       if (deckIsEmpty()) { showHome(); return; }
+      commitActiveChat();
       const vis = characterList().filter((c) => c.ready);
       const face = vis.some((c) => c.id === faceId) ? faceId : lastFaceId();
       if (!face) {
@@ -7506,6 +7558,8 @@ conversation, it is a conversation.`;
     }
 
     function openLibrary(mode) {
+      closeTransientPanels("library");
+      pauseGutTimer();
       if (els.library) els.library.classList.remove("closing");
       clearTimeout(libCloseTimer);
       // Always open on All rather than inheriting the last session's filter.
@@ -7526,11 +7580,19 @@ conversation, it is a conversation.`;
     }
 
     function swapView(fn) {
+      commitActiveChat();
+      const token = ++viewTransitionSeq;
+      if (viewTransitionTimer) clearTimeout(viewTransitionTimer);
       document.body.classList.add("swap");
       closeLibrary();
-      setTimeout(() => {
-        fn();
-        requestAnimationFrame(() => document.body.classList.remove("swap"));
+      viewTransitionTimer = setTimeout(() => {
+        viewTransitionTimer = null;
+        if (token !== viewTransitionSeq) return;
+        try { fn(); } finally {
+          requestAnimationFrame(() => {
+            if (token === viewTransitionSeq) document.body.classList.remove("swap");
+          });
+        }
       }, 220);
     }
 
@@ -10928,7 +10990,12 @@ Never copy SPEECH: or ACTION: into your reply. Reply only with MOMENT, SAY, SHOT
       paintVitals();
     });
     window.addEventListener("beforeunload", () => {
-      try { persist({ force: true, quiet: true }); } catch {}
+      try {
+        persist({ force: true, quiet: true });
+        const lib = readLib();
+        const chat = activeChatId && lib.chats && lib.chats[activeChatId];
+        if (chat) queueChatPush(chat, true);
+      } catch {}
     });
     window.addEventListener("focus", () => syncGutTimer());
     window.addEventListener("blur", () => pauseGutTimer());
