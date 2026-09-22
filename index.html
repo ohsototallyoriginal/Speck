@@ -4283,6 +4283,228 @@
       #chatList .chat-ava { width: 44px; height: 44px; border-radius: 14px; }
       #chatList .chat-acts .iconbtn.chat-act { width: 36px; }
     }
+
+    /* ===============================================================
+       LIBRARY: Stories pane (matches the Chats cards)
+       =============================================================== */
+    /* Shared section header: label, hairline, count chip. */
+    #library h3.lib-sec,
+    #library h4.lib-sec {
+      display: flex; align-items: center; gap: 10px;
+      margin: 18px 2px 10px;
+      font-size: .68rem; font-weight: 800;
+      letter-spacing: .14em; text-transform: uppercase;
+    }
+    #library h4.lib-sec { margin: 4px 2px 8px; color: var(--muted); }
+    #library h3.lib-sec::after,
+    #library h4.lib-sec::after {
+      content: ""; order: 1; flex: 1; height: 1px;
+      background: color-mix(in srgb, var(--hair) 60%, transparent);
+    }
+    #library h3.lib-sec em,
+    #library h4.lib-sec em {
+      order: 2;
+      font-style: normal; letter-spacing: .04em;
+      min-width: 22px; padding: 2px 7px; border-radius: 999px; text-align: center;
+      background: color-mix(in srgb, var(--panel) 70%, transparent);
+      border: 1px solid color-mix(in srgb, var(--hair) 70%, transparent);
+      color: var(--ink);
+    }
+
+    /* Face rail: avatar + name pills. */
+    #faceList .face-tabs { gap: 8px; padding: 2px 4px 10px; margin: 0 -4px; }
+    #faceList .face-tabs .card.face-chip {
+      display: inline-flex; align-items: center; gap: 8px;
+      min-width: 0; min-height: 44px;
+      padding: 4px 14px 4px 4px;
+      border-radius: 999px;
+      text-align: left;
+    }
+    #faceList .face-chip .face-ava {
+      position: relative; flex: 0 0 34px;
+      width: 34px; height: 34px; border-radius: 50%;
+      overflow: hidden; display: grid; place-items: center;
+      background:
+        radial-gradient(120% 90% at 30% 20%, color-mix(in srgb, var(--chip, var(--neon)) 50%, transparent), transparent 70%),
+        color-mix(in srgb, var(--panel) 80%, #000);
+      box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--chip, var(--neon)) 45%, transparent);
+    }
+    #faceList .face-chip .face-ava img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; object-position: center 25%; }
+    #faceList .face-chip .lib-mono { font-size: .9rem; font-weight: 800; color: var(--ink); }
+    #faceList .face-chip b { font-size: .82rem; white-space: nowrap; }
+    #faceList .face-chip.is-playing .face-ava::after {
+      /* small "in play" dot on the avatar */
+      content: ""; position: absolute; right: 1px; bottom: 1px;
+      width: 9px; height: 9px; border-radius: 50%;
+      background: var(--chip, var(--neon));
+      box-shadow: 0 0 0 2px color-mix(in srgb, var(--panel2) 92%, #000);
+    }
+
+    /* Selected-character summary. */
+    #faceSummary {
+      --face: var(--neon);
+      display: grid; grid-template-columns: 64px minmax(0, 1fr);
+      gap: 14px; align-items: center;
+      margin: 2px 0 16px;
+      padding: 12px 14px 12px 12px;
+      border-radius: 18px;
+      border: 1px solid color-mix(in srgb, var(--face) 45%, var(--hair));
+      background:
+        linear-gradient(135deg, color-mix(in srgb, var(--face) 14%, transparent), transparent 60%),
+        color-mix(in srgb, var(--panel2) 88%, #000);
+    }
+    #faceSummary[hidden] { display: none; }
+    #faceSummary .face-sum-ava {
+      position: relative; width: 64px; height: 64px; border-radius: 18px;
+      overflow: hidden; display: grid; place-items: center;
+      background:
+        radial-gradient(120% 90% at 30% 20%, color-mix(in srgb, var(--face) 50%, transparent), transparent 70%),
+        color-mix(in srgb, var(--panel) 80%, #000);
+      box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--face) 45%, transparent);
+    }
+    #faceSummary .face-sum-ava img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; object-position: center 25%; }
+    #faceSummary .lib-mono { font-size: 1.5rem; font-weight: 800; color: var(--ink); }
+    #faceSummary .face-sum-text { min-width: 0; display: flex; flex-direction: column; gap: 3px; }
+    #faceSummary .face-sum-top { display: flex; align-items: center; gap: 8px; min-width: 0; }
+    #faceSummary .face-sum-top b { font-size: 1.08rem; color: var(--ink); overflow: hidden; white-space: nowrap; text-overflow: ellipsis; }
+    #faceSummary .face-sum-top em {
+      flex: 0 0 auto; font-style: normal;
+      font-size: .58rem; font-weight: 800; letter-spacing: .08em; text-transform: uppercase;
+      padding: 3px 7px; border-radius: 999px;
+      background: var(--face); color: var(--on-accent, #140814);
+    }
+    #faceSummary p {
+      margin: 0;
+      display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;
+      font-size: .82rem; line-height: 1.4;
+      color: color-mix(in srgb, var(--ink) 66%, transparent);
+    }
+    #faceSummary small { font-size: .7rem; color: var(--muted); font-variant-numeric: tabular-nums; }
+
+    /* Story search gets the same treatment as chat search. */
+    #library #nightSearch {
+      padding-left: 40px;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23a996b0' stroke-width='2' stroke-linecap='round'%3E%3Ccircle cx='11' cy='11' r='7'/%3E%3Cpath d='M20 20l-3.5-3.5'/%3E%3C/svg%3E");
+      background-repeat: no-repeat;
+      background-position: 14px 50%;
+      background-size: 16px 16px;
+      transition: border-color .18s ease, box-shadow .18s ease;
+    }
+    #library #nightSearch:focus {
+      outline: none;
+      border-color: var(--neon);
+      box-shadow: 0 0 0 3px color-mix(in srgb, var(--neon) 18%, transparent);
+    }
+
+    /* Outside / Inside labels keep their own colours. */
+    #library #begHead.lib-sec > span { color: #7ec8ff; }
+    #library #gutHead.lib-sec > span { color: #c8f06a; }
+
+    /* Story card. */
+    #library .card.story-card {
+      --face: var(--neon);
+      --kind: #7ec8ff;
+      position: relative;
+      display: grid;
+      grid-template-columns: 64px minmax(0, 1fr) 18px;
+      gap: 12px;
+      align-items: center;
+      width: 100%;
+      margin: 0 0 10px;
+      min-height: 0;
+      padding: 12px 12px 12px 12px;
+      border-radius: 18px;
+      border: 1px solid color-mix(in srgb, var(--hair) 75%, transparent);
+      background:
+        linear-gradient(135deg, color-mix(in srgb, var(--kind) 8%, transparent), transparent 55%),
+        color-mix(in srgb, var(--panel2) 88%, #000);
+      overflow: hidden;
+      text-align: left;
+    }
+    #library .card.story-card.is-gut { --kind: #c8f06a; }
+    @media (hover: hover) {
+      #library .card.story-card:hover:not(:disabled) {
+        transform: translateY(-1px);
+        border-color: color-mix(in srgb, var(--kind) 65%, var(--hair));
+        box-shadow: 0 10px 24px -12px rgba(0,0,0,.6), 0 0 0 1px color-mix(in srgb, var(--kind) 16%, transparent);
+      }
+      #library .card.story-card:hover .story-go { color: var(--ink); transform: translateX(2px); }
+    }
+    #library .card.story-card:active { transform: scale(.992); }
+    #library .card.story-card.active {
+      border-color: color-mix(in srgb, var(--face) 80%, transparent);
+      background:
+        linear-gradient(135deg, color-mix(in srgb, var(--face) 16%, transparent), transparent 60%),
+        color-mix(in srgb, var(--panel2) 88%, #000);
+    }
+    #library .card.story-card.active::before {
+      content: ""; position: absolute; left: 0; top: 12px; bottom: 12px;
+      width: 3px; border-radius: 0 3px 3px 0; background: var(--face);
+    }
+
+    #library .story-thumb {
+      position: relative; align-self: start;
+      width: 64px; height: 80px; border-radius: 14px;
+      overflow: hidden; display: grid; place-items: center;
+      background:
+        radial-gradient(120% 90% at 30% 20%, color-mix(in srgb, var(--kind) 40%, transparent), transparent 70%),
+        color-mix(in srgb, var(--panel) 80%, #000);
+      box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--kind) 35%, transparent);
+    }
+    #library .story-thumb img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; object-position: center 25%; }
+    #library .story-thumb .lib-mono { font-size: 1.3rem; font-weight: 800; color: var(--ink); text-shadow: 0 1px 8px rgba(0,0,0,.4); }
+
+    #library .story-main { display: flex; flex-direction: column; gap: 3px; min-width: 0; }
+    #library .card .story-main > span { color: inherit; font-size: inherit; line-height: inherit; }
+    #library .story-top { display: flex; align-items: baseline; justify-content: space-between; gap: 8px; min-width: 0; }
+    #library .story-top .story-plays:only-child { margin-left: auto; }
+    #library .story-kind {
+      font-style: normal; min-width: 0;
+      overflow: hidden; white-space: nowrap; text-overflow: ellipsis;
+      font-size: .62rem; font-weight: 800; letter-spacing: .1em; text-transform: uppercase;
+      color: var(--kind);
+    }
+    #library .story-plays { flex: 0 0 auto; font-size: .7rem; color: var(--muted); font-variant-numeric: tabular-nums; }
+    #library .card b.story-title {
+      margin: 0;
+      font-size: 1rem; font-weight: 700; line-height: 1.25; color: var(--ink);
+      display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;
+    }
+    #library .card span.story-blurb {
+      display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;
+      font-size: .82rem; line-height: 1.4;
+      color: color-mix(in srgb, var(--ink) 62%, transparent);
+    }
+    #library .card .badges.story-badges { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 5px; }
+    #library .card .story-badges .badge {
+      font-size: .6rem; font-weight: 800; letter-spacing: .08em; text-transform: uppercase;
+      line-height: 1; padding: 4px 7px; border-radius: 999px;
+      border: 1px solid color-mix(in srgb, var(--hair) 80%, transparent);
+    }
+    #library .card .story-badges .badge.story-now {
+      color: var(--on-accent, #140814); background: var(--face); border-color: transparent;
+    }
+    #library .story-go {
+      display: grid; place-items: center;
+      color: var(--muted);
+      transition: transform .18s ease, color .18s ease;
+    }
+
+    /* Pane switch stagger, same rhythm as the chat rows. */
+    #library #libStoriesPane.lib-pane-in .story-card {
+      animation: chatRowIn .42s cubic-bezier(.2, .8, .2, 1) both;
+      animation-delay: calc(var(--i, 0) * 28ms + 60ms);
+    }
+    @media (prefers-reduced-motion: reduce) {
+      #library #libStoriesPane.lib-pane-in .story-card { animation: none; }
+    }
+
+    @media (max-width: 380px) {
+      #library .card.story-card { grid-template-columns: 52px minmax(0, 1fr) 14px; gap: 10px; }
+      #library .story-thumb { width: 52px; height: 68px; border-radius: 12px; }
+      #faceSummary { grid-template-columns: 52px minmax(0, 1fr); }
+      #faceSummary .face-sum-ava { width: 52px; height: 52px; border-radius: 14px; }
+    }
   </style>
 </head>
 <body>
@@ -8526,30 +8748,109 @@ conversation, it is a conversation.`;
       return true;
     }
 
-    function nightCard(s, pack) {
+    // Saved-chat counts per face+night, filled by renderLibrary so each story
+    // card can say how many times it has already been played.
+    let libNightPlays = new Map();
+
+    function nightThumb(s, pack) {
+      if (!pack) return "";
+      const shot = (s && s.shot) || "look";
+      if (pack.stills && pack.stills[shot]) return pack.stills[shot];
+      if (pack.stills && pack.stills.look) return pack.stills.look;
+      if (pack.custom) return "";
+      const name = (typeof STILLS === "object" && STILLS[shot]) ? shot : "look";
+      return (pack.stillDir || "stills/") + name + ".jpg";
+    }
+
+    function libAvatar(className, src, name, fallbackSrc) {
+      const ava = document.createElement("span");
+      ava.className = className;
+      const mono = document.createElement("span");
+      mono.className = "lib-mono";
+      mono.textContent = String(name || "?").trim().charAt(0).toUpperCase() || "?";
+      ava.appendChild(mono);
+      if (src) {
+        const img = document.createElement("img");
+        img.alt = "";
+        img.loading = "lazy";
+        img.decoding = "async";
+        img.src = src;
+        img.addEventListener("error", () => {
+          if (fallbackSrc && img.dataset.fell !== "1" && img.getAttribute("src") !== fallbackSrc) {
+            img.dataset.fell = "1";
+            img.src = fallbackSrc;
+          } else img.remove();
+        });
+        ava.appendChild(img);
+      }
+      return ava;
+    }
+
+    const NIGHT_BADGE_TAGS = ["aware", "unaware", "intentional", "unintentional", "mean", "caring", "sleeping"];
+
+    function nightCard(s, pack, index) {
+      const isActive = s.id === game.scenarioId && pack.id === game.characterId;
+      const accent = (typeof FACE_ACCENT === "object" && FACE_ACCENT[pack.id]) || "";
       const b = document.createElement("button");
       b.type = "button";
-      b.className = "card night-card" + (s.id === game.scenarioId && pack.id === game.characterId ? " active" : "");
-      const badges = document.createElement("div");
-      badges.className = "badges";
-      if (s.gut) {
-        const g = document.createElement("span"); g.className = "badge gut"; g.textContent = "Inside"; badges.appendChild(g);
+      b.className = "card night-card story-card" + (s.gut ? " is-gut" : " is-out") + (isActive ? " active" : "");
+      b.style.setProperty("--i", String(Math.min(index || 0, 10)));
+      if (accent) b.style.setProperty("--face", accent);
+
+      b.appendChild(libAvatar("story-thumb", nightThumb(s, pack), s.title || pack.name, chatFaceThumb(pack.id)));
+
+      const main = document.createElement("span");
+      main.className = "story-main";
+      const top = document.createElement("span");
+      top.className = "story-top";
+      // The section header already says Outside/Inside, so the small top
+      // label carries the story's subtitle instead, when it has one.
+      const sub = String(s.sub || "").trim();
+      if (sub) {
+        const kind = document.createElement("i");
+        kind.className = "story-kind";
+        kind.textContent = sub;
+        top.appendChild(kind);
       }
-      scenarioTags(s).forEach((tag) => {
-        if (tag === "aware" || tag === "unaware" || tag === "intentional" || tag === "unintentional" || tag === "mean" || tag === "caring" || tag === "sleeping") {
-          const g = document.createElement("span");
-          g.className = "badge " + tag;
-          g.textContent = tag;
-          badges.appendChild(g);
-        }
-      });
-      if (/\bGIANTESS\b/i.test(s.hook || "") || /giant/i.test(s.sub || "")) {
-        const g = document.createElement("span"); g.className = "badge giant"; g.textContent = "Giantess"; badges.appendChild(g);
+      const plays = libNightPlays.get(pack.id + "|" + s.id) || 0;
+      if (plays) {
+        const pl = document.createElement("small");
+        pl.className = "story-plays";
+        pl.textContent = plays === 1 ? "1 chat" : plays + " chats";
+        pl.title = "Saved chats from this story";
+        top.appendChild(pl);
       }
-      b.innerHTML = "<b></b><span></span>";
-      b.querySelector("b").textContent = s.title;
-      b.querySelector("span").textContent = s.blurb;
-      if (badges.childNodes.length) b.appendChild(badges);
+      const title = document.createElement("b");
+      title.className = "story-title";
+      title.textContent = s.title;
+      const blurb = document.createElement("span");
+      blurb.className = "story-blurb";
+      blurb.textContent = s.blurb || "";
+      if (top.childNodes.length) main.appendChild(top);
+      main.appendChild(title);
+      if (blurb.textContent) main.appendChild(blurb);
+
+      const badges = document.createElement("span");
+      badges.className = "badges story-badges";
+      const addBadge = (cls, text) => {
+        const g = document.createElement("span");
+        g.className = "badge " + cls;
+        g.textContent = text;
+        badges.appendChild(g);
+      };
+      scenarioTags(s).forEach((tag) => { if (NIGHT_BADGE_TAGS.indexOf(tag) >= 0) addBadge(tag, tag); });
+      if (/\bGIANTESS\b/i.test(s.hook || "") || /giant/i.test(s.sub || "")) addBadge("giant", "Giantess");
+      if (isActive) addBadge("story-now", "Playing");
+      if (badges.childNodes.length) main.appendChild(badges);
+      b.appendChild(main);
+
+      const go = document.createElement("span");
+      go.className = "story-go";
+      go.setAttribute("aria-hidden", "true");
+      go.innerHTML = '<svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8 5l8 7-8 7"/></svg>';
+      b.appendChild(go);
+
+      b.setAttribute("aria-label", "Start " + (s.title || "night") + (s.gut ? ", inside" : ", outside") + (plays ? ", " + plays + " saved chats" : ""));
       b.addEventListener("click", () => newChat(s.id, pack.id));
       return b;
     }
@@ -8688,6 +8989,47 @@ conversation, it is a conversation.`;
       return row;
     }
 
+    // The face rail only shows names, so the picked character gets a short
+    // summary card (portrait, blurb, counts) between the rail and the filters.
+    function paintFaceSummary(pack, nightTotal) {
+      let host = document.getElementById("faceSummary");
+      if (!host) {
+        host = document.createElement("div");
+        host.id = "faceSummary";
+        els.faceList.insertAdjacentElement("afterend", host);
+      }
+      host.innerHTML = "";
+      host.hidden = !pack;
+      if (!pack) return;
+      const accent = (typeof FACE_ACCENT === "object" && FACE_ACCENT[pack.id]) || "";
+      if (accent) host.style.setProperty("--face", accent); else host.style.removeProperty("--face");
+      host.appendChild(libAvatar("face-sum-ava", chatFaceThumb(pack.id), pack.name));
+      const txt = document.createElement("div");
+      txt.className = "face-sum-text";
+      const top = document.createElement("div");
+      top.className = "face-sum-top";
+      const nm = document.createElement("b");
+      nm.textContent = pack.name;
+      top.appendChild(nm);
+      if (pack.id === game.characterId) {
+        const tag = document.createElement("em");
+        tag.textContent = "In play";
+        top.appendChild(tag);
+      }
+      txt.appendChild(top);
+      if (pack.blurb) {
+        const p = document.createElement("p");
+        p.textContent = pack.blurb;
+        txt.appendChild(p);
+      }
+      let chats = 0;
+      libNightPlays.forEach((n, k) => { if (k.indexOf(pack.id + "|") === 0) chats += n; });
+      const meta = document.createElement("small");
+      meta.textContent = (nightTotal === 1 ? "1 story" : nightTotal + " stories") + (chats ? " · " + (chats === 1 ? "1 saved chat" : chats + " saved chats") : "");
+      txt.appendChild(meta);
+      host.appendChild(txt);
+    }
+
     function renderLibrary() {
       const lib = readLib();
       const visible = characterList().filter((c) => c.ready);
@@ -8704,9 +9046,13 @@ conversation, it is a conversation.`;
         b.setAttribute("aria-pressed", String(c.id === libFace));
         b.dataset.face = c.id;
         b.style.setProperty("--chip", FACE_ACCENT[c.id] || "var(--neon)");
-        b.innerHTML = "<b></b><span></span>";
-        b.querySelector("b").textContent = c.name + (c.id === game.characterId ? " ·" : "");
-        b.querySelector("span").textContent = c.blurb;
+        b.classList.add("face-chip");
+        if (c.id === game.characterId) b.classList.add("is-playing");
+        b.appendChild(libAvatar("face-ava", chatFaceThumb(c.id), c.name));
+        const nm = document.createElement("b");
+        nm.textContent = c.name;
+        b.appendChild(nm);
+        if (c.id === game.characterId) b.title = c.name + " (in play)";
         if (!c.ready) b.disabled = true;
         else b.addEventListener("click", () => browseFace(c.id));
         return b;
@@ -8716,7 +9062,10 @@ conversation, it is a conversation.`;
         const wrap = document.createElement("div");
         wrap.className = "face-group";
         const h = document.createElement("h4");
-        h.textContent = g.label + " · " + g.items.length;
+        h.className = "lib-sec";
+        h.innerHTML = "<span></span><em></em>";
+        h.querySelector("span").textContent = g.label;
+        h.querySelector("em").textContent = String(g.items.length);
         const rail = document.createElement("div");
         rail.className = "face-tabs";
         g.items.forEach((c) => rail.appendChild(makeChip(c)));
@@ -8792,10 +9141,24 @@ conversation, it is a conversation.`;
         if (!s || s.hidden) return;
         if (nightMatches(s, tabSet, q)) guts.push(s);
       });
-      if (begHead) begHead.textContent = "Outside · " + begins.length;
-      if (gutHead) gutHead.textContent = "Inside · " + guts.length;
-      begins.forEach((s) => els.scenarioList.appendChild(nightCard(s, pack)));
-      guts.forEach((s) => els.gutList.appendChild(nightCard(s, pack)));
+      const paintHead = (el, label, n) => {
+        if (!el) return;
+        el.classList.add("lib-sec");
+        el.innerHTML = "<span></span><em></em>";
+        el.querySelector("span").textContent = label;
+        el.querySelector("em").textContent = String(n);
+      };
+      paintHead(begHead, "Outside", begins.length);
+      paintHead(gutHead, "Inside", guts.length);
+      libNightPlays = new Map();
+      Object.values(lib.chats || {}).forEach((c) => {
+        const f = c.characterId || (c.game && c.game.characterId) || "";
+        const k = f + "|" + (c.scenarioId || "");
+        libNightPlays.set(k, (libNightPlays.get(k) || 0) + 1);
+      });
+      paintFaceSummary(pack, ((pack && pack.scenarios) || []).length + ((pack && pack.gutNights) || []).length);
+      begins.forEach((s, i) => els.scenarioList.appendChild(nightCard(s, pack, i)));
+      guts.forEach((s, i) => els.gutList.appendChild(nightCard(s, pack, begins.length + i)));
       if (begWrap) begWrap.hidden = (tabSet.has("gut") && !tabSet.has("begin") && !tabSet.has("all")) || !begins.length;
       if (gutWrap) gutWrap.hidden = (tabSet.has("begin") && !tabSet.has("gut") && !tabSet.has("all")) || !guts.length;
       if (!begins.length && !guts.length) {
