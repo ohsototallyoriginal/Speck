@@ -4457,8 +4457,8 @@ conversation, it is a conversation.`;
     // Easiest to seed (upload a file in the dashboard, no terminal needed).
     async function loadCanonFromStorage() {
       const { data, error } = await supabase.storage.from("canon").download("canon.json");
-      if (error || !data) return null;
-      return JSON.parse(await data.text());
+      if (error || !data) return false;
+      return applyCanon(JSON.parse(await data.text()));
     }
 
     // Source B: the canon_content table, if you ever seed it instead.
@@ -4467,36 +4467,26 @@ conversation, it is a conversation.`;
         .from("canon_content")
         .select("id, data")
         .in("id", ["characters", "scenarios"]);
-      if (error || !data || !data.length) return null;
+      if (error || !data || !data.length) return false;
       const obj = { characters: {}, scenarios: {} };
       data.forEach((row) => {
         if (row.id === "characters") obj.characters = row.data || {};
         if (row.id === "scenarios") obj.scenarios = row.data || {};
       });
-      return obj;
+      return applyCanon(obj);
     }
 
     async function loadCanon() {
       if (canonLoaded || !supabase || !sessionUser) return canonLoaded;
-      const uid = sessionUser.id;
-      const epoch = authEpoch;
       for (const src of [loadCanonFromStorage, loadCanonFromTable]) {
         try {
-          const obj = await src();
-          if (!obj) continue;
-          // Never apply a response fetched under a session that is no longer
-          // current. This prevents a slow old-account request from repopulating
-          // globals after sign-out or account switching.
-          if (!authIsCurrent(uid, epoch)) return false;
-          if (applyCanon(obj)) { canonLoaded = true; canonError = ""; return true; }
+          if (await src()) { canonLoaded = true; canonError = ""; return true; }
         } catch (e) {
           console.warn("canon source failed:", src.name, e && e.message);
         }
       }
-      if (authIsCurrent(uid, epoch)) {
-        canonError = "no-access";
-        console.warn("Canon unavailable: not seeded, or this account is not in canon_readers.");
-      }
+      canonError = "no-access";
+      console.warn("Canon unavailable: not seeded, or this account is not in canon_readers.");
       return false;
     }
 
@@ -4737,15 +4727,11 @@ conversation, it is a conversation.`;
         }
       });
     }
-    async function pullStudio(expectedUserId, expectedEpoch) {
+    async function pullStudio() {
       readStudioLocal();
       if (supabase && sessionUser) {
-        const uid = expectedUserId || sessionUser.id;
-        const epoch = expectedEpoch == null ? authEpoch : expectedEpoch;
-        if (!authIsCurrent(uid, epoch)) return;
         try {
-          const { data } = await supabase.from("studio_packs").select("pack").eq("user_id", uid).maybeSingle();
-          if (!authIsCurrent(uid, epoch)) return;
+          const { data } = await supabase.from("studio_packs").select("pack").eq("user_id", sessionUser.id).maybeSingle();
           if (data && data.pack && data.pack.characters) studioPack = data.pack;
           ensurePlayerPack();
           ensureSections();
@@ -6885,10 +6871,7 @@ conversation, it is a conversation.`;
       if (hint && hint.id && hint.email) sessionUser = { id: hint.id, email: hint.email };
     } catch {}
     function rememberAuth(user) {
-      const prevId = sessionUser && sessionUser.id ? sessionUser.id : "";
-      const nextId = user && user.id && user.email ? user.id : "";
-      if (prevId !== nextId) authEpoch += 1;
-      if (nextId) {
+      if (user && user.id && user.email) {
         sessionUser = user;
         try { localStorage.setItem("speckAuthHint", JSON.stringify({ id: user.id, email: user.email })); } catch {}
       } else {
@@ -6902,126 +6885,6 @@ conversation, it is a conversation.`;
     let logTurns = [];
     let busy = false;
     let composeReady = false;
-
-    // Runtime coordination. Auth, panel navigation, and cloud sync can all
-    // complete asynchronously; these guards keep an old operation from
-    // repainting or saving into a newer account/session.
-    let authEpoch = 0;
-    let authBooting = true;
-    let authBusy = false;
-    let viewTransitionSeq = 0;
-    let viewTransitionTimer = null;
-    let chatWriteTimer = null;
-    let pendingChatWrite = null;
-    let chatWriteInFlight = false;
-
-    function authIsCurrent(userId, epoch) {
-      return !!sessionUser && sessionUser.id === userId && authEpoch === epoch;
-    }
-
-    function emptyStudioPack() {
-      return { characters: {}, scenarios: {}, players: {}, activePlayerId: "", sections: [], faceSection: {}, pace: { default: "standard", byFace: {} } };
-    }
-
-    function hardClosePanel(el) {
-      if (!el) return;
-      el.classList.remove("show", "closing", "flip");
-    }
-
-    function hardCloseLibrary() {
-      clearTimeout(libCloseTimer);
-      libCloseTimer = null;
-      if (!els.library) return;
-      els.library.classList.remove("show", "closing", "flip");
-      if (els.stories) els.stories.classList.remove("on");
-      if (els.chats) els.chats.classList.remove("on");
-      const sheet = els.library.querySelector(".sheet");
-      if (sheet) { sheet.style.transform = ""; sheet.classList.remove("dragging"); }
-    }
-
-    function closeTransientPanels(except) {
-      if (except !== "library") hardCloseLibrary();
-      if (except !== "auth") hardClosePanel(els.auth);
-      if (except !== "settings") hardClosePanel(els.settings);
-      if (except !== "studio") hardClosePanel(document.getElementById("studio"));
-      if (except !== "ask") hardClosePanel(document.getElementById("askSheet"));
-    }
-
-    function clearAccountRuntime() {
-      // Do not touch per-account localStorage here. Only discard in-memory
-      // state and UI that belongs to the account that just ended.
-      if (persistTimer) { clearTimeout(persistTimer); persistTimer = null; }
-      if (chatWriteTimer) { clearTimeout(chatWriteTimer); chatWriteTimer = null; }
-      pendingChatWrite = null;
-      viewTransitionSeq += 1;
-      if (viewTransitionTimer) { clearTimeout(viewTransitionTimer); viewTransitionTimer = null; }
-      try { stopDigestMeter({ clear: true }); } catch {}
-      try { if (bowelTimer) { clearInterval(bowelTimer); bowelTimer = null; } } catch {}
-      try { if (gutSettleTick) { clearInterval(gutSettleTick); gutSettleTick = null; } } catch {}
-      unloadCanon();
-      dropCanonCache();
-      studioPack = emptyStudioPack();
-      try { applyStudioPack(); } catch {}
-      activeChatId = null;
-      history = [];
-      logTurns = [];
-      busy = false;
-      if (els.log) els.log.innerHTML = "";
-      try { hideFateOverlays(); } catch {}
-      hardCloseLibrary();
-      hardClosePanel(els.settings);
-      hardClosePanel(document.getElementById("studio"));
-      try {
-        game = Object.assign(freshGame("", ""), { characterId: "", scenarioId: "", shot: "look" });
-      } catch {}
-    }
-
-    function setAuthBusy(on) {
-      authBusy = !!on;
-      [els.authIn, els.authUp].forEach((btn) => {
-        if (btn) {
-          btn.disabled = authBusy;
-          btn.setAttribute("aria-busy", String(authBusy));
-        }
-      });
-    }
-
-    function queueChatPush(chat, immediate) {
-      if (!supabase || !sessionUser || !chat || !(chat.history && chat.history.length)) return;
-      pendingChatWrite = { snapshot: cloneState(chat), userId: sessionUser.id };
-      const run = () => {
-        chatWriteTimer = null;
-        if (chatWriteInFlight || !pendingChatWrite) return;
-        const item = pendingChatWrite;
-        pendingChatWrite = null;
-        chatWriteInFlight = true;
-        pushChat(item.snapshot, item.userId)
-          .catch((e) => console.warn("chat sync", e))
-          .finally(() => {
-            chatWriteInFlight = false;
-            if (pendingChatWrite && !chatWriteTimer) chatWriteTimer = setTimeout(run, 0);
-          });
-      };
-      if (immediate) {
-        if (chatWriteTimer) { clearTimeout(chatWriteTimer); chatWriteTimer = null; }
-        run();
-      } else {
-        if (chatWriteTimer) clearTimeout(chatWriteTimer);
-        chatWriteTimer = setTimeout(run, 550);
-      }
-    }
-
-    function commitActiveChat() {
-      if (!sessionUser || !activeChatId) return;
-      try {
-        persist({ quiet: true });
-        const lib = readLib();
-        const chat = lib.chats && lib.chats[activeChatId];
-        if (chat) queueChatPush(chat, false);
-      } catch (e) {
-        console.warn("commit active chat", e);
-      }
-    }
 
     const REMOVED_SCENARIOS = new Set(["lanes", "hoodie", "bedroom", "tongue"]);
     function isRemovedChat(c) {
@@ -7057,7 +6920,7 @@ conversation, it is a conversation.`;
       // If storage is full, drop the oldest chats (never the open one) rather than losing this save
       const ids = Object.values(lib.chats || {}).sort((a, b) => (a.at || 0) - (b.at || 0)).map((c) => c.id);
       let dropped = 0;
-      for (let i = 0; i < ids.length; i++) {
+      for (let i = 0; i <= ids.length; i++) {
         try {
           localStorage.setItem(libKey(), JSON.stringify(lib));
           if (dropped) console.warn("Storage was full; removed " + dropped + " oldest chat(s) from this device.");
@@ -7075,16 +6938,10 @@ conversation, it is a conversation.`;
     async function authUser() {
       if (!supabase) return sessionUser;
       try {
-        const prevId = sessionUser && sessionUser.id ? sessionUser.id : "";
         const { data } = await supabase.auth.getSession();
         const user = data && data.session && data.session.user;
-        if (user) {
-          if (prevId && prevId !== user.id) clearAccountRuntime();
-          rememberAuth(user);
-        } else if (navigator.onLine) {
-          rememberAuth(null);
-          if (prevId) clearAccountRuntime();
-        }
+        if (user) rememberAuth(user);
+        else if (navigator.onLine) rememberAuth(null);
         // Offline with no readable session: keep the hint. The real gate is the
         // access token on every request, so this only affects what the UI shows.
       } catch (e) {
@@ -7144,15 +7001,11 @@ conversation, it is a conversation.`;
       }
     }
 
-    async function uploadLocalChats(expectedUserId, expectedEpoch) {
-      const uid = expectedUserId || (sessionUser && sessionUser.id);
-      const epoch = expectedEpoch == null ? authEpoch : expectedEpoch;
-      if (!uid || !authIsCurrent(uid, epoch)) return;
+    async function uploadLocalChats() {
       const lib = readLib();
       const chats = Object.values(lib.chats || {});
       for (const chat of chats) {
-        if (!authIsCurrent(uid, epoch)) return;
-        if (chat.history && chat.history.length) await pushChat(chat, uid);
+        if (chat.history && chat.history.length) await pushChat(chat);
       }
     }
 
@@ -7166,41 +7019,40 @@ conversation, it is a conversation.`;
       } catch {}
     }
 
-    async function afterLogin(expectedUserId) {
+    async function afterLogin() {
       await authUser();
-      if (!sessionUser) return;
-      const uid = expectedUserId || sessionUser.id;
-      const epoch = authEpoch;
-      if (!authIsCurrent(uid, epoch)) return;
       adoptLegacyLib();
-      // Each of these is a network round-trip. A stale login task must never
-      // repaint or merge data after the account changes underneath it.
+      // Each of these is a network round-trip. Unguarded, a single rejection
+      // aborted the whole function and the UI repaint below never ran — the
+      // user stayed staring at the pre-login screen with no error shown. Sync
+      // is best-effort; the repaint is not.
       const step = async (label, fn) => {
-        if (!authIsCurrent(uid, epoch)) return;
-        try { await fn(uid, epoch); } catch (e) { console.warn("afterLogin:" + label, e); }
+        try { await fn(); } catch (e) { console.warn("afterLogin:" + label, e); }
       };
       await step("canon", loadCanon);
       await step("studio", pullStudio);
       await step("upload", uploadLocalChats);
       await step("chats", pullChats);
-      if (!authIsCurrent(uid, epoch)) return;
       setAuthUi();
       renderLibrary();
       paintHomeFaces();
-      // Close the sheet and repaint the deck with the signed-in copy and
-      // actions, rather than leaving the pre-login screen on screen.
-      try { closeAuth(); } catch {}
-      try { showHome(); } catch {}
-      if (sessionUser && !isOwner() && !characterList().length) openStudio("char");
+      if (sessionUser) {
+        // Close the sheet and repaint the deck with the signed-in copy and
+        // actions, rather than leaving the pre-login screen on screen.
+        try { closeAuth(); } catch {}
+        try { showHome(); } catch {}
+      }
+      if (sessionUser && !isOwner() && !characterList().length) {
+        openStudio("char");
+      }
     }
 
-    async function pushChat(chat, expectedUserId) {
-      const uid = expectedUserId || (sessionUser && sessionUser.id);
-      if (!supabase || !uid || !chat) return;
+    async function pushChat(chat) {
+      if (!supabase || !sessionUser || !chat) return;
       if (!(chat.history && chat.history.length)) return;
       const { error } = await supabase.from("chats").upsert({
         id: chat.id,
-        user_id: uid,
+        user_id: sessionUser.id,
         // Never substitute a real night here — a blank id resolves to the
         // empty scenario, while a wrong one would reopen someone else's story.
         scenario_id: chat.scenarioId || "",
@@ -7212,7 +7064,6 @@ conversation, it is a conversation.`;
       });
       if (error) { console.warn(error); return; }
       try {
-        if (!sessionUser || sessionUser.id !== uid) return;
         const lib = readLib();
         if (lib.chats && lib.chats[chat.id]) {
           lib.chats[chat.id].synced = true;
@@ -7221,18 +7072,14 @@ conversation, it is a conversation.`;
       } catch {}
     }
 
-    async function pullChats(expectedUserId, expectedEpoch) {
+    async function pullChats() {
       if (!supabase || !sessionUser) return;
-      const uid = expectedUserId || sessionUser.id;
-      const epoch = expectedEpoch == null ? authEpoch : expectedEpoch;
-      if (!authIsCurrent(uid, epoch)) return;
       const { data, error } = await supabase
         .from("chats")
         .select("*")
-        .eq("user_id", uid)
+        .eq("user_id", sessionUser.id)
         .order("updated_at", { ascending: false });
       if (error) { console.warn(error); return; }
-      if (!authIsCurrent(uid, epoch)) return;
       const lib = readLib();
       // Reconcile deletions: anything previously synced but no longer on the
       // server was deleted on another device, so drop it locally too.
@@ -7241,7 +7088,6 @@ conversation, it is a conversation.`;
         if (lib.chats[id] && lib.chats[id].synced && !remoteIds.has(id)) delete lib.chats[id];
       });
       (data || []).forEach((row) => {
-        if (!authIsCurrent(uid, epoch)) return;
         if (REMOVED_SCENARIOS.has(row.scenario_id) || (row.game && row.game.characterId === "dawn")) return;
         // Blanks an older build already pushed would sync straight back after
         // every local sweep. Remove them at the source instead.
@@ -7382,7 +7228,7 @@ conversation, it is a conversation.`;
         at: Date.now(),
       };
       writeLib(lib);
-      if (!opts.quiet) queueChatPush(lib.chats[activeChatId], false);
+      if (!opts.quiet) pushChat(lib.chats[activeChatId]);
     }
 
     function persistSoon() {
@@ -7462,7 +7308,6 @@ conversation, it is a conversation.`;
 
     function startOpenChat(faceId) {
       if (deckIsEmpty()) { showHome(); return; }
-      commitActiveChat();
       const vis = characterList().filter((c) => c.ready);
       const face = vis.some((c) => c.id === faceId) ? faceId : lastFaceId();
       if (!face) {
@@ -7558,8 +7403,6 @@ conversation, it is a conversation.`;
     }
 
     function openLibrary(mode) {
-      closeTransientPanels("library");
-      pauseGutTimer();
       if (els.library) els.library.classList.remove("closing");
       clearTimeout(libCloseTimer);
       // Always open on All rather than inheriting the last session's filter.
@@ -7580,19 +7423,11 @@ conversation, it is a conversation.`;
     }
 
     function swapView(fn) {
-      commitActiveChat();
-      const token = ++viewTransitionSeq;
-      if (viewTransitionTimer) clearTimeout(viewTransitionTimer);
       document.body.classList.add("swap");
       closeLibrary();
-      viewTransitionTimer = setTimeout(() => {
-        viewTransitionTimer = null;
-        if (token !== viewTransitionSeq) return;
-        try { fn(); } finally {
-          requestAnimationFrame(() => {
-            if (token === viewTransitionSeq) document.body.classList.remove("swap");
-          });
-        }
+      setTimeout(() => {
+        fn();
+        requestAnimationFrame(() => document.body.classList.remove("swap"));
       }, 220);
     }
 
@@ -7733,7 +7568,6 @@ conversation, it is a conversation.`;
 
     // Which character's nights the Stories sheet is showing (does not start a chat)
     let libFace = null;
-    let libFaceChangeSeq = 0;
     let libNightTabs = new Set(["all"]);
     libNightTabs.delete("conor");
     let libNightTags = new Set();
@@ -7742,10 +7576,8 @@ conversation, it is a conversation.`;
       if (!CHARACTERS[id]) return;
       applyTheme(id);
       if (id === libFace) return;
-      const token = ++libFaceChangeSeq;
       els.library.classList.add("flip");
       setTimeout(() => {
-        if (token !== libFaceChangeSeq || !els.library.classList.contains("show")) return;
         libFace = id;
         const pack = CHARACTERS[id];
         if (libNightTabs.has("begin") && libNightTabs.size === 1 && !(pack.scenarios && pack.scenarios.length)) {
@@ -9665,20 +9497,8 @@ Never copy SPEECH: or ACTION: into your reply. Reply only with MOMENT, SAY, SHOT
       try {
         supabase.auth.onAuthStateChange((evt, sess) => {
           const user = sess && sess.user;
-          const prevId = sessionUser && sessionUser.id ? sessionUser.id : "";
-          const nextId = user && user.id ? user.id : "";
-          if (prevId && nextId && prevId !== nextId) {
-            clearAccountRuntime();
-          }
-          if (user && user.email) {
-            rememberAuth(user);
-          } else if (evt === "SIGNED_OUT" || !user) {
-            rememberAuth(null);
-            clearAccountRuntime();
-          }
-          // During boot/login, the caller owns the final repaint. Rendering
-          // here caused sheets to open/close twice and could race scene restore.
-          if (authBooting || authBusy) return;
+          if (user) rememberAuth(user);
+          else if (evt === "SIGNED_OUT") { rememberAuth(null); unloadCanon(); dropCanonCache(); }
           setAuthUi();
           try { renderLibrary(); paintHomeFaces(); } catch {}
         });
@@ -9771,28 +9591,22 @@ Never copy SPEECH: or ACTION: into your reply. Reply only with MOMENT, SAY, SHOT
             watchAuth();
             await authUser();
             if (sessionUser) {
-              const uid = sessionUser.id;
-              const epoch = authEpoch;
               if (typeof adoptLegacyLib === "function") adoptLegacyLib();
               if (cached) {
                 // Already painted from the snapshot — refresh it quietly.
                 loadCanon()
-                  .then(() => {
-                    if (!authIsCurrent(uid, epoch)) return;
-                    saveCanonCache();
-                    try { renderLibrary(); paintHomeFaces(); } catch {}
-                  })
+                  .then(() => { saveCanonCache(); try { renderLibrary(); paintHomeFaces(); } catch {} })
                   .catch((e) => console.warn("canon refresh", e));
               } else {
                 await loadCanon();
-                if (authIsCurrent(uid, epoch)) saveCanonCache();
+                saveCanonCache();
               }
-              await pullStudio(uid, epoch);
+              await pullStudio();
               // Chat sync is background work; the local library is already live.
               Promise.resolve()
-                .then(() => uploadLocalChats(uid, epoch))
-                .then(() => pullChats(uid, epoch))
-                .then(() => { if (authIsCurrent(uid, epoch)) { try { renderLibrary(); } catch {} } })
+                .then(uploadLocalChats)
+                .then(pullChats)
+                .then(() => { try { renderLibrary(); } catch {} })
                 .catch((e) => console.warn("chat sync", e));
             } else {
               dropCanonCache();
@@ -9801,7 +9615,6 @@ Never copy SPEECH: or ACTION: into your reply. Reply only with MOMENT, SAY, SHOT
         } catch (e) { console.warn("boot auth", e); }
       }
       bootSettled = true;
-      authBooting = false;
       setAuthUi();
       // REGRESSION FIX: this used to `return` here, which was fine when
       // landingNeeded() meant "this account is empty". Now that the deck is
@@ -9842,10 +9655,7 @@ Never copy SPEECH: or ACTION: into your reply. Reply only with MOMENT, SAY, SHOT
       setTimeout(hideSplash, shouldSplash(false) ? 700 : 0);
       } catch (err) {
         console.error("boot", err);
-        authBooting = false;
         try { hideSplash(); } catch {}
-        try { setAuthUi(); } catch {}
-        try { showHome(); } catch {}
         try { setLive("Live", "ready"); setBusy(false); } catch {}
       }
     }
@@ -9974,12 +9784,10 @@ Never copy SPEECH: or ACTION: into your reply. Reply only with MOMENT, SAY, SHOT
     setCompose(composeMode);
     setBusy(busy);
     els.reset.addEventListener("click", () => {
-      closeSettings();
+      els.settings.classList.remove("show");
       setTimeout(resetNight, 50);
     });
     function openAuth() {
-      closeTransientPanels("auth");
-      pauseGutTimer();
       els.authErr.textContent = "";
       authView = sessionUser ? "signed" : (cloudReady ? "welcome" : "setup");
       setAuthUi();
@@ -10073,65 +9881,55 @@ Never copy SPEECH: or ACTION: into your reply. Reply only with MOMENT, SAY, SHOT
     els.authPass.addEventListener("keydown", (e) => { if (e.key === "Enter") els.authIn.click(); });
     els.signPass2.addEventListener("keydown", (e) => { if (e.key === "Enter") els.authUp.click(); });
     els.authIn.addEventListener("click", async () => {
-      if (authBusy) return;
       els.authErr.textContent = "";
-      setAuthBusy(true);
-      try {
-        await loadSupabase();
-        if (!supabase) { els.authErr.textContent = cloudReady ? "Couldn't load cloud sync. Check your connection." : "Connect the project first."; return; }
-        const { data, error } = await supabase.auth.signInWithPassword({
-          email: els.authEmail.value.trim(),
-          password: els.authPass.value,
-        });
-        if (error) { els.authErr.textContent = error.message; return; }
-        if (data && data.user) rememberAuth(data.user);
-        await afterLogin(data && data.user ? data.user.id : "");
-      } finally {
-        setAuthBusy(false);
-      }
+      await loadSupabase();
+      if (!supabase) { els.authErr.textContent = cloudReady ? "Couldn't load cloud sync. Check your connection." : "Connect the project first."; return; }
+      const { error } = await supabase.auth.signInWithPassword({
+        email: els.authEmail.value.trim(),
+        password: els.authPass.value,
+      });
+      if (error) { els.authErr.textContent = error.message; return; }
+      await afterLogin();
     });
     els.authUp.addEventListener("click", async () => {
-      if (authBusy) return;
       els.authErr.textContent = "";
-      setAuthBusy(true);
-      try {
-        await loadSupabase();
-        if (!supabase) { els.authErr.textContent = cloudReady ? "Couldn't load cloud sync. Check your connection." : "Connect the project first."; return; }
-        if (els.signPass.value.length < 6) { els.authErr.textContent = "Password needs at least 6 characters."; return; }
-        if (els.signPass.value !== els.signPass2.value) { els.authErr.textContent = "Passwords do not match."; return; }
-        const { data, error } = await supabase.auth.signUp({
-          email: els.signEmail.value.trim(),
-          password: els.signPass.value,
-          // Without this Supabase falls back to the project's Site URL, which is
-          // why a confirm link landed on a 404 even though the account was fine.
-          // detectSessionInUrl + pkce picks the code up when it returns here.
-          options: { emailRedirectTo: location.origin + location.pathname },
-        });
-        if (error) { els.authErr.textContent = error.message; return; }
-        if (data && data.user) rememberAuth(data.user);
-        await afterLogin(data && data.user ? data.user.id : "");
-        if (!sessionUser) els.authErr.textContent = "Account created. If Confirm email is on, check your inbox, then log in.";
-      } finally {
-        setAuthBusy(false);
-      }
+      await loadSupabase();
+      if (!supabase) { els.authErr.textContent = cloudReady ? "Couldn't load cloud sync. Check your connection." : "Connect the project first."; return; }
+      if (els.signPass.value.length < 6) { els.authErr.textContent = "Password needs at least 6 characters."; return; }
+      if (els.signPass.value !== els.signPass2.value) { els.authErr.textContent = "Passwords do not match."; return; }
+      const { error } = await supabase.auth.signUp({
+        email: els.signEmail.value.trim(),
+        password: els.signPass.value,
+        // Without this Supabase falls back to the project's Site URL, which is
+        // why a confirm link landed on a 404 even though the account was fine.
+        // detectSessionInUrl + pkce picks the code up when it returns here.
+        options: { emailRedirectTo: location.origin + location.pathname },
+      });
+      if (error) { els.authErr.textContent = error.message; return; }
+      await afterLogin();
+      if (!sessionUser) els.authErr.textContent = "Account created. If Confirm email is on, check your inbox, then log in.";
     });
     document.getElementById("authOut").addEventListener("click", async () => {
-      setAuthBusy(true);
+      try { if (supabase) await supabase.auth.signOut(); } catch {}
+      if (typeof rememberAuth === "function") rememberAuth(null);
+      else sessionUser = null;
+      try { localStorage.removeItem("speckAuthHint"); localStorage.removeItem("speckLastFace"); } catch {}
+      unloadCanon();
+      dropCanonCache();
+      studioPack = { characters: {}, scenarios: {}, players: {}, activePlayerId: "", sections: [], faceSection: {}, pace: { default: "standard", byFace: {} } };
+      applyStudioPack();
+      activeChatId = null;
+      history = [];
+      logTurns = [];
+      if (els.log) els.log.innerHTML = "";
       try {
-        if (supabase) await supabase.auth.signOut();
-      } catch (e) {
-        console.warn("sign out", e);
-      } finally {
-        rememberAuth(null);
-        clearAccountRuntime();
-        try { localStorage.removeItem("speckAuthHint"); localStorage.removeItem("speckLastFace"); } catch {}
-        authView = "welcome";
-        try { closeAuth(); } catch {}
-        setAuthUi();
-        try { renderLibrary(); } catch {}
-        try { showHome(); } catch (e) { console.warn(e); }
-        setAuthBusy(false);
-      }
+        game = Object.assign(freshGame("", ""), { characterId: "", scenarioId: "", shot: "look" });
+      } catch {}
+      authView = "welcome";
+      try { closeAuth(); } catch {}
+      setAuthUi();
+      renderLibrary();
+      try { showHome(); } catch (e) { console.warn(e); }
     });
 
     function paintStillMap() {
@@ -10396,8 +10194,6 @@ Never copy SPEECH: or ACTION: into your reply. Reply only with MOMENT, SAY, SHOT
         openAuth();
         return;
       }
-      closeTransientPanels("studio");
-      pauseGutTimer();
       studioMode = mode || "char";
       studioEditId = id || "";
       const sheet = document.getElementById("studio");
@@ -10667,8 +10463,6 @@ Never copy SPEECH: or ACTION: into your reply. Reply only with MOMENT, SAY, SHOT
     }
 
     function openSettings() {
-      closeTransientPanels("settings");
-      pauseGutTimer();
       const sel = document.getElementById("paceDefault");
       if (sel) {
         fillPaceSelect(sel);
@@ -10676,10 +10470,6 @@ Never copy SPEECH: or ACTION: into your reply. Reply only with MOMENT, SAY, SHOT
       }
       els.setMsg.textContent = sessionUser ? ("Signed in as " + sessionUser.email) : "Log in to change password.";
       els.settings.classList.add("show");
-    }
-    function closeSettings() {
-      els.settings.classList.remove("show");
-      resumeTickers();
     }
     els.gear.addEventListener("click", openSettings);
     const paceDefault = document.getElementById("paceDefault");
@@ -10689,8 +10479,8 @@ Never copy SPEECH: or ACTION: into your reply. Reply only with MOMENT, SAY, SHOT
       await pushStudio();
       pushToast("Pacing set to " + PACE_PRESETS[pp.default].label + ". Takes effect on the next night.", "ok");
     });
-    els.setClose.addEventListener("click", closeSettings);
-    els.settings.addEventListener("click", (e) => { if (e.target === els.settings) closeSettings(); });
+    els.setClose.addEventListener("click", () => els.settings.classList.remove("show"));
+    els.settings.addEventListener("click", (e) => { if (e.target === els.settings) els.settings.classList.remove("show"); });
     els.savePass.addEventListener("click", async () => {
       els.setMsg.textContent = "";
       if (!supabase || !sessionUser) { els.setMsg.textContent = "Log in first."; return; }
@@ -10753,18 +10543,10 @@ Never copy SPEECH: or ACTION: into your reply. Reply only with MOMENT, SAY, SHOT
     if (homeFilter) homeFilter.addEventListener("input", paintHomeFaces);
     document.addEventListener("keydown", (e) => {
       if (e.key !== "Escape") return;
-      const ask = document.getElementById("askSheet");
-      if (ask && ask.classList.contains("show")) {
-        const no = document.getElementById("askNo");
-        if (no) no.click();
-        return;
-      }
-      if (els.settings.classList.contains("show")) { closeSettings(); return; }
-      if (els.library.classList.contains("show")) { closeLibrary(); return; }
-      if (els.auth.classList.contains("show")) { closeAuth(); return; }
-      const studio = document.getElementById("studio");
-      if (studio && studio.classList.contains("show")) { closeStudio(); return; }
-      if (els.home.classList.contains("show")) leaveHome();
+      if (els.settings.classList.contains("show")) els.settings.classList.remove("show");
+      else if (els.library.classList.contains("show")) closeLibrary();
+      else if (els.auth.classList.contains("show")) closeAuth();
+      else if (els.home.classList.contains("show")) leaveHome();
     });
     els.homeStories.addEventListener("click", () => {
       hideHome();
@@ -10821,6 +10603,9 @@ Never copy SPEECH: or ACTION: into your reply. Reply only with MOMENT, SAY, SHOT
       }, { passive: true });
       sheet.addEventListener("touchend", () => { sheet._ty = 0; pull = 0; }, { passive: true });
     })();
+    document.addEventListener("keydown", (e) => {
+      if (e.key === "Escape") closeLibrary();
+    });
     els.gulpOk.addEventListener("click", () => hideFateOverlays());
     if (els.gulp) els.gulp.addEventListener("click", (e) => { if (e.target === els.gulp) hideFateOverlays(); });
     document.getElementById("continueNight").addEventListener("click", continueNight);
@@ -10990,12 +10775,7 @@ Never copy SPEECH: or ACTION: into your reply. Reply only with MOMENT, SAY, SHOT
       paintVitals();
     });
     window.addEventListener("beforeunload", () => {
-      try {
-        persist({ force: true, quiet: true });
-        const lib = readLib();
-        const chat = activeChatId && lib.chats && lib.chats[activeChatId];
-        if (chat) queueChatPush(chat, true);
-      } catch {}
+      try { persist({ force: true, quiet: true }); } catch {}
     });
     window.addEventListener("focus", () => syncGutTimer());
     window.addEventListener("blur", () => pauseGutTimer());
