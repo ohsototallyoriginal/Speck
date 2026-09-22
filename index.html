@@ -488,7 +488,9 @@
     }
     #world .gut::after {
       content: "";
-      position: absolute; left: 0; right: 0; bottom: 0;
+      /* Overhang the edges: blur(8px) fades the box's own edges and the acid
+         keyframe lifts it 6px, which left a dim seam along the very bottom. */
+      position: absolute; left: -24px; right: -24px; bottom: -24px;
       height: calc(28% + var(--gut-danger) * 28%);
       background: linear-gradient(180deg, transparent, rgba(70,200,60,.18) 40%, rgba(180,90,20, calc(.22 + var(--gut-danger) * .35)));
       filter: blur(8px);
@@ -1364,8 +1366,11 @@
       opacity: .55;
     }
     @keyframes deckSpin { to { transform: rotate(360deg); } }
+    /* fixed, not absolute: #home is itself the scroll box, so an absolute
+       layer only covered the first screen and the particles/aura stopped
+       dead partway down once the deck was scrolled on a short phone. */
     #home .home-orbit {
-      position: absolute; inset: 0; pointer-events: none; overflow: hidden;
+      position: fixed; inset: 0; pointer-events: none; overflow: hidden;
     }
     #home .home-orbit i {
       position: absolute; border-radius: 50%;
@@ -2906,7 +2911,8 @@
       mix-blend-mode: overlay;
     }
     #digestFx .fx-foam {
-      position: absolute; left: 0; right: 0; bottom: 0; height: 28%;
+      /* bottom overhang: digFoam lifts the layer 4%, which bared the edge. */
+      position: absolute; left: 0; right: 0; bottom: -6%; height: 28%;
       background:
         radial-gradient(circle at 20% 80%, rgba(220,255,160,.28) 0 8%, transparent 18%),
         radial-gradient(circle at 55% 70%, rgba(180,255,120,.2) 0 10%, transparent 22%),
@@ -4006,6 +4012,12 @@
     html.palette-custom .card,
     html.palette-custom .iconbtn {
       background-color: var(--panel2);
+    }
+    /* The tinted #sceneBar fill is the phone's scene card. On desktop the bar
+       is the whole left column, so the fill became a flat full-height slab
+       with a hard bottom edge that hid the animated background behind it. */
+    @media (min-width: 900px) {
+      html.palette-custom #sceneBar { background-color: transparent; }
     }
     html.palette-custom .you {
       background: var(--you);
