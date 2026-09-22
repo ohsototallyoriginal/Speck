@@ -4026,6 +4026,263 @@
       background: linear-gradient(180deg, var(--linebg), var(--dawn));
     }
 
+
+    /* ===============================================================
+       LIBRARY: Stories <-> Chats switch
+       =============================================================== */
+    /* Sliding pill behind the active tab, instead of the fill jumping. */
+    #library .lib-switch { position: relative; isolation: isolate; }
+    #library .lib-switch::before {
+      content: "";
+      position: absolute; z-index: -1;
+      top: 4px; bottom: 4px; left: 4px;
+      width: calc(50% - 6px);
+      border-radius: 999px;
+      background: var(--neon);
+      box-shadow: 0 4px 14px -6px color-mix(in srgb, var(--neon) 80%, transparent);
+      transition: transform .34s cubic-bezier(.2, .8, .2, 1);
+    }
+    #library .lib-switch.is-chats::before { transform: translateX(calc(100% + 4px)); }
+    #library .lib-switch button,
+    #library .lib-switch button.on { background: transparent !important; }
+    #library .lib-switch button { transition: color .24s ease, transform .13s ease; }
+
+    /* Height tween on the centred desktop card (JS sets the px values). */
+    #library .sheet.lib-sizing {
+      overflow: hidden;
+      transition: height .36s cubic-bezier(.2, .8, .2, 1), transform .32s cubic-bezier(.2,.9,.2,1), opacity .28s ease;
+    }
+
+    /* Incoming pane slides in from the side of the tab you picked. */
+    #library .lib-pane-in { animation: libPaneIn .36s cubic-bezier(.2, .8, .2, 1) both; }
+    #library .lib-pane-in.from-left { --pane-from: -18px; }
+    #library .lib-pane-in.from-right { --pane-from: 18px; }
+    @keyframes libPaneIn {
+      from { opacity: 0; transform: translate3d(var(--pane-from, 18px), 0, 0); }
+      to   { opacity: 1; transform: none; }
+    }
+    /* Rows follow the pane with a short stagger (capped at 10 rows). */
+    #library #libChatsPane.lib-pane-in .chatrow {
+      animation: chatRowIn .42s cubic-bezier(.2, .8, .2, 1) both;
+      animation-delay: calc(var(--i, 0) * 28ms + 40ms);
+    }
+    @keyframes chatRowIn {
+      from { opacity: 0; transform: translate3d(0, 8px, 0); }
+      to   { opacity: 1; transform: none; }
+    }
+    @media (prefers-reduced-motion: reduce) {
+      #library .lib-switch::before { transition: none; }
+      #library .lib-pane-in,
+      #library #libChatsPane.lib-pane-in .chatrow { animation: none; }
+    }
+
+    /* ===============================================================
+       LIBRARY: Chats list
+       =============================================================== */
+    #libChatsPane #chatSearch {
+      padding-left: 40px;
+      margin-bottom: 14px;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23a996b0' stroke-width='2' stroke-linecap='round'%3E%3Ccircle cx='11' cy='11' r='7'/%3E%3Cpath d='M20 20l-3.5-3.5'/%3E%3C/svg%3E");
+      background-repeat: no-repeat;
+      background-position: 14px 50%;
+      background-size: 16px 16px;
+      transition: border-color .18s ease, box-shadow .18s ease;
+    }
+    #libChatsPane #chatSearch:focus {
+      outline: none;
+      border-color: var(--neon);
+      box-shadow: 0 0 0 3px color-mix(in srgb, var(--neon) 18%, transparent);
+    }
+
+    /* Section header: label, a hairline, and a count chip. */
+    #chatList h3.chat-sec {
+      display: flex; align-items: center; gap: 10px;
+      margin: 18px 2px 10px;
+      color: var(--muted);
+    }
+    #chatList h3.chat-sec:first-child { margin-top: 2px; }
+    #chatList h3.chat-sec::after {
+      content: ""; order: 1; flex: 1; height: 1px;
+      background: color-mix(in srgb, var(--hair) 60%, transparent);
+    }
+    #chatList h3.chat-sec em {
+      order: 2;
+      font-style: normal; letter-spacing: .04em;
+      min-width: 22px; padding: 2px 7px; border-radius: 999px; text-align: center;
+      background: color-mix(in srgb, var(--panel) 70%, transparent);
+      border: 1px solid color-mix(in srgb, var(--hair) 70%, transparent);
+      color: var(--ink);
+    }
+
+    /* Row: card + a slim action rail. */
+    #chatList .chatrow {
+      --face: var(--neon);
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) auto;
+      gap: 6px;
+      align-items: stretch;
+      margin: 0 0 10px;
+    }
+    #chatList .chatrow .card.chat-open {
+      position: relative;
+      display: grid;
+      grid-template-columns: 52px minmax(0, 1fr);
+      gap: 12px;
+      align-items: start;
+      margin: 0;
+      min-height: 0;
+      padding: 12px 14px 12px 12px;
+      border-radius: 18px;
+      border: 1px solid color-mix(in srgb, var(--hair) 75%, transparent);
+      background:
+        linear-gradient(135deg, color-mix(in srgb, var(--face) 7%, transparent), transparent 55%),
+        color-mix(in srgb, var(--panel2) 88%, #000);
+      overflow: hidden;
+    }
+    @media (hover: hover) {
+      #chatList .chatrow .card.chat-open:hover:not(:disabled) {
+        transform: translateY(-1px);
+        border-color: color-mix(in srgb, var(--face) 70%, var(--hair));
+        box-shadow: 0 10px 24px -12px rgba(0,0,0,.6), 0 0 0 1px color-mix(in srgb, var(--face) 18%, transparent);
+      }
+    }
+    #chatList .chatrow .card.chat-open:active { transform: scale(.992); }
+    #chatList .chatrow.is-active .card.chat-open {
+      border-color: color-mix(in srgb, var(--face) 80%, transparent);
+      background:
+        linear-gradient(135deg, color-mix(in srgb, var(--face) 16%, transparent), transparent 60%),
+        color-mix(in srgb, var(--panel2) 88%, #000);
+    }
+    /* Accent strip down the left edge of the open chat. */
+    #chatList .chatrow.is-active .card.chat-open::before {
+      content: ""; position: absolute; left: 0; top: 12px; bottom: 12px;
+      width: 3px; border-radius: 0 3px 3px 0; background: var(--face);
+    }
+
+    /* Avatar: character still, monogram underneath as the fallback. */
+    #chatList .chat-ava {
+      position: relative;
+      width: 52px; height: 52px;
+      border-radius: 16px;
+      overflow: hidden;
+      display: grid; place-items: center;
+      background:
+        radial-gradient(120% 90% at 30% 20%, color-mix(in srgb, var(--face) 45%, transparent), transparent 70%),
+        color-mix(in srgb, var(--panel) 80%, #000);
+      box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--face) 40%, transparent);
+    }
+    #chatList .chat-ava img {
+      position: absolute; inset: 0;
+      width: 100%; height: 100%;
+      object-fit: cover; object-position: center 25%;
+    }
+    #chatList .chat-ava .chat-mono {
+      font-size: 1.25rem; font-weight: 800; line-height: 1;
+      color: var(--ink);
+      text-shadow: 0 1px 8px rgba(0,0,0,.4);
+    }
+    #chatList .chatrow.is-gone .chat-ava img { filter: grayscale(.8) brightness(.7); }
+
+    #chatList .chat-main { display: flex; flex-direction: column; gap: 3px; min-width: 0; }
+    #chatList .chat-main > span { color: inherit; font-size: inherit; line-height: inherit; }
+    #chatList .chat-top {
+      display: flex; align-items: baseline; justify-content: space-between; gap: 8px;
+      min-width: 0;
+    }
+    #chatList .chat-top .who {
+      display: block; margin: 0;
+      font-style: normal;
+      font-size: .64rem; font-weight: 800;
+      letter-spacing: .1em; text-transform: uppercase;
+      color: var(--face);
+      overflow: hidden; white-space: nowrap; text-overflow: ellipsis;
+    }
+    #chatList .chat-top time {
+      flex: 0 0 auto;
+      font-size: .7rem;
+      color: var(--muted);
+      font-variant-numeric: tabular-nums;
+    }
+    #chatList .card b.chat-title {
+      margin: 0;
+      font-size: 1rem; font-weight: 700; line-height: 1.25;
+      color: var(--ink);
+      overflow: hidden; white-space: nowrap; text-overflow: ellipsis;
+    }
+    #chatList .card span.chat-preview {
+      display: -webkit-box;
+      -webkit-line-clamp: 2; -webkit-box-orient: vertical;
+      overflow: hidden;
+      font-size: .82rem; line-height: 1.4;
+      color: color-mix(in srgb, var(--ink) 62%, transparent);
+    }
+    #chatList .card span.chat-preview.is-empty { font-style: italic; color: var(--muted); }
+    #chatList .chat-meta {
+      display: flex; flex-wrap: wrap; align-items: center; gap: 6px;
+      margin-top: 5px;
+    }
+    #chatList .chat-meta em,
+    #chatList .card .chat-meta .chat-beats {
+      font-style: normal;
+      font-size: .6rem; font-weight: 800;
+      letter-spacing: .08em; text-transform: uppercase;
+      line-height: 1;
+      padding: 4px 7px;
+      border-radius: 999px;
+      border: 1px solid color-mix(in srgb, var(--hair) 80%, transparent);
+      color: var(--muted);
+    }
+    #chatList .card .chat-meta .chat-beats { border-color: transparent; padding-left: 2px; padding-right: 2px; }
+    /* Stage pill uses the meter's own step colours. */
+    #chatList .chat-stage[data-step="palm"]   { color: #f0c8a8; border-color: color-mix(in srgb, #e6b894 45%, transparent); }
+    #chatList .chat-stage[data-step="tongue"] { color: #ff8fa2; border-color: color-mix(in srgb, #ff6f86 50%, transparent); }
+    #chatList .chat-stage[data-step="gulp"]   { color: #ff7489; border-color: color-mix(in srgb, #ff4a64 55%, transparent); }
+    #chatList .chat-stage[data-step="gut"]    { color: #c8f06a; border-color: color-mix(in srgb, #b8f03a 50%, transparent); }
+    #chatList .chat-stage[data-step="gone"]   { color: var(--muted); border-style: dashed; }
+    #chatList .chat-meta .chat-now {
+      color: var(--on-accent, #140814);
+      background: var(--face);
+      border-color: transparent;
+    }
+
+    /* Action rail: two stacked ghost buttons. Always visible on touch; on a
+       mouse they fade up with the row so the list reads calmer. */
+    #chatList .chat-acts {
+      display: flex; flex-direction: column; gap: 6px;
+    }
+    #chatList .chat-acts .iconbtn.chat-act {
+      flex: 1 1 0;
+      width: 40px; min-height: 36px;
+      display: grid; place-items: center;
+      padding: 0;
+      border-radius: 12px;
+      background: color-mix(in srgb, var(--panel2) 80%, transparent);
+      border: 1px solid color-mix(in srgb, var(--hair) 55%, transparent);
+      color: var(--muted);
+    }
+    #chatList .chat-acts .iconbtn.chat-act.danger { color: #ff9aa6; border-color: color-mix(in srgb, #7a3044 80%, transparent); }
+    @media (hover: hover) {
+      #chatList .chat-acts .iconbtn.chat-act { opacity: .45; transition: opacity .18s ease, transform .18s ease, border-color .18s ease, background .18s ease, color .18s ease; }
+      #chatList .chatrow:hover .chat-acts .iconbtn.chat-act,
+      #chatList .chat-acts .iconbtn.chat-act:focus-visible { opacity: 1; }
+      #chatList .chat-acts .iconbtn.chat-act:hover { color: var(--ink); border-color: var(--face); transform: none; }
+      #chatList .chat-acts .iconbtn.chat-act.danger:hover { color: #ffd0d6; border-color: #ff9aa6; background: #3a1824; }
+    }
+
+    /* Empty state gets a little more presence in the chats pane. */
+    #chatList .lib-empty {
+      margin-top: 8px;
+      padding: 36px 16px;
+      border: 1px dashed color-mix(in srgb, var(--hair) 80%, transparent);
+      border-radius: 18px;
+      background: color-mix(in srgb, var(--panel2) 60%, transparent);
+    }
+
+    @media (max-width: 380px) {
+      #chatList .chatrow .card.chat-open { grid-template-columns: 44px minmax(0, 1fr); gap: 10px; }
+      #chatList .chat-ava { width: 44px; height: 44px; border-radius: 14px; }
+      #chatList .chat-acts .iconbtn.chat-act { width: 36px; }
+    }
   </style>
 </head>
 <body>
@@ -7969,6 +8226,53 @@ conversation, it is a conversation.`;
       }, 340);
     }
 
+    let libModeNow = "stories";
+    let libSizeTimer = 0;
+
+    // Animated Stories <-> Chats switch. The desktop sheet is height:auto, so
+    // swapping panes used to snap the whole card to a new size in one frame.
+    // Now: measure, swap, measure again, and tween the height between the two
+    // while the incoming pane slides in from the side of its tab. On phones the
+    // sheet is a fixed full-height drawer, so only the slide runs there.
+    function switchLibraryMode(mode) {
+      const to = mode === "chats" ? "chats" : "stories";
+      const lib = els.library;
+      const sheet = lib && lib.querySelector(".sheet");
+      let reduce = false;
+      try { reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches; } catch {}
+      const animate = !!(sheet && lib.classList.contains("show") && !lib.classList.contains("closing") && !reduce && to !== libModeNow);
+      // offsetHeight mid-tween is the on-screen height, so a quick double tap
+      // continues from where the card is instead of jumping.
+      const h0 = animate ? sheet.offsetHeight : 0;
+      if (sheet) {
+        clearTimeout(libSizeTimer);
+        sheet.classList.remove("lib-sizing");
+        sheet.style.height = "";
+      }
+      setLibraryMode(to);
+      renderLibrary();
+      if (!animate) return;
+      sheet.scrollTop = 0;
+      const pane = document.getElementById(to === "chats" ? "libChatsPane" : "libStoriesPane");
+      if (pane) {
+        pane.classList.remove("lib-pane-in", "from-left", "from-right");
+        void pane.offsetWidth;
+        pane.classList.add("lib-pane-in", to === "chats" ? "from-right" : "from-left");
+        clearTimeout(pane._paneTimer);
+        pane._paneTimer = setTimeout(() => pane.classList.remove("lib-pane-in", "from-left", "from-right"), 520);
+      }
+      const h1 = sheet.offsetHeight;
+      if (Math.abs(h1 - h0) < 2) return;
+      sheet.style.height = h0 + "px";
+      void sheet.offsetHeight;
+      sheet.classList.add("lib-sizing");
+      sheet.style.height = h1 + "px";
+      libSizeTimer = setTimeout(() => {
+        sheet.classList.remove("lib-sizing");
+        sheet.style.height = "";
+      }, 420);
+    }
+
     function setLibraryMode(mode) {
       const storiesPane = document.getElementById("libStoriesPane");
       const chatsPane = document.getElementById("libChatsPane");
@@ -7977,6 +8281,9 @@ conversation, it is a conversation.`;
       const tabS = document.getElementById("libTabStories");
       const tabC = document.getElementById("libTabChats");
       const isChats = mode === "chats";
+      libModeNow = isChats ? "chats" : "stories";
+      const sw = document.querySelector("#library .lib-switch");
+      if (sw) sw.classList.toggle("is-chats", isChats);
       if (storiesPane) storiesPane.hidden = isChats;
       if (chatsPane) chatsPane.hidden = !isChats;
       if (title) title.textContent = isChats ? "Chats" : "Stories";
@@ -8004,9 +8311,16 @@ conversation, it is a conversation.`;
         libNightTabs = new Set(["gut"]);
       }
       hideFateOverlays();
+      const wasOpen = els.library.classList.contains("show");
       els.library.classList.add("show");
-      setLibraryMode(mode === "chats" ? "chats" : "stories");
-      renderLibrary();
+      if (wasOpen) {
+        // Header Chats/Stories while the sheet is already up: same animated
+        // switch as the in-sheet tabs, not a hard swap.
+        switchLibraryMode(mode === "chats" ? "chats" : "stories");
+      } else {
+        setLibraryMode(mode === "chats" ? "chats" : "stories");
+        renderLibrary();
+      }
       const sh = els.library.querySelector(".sheet");
       if (sh) sh.scrollTop = 0;
       pauseGutTimer();
@@ -8240,6 +8554,140 @@ conversation, it is a conversation.`;
       return b;
     }
 
+    // ----- Chats list rows -----
+    const CHAT_STAGE_LABELS = ["Palm", "Tongue", "Gulp", "Gut"];
+
+    function chatWhen(at) {
+      if (!at) return "";
+      const d = new Date(at);
+      const diff = Date.now() - at;
+      const min = 60 * 1000, hr = 60 * min, day = 24 * hr;
+      if (diff < min) return "Just now";
+      if (diff < hr) return Math.floor(diff / min) + "m ago";
+      if (diff < day) return Math.floor(diff / hr) + "h ago";
+      const today = new Date(); today.setHours(0, 0, 0, 0);
+      const then = new Date(d); then.setHours(0, 0, 0, 0);
+      const days = Math.round((today - then) / day);
+      if (days === 1) return "Yesterday";
+      if (days < 7) return d.toLocaleDateString(undefined, { weekday: "long" });
+      const sameYear = d.getFullYear() === today.getFullYear();
+      return d.toLocaleDateString(undefined, sameYear ? { month: "short", day: "numeric" } : { month: "short", day: "numeric", year: "numeric" });
+    }
+
+    function chatPreview(c) {
+      const turns = (c.logTurns && c.logTurns.length) ? c.logTurns : null;
+      if (turns) {
+        for (let i = turns.length - 1; i >= 0; i--) {
+          const t = turns[i] || {};
+          const raw = t.line || t.moment || t.you || "";
+          const clean = String(raw).replace(/[*_`#>]/g, "").replace(/\s+/g, " ").trim();
+          if (clean) return clean.length > 160 ? clean.slice(0, 157) + "…" : clean;
+        }
+      }
+      return "";
+    }
+
+    function chatFaceThumb(faceId) {
+      const ch = CHARACTERS[faceId];
+      if (!ch) return "";
+      if (ch.stills && (ch.stills.look || ch.stills.portrait)) return ch.stills.look || ch.stills.portrait;
+      if (ch.custom) return "";
+      return (ch.stillDir || "stills/") + "look.jpg";
+    }
+
+    function chatIcon(kind) {
+      // Inline, stroke-only icons so they inherit the button colour.
+      const paths = kind === "rename"
+        ? '<path d="M4 20h4l10.5-10.5a2.1 2.1 0 0 0-4-4L4 16v4Z"/><path d="M13.5 6.5l4 4"/>'
+        : '<path d="M5 7h14"/><path d="M10 11v6M14 11v6"/><path d="M6 7l1 12a2 2 0 0 0 2 2h6a2 2 0 0 0 2-2l1-12"/><path d="M9 7V4h6v3"/>';
+      return '<svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">' + paths + '</svg>';
+    }
+
+    function buildChatRow(c, index) {
+      const face = c.characterId || (c.game && c.game.characterId) || "";
+      const who = (CHARACTERS[face] && CHARACTERS[face].name) || "";
+      const v = c.vitals || c.game || {};
+      const gone = !!(v.gone || (c.game && c.game.gone));
+      const depth = Math.max(0, Math.min(3, Number(v.depth || 0)));
+      const beats = (c.logTurns && c.logTurns.length) || 0;
+      const isActive = c.id === activeChatId;
+      const accent = (typeof FACE_ACCENT === "object" && FACE_ACCENT[face]) || "";
+
+      const row = document.createElement("div");
+      row.className = "chatrow" + (isActive ? " is-active" : "") + (gone ? " is-gone" : "");
+      row.style.setProperty("--i", String(Math.min(index, 10)));
+      if (accent) row.style.setProperty("--face", accent);
+
+      const b = document.createElement("button");
+      b.type = "button";
+      b.className = "card chat-open" + (isActive ? " active" : "");
+      b.innerHTML =
+        '<span class="chat-ava"><span class="chat-mono"></span></span>' +
+        '<span class="chat-main">' +
+          '<span class="chat-top"><i class="who"></i><time></time></span>' +
+          '<b class="chat-title"></b>' +
+          '<span class="chat-preview"></span>' +
+          '<span class="chat-meta"><em class="chat-stage"></em><span class="chat-beats"></span></span>' +
+        '</span>';
+      const name = who || "Chat";
+      b.querySelector(".chat-mono").textContent = name.trim().charAt(0).toUpperCase() || "?";
+      const src = chatFaceThumb(face);
+      if (src) {
+        const img = document.createElement("img");
+        img.alt = "";
+        img.loading = "lazy";
+        img.decoding = "async";
+        img.src = src;
+        img.addEventListener("error", () => img.remove());
+        b.querySelector(".chat-ava").appendChild(img);
+      }
+      b.querySelector(".who").textContent = name;
+      const t = b.querySelector("time");
+      t.textContent = chatWhen(c.at);
+      if (c.at) {
+        t.dateTime = new Date(c.at).toISOString();
+        t.title = new Date(c.at).toLocaleString();
+      }
+      b.querySelector(".chat-title").textContent = c.title || "Untitled night";
+      const preview = chatPreview(c);
+      const pv = b.querySelector(".chat-preview");
+      pv.textContent = preview || "Nothing said yet.";
+      pv.classList.toggle("is-empty", !preview);
+      const stage = b.querySelector(".chat-stage");
+      stage.textContent = gone ? "Ended" : CHAT_STAGE_LABELS[depth];
+      stage.dataset.step = gone ? "gone" : ["palm", "tongue", "gulp", "gut"][depth];
+      b.querySelector(".chat-beats").textContent = beats + (beats === 1 ? " beat" : " beats");
+      if (isActive) {
+        const now = document.createElement("em");
+        now.className = "chat-now";
+        now.textContent = "Open now";
+        b.querySelector(".chat-meta").appendChild(now);
+      }
+      b.setAttribute("aria-label", name + ", " + (c.title || "Untitled night") + ", " + (t.title || t.textContent));
+      b.addEventListener("click", () => openChat(c.id));
+
+      const acts = document.createElement("div");
+      acts.className = "chat-acts";
+      const rn = document.createElement("button");
+      rn.type = "button";
+      rn.className = "iconbtn chat-act";
+      rn.title = "Rename";
+      rn.setAttribute("aria-label", "Rename " + (c.title || "chat"));
+      rn.innerHTML = chatIcon("rename");
+      rn.addEventListener("click", (e) => { e.stopPropagation(); renameChat(c.id); });
+      const del = document.createElement("button");
+      del.type = "button";
+      del.className = "iconbtn danger chat-act";
+      del.title = "Delete";
+      del.setAttribute("aria-label", "Delete " + (c.title || "chat"));
+      del.innerHTML = chatIcon("delete");
+      del.addEventListener("click", (e) => { e.stopPropagation(); deleteChat(c.id); });
+      acts.append(rn, del);
+
+      row.append(b, acts);
+      return row;
+    }
+
     function renderLibrary() {
       const lib = readLib();
       const visible = characterList().filter((c) => c.ready);
@@ -8386,40 +8834,18 @@ conversation, it is a conversation.`;
           if (!buckets.has(g)) buckets.set(g, []);
           buckets.get(g).push(c);
         });
+        let rowIndex = 0;
         Array.from(buckets.keys()).forEach((key) => {
           const list = buckets.get(key);
           if (!list.length) return;
           const h = document.createElement("h3");
-          h.textContent = sectionLabel(key) + " · " + list.length;
+          h.className = "chat-sec";
+          h.innerHTML = "<span></span><em></em>";
+          h.querySelector("span").textContent = sectionLabel(key);
+          h.querySelector("em").textContent = String(list.length);
           els.chatList.appendChild(h);
           list.forEach((c) => {
-            const row = document.createElement("div");
-            row.className = "chatrow";
-            const b = document.createElement("button");
-            b.type = "button";
-            b.className = "card" + (c.id === activeChatId ? " active" : "");
-            const when = c.at ? new Date(c.at).toLocaleString() : "";
-            const face = c.characterId || (c.game && c.game.characterId) || "";
-            const who = (CHARACTERS[face] && CHARACTERS[face].name) || "";
-            b.innerHTML = "<i class=\"who\"></i><b></b><span></span>";
-            b.querySelector(".who").textContent = who || "Chat";
-            b.querySelector("b").textContent = c.title || "Untitled night";
-            b.querySelector("span").textContent = (when ? when + " · " : "") + ((c.logTurns && c.logTurns.length) || 0) + " beats";
-            b.addEventListener("click", () => openChat(c.id));
-            const rn = document.createElement("button");
-            rn.type = "button";
-            rn.className = "iconbtn";
-            rn.title = "Rename";
-            rn.textContent = "Aa";
-            rn.addEventListener("click", (e) => { e.stopPropagation(); renameChat(c.id); });
-            const del = document.createElement("button");
-            del.type = "button";
-            del.className = "iconbtn danger";
-            del.title = "Delete";
-            del.textContent = "×";
-            del.addEventListener("click", (e) => { e.stopPropagation(); deleteChat(c.id); });
-            row.append(b, rn, del);
-            els.chatList.appendChild(row);
+            els.chatList.appendChild(buildChatRow(c, rowIndex++));
           });
         });
       }
@@ -11377,8 +11803,8 @@ Never copy SPEECH: or ACTION: into your reply. Reply only with MOMENT, SAY, SHOT
     document.getElementById("libX").addEventListener("click", closeLibrary);
     const libTabStories = document.getElementById("libTabStories");
     const libTabChats = document.getElementById("libTabChats");
-    if (libTabStories) libTabStories.addEventListener("click", () => { setLibraryMode("stories"); renderLibrary(); });
-    if (libTabChats) libTabChats.addEventListener("click", () => { setLibraryMode("chats"); renderLibrary(); });
+    if (libTabStories) libTabStories.addEventListener("click", () => switchLibraryMode("stories"));
+    if (libTabChats) libTabChats.addEventListener("click", () => switchLibraryMode("chats"));
     (() => {
       const head = document.getElementById("libHead");
       const sheet = els.library && els.library.querySelector(".sheet");
