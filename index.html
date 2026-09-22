@@ -3737,96 +3737,102 @@
       --btn-xs-r: 999px;
     }
 
-    html,
+    /* ---------------------------------------------------------------
+       Page frame.
+       Why the earlier attempt misbehaved:
+       - `overflow-x: hidden` on BOTH html and body makes body its own clip
+         box, so anything bleeding past the 1080px column (the header's
+         ::before bar) was cut off at the column edge.
+       - html.palette-custom painted var(--bg) on BODY, which is a centered
+         column: a solid slab over #world that stopped short of the edges.
+       - body only had min-height on desktop, so #log / #sceneBar ran the
+         full height of the window and their last rows sat under the fixed
+         dock; 160-170px of padding was never enough for a ~214px dock.
+       - Base #vitalWrap margin (10px 12px) beat the desktop reset, so the
+         meters were 12px wider than their column and got clipped.
+       --------------------------------------------------------------- */
+    html {
+      overflow-x: clip;
+    }
     body {
       width: 100%;
-      max-width: none;
-      overflow-x: hidden;
+      overflow: visible;
     }
-
+    @media (max-width: 899px) {
+      /* Phones keep the whole page locked; only #log scrolls. */
+      html, body { overflow: hidden; }
+    }
     #world {
-      width: 100vw;
-      min-width: 100vw;
-      height: 100dvh;
-      min-height: 100dvh;
-      left: 0;
-      right: 0;
-      top: 0;
-      bottom: 0;
+      position: fixed;
+      inset: 0;
+      width: auto;
+      height: auto;
+      /* lvh: cover the largest viewport, so a collapsing mobile toolbar never
+         uncovers a strip below the background. */
+      min-height: 100vh;
+      min-height: 100lvh;
     }
 
-    /* Keep the header controls exactly where they are; only its visual bar
-       escapes the centered app column and spans the full viewport. */
+    /* Header: controls stay inside the app column, the bar itself spans the
+       whole window. Negative margins pull the box out to the viewport edges,
+       matching padding puts the buttons right back where they were. */
     header.top {
-      isolation: isolate;
-      background: transparent !important;
-      border-bottom: 0 !important;
-      overflow: visible !important;
-    }
-    header.top::before {
-      content: "";
-      position: absolute;
-      z-index: -1;
-      top: 0;
-      left: 50%;
-      width: 100vw;
-      height: 100%;
-      transform: translateX(-50%);
-      background: color-mix(in srgb, var(--panel2) 94%, #000 6%);
-      border-bottom: 1px solid color-mix(in srgb, var(--hair) 40%, transparent);
+      --bleed: max(0px, calc((100vw - 100%) / 2));
+      margin-left: calc(-1 * var(--bleed)) !important;
+      margin-right: calc(-1 * var(--bleed)) !important;
+      padding-left: calc(var(--bleed) + 10px) !important;
+      padding-right: calc(var(--bleed) + 10px) !important;
+      width: auto !important;
+      background: color-mix(in srgb, var(--panel2) 94%, #000 6%) !important;
+      border-bottom: 1px solid color-mix(in srgb, var(--hair) 40%, transparent) !important;
       box-shadow: 0 6px 18px rgba(0,0,0,.18);
-      pointer-events: none;
+    }
+    @media (max-width: 430px) {
+      header.top {
+        padding-left: calc(var(--bleed) + 8px) !important;
+        padding-right: calc(var(--bleed) + 8px) !important;
+      }
     }
 
     @media (min-width: 900px) {
       body {
-        width: 100%;
         max-width: 1080px;
+        /* A real height, not min-height: row 2 is what's left between the
+           header and the dock, so the story and the side column scroll
+           inside it instead of sliding under the composer. Row 3 is an empty
+           slot the size of the fixed dock (measured into --dock by JS). */
+        height: 100dvh;
+        min-height: 0;
+        grid-template-rows: auto minmax(0, 1fr) var(--dock);
       }
       #sceneBar {
-        padding-bottom: 160px;
+        padding-bottom: 16px;
         overflow-x: hidden;
         overflow-y: auto;
       }
       #log {
-        padding-bottom: 170px;
+        padding-bottom: calc(var(--digest-meter, 0px) + 16px);
         overflow-x: hidden;
       }
       #vitalWrap {
-        padding-bottom: 10px;
+        margin: 0;
+        width: auto;
+        min-width: 0;
+        padding-bottom: 4px;
       }
-      #gasMeter {
-        flex-basis: 24px;
-      }
-      .gas-track {
-        min-height: 72px;
-      }
+      #gasMeter { flex-basis: 24px; }
+      .gas-track { min-height: 72px; }
     }
 
-    @media (max-width: 899px) {
-      #world,
-      #home,
-      #splash,
-      #library,
-      #auth,
-      #studio,
-      #settings,
-      #askSheet,
-      #fate {
-        width: 100vw;
-        min-width: 100vw;
-      }
-    }
-
-    /* Deck breathing room: the Speck title should read as a page heading,
-       not as an extension of the header. */
-    #home .home-inner {
-      padding-top: 30px;
+    /* Deck breathing room. #home sits under the header (z 30 vs 90) and its
+       padding-top was only 16px, so the eyebrow tucked up against the bar.
+       Pad by the measured header height. (The earlier .home-inner padding
+       fix lost to the more specific `#home.land .home-inner`.) */
+    #home {
+      padding-top: calc(var(--header-h, 52px) + 28px);
     }
     @media (min-width: 900px) {
-      #home .home-inner {
-        padding-top: 42px;
-      }
+      #home { padding-top: calc(var(--header-h, 52px) + 44px); }
     }
 
     /* ---------------------------------------------------------------
@@ -3945,8 +3951,9 @@
        variables for a player's saved palette, and these selectors make
        the scene/deck backgrounds consume those variables too.
        --------------------------------------------------------------- */
-    html.palette-custom,
-    html.palette-custom body {
+    /* html only: body is a centered column, painting it made a slab that
+       stopped short of the window edges. */
+    html.palette-custom {
       background: var(--bg) !important;
     }
     html.palette-custom #world {
@@ -4005,9 +4012,6 @@
     }
     html.palette-custom .line {
       background: linear-gradient(180deg, var(--linebg), var(--dawn));
-    }
-    html.palette-custom header.top::before {
-      background: color-mix(in srgb, var(--panel2) 94%, #000 6%);
     }
 
   </style>
@@ -7288,17 +7292,27 @@ conversation, it is a conversation.`;
       el.classList.remove("hide");
     }
 
+    // The resume snapshot is scoped to one account: the key carries the user id
+    // and the payload repeats it, so a guest or a different login on the same
+    // browser can never read another account's scene.
+    function resumeKey() {
+      return sessionUser && sessionUser.id ? RESUME_KEY + ":" + sessionUser.id : "";
+    }
+
     function snapshotResumeScene() {
       if (!sessionUser || !game || !game.characterId || !game.scenarioId) return false;
+      const key = resumeKey();
+      if (!key) return false;
       try {
         const payload = {
+          uid: sessionUser.id,
           chatId: activeChatId || "",
           game: snapshotGame(),
           history: cloneState(history).slice(-(HISTORY_CAP || 36)),
           logTurns: cloneState(logTurns).slice(-80),
           at: Date.now(),
         };
-        localStorage.setItem(RESUME_KEY, JSON.stringify(payload));
+        localStorage.setItem(key, JSON.stringify(payload));
         return true;
       } catch (e) {
         console.warn("resume snapshot", e);
@@ -7307,10 +7321,12 @@ conversation, it is a conversation.`;
     }
 
     function readResumeScene() {
-      if (!sessionUser) return null;
+      const key = resumeKey();
+      if (!key) return null;
       try {
-        const raw = JSON.parse(localStorage.getItem(RESUME_KEY) || "null");
-        if (!raw || !raw.game || !raw.game.characterId || !raw.game.scenarioId) return null;
+        const raw = JSON.parse(localStorage.getItem(key) || "null");
+        if (!raw || raw.uid !== sessionUser.id) return null;
+        if (!raw.game || !raw.game.characterId || !raw.game.scenarioId) return null;
         if (!CHARACTERS[raw.game.characterId] && !studioPack.characters[raw.game.characterId]) return null;
         if (!SCENARIOS[raw.game.scenarioId] && !studioPack.scenarios[raw.game.scenarioId]) return null;
         return raw;
@@ -7318,8 +7334,14 @@ conversation, it is a conversation.`;
     }
 
     function clearResumeScene() {
-      try { localStorage.removeItem(RESUME_KEY); } catch {}
+      try {
+        // Drop the pre-scoping global snapshot too; it could belong to anyone.
+        localStorage.removeItem(RESUME_KEY);
+        const key = resumeKey();
+        if (key) localStorage.removeItem(key);
+      } catch {}
     }
+    try { localStorage.removeItem(RESUME_KEY); } catch {}
 
     function beginDeckReadyGate() {
       deckReady = false;
@@ -7444,7 +7466,11 @@ conversation, it is a conversation.`;
       // If storage is full, drop the oldest chats (never the open one) rather than losing this save
       const ids = Object.values(lib.chats || {}).sort((a, b) => (a.at || 0) - (b.at || 0)).map((c) => c.id);
       let dropped = 0;
-      for (let i = 0; i < ids.length; i++) {
+      // `<=` is deliberate: the last pass is the write attempt after every
+      // victim is gone, and with zero chats it is the ONLY pass. With `<` an
+      // emptied library was never written, so a deleted last chat came back
+      // on reload.
+      for (let i = 0; i <= ids.length; i++) {
         try {
           localStorage.setItem(libKey(), JSON.stringify(lib));
           if (dropped) console.warn("Storage was full; removed " + dropped + " oldest chat(s) from this device.");
@@ -7510,7 +7536,9 @@ conversation, it is a conversation.`;
         // deck still read "Welcome" until the page was reloaded.
         try {
           if (typeof syncGuestShell === "function") syncGuestShell();
-          if (els.home && els.home.classList.contains("show")) showHome();
+          // Repaint the deck's signed-in copy only if it is already open, and
+          // never let a repaint rewrite the saved route.
+          if (els.home && els.home.classList.contains("show")) showHome({ silentRoute: true });
         } catch {}
       } else {
         els.account.textContent = "Log in";
@@ -7574,11 +7602,15 @@ conversation, it is a conversation.`;
       setAuthUi();
       renderLibrary();
       paintHomeFaces();
-      // Close the sheet and repaint the deck with the signed-in copy and
-      // actions, rather than leaving the pre-login screen on screen.
+      // Close the sheet, then drop straight back into this account's most
+      // recent chat. The deck only appears when there is nothing to resume.
       try { closeAuth(); } catch {}
-      try { showHome(); } catch {}
-      if (sessionUser && !isOwner() && !characterList().length) openStudio("char");
+      let resumed = false;
+      try { resumed = resumeLatestScene(); } catch (e) { console.warn("login resume", e); }
+      if (!resumed) {
+        try { showHome(); } catch {}
+        if (sessionUser && !isOwner() && !characterList().length) openStudio("char");
+      }
     }
 
     async function pushChat(chat, expectedUserId) {
@@ -10057,9 +10089,14 @@ Never copy SPEECH: or ACTION: into your reply. Reply only with MOMENT, SAY, SHOT
           if (prevId && nextId && prevId !== nextId) {
             clearAccountRuntime();
           }
+          let signedOut = false;
           if (user && user.email) {
             rememberAuth(user);
-          } else if (evt === "SIGNED_OUT" || !user) {
+          } else if (evt === "SIGNED_OUT" || (!user && evt !== "INITIAL_SESSION")) {
+            // INITIAL_SESSION with no session is left to authUser(), which knows
+            // the difference between "logged out" and "offline, token unreadable".
+            // Clearing here wiped the restored scene on a flaky connection.
+            signedOut = !!prevId;
             rememberAuth(null);
             clearAccountRuntime();
           }
@@ -10068,19 +10105,30 @@ Never copy SPEECH: or ACTION: into your reply. Reply only with MOMENT, SAY, SHOT
           if (authBooting || authBusy) return;
           setAuthUi();
           try { renderLibrary(); paintHomeFaces(); } catch {}
+          // A session that ends while a chat is open (expired refresh token,
+          // sign-out in another tab) must not leave that account's chat shell up.
+          if (signedOut) { try { showHome(); } catch {} }
         });
       } catch {}
     }
     function syncGuestShell() {
       const land = landingNeeded();
-      // land = "home is the landing screen". bare = "there is nothing on it".
+      // land = "home is styled as the deck". bare = "there is nothing on it".
       const bare = !sessionUser || deckIsEmpty();
-      document.body.classList.toggle("guest", land);
+      // This used to force the deck open whenever land was true — and land is
+      // ALWAYS true for a signed-in account. setAuthUi() runs this at the end of
+      // boot and on every Supabase auth event (including the SIGNED_IN /
+      // TOKEN_REFRESHED that fire when a tab regains focus), so a restored chat
+      // was covered by the deck on every reload and every tab-back. Only a guest,
+      // who has nothing else to look at, gets the deck forced open here. Signed-in
+      // routing belongs to boot(), showHome() and hideHome().
       if (els.home) {
         els.home.classList.toggle("land", land);
         els.home.classList.toggle("bare", bare);
-        if (land) els.home.classList.add("show");
+        if (land && !sessionUser) els.home.classList.add("show");
       }
+      const onDeck = !!(els.home && els.home.classList.contains("show"));
+      document.body.classList.toggle("guest", land && onDeck);
       return land;
     }
     function showHome(opts) {
@@ -10163,6 +10211,43 @@ Never copy SPEECH: or ACTION: into your reply. Reply only with MOMENT, SAY, SHOT
       }
     }
 
+    // One restore path for boot AND login: open this account's most recent
+    // chat (the library's active/newest row, else the per-account resume
+    // snapshot). Returns false when there is nothing valid to open, and the
+    // caller shows the deck instead. Only ever reads the signed-in account's
+    // data: readLib() and readResumeScene() are both keyed by user id.
+    function resumeLatestScene() {
+      if (!sessionUser) return false;
+      const playable = (g) => !!(g && g.characterId && g.scenarioId
+        && CHARACTERS[g.characterId] && SCENARIOS[g.scenarioId]);
+      let scene = null;
+      const saved = loadSave();
+      if (saved && playable(saved.game)) {
+        scene = saved;
+      } else {
+        const resume = readResumeScene();
+        if (resume && playable(resume.game)) {
+          scene = {
+            id: resume.chatId || ("resume-" + Date.now()),
+            game: resume.game,
+            history: resume.history || [],
+            logTurns: resume.logTurns || [],
+            scenarioId: resume.game.scenarioId,
+            characterId: resume.game.characterId,
+            title: "Chat with " + ((CHARACTERS[resume.game.characterId] && CHARACTERS[resume.game.characterId].name) || "her"),
+          };
+        }
+      }
+      if (!scene) return false;
+      activeChatId = scene.id || activeChatId;
+      restoreSave(scene);
+      applyPlace();
+      setBaseView("chat");
+      snapshotResumeScene();
+      hideHome({ silentRoute: true });
+      return true;
+    }
+
     async function boot() {
       beginDeckReadyGate();
       showSplash("Checking your session…");
@@ -10227,35 +10312,7 @@ Never copy SPEECH: or ACTION: into your reply. Reply only with MOMENT, SAY, SHOT
       setAuthUi();
       // Returning players resume the active chat. The deck is only the fallback
       // when there is genuinely no resumable scene on this account.
-      const saved = loadSave();
-      const resume = readResumeScene();
-      let scene = null;
-      if (saved) {
-        scene = saved;
-      } else if (resume) {
-        scene = {
-          id: resume.chatId || ("resume-" + Date.now()),
-          game: resume.game,
-          history: resume.history || [],
-          logTurns: resume.logTurns || [],
-          scenarioId: resume.game.scenarioId,
-          characterId: resume.game.characterId,
-          title: "Chat with " + ((CHARACTERS[resume.game.characterId] && CHARACTERS[resume.game.characterId].name) || "her"),
-        };
-      }
-      const canRestore = !!(scene && scene.game && scene.game.characterId && scene.game.scenarioId);
-      if (canRestore && CHARACTERS[scene.game.characterId] && SCENARIOS[scene.game.scenarioId]) {
-        activeChatId = scene.id || activeChatId;
-        restoreSave(scene);
-        applyPlace();
-        setBaseView("chat");
-        snapshotResumeScene();
-        hideHome({ silentRoute: true });
-      } else if (!deckIsEmpty()) {
-        // No saved scene: this account really has nowhere to resume to.
-        setBaseView("deck");
-        showHome();
-      } else {
+      if (!resumeLatestScene()) {
         setBaseView("deck");
         showHome();
       }
@@ -11009,7 +11066,7 @@ Never copy SPEECH: or ACTION: into your reply. Reply only with MOMENT, SAY, SHOT
       // The deck hides its face block while #home still carries .land from the
       // empty state. Saving the first character changed the data but nothing
       // re-ran the shell check, so it took a hard refresh to appear.
-      try { if (els.home && els.home.classList.contains("show")) showHome(); } catch {}
+      try { if (els.home && els.home.classList.contains("show")) showHome({ silentRoute: true }); } catch {}
       pushToast("Saved " + name + ".", "ok");
     }
     async function saveStudioNight() {
@@ -11492,6 +11549,14 @@ Never copy SPEECH: or ACTION: into your reply. Reply only with MOMENT, SAY, SHOT
       new ResizeObserver(() => {
         document.documentElement.style.setProperty("--dock", dockEl.offsetHeight + "px");
       }).observe(dockEl);
+    }
+    // The deck overlay sits under the header, so it pads its top by the
+    // header's real height (which changes with safe-area insets and wrapping).
+    const headerEl = document.querySelector("header.top");
+    if (headerEl) {
+      const syncHeaderH = () => document.documentElement.style.setProperty("--header-h", headerEl.offsetHeight + "px");
+      syncHeaderH();
+      if (window.ResizeObserver) new ResizeObserver(syncHeaderH).observe(headerEl);
     }
 
     if (window.visualViewport) {
