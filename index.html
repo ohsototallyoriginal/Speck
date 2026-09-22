@@ -1338,6 +1338,32 @@
       -webkit-overflow-scrolling: touch;
     }
     #home.show { opacity: 1; visibility: visible; pointer-events: auto; }
+    #home.show .home-inner,
+    #home.show .home-actions,
+    #home.show .home-actions button,
+    #home.show .faces button,
+    #home.show #homeFilter { pointer-events: auto; }
+    #home.show .home-actions button,
+    #home.show .faces button,
+    #home.show #homeFilter { touch-action: manipulation; }
+    #home.deck-syncing .home-actions button {
+      position: relative;
+    }
+    #home.deck-syncing .home-actions button::after {
+      content: "";
+      position: absolute;
+      right: 12px;
+      top: 50%;
+      width: 9px;
+      height: 9px;
+      margin-top: -4.5px;
+      border: 1.5px solid currentColor;
+      border-right-color: transparent;
+      border-radius: 50%;
+      animation: deckSpin .75s linear infinite;
+      opacity: .55;
+    }
+    @keyframes deckSpin { to { transform: rotate(360deg); } }
     #home .home-orbit {
       position: absolute; inset: 0; pointer-events: none; overflow: hidden;
     }
@@ -1474,7 +1500,7 @@
       to { opacity: 1; transform: none; }
     }
     #splash {
-      position: fixed; inset: 0; z-index: 40;
+      position: fixed; inset: 0; z-index: 200;
       background: var(--panel2, #0c0610);
       display: flex; flex-direction: column;
       align-items: center; justify-content: center;
@@ -1957,6 +1983,9 @@
       font-size: .62rem; font-weight: 800; letter-spacing: .04em; text-transform: uppercase;
     }
     .tag-tabs button.on { border-color: var(--neon); color: var(--ink); background: color-mix(in srgb, var(--neon) 16%, var(--panel2)); }
+    #studio .studio-tag-picker { flex-wrap: wrap; overflow: visible; margin: 4px 0 2px; }
+    #studio .studio-tag-picker button { flex: 0 0 auto; }
+    #studio .field-note { margin: 0 0 8px; color: var(--muted); font-size: .72rem; line-height: 1.4; }
     #begWrap[hidden], #gutWrap[hidden] { display: none !important; }
     #scenarioList, #gutList { transition: opacity .18s ease, transform .18s ease; }
     #library.flip #scenarioList, #library.flip #gutList { opacity: 0; transform: translateX(10px); }
@@ -3687,6 +3716,300 @@
       .lib-create button:active:not(:disabled),
       #send:active:not(:disabled) { transform: none; }
     }
+
+
+    /* ===============================================================
+       FINAL RESPONSIVE / THEME SYSTEM
+       Keep the existing gameplay layout intact while making the page
+       truly viewport-wide on desktop, keeping critical meters scrollable,
+       and allowing custom character palettes to tint every major surface.
+       =============================================================== */
+    :root {
+      --btn-xl-h: 56px;
+      --btn-lg-h: 48px;
+      --btn-md-h: 44px;
+      --btn-sm-h: 36px;
+      --btn-xs-h: 30px;
+      --btn-xl-r: 16px;
+      --btn-lg-r: 14px;
+      --btn-md-r: 12px;
+      --btn-sm-r: 10px;
+      --btn-xs-r: 999px;
+    }
+
+    html,
+    body {
+      width: 100%;
+      max-width: none;
+      overflow-x: hidden;
+    }
+
+    #world {
+      width: 100vw;
+      min-width: 100vw;
+      height: 100dvh;
+      min-height: 100dvh;
+      left: 0;
+      right: 0;
+      top: 0;
+      bottom: 0;
+    }
+
+    /* Keep the header controls exactly where they are; only its visual bar
+       escapes the centered app column and spans the full viewport. */
+    header.top {
+      isolation: isolate;
+      background: transparent !important;
+      border-bottom: 0 !important;
+      overflow: visible !important;
+    }
+    header.top::before {
+      content: "";
+      position: absolute;
+      z-index: -1;
+      top: 0;
+      left: 50%;
+      width: 100vw;
+      height: 100%;
+      transform: translateX(-50%);
+      background: color-mix(in srgb, var(--panel2) 94%, #000 6%);
+      border-bottom: 1px solid color-mix(in srgb, var(--hair) 40%, transparent);
+      box-shadow: 0 6px 18px rgba(0,0,0,.18);
+      pointer-events: none;
+    }
+
+    @media (min-width: 900px) {
+      body {
+        width: 100%;
+        max-width: 1080px;
+      }
+      #sceneBar {
+        padding-bottom: 160px;
+        overflow-x: hidden;
+        overflow-y: auto;
+      }
+      #log {
+        padding-bottom: 170px;
+        overflow-x: hidden;
+      }
+      #vitalWrap {
+        padding-bottom: 10px;
+      }
+      #gasMeter {
+        flex-basis: 24px;
+      }
+      .gas-track {
+        min-height: 72px;
+      }
+    }
+
+    @media (max-width: 899px) {
+      #world,
+      #home,
+      #splash,
+      #library,
+      #auth,
+      #studio,
+      #settings,
+      #askSheet,
+      #fate {
+        width: 100vw;
+        min-width: 100vw;
+      }
+    }
+
+    /* Deck breathing room: the Speck title should read as a page heading,
+       not as an extension of the header. */
+    #home .home-inner {
+      padding-top: 30px;
+    }
+    @media (min-width: 900px) {
+      #home .home-inner {
+        padding-top: 42px;
+      }
+    }
+
+    /* ---------------------------------------------------------------
+       Button scale: geometry is shared by role; colors remain contextual.
+       XL = primary hero, L = major action/card, M = standard control,
+       S = secondary utility, XS = pills/tabs/header utilities.
+       --------------------------------------------------------------- */
+    button {
+      box-sizing: border-box;
+      line-height: 1;
+    }
+
+    /* XS */
+    header.top button,
+    header.top #live,
+    .home-chip,
+    .lib-switch button,
+    .night-tabs button,
+    .tag-tabs button,
+    .compose-modes button {
+      min-height: var(--btn-xs-h) !important;
+      height: var(--btn-xs-h) !important;
+      border-radius: var(--btn-xs-r) !important;
+    }
+
+    /* S */
+    #homeAuth,
+    #homeClose,
+    .notice button,
+    .ask-actions button,
+    .sec-row button,
+    .dm-adjust button,
+    .gs-skip,
+    .scene-who #editNight,
+    #studioCharPane #scPalReset,
+    #studioCharPane #scPalPreview,
+    #studioNightPane #snDelete {
+      min-height: var(--btn-sm-h) !important;
+      height: var(--btn-sm-h) !important;
+      border-radius: var(--btn-sm-r) !important;
+    }
+
+    /* M */
+    .ask-actions button,
+    #studio .row button,
+    #studioMePane .row button,
+    #studioCharPane .row button,
+    #studioNightPane .row button,
+    .lib-create .lc-grid button,
+    #homeFilter {
+      min-height: var(--btn-md-h);
+      border-radius: var(--btn-md-r);
+    }
+
+    /* L */
+    #home .home-actions button,
+    #homeContinue,
+    .gone-actions button,
+    .lib-create > .lc-primary,
+    button.card.night-card,
+    #send {
+      min-height: var(--btn-lg-h);
+      border-radius: var(--btn-lg-r);
+    }
+
+    /* XL */
+    #home.land #homeNew,
+    #home .home-primary,
+    #home #homeNewStory {
+      min-height: var(--btn-xl-h);
+      border-radius: var(--btn-xl-r);
+    }
+
+    /* Consistent type/padding for the shared scale. */
+    #home.land #homeNew,
+    #home .home-primary,
+    #home #homeNewStory {
+      padding: 0 18px;
+      font-size: .78rem;
+    }
+    #home .home-actions button,
+    #homeContinue,
+    .gone-actions button,
+    .lib-create > .lc-primary,
+    button.card.night-card,
+    #send {
+      padding: 0 16px;
+      font-size: .72rem;
+    }
+    #homeAuth,
+    #homeClose,
+    .notice button,
+    .ask-actions button,
+    .sec-row button,
+    .dm-adjust button,
+    .gs-skip,
+    .scene-who #editNight,
+    #studioCharPane #scPalReset,
+    #studioCharPane #scPalPreview,
+    #studioNightPane #snDelete {
+      padding: 0 12px;
+      font-size: .64rem;
+    }
+    .lib-switch button,
+    .night-tabs button,
+    .tag-tabs button,
+    .compose-modes button,
+    header.top button,
+    header.top #live {
+      padding-left: 10px !important;
+      padding-right: 10px !important;
+    }
+
+    /* ---------------------------------------------------------------
+       Character palette propagation. applyTheme writes the same core
+       variables for a player's saved palette, and these selectors make
+       the scene/deck backgrounds consume those variables too.
+       --------------------------------------------------------------- */
+    html.palette-custom,
+    html.palette-custom body {
+      background: var(--bg) !important;
+    }
+    html.palette-custom #world {
+      background: var(--bg) !important;
+    }
+    html.palette-custom #world .alley {
+      background:
+        radial-gradient(60% 40% at 30% 20%, color-mix(in srgb, var(--neon) 22%, transparent), transparent 55%),
+        radial-gradient(50% 35% at 80% 70%, color-mix(in srgb, var(--cyan) 13%, transparent), transparent 50%),
+        var(--bg);
+    }
+    html.palette-custom #world .mouth {
+      background:
+        radial-gradient(70% 50% at 50% 0%, color-mix(in srgb, var(--neon) 42%, transparent), transparent 55%),
+        radial-gradient(60% 40% at 50% 100%, color-mix(in srgb, var(--panel) 75%, #000), transparent 50%),
+        var(--bg);
+    }
+    html.palette-custom #world .throat {
+      background:
+        radial-gradient(40% 70% at 50% 110%, color-mix(in srgb, #000 88%, var(--bg)), transparent 60%),
+        radial-gradient(90% 40% at 50% -5%, color-mix(in srgb, var(--neon) 48%, transparent), transparent 55%),
+        linear-gradient(180deg, color-mix(in srgb, var(--neon) 25%, var(--bg)), var(--bg) 70%);
+    }
+    html.palette-custom #world .gut {
+      background:
+        radial-gradient(90% 45% at 50% 100%, color-mix(in srgb, var(--cyan) 22%, transparent), transparent 42%),
+        radial-gradient(80% 50% at 50% 0%, color-mix(in srgb, var(--neon) 34%, transparent), transparent 50%),
+        linear-gradient(180deg, var(--bg), color-mix(in srgb, var(--panel) 78%, var(--bg)) 55%, var(--bg));
+    }
+    html.palette-custom #home {
+      background:
+        radial-gradient(70% 50% at 50% 0%, color-mix(in srgb, var(--neon) 22%, transparent), transparent 55%),
+        radial-gradient(60% 42% at 100% 85%, color-mix(in srgb, var(--cyan) 12%, transparent), transparent 52%),
+        var(--bg) !important;
+    }
+    html.palette-custom #home .home-auth,
+    html.palette-custom #homeFilter,
+    html.palette-custom #home .faces button,
+    html.palette-custom .sheet,
+    html.palette-custom .card,
+    html.palette-custom .iconbtn,
+    html.palette-custom #sceneBar,
+    html.palette-custom #vitalWrap,
+    html.palette-custom .rp-empty {
+      border-color: var(--hair);
+    }
+    html.palette-custom .sheet,
+    html.palette-custom #sceneBar,
+    html.palette-custom .rp-empty,
+    html.palette-custom .card,
+    html.palette-custom .iconbtn {
+      background-color: var(--panel2);
+    }
+    html.palette-custom .you {
+      background: var(--you);
+    }
+    html.palette-custom .line {
+      background: linear-gradient(180deg, var(--linebg), var(--dawn));
+    }
+    html.palette-custom header.top::before {
+      background: color-mix(in srgb, var(--panel2) 94%, #000 6%);
+    }
+
   </style>
 </head>
 <body>
@@ -3759,6 +4082,9 @@
         <input id="snOpenL" />
         <label for="snShot">Starting shot</label>
         <select id="snShot"></select>
+        <label>Night tags</label>
+        <div id="snTags" class="tag-tabs studio-tag-picker" role="group" aria-label="Night tags"></div>
+        <p class="field-note">Awareness, intent, and tone each use one tag. Sleeping can be combined with them.</p>
         <label class="row" style="display:flex;align-items:center;gap:8px;text-transform:none;letter-spacing:0">
           <input id="snGut" type="checkbox" style="width:auto" /> Starts inside
         </label>
@@ -3848,7 +4174,7 @@
   <div id="splash">
     <div class="mark">Speck</div>
     <h2>Stories</h2>
-    <p>Giantesses · last call</p>
+    <p id="splashStatus">Restoring your night…</p>
     <div class="bar"><i></i></div>
   </div>
   <header class="top">
@@ -6701,25 +7027,40 @@ conversation, it is a conversation.`;
       const root = document.documentElement;
       root.classList.add("theme-anim");
       root.setAttribute("data-face", id);
-      // These were set but never cleared, so switching from a character with a
-      // custom palette to one without kept the previous face's colours.
-      const accent = FACE_ACCENT[id];
-      if (accent) root.style.setProperty("--neon", accent);
-      else root.style.removeProperty("--neon");
-      const bg = FACE_BG[id];
-      if (bg) root.style.setProperty("--bg", bg);
-      else root.style.removeProperty("--bg");
-      const second = FACE_SECOND[id];
-      if (second) root.style.setProperty("--cyan", second);
-      else root.style.removeProperty("--cyan");
-      const panel = FACE_PANEL[id];
-      if (panel) root.style.setProperty("--panel", panel);
-      else root.style.removeProperty("--panel");
-      const meta = document.querySelector('meta[name="theme-color"]');
-      if (meta) meta.setAttribute("content", bg || THEME_COLORS[id] || "#120814");
+
       const c = characterOf(id);
+      const packChar = (studioPack && studioPack.characters && studioPack.characters[id]) || null;
+      const hasPalette = !!(packChar && (packChar.accent || packChar.bg || packChar.second || packChar.panel));
+      const accent = (packChar && packChar.accent) || FACE_ACCENT[id];
+      const bg = (packChar && packChar.bg) || FACE_BG[id] || THEME_COLORS[id] || "#100812";
+      const second = (packChar && packChar.second) || FACE_SECOND[id];
+      const panel = (packChar && packChar.panel) || FACE_PANEL[id];
+
+      root.classList.toggle("palette-custom", hasPalette);
+
+      if (hasPalette) {
+        // A saved profile palette becomes the source of truth for the entire
+        // visual system, not just the accent on character chips.
+        root.style.setProperty("--neon", accent || "#7cff9a");
+        root.style.setProperty("--bg", bg);
+        root.style.setProperty("--cyan", second || "#5ce1ff");
+        root.style.setProperty("--panel", panel || "#3a2044");
+        root.style.setProperty("--panel2", "color-mix(in srgb, var(--bg) 78%, #000 22%)");
+        root.style.setProperty("--linebg", "color-mix(in srgb, var(--panel) 58%, var(--bg) 42%)");
+        root.style.setProperty("--dawn", "color-mix(in srgb, var(--panel) 45%, var(--bg) 55%)");
+        root.style.setProperty("--you", "color-mix(in srgb, var(--panel) 72%, var(--bg) 28%)");
+        root.style.setProperty("--muted", "color-mix(in srgb, var(--ink) 68%, var(--bg) 32%)");
+        root.style.setProperty("--hair", "color-mix(in srgb, var(--neon) 42%, transparent)");
+        root.style.setProperty("--glass", "color-mix(in srgb, var(--bg) 82%, transparent)");
+      } else {
+        // Remove inline custom variables so the built-in data-face CSS can
+        // resume control when moving back to a stock face.
+        ["--neon","--bg","--cyan","--panel","--panel2","--linebg","--dawn","--you","--muted","--hair","--glass"].forEach((v) => root.style.removeProperty(v));
+      }
+
+      const meta = document.querySelector('meta[name="theme-color"]');
+      if (meta) meta.setAttribute("content", hasPalette ? bg : (THEME_COLORS[id] || "#120814"));
       if (els.still) els.still.alt = c.name;
-      // Keep anim class briefly so CSS transitions can run
       clearTimeout(applyTheme._t);
       applyTheme._t = setTimeout(() => root.classList.remove("theme-anim"), 600);
     }
@@ -6903,17 +7244,108 @@ conversation, it is a conversation.`;
     let busy = false;
     let composeReady = false;
 
-    // Runtime coordination. Auth, panel navigation, and cloud sync can all
-    // complete asynchronously; these guards keep an old operation from
-    // repainting or saving into a newer account/session.
+    // Runtime auth coordination. Async auth/canon/cloud work can complete after a
+    // user has signed out or switched accounts; these guards prevent stale work
+    // from repainting or saving into a newer session.
     let authEpoch = 0;
     let authBooting = true;
     let authBusy = false;
-    let viewTransitionSeq = 0;
-    let viewTransitionTimer = null;
-    let chatWriteTimer = null;
-    let pendingChatWrite = null;
-    let chatWriteInFlight = false;
+
+    // The signed-in deck can be painted optimistically from the local auth hint
+    // before the character/scenario/chat data has finished syncing. Deck actions
+    // wait on this gate so a first tap cannot race an empty runtime.
+    let deckReady = true;
+    let deckReadyPromise = Promise.resolve();
+    let deckReadyResolve = null;
+
+    // Base route: the deck is an intentional destination, not the default landing
+    // screen for an already-playing account. The active scene is restored on boot.
+    const VIEW_KEY = "speckView:v3";
+    const RESUME_KEY = "speckResume:v3";
+    let baseView = "chat";
+    try {
+      const v = localStorage.getItem(VIEW_KEY);
+      if (v === "deck" || v === "chat") baseView = v;
+    } catch {}
+
+    function setBaseView(view, save = true) {
+      baseView = view === "deck" ? "deck" : "chat";
+      if (save) {
+        try { localStorage.setItem(VIEW_KEY, baseView); } catch {}
+      }
+      return baseView;
+    }
+
+    function splashStatus(text) {
+      const el = document.getElementById("splashStatus");
+      if (el && text) el.textContent = text;
+    }
+
+    function showSplash(text) {
+      const el = document.getElementById("splash");
+      if (!el) return;
+      if (text) splashStatus(text);
+      el.classList.remove("hide");
+    }
+
+    function snapshotResumeScene() {
+      if (!sessionUser || !game || !game.characterId || !game.scenarioId) return false;
+      try {
+        const payload = {
+          chatId: activeChatId || "",
+          game: snapshotGame(),
+          history: cloneState(history).slice(-(HISTORY_CAP || 36)),
+          logTurns: cloneState(logTurns).slice(-80),
+          at: Date.now(),
+        };
+        localStorage.setItem(RESUME_KEY, JSON.stringify(payload));
+        return true;
+      } catch (e) {
+        console.warn("resume snapshot", e);
+        return false;
+      }
+    }
+
+    function readResumeScene() {
+      if (!sessionUser) return null;
+      try {
+        const raw = JSON.parse(localStorage.getItem(RESUME_KEY) || "null");
+        if (!raw || !raw.game || !raw.game.characterId || !raw.game.scenarioId) return null;
+        if (!CHARACTERS[raw.game.characterId] && !studioPack.characters[raw.game.characterId]) return null;
+        if (!SCENARIOS[raw.game.scenarioId] && !studioPack.scenarios[raw.game.scenarioId]) return null;
+        return raw;
+      } catch { return null; }
+    }
+
+    function clearResumeScene() {
+      try { localStorage.removeItem(RESUME_KEY); } catch {}
+    }
+
+    function beginDeckReadyGate() {
+      deckReady = false;
+      deckReadyPromise = new Promise((resolve) => { deckReadyResolve = resolve; });
+    }
+
+    function finishDeckReadyGate() {
+      if (deckReady) return;
+      deckReady = true;
+      if (els && els.home) els.home.classList.remove("deck-syncing");
+      const resolve = deckReadyResolve;
+      deckReadyResolve = null;
+      try { resolve && resolve(); } catch {}
+    }
+
+    async function waitForDeckReady() {
+      if (deckReady || bootSettled) return true;
+      try {
+        await Promise.race([deckReadyPromise, new Promise((resolve) => setTimeout(resolve, 15000))]);
+      } catch {}
+      if (!deckReady) {
+        pushToast("Still syncing your account. Try that again in a moment.", "warn");
+        return false;
+      }
+      return true;
+    }
 
     function authIsCurrent(userId, epoch) {
       return !!sessionUser && sessionUser.id === userId && authEpoch === epoch;
@@ -6948,16 +7380,7 @@ conversation, it is a conversation.`;
     }
 
     function clearAccountRuntime() {
-      // Do not touch per-account localStorage here. Only discard in-memory
-      // state and UI that belongs to the account that just ended.
       if (persistTimer) { clearTimeout(persistTimer); persistTimer = null; }
-      if (chatWriteTimer) { clearTimeout(chatWriteTimer); chatWriteTimer = null; }
-      pendingChatWrite = null;
-      viewTransitionSeq += 1;
-      if (viewTransitionTimer) { clearTimeout(viewTransitionTimer); viewTransitionTimer = null; }
-      try { stopDigestMeter({ clear: true }); } catch {}
-      try { if (bowelTimer) { clearInterval(bowelTimer); bowelTimer = null; } } catch {}
-      try { if (gutSettleTick) { clearInterval(gutSettleTick); gutSettleTick = null; } } catch {}
       unloadCanon();
       dropCanonCache();
       studioPack = emptyStudioPack();
@@ -6971,6 +7394,7 @@ conversation, it is a conversation.`;
       hardCloseLibrary();
       hardClosePanel(els.settings);
       hardClosePanel(document.getElementById("studio"));
+      clearResumeScene();
       try {
         game = Object.assign(freshGame("", ""), { characterId: "", scenarioId: "", shot: "look" });
       } catch {}
@@ -6984,43 +7408,6 @@ conversation, it is a conversation.`;
           btn.setAttribute("aria-busy", String(authBusy));
         }
       });
-    }
-
-    function queueChatPush(chat, immediate) {
-      if (!supabase || !sessionUser || !chat || !(chat.history && chat.history.length)) return;
-      pendingChatWrite = { snapshot: cloneState(chat), userId: sessionUser.id };
-      const run = () => {
-        chatWriteTimer = null;
-        if (chatWriteInFlight || !pendingChatWrite) return;
-        const item = pendingChatWrite;
-        pendingChatWrite = null;
-        chatWriteInFlight = true;
-        pushChat(item.snapshot, item.userId)
-          .catch((e) => console.warn("chat sync", e))
-          .finally(() => {
-            chatWriteInFlight = false;
-            if (pendingChatWrite && !chatWriteTimer) chatWriteTimer = setTimeout(run, 0);
-          });
-      };
-      if (immediate) {
-        if (chatWriteTimer) { clearTimeout(chatWriteTimer); chatWriteTimer = null; }
-        run();
-      } else {
-        if (chatWriteTimer) clearTimeout(chatWriteTimer);
-        chatWriteTimer = setTimeout(run, 550);
-      }
-    }
-
-    function commitActiveChat() {
-      if (!sessionUser || !activeChatId) return;
-      try {
-        persist({ quiet: true });
-        const lib = readLib();
-        const chat = lib.chats && lib.chats[activeChatId];
-        if (chat) queueChatPush(chat, false);
-      } catch (e) {
-        console.warn("commit active chat", e);
-      }
     }
 
     const REMOVED_SCENARIOS = new Set(["lanes", "hoodie", "bedroom", "tongue"]);
@@ -7382,7 +7769,8 @@ conversation, it is a conversation.`;
         at: Date.now(),
       };
       writeLib(lib);
-      if (!opts.quiet) queueChatPush(lib.chats[activeChatId], false);
+      snapshotResumeScene();
+      if (!opts.quiet) pushChat(lib.chats[activeChatId]);
     }
 
     function persistSoon() {
@@ -7442,7 +7830,8 @@ conversation, it is a conversation.`;
     }
     // New chat: latest character if we can name one, otherwise send the player
     // somewhere they can pick or make one — never a dead tap.
-    function startNewChat() {
+    async function startNewChat() {
+      if (!(await waitForDeckReady())) return;
       if (!sessionUser) { showHome(); openAuth(); return; }
       if (deckIsEmpty()) {
         pushToast("Make a character first.", "bad");
@@ -7462,7 +7851,6 @@ conversation, it is a conversation.`;
 
     function startOpenChat(faceId) {
       if (deckIsEmpty()) { showHome(); return; }
-      commitActiveChat();
       const vis = characterList().filter((c) => c.ready);
       const face = vis.some((c) => c.id === faceId) ? faceId : lastFaceId();
       if (!face) {
@@ -7476,9 +7864,11 @@ conversation, it is a conversation.`;
       history = [];
       logTurns = [];
       els.log.innerHTML = "";
+      setBaseView("chat");
       setStill(game.shot || "look");
       applyPlace();
       paintOpening();
+      snapshotResumeScene();
       els.gulp.classList.remove("show");
       paintThinkBtn();
       if (els.input && !els.input.disabled) {
@@ -7557,9 +7947,8 @@ conversation, it is a conversation.`;
       if (els.chats) els.chats.classList.toggle("on", isChats && els.library && els.library.classList.contains("show"));
     }
 
-    function openLibrary(mode) {
-      closeTransientPanels("library");
-      pauseGutTimer();
+    async function openLibrary(mode) {
+      if (!(await waitForDeckReady())) return;
       if (els.library) els.library.classList.remove("closing");
       clearTimeout(libCloseTimer);
       // Always open on All rather than inheriting the last session's filter.
@@ -7580,19 +7969,11 @@ conversation, it is a conversation.`;
     }
 
     function swapView(fn) {
-      commitActiveChat();
-      const token = ++viewTransitionSeq;
-      if (viewTransitionTimer) clearTimeout(viewTransitionTimer);
       document.body.classList.add("swap");
       closeLibrary();
-      viewTransitionTimer = setTimeout(() => {
-        viewTransitionTimer = null;
-        if (token !== viewTransitionSeq) return;
-        try { fn(); } finally {
-          requestAnimationFrame(() => {
-            if (token === viewTransitionSeq) document.body.classList.remove("swap");
-          });
-        }
+      setTimeout(() => {
+        fn();
+        requestAnimationFrame(() => document.body.classList.remove("swap"));
       }, 220);
     }
 
@@ -7616,9 +7997,11 @@ conversation, it is a conversation.`;
         history = [];
         els.log.innerHTML = "";
         logTurns = [];
+        setBaseView("chat");
         setStill(s.shot);
         applyPlace();
         if (s.opening) addTurn(s.opening);
+        snapshotResumeScene();
         els.gulp.classList.remove("show");
         // Gut-start scenarios arm the meter after 2 minutes inside
         if (game.depth >= 3 || s.gut || /^(inside|hold|rest|digest|full|after|rub|taut|burp)$/.test(s.shot || "")) {
@@ -7644,6 +8027,7 @@ conversation, it is a conversation.`;
         hydrateGame(data);
         history = (data.history || []).slice();
         logTurns = [];
+        setBaseView("chat");
         els.log.innerHTML = "";
         applyPlace();
         setStill(game.shot || scenarioOf(game.scenarioId).shot);
@@ -9296,6 +9680,9 @@ Never copy SPEECH: or ACTION: into your reply. Reply only with MOMENT, SAY, SHOT
       applyPlace();
       paintOpening();
       els.gulp.classList.remove("show");
+      snapshotResumeScene();
+      setBaseView("deck");
+      showHome();
     }
 
 
@@ -9696,7 +10083,9 @@ Never copy SPEECH: or ACTION: into your reply. Reply only with MOMENT, SAY, SHOT
       }
       return land;
     }
-    function showHome() {
+    function showHome(opts) {
+      opts = opts || {};
+      if (!opts.silentRoute) setBaseView("deck");
       const land = syncGuestShell();
       els.home.classList.toggle("signed", !!sessionUser);
       const title = document.getElementById("homeTitle");
@@ -9715,10 +10104,11 @@ Never copy SPEECH: or ACTION: into your reply. Reply only with MOMENT, SAY, SHOT
       const create = document.getElementById("homeCreate");
       if (create) create.textContent = "Create character";
       const auth = document.getElementById("homeAuth");
-      if (auth) auth.textContent = "Log in";
+      if (auth) auth.textContent = sessionUser ? "Signed in" : "Log in";
       paintHomeFaces();
       paintHomeOrbit();
       els.home.classList.add("show");
+      els.home.classList.toggle("deck-syncing", !deckReady);
       pauseGutTimer();
     }
 
@@ -9740,7 +10130,9 @@ Never copy SPEECH: or ACTION: into your reply. Reply only with MOMENT, SAY, SHOT
       try { paintMeter(); paintVitals(); } catch {}
     }
 
-    function hideHome() {
+    function hideHome(opts) {
+      opts = opts || {};
+      if (!opts.silentRoute && sessionUser) setBaseView("chat");
       document.body.classList.remove("guest");
       els.home.classList.remove("show");
       // Snap palette back to whoever is actually in play
@@ -9748,22 +10140,42 @@ Never copy SPEECH: or ACTION: into your reply. Reply only with MOMENT, SAY, SHOT
       resumeTickers();
     }
 
+    function ensureRestoredRoute() {
+      if (authBooting || document.hidden || !sessionUser) return;
+      if (baseView !== "chat") return;
+      if (!els.home.classList.contains("show")) return;
+      const resume = readResumeScene();
+      const saved = loadSave();
+      const savedValid = !!(saved && saved.game && CHARACTERS[saved.game.characterId] && SCENARIOS[saved.game.scenarioId]);
+      const target = savedValid ? saved : resume;
+      if (!target) return;
+      if (target.game && CHARACTERS[target.game.characterId] && SCENARIOS[target.game.scenarioId]) {
+        try {
+          if (target.id && readLib().chats[target.id]) {
+            openChat(target.id);
+          } else {
+            activeChatId = target.chatId || activeChatId;
+            restoreSave(target);
+            applyPlace();
+            hideHome({ silentRoute: true });
+          }
+        } catch (e) { console.warn("route restore", e); }
+      }
+    }
+
     async function boot() {
-      try { hideSplash(); } catch {}
+      beginDeckReadyGate();
+      showSplash("Checking your session…");
+      document.documentElement.classList.add("booting");
       try {
       // Optimistic: sessionUser is already set from the stored auth hint, so
       // restore this device's characters and nights before touching the network.
       const cached = hydrateFast();
       try { setAuthUi(); } catch {}
-      // The night shell used to be visible for the whole auth round-trip, so a
-      // reload flashed an empty chat before snapping to the deck. If this
-      // device remembers a login, the deck is where we are going — show it now.
-      if (authHinted() && els.home) {
-        try {
-          els.home.classList.add("land", "show");
-          document.body.classList.add("guest");
-        } catch {}
-      }
+      // Keep all app surfaces underneath the boot overlay until auth, canon,
+      // studio and chats have reconciled. This prevents a stale deck or blank
+      // night from flashing during a hard refresh.
+      splashStatus(sessionUser ? "Restoring your account…" : "Checking for a saved session…");
       if (cloudReady) {
         try {
           await loadSupabase();
@@ -9774,6 +10186,7 @@ Never copy SPEECH: or ACTION: into your reply. Reply only with MOMENT, SAY, SHOT
               const uid = sessionUser.id;
               const epoch = authEpoch;
               if (typeof adoptLegacyLib === "function") adoptLegacyLib();
+              splashStatus("Refreshing characters…");
               if (cached) {
                 // Already painted from the snapshot — refresh it quietly.
                 loadCanon()
@@ -9787,66 +10200,86 @@ Never copy SPEECH: or ACTION: into your reply. Reply only with MOMENT, SAY, SHOT
                 await loadCanon();
                 if (authIsCurrent(uid, epoch)) saveCanonCache();
               }
+              splashStatus("Loading your characters…");
               await pullStudio(uid, epoch);
-              // Chat sync is background work; the local library is already live.
-              Promise.resolve()
-                .then(() => uploadLocalChats(uid, epoch))
-                .then(() => pullChats(uid, epoch))
-                .then(() => { if (authIsCurrent(uid, epoch)) { try { renderLibrary(); } catch {} } })
-                .catch((e) => console.warn("chat sync", e));
+              splashStatus("Restoring saved chats…");
+              // Complete the initial chat reconciliation before releasing the
+              // deck. The deck may already be visible from the auth hint, but its
+              // actions must not run against an empty/stale chat library.
+              try {
+                await uploadLocalChats(uid, epoch);
+                await pullChats(uid, epoch);
+                if (authIsCurrent(uid, epoch)) {
+                  try { renderLibrary(); } catch {}
+                }
+              } catch (e) {
+                console.warn("chat sync", e);
+              }
             } else {
               dropCanonCache();
             }
           }
         } catch (e) { console.warn("boot auth", e); }
       }
+      finishDeckReadyGate();
       bootSettled = true;
       authBooting = false;
       setAuthUi();
-      // REGRESSION FIX: this used to `return` here, which was fine when
-      // landingNeeded() meant "this account is empty". Now that the deck is
-      // home for every signed-in user, returning skipped restoreSave(),
-      // renderLibrary() and paintHomeFaces() on every boot — so no chat ever
-      // loaded. The scene is always restored underneath; the deck is just
-      // shown on top of it when it should be.
-      const showDeck = landingNeeded();
+      // Returning players resume the active chat. The deck is only the fallback
+      // when there is genuinely no resumable scene on this account.
       const saved = loadSave();
-      const g = saved && (saved.game || saved.vitals || {});
-      const leftOnChat = !!(saved && (
-        (saved.history && saved.history.length) ||
-        (saved.logTurns && saved.logTurns.length > 1) ||
-        (g.digestMeter && g.digestMeter.active) ||
-        (g.bowel && g.bowel.active) ||
-        (g.depth || 0) >= 3 ||
-        (typeof g.hp === "number" && g.hp < 100)
-      ));
-      if (!showDeck) hideHome();
-      if (leftOnChat) {
-        activeChatId = saved.id || activeChatId;
-        restoreSave(saved);
+      const resume = readResumeScene();
+      let scene = null;
+      if (saved) {
+        scene = saved;
+      } else if (resume) {
+        scene = {
+          id: resume.chatId || ("resume-" + Date.now()),
+          game: resume.game,
+          history: resume.history || [],
+          logTurns: resume.logTurns || [],
+          scenarioId: resume.game.scenarioId,
+          characterId: resume.game.characterId,
+          title: "Chat with " + ((CHARACTERS[resume.game.characterId] && CHARACTERS[resume.game.characterId].name) || "her"),
+        };
+      }
+      const canRestore = !!(scene && scene.game && scene.game.characterId && scene.game.scenarioId);
+      if (canRestore && CHARACTERS[scene.game.characterId] && SCENARIOS[scene.game.scenarioId]) {
+        activeChatId = scene.id || activeChatId;
+        restoreSave(scene);
         applyPlace();
+        setBaseView("chat");
+        snapshotResumeScene();
+        hideHome({ silentRoute: true });
       } else if (!deckIsEmpty()) {
-        // Only mint a blank night if there is a character to mint it for.
-        startOpenChat(lastFaceId());
+        // No saved scene: this account really has nowhere to resume to.
+        setBaseView("deck");
+        showHome();
+      } else {
+        setBaseView("deck");
+        showHome();
       }
       if (!game.gone) resumeDigestMeterFromSave();
-      if (!els.log.children.length) paintOpening();
+      if (!els.log.children.length && game.characterId && game.scenarioId) paintOpening();
       preloadStills();
       setAuthUi();
       try { renderLibrary(); paintHomeFaces(); } catch {}
-      // Deck last, so it sits over a fully restored scene and Continue works.
-      if (showDeck) { try { showHome(); } catch (e) { console.warn(e); } }
       setLive("Live", "ready");
       setBusy(false);
       if (els.progress) els.progress.hidden = true;
-      setTimeout(hideSplash, shouldSplash(false) ? 700 : 0);
+      splashStatus("Ready.");
+      document.documentElement.classList.remove("booting");
+      setTimeout(hideSplash, 450);
       } catch (err) {
         console.error("boot", err);
+        finishDeckReadyGate();
         authBooting = false;
-        try { hideSplash(); } catch {}
+        document.documentElement.classList.remove("booting");
+        splashStatus("Recovery needed — opening the deck…");
         try { setAuthUi(); } catch {}
-        try { showHome(); } catch {}
+        try { setBaseView("deck"); showHome(); } catch {}
         try { setLive("Live", "ready"); setBusy(false); } catch {}
+        setTimeout(hideSplash, 700);
       }
     }
 
@@ -10391,6 +10824,67 @@ Never copy SPEECH: or ACTION: into your reply. Reply only with MOMENT, SAY, SHOT
       pushToast("Slot cleared.", "ok");
     }
 
+    const STUDIO_NIGHT_TAGS = [
+      { id: "aware", label: "Aware", group: "awareness" },
+      { id: "unaware", label: "Unaware", group: "awareness" },
+      { id: "intentional", label: "Intentional", group: "intent" },
+      { id: "unintentional", label: "Unintentional", group: "intent" },
+      { id: "mean", label: "Mean", group: "tone" },
+      { id: "caring", label: "Caring", group: "tone" },
+      { id: "sleeping", label: "Sleeping", group: "sleep" },
+    ];
+    let studioNightTags = ["aware"];
+
+    function normalizeStudioNightTags(tags) {
+      const raw = Array.isArray(tags) ? tags.map((x) => String(x || "").toLowerCase()) : [];
+      const valid = new Set(STUDIO_NIGHT_TAGS.map((x) => x.id));
+      const out = raw.filter((x, i) => valid.has(x) && raw.indexOf(x) === i);
+      const pick = (group, fallback) => {
+        const hit = STUDIO_NIGHT_TAGS.find((x) => x.group === group && out.indexOf(x.id) >= 0);
+        return hit ? hit.id : fallback;
+      };
+      const awareness = pick("awareness", "aware");
+      const intent = out.some((x) => STUDIO_NIGHT_TAGS.find((t) => t.id === x && t.group === "intent")) ? pick("intent", "intentional") : "";
+      const tone = out.some((x) => STUDIO_NIGHT_TAGS.find((t) => t.id === x && t.group === "tone")) ? pick("tone", "caring") : "";
+      const result = [awareness];
+      if (intent) result.push(intent);
+      if (tone) result.push(tone);
+      if (out.indexOf("sleeping") >= 0) result.push("sleeping");
+      return result;
+    }
+
+    function paintStudioNightTags(tags) {
+      studioNightTags = normalizeStudioNightTags(tags);
+      const host = document.getElementById("snTags");
+      if (!host) return;
+      host.innerHTML = "";
+      STUDIO_NIGHT_TAGS.forEach((tag) => {
+        const b = document.createElement("button");
+        b.type = "button";
+        b.textContent = tag.label;
+        b.dataset.tag = tag.id;
+        b.classList.toggle("on", studioNightTags.indexOf(tag.id) >= 0);
+        b.setAttribute("aria-pressed", String(studioNightTags.indexOf(tag.id) >= 0));
+        b.addEventListener("click", () => {
+          const active = studioNightTags.indexOf(tag.id) >= 0;
+          if (tag.group === "awareness" || tag.group === "intent" || tag.group === "tone") {
+            studioNightTags = studioNightTags.filter((id) => {
+              const t = STUDIO_NIGHT_TAGS.find((x) => x.id === id);
+              return !t || t.group !== tag.group;
+            });
+            if (!active) studioNightTags.push(tag.id);
+            else if (tag.group === "awareness") studioNightTags.push("aware");
+          } else {
+            if (active) studioNightTags = studioNightTags.filter((id) => id !== tag.id);
+            else studioNightTags.push(tag.id);
+          }
+          studioNightTags = normalizeStudioNightTags(studioNightTags);
+          paintStudioNightTags(studioNightTags);
+        });
+        host.appendChild(b);
+      });
+    }
+
     function openStudio(mode, id) {
       if (!sessionUser) {
         openAuth();
@@ -10459,6 +10953,7 @@ Never copy SPEECH: or ACTION: into your reply. Reply only with MOMENT, SAY, SHOT
         document.getElementById("snHook").value = n ? (n.hook || "") : "";
         document.getElementById("snOpenM").value = open.moment || "";
         document.getElementById("snOpenL").value = open.line || "";
+        paintStudioNightTags(n && n.tags ? n.tags : ["aware"]);
         document.getElementById("snGut").checked = !!(n && n.gut);
         document.getElementById("snSize").value = (n && n.sizeMode) || "";
         if (n && n.shot) sel.value = n.shot;
@@ -10531,6 +11026,7 @@ Never copy SPEECH: or ACTION: into your reply. Reply only with MOMENT, SAY, SHOT
       const editing = studioEditId && studioPack.scenarios[studioEditId];
       const id = editing ? studioEditId : ("n-" + Date.now().toString(36));
       const gut = !!document.getElementById("snGut").checked;
+      const tags = normalizeStudioNightTags(studioNightTags);
       // Keep the night on the face it was written for; libFace can have moved
       // on since it was created.
       const owner = editing ? (editing.characterId || face) : face;
@@ -10547,13 +11043,14 @@ Never copy SPEECH: or ACTION: into your reply. Reply only with MOMENT, SAY, SHOT
         mood: "",
         shot: document.getElementById("snShot").value || "look",
         gut,
-        tags: gut ? ["aware", "intentional"] : ["aware"],
+        tags,
         hook: document.getElementById("snHook").value.trim() || ("SCENARIO: " + title + ". Stay in this room."),
         opening: {
           moment: document.getElementById("snOpenM").value.trim() || "The night starts.",
           line: document.getElementById("snOpenL").value.trim() || "",
         },
       };
+      libFace = owner;
       applyStudioPack();
       await pushStudio();
       renderLibrary();
@@ -10613,12 +11110,14 @@ Never copy SPEECH: or ACTION: into your reply. Reply only with MOMENT, SAY, SHOT
     const mpClear = document.getElementById("mpClear");
     if (mpClear) mpClear.addEventListener("click", clearMeSlot);
     const homeMe = document.getElementById("homeMe");
-    if (homeMe) homeMe.addEventListener("click", () => {
+    if (homeMe) homeMe.addEventListener("click", async () => {
+      await waitForDeckReady();
       if (!sessionUser) { openAuth(); return; }
       openStudio("me");
     });
     const homeNewStory = document.getElementById("homeNewStory");
-    if (homeNewStory) homeNewStory.addEventListener("click", () => {
+    if (homeNewStory) homeNewStory.addEventListener("click", async () => {
+      await waitForDeckReady();
       if (!sessionUser) { openAuth(); return; }
       if (deckIsEmpty()) { pushToast("Make a character first.", "bad"); openStudio("char"); return; }
       openStudio("night");
@@ -10630,17 +11129,26 @@ Never copy SPEECH: or ACTION: into your reply. Reply only with MOMENT, SAY, SHOT
       document.getElementById("scSecond").value = "#5ce1ff";
       document.getElementById("scPanel").value = "#3a2044";
       const root = document.documentElement;
-      ["--neon", "--bg", "--cyan", "--panel"].forEach((v) => root.style.removeProperty(v));
+      root.classList.remove("palette-custom");
+      ["--neon", "--bg", "--cyan", "--panel", "--panel2", "--linebg", "--dawn", "--you", "--muted", "--hair", "--glass"].forEach((v) => root.style.removeProperty(v));
       pushToast("Palette reset.", "ok");
     });
     const scPalPreview = document.getElementById("scPalPreview");
     if (scPalPreview) scPalPreview.addEventListener("click", () => {
       // Paint the sheet live so the colours can be judged before saving.
       const root = document.documentElement;
+      root.classList.add("palette-custom");
       root.style.setProperty("--neon", document.getElementById("scAccent").value);
       root.style.setProperty("--bg", document.getElementById("scBg").value);
       root.style.setProperty("--cyan", document.getElementById("scSecond").value);
       root.style.setProperty("--panel", document.getElementById("scPanel").value);
+      root.style.setProperty("--panel2", "color-mix(in srgb, var(--bg) 78%, #000 22%)");
+      root.style.setProperty("--linebg", "color-mix(in srgb, var(--panel) 58%, var(--bg) 42%)");
+      root.style.setProperty("--dawn", "color-mix(in srgb, var(--panel) 45%, var(--bg) 55%)");
+      root.style.setProperty("--you", "color-mix(in srgb, var(--panel) 72%, var(--bg) 28%)");
+      root.style.setProperty("--muted", "color-mix(in srgb, var(--ink) 68%, var(--bg) 32%)");
+      root.style.setProperty("--hair", "color-mix(in srgb, var(--neon) 42%, transparent)");
+      root.style.setProperty("--glass", "color-mix(in srgb, var(--bg) 82%, transparent)");
     });
     const scSave = document.getElementById("scSaveChar");
     if (scSave) scSave.addEventListener("click", saveStudioChar);
@@ -10723,18 +11231,36 @@ Never copy SPEECH: or ACTION: into your reply. Reply only with MOMENT, SAY, SHOT
     const homeNew = document.getElementById("homeNew");
     if (homeNew) homeNew.addEventListener("click", startNewChat);
     const homeCreate = document.getElementById("homeCreate");
-    if (homeCreate) homeCreate.addEventListener("click", () => {
+    if (homeCreate) homeCreate.addEventListener("click", async () => {
+      if (!(await waitForDeckReady())) return;
       if (!sessionUser) { openAuth(); return; }
       openStudio("char");
     });
-    els.homeContinue.addEventListener("click", () => {
-      hideHome();
+    els.homeContinue.addEventListener("click", async () => {
+      if (!(await waitForDeckReady())) return;
       const saved = loadSave();
-      if (saved) {
-        restoreSave(saved);
+      const resume = readResumeScene();
+      const scene = saved || (resume ? {
+        id: resume.chatId || ("resume-" + Date.now()),
+        game: resume.game,
+        history: resume.history || [],
+        logTurns: resume.logTurns || [],
+        scenarioId: resume.game.scenarioId,
+        characterId: resume.game.characterId,
+      } : null);
+      if (scene && scene.game && CHARACTERS[scene.game.characterId] && SCENARIOS[scene.game.scenarioId]) {
+        hideHome();
+        activeChatId = scene.id || activeChatId;
+        restoreSave(scene);
         applyPlace();
-      } else if (!els.log.children.length) {
-        paintOpening();
+        setBaseView("chat");
+        snapshotResumeScene();
+      } else if (game.characterId && game.scenarioId) {
+        hideHome();
+        setBaseView("chat");
+        if (!els.log.children.length) paintOpening();
+      } else {
+        pushToast("There is no saved night to continue yet.", "warn");
       }
     });
     function leaveHome() {
@@ -10748,7 +11274,11 @@ Never copy SPEECH: or ACTION: into your reply. Reply only with MOMENT, SAY, SHOT
     const homeAuthBtn = document.getElementById("homeAuth");
     if (homeAuthBtn) homeAuthBtn.addEventListener("click", (e) => { e.stopPropagation(); openAuth(); });
     const homeChats = document.getElementById("homeChats");
-    if (homeChats) homeChats.addEventListener("click", () => { hideHome(); openLibrary("chats"); });
+    if (homeChats) homeChats.addEventListener("click", async () => {
+      if (!(await waitForDeckReady())) return;
+      hideHome();
+      await openLibrary("chats");
+    });
     const homeFilter = document.getElementById("homeFilter");
     if (homeFilter) homeFilter.addEventListener("input", paintHomeFaces);
     document.addEventListener("keydown", (e) => {
@@ -10766,9 +11296,10 @@ Never copy SPEECH: or ACTION: into your reply. Reply only with MOMENT, SAY, SHOT
       if (studio && studio.classList.contains("show")) { closeStudio(); return; }
       if (els.home.classList.contains("show")) leaveHome();
     });
-    els.homeStories.addEventListener("click", () => {
+    els.homeStories.addEventListener("click", async () => {
+      if (!(await waitForDeckReady())) return;
       hideHome();
-      openLibrary("stories");
+      await openLibrary("stories");
     });
     els.libClose.addEventListener("click", closeLibrary);
     els.library.addEventListener("click", (e) => {
@@ -10980,8 +11511,10 @@ Never copy SPEECH: or ACTION: into your reply. Reply only with MOMENT, SAY, SHOT
       if (document.hidden) {
         pauseGutTimer();
         persist({ force: true, quiet: true });
+        snapshotResumeScene();
       } else {
         syncGutTimer();
+        ensureRestoredRoute();
       }
       if (game.digestMeter && game.digestMeter.active) {
         game.digestMeter.lastTick = Date.now();
@@ -10990,18 +11523,16 @@ Never copy SPEECH: or ACTION: into your reply. Reply only with MOMENT, SAY, SHOT
       paintVitals();
     });
     window.addEventListener("beforeunload", () => {
-      try {
-        persist({ force: true, quiet: true });
-        const lib = readLib();
-        const chat = activeChatId && lib.chats && lib.chats[activeChatId];
-        if (chat) queueChatPush(chat, true);
-      } catch {}
+      try { persist({ force: true, quiet: true }); } catch {}
+      try { snapshotResumeScene(); } catch {}
     });
-    window.addEventListener("focus", () => syncGutTimer());
+    window.addEventListener("focus", () => {
+      syncGutTimer();
+      ensureRestoredRoute();
+    });
     window.addEventListener("blur", () => pauseGutTimer());
 
     document.addEventListener("pointerdown", () => { try { resumeBurpAudio(); } catch {} }, { once: true });
-    setTimeout(() => { try { hideSplash(); } catch {} }, 1200);
     boot();
   </script>
 </body>
