@@ -4505,6 +4505,167 @@
       #faceSummary { grid-template-columns: 52px minmax(0, 1fr); }
       #faceSummary .face-sum-ava { width: 52px; height: 52px; border-radius: 14px; }
     }
+    /* ===============================================================
+       STUDIO — character and story creation screens.
+       Built from the library sheet's vocabulary so the two read as one
+       product: sticky header with grip + round close, cyan tracked group
+       headings, hairline dividers, panel inputs, and a sticky action bar
+       with a single neon primary. Every field ID is unchanged.
+       =============================================================== */
+    #studio { align-items: flex-end; }
+    #studio .sheet {
+      max-height: calc(100% - 8px);
+      padding: 0 16px;
+      background: color-mix(in srgb, var(--panel2) 92%, #000);
+      border-bottom: 0;
+      overscroll-behavior: contain;
+    }
+    #studio .studio-head {
+      position: sticky; top: 0; z-index: 3;
+      display: grid; grid-template-columns: 1fr auto; align-items: end;
+      gap: 6px 10px;
+      margin: 0 -16px 2px; padding: 16px 16px 12px;
+      background: color-mix(in srgb, var(--panel2) 94%, #000);
+      border-bottom: 1px solid color-mix(in srgb, var(--hair) 45%, transparent);
+    }
+    #studio .studio-head h2 { margin: 10px 0 0; font-size: 1.28rem; font-weight: 800; letter-spacing: .02em; }
+    #studio .studio-head .hint { grid-column: 1 / -1; margin: 0; color: var(--muted); font-size: .8rem; line-height: 1.35; }
+    #studio .studio-x {
+      width: 40px; height: 40px; min-height: 0; padding: 0;
+      display: inline-flex; align-items: center; justify-content: center;
+      border-radius: 50%; border: 1px solid var(--hair);
+      background: var(--panel); color: var(--ink); cursor: pointer;
+    }
+    #studio .studio-x:hover { border-color: color-mix(in srgb, var(--neon) 55%, var(--hair)); }
+
+    #studio .st-group {
+      padding: 14px 0 16px;
+      border-bottom: 1px solid color-mix(in srgb, var(--hair) 40%, transparent);
+    }
+    #studio .st-group:last-of-type { border-bottom: 0; }
+    #studio .st-group h3 {
+      margin: 0 0 2px;
+      font-size: .68rem; letter-spacing: .14em; text-transform: uppercase;
+      color: var(--cyan);
+    }
+    #studio .st-group .field-note { margin: 6px 0 0; }
+
+    #studio input:focus-visible, #studio textarea:focus-visible, #studio select:focus-visible {
+      outline: none;
+      border-color: var(--neon);
+      box-shadow: 0 0 0 3px color-mix(in srgb, var(--neon) 22%, transparent);
+    }
+    #studio textarea.st-tall { min-height: 132px; line-height: 1.45; }
+    #studio input::placeholder, #studio textarea::placeholder { color: color-mix(in srgb, var(--muted) 70%, transparent); }
+
+    #studio .st-labelrow { display: flex; align-items: flex-end; justify-content: space-between; gap: 8px; }
+    #studio .st-mini {
+      min-height: 30px; padding: 0 11px; margin: 0 0 4px;
+      border-radius: 999px;
+      border: 1px solid color-mix(in srgb, var(--neon) 45%, var(--hair));
+      background: transparent; color: var(--neon);
+      font-size: .62rem; font-weight: 800; letter-spacing: .06em; text-transform: uppercase;
+      cursor: pointer;
+    }
+    #studio .st-mini:hover { background: color-mix(in srgb, var(--neon) 12%, transparent); }
+
+    #studio .st-pair { display: grid; grid-template-columns: 1fr 1fr; gap: 0 10px; }
+    @media (max-width: 360px) { #studio .st-pair { grid-template-columns: 1fr; } }
+
+    #studio .st-inline { display: flex; gap: 8px; margin: 8px 0 4px; }
+    #studio .st-inline button {
+      flex: 1; min-height: var(--h-sm, 40px);
+      border-radius: var(--r-ctl, 12px); border: 1px solid var(--hair);
+      background: var(--panel); color: var(--ink);
+      font-size: .7rem; font-weight: 800; letter-spacing: .05em; text-transform: uppercase;
+      cursor: pointer;
+    }
+    #studio .st-inline button:hover { border-color: color-mix(in srgb, var(--neon) 55%, var(--hair)); }
+
+    /* Toggle row. The checkbox stays real and focusable; the track is its face. */
+    #studio label.st-switch {
+      position: relative;
+      display: grid; grid-template-columns: auto 1fr; align-items: center; gap: 12px;
+      margin: 14px 0 0; padding: 12px;
+      border: 1px solid var(--hair); border-radius: 14px;
+      background: var(--panel);
+      text-transform: none; letter-spacing: 0; font-weight: 400; color: var(--ink);
+      cursor: pointer;
+    }
+    #studio .st-switch input {
+      position: absolute; opacity: 0; width: 1px; height: 1px; padding: 0; margin: 0; border: 0;
+    }
+    #studio .st-switch-track {
+      position: relative; width: 42px; height: 24px; border-radius: 999px;
+      background: color-mix(in srgb, var(--panel2) 80%, #000);
+      border: 1px solid var(--hair);
+      transition: background .18s ease, border-color .18s ease;
+    }
+    #studio .st-switch-track::after {
+      content: ""; position: absolute; top: 2px; left: 2px;
+      width: 18px; height: 18px; border-radius: 50%;
+      background: var(--muted);
+      transition: transform .18s ease, background .18s ease;
+    }
+    #studio .st-switch input:checked + .st-switch-track { background: var(--neon); border-color: transparent; }
+    #studio .st-switch input:checked + .st-switch-track::after { transform: translateX(18px); background: var(--on-accent, #140814); }
+    #studio .st-switch input:focus-visible + .st-switch-track { outline: 2px solid var(--neon); outline-offset: 2px; }
+    #studio .st-switch-text b { display: block; font-size: .9rem; font-weight: 800; }
+    #studio .st-switch-text small { display: block; margin-top: 2px; color: var(--muted); font-size: .74rem; line-height: 1.35; }
+
+    /* Sticky action bar: the save is always in reach, whatever the scroll. */
+    #studio .st-actions {
+      position: sticky; bottom: 0; z-index: 3;
+      display: flex; gap: 8px;
+      margin: 4px -16px 0; padding: 12px 16px calc(12px + var(--safe-bot));
+      background: color-mix(in srgb, var(--panel2) 94%, #000);
+      border-top: 1px solid color-mix(in srgb, var(--hair) 45%, transparent);
+    }
+    #studio .st-save {
+      flex: 1; min-height: var(--h-card, 48px);
+      border-radius: var(--r-card, 14px); border: 0;
+      background: var(--neon); color: var(--on-accent, #140814);
+      font-size: .78rem; font-weight: 800; letter-spacing: .06em; text-transform: uppercase;
+      box-shadow: 0 10px 26px -14px color-mix(in srgb, var(--neon) 80%, transparent);
+      cursor: pointer;
+    }
+    #studio .st-save:hover { filter: brightness(1.06); }
+    #studio .st-save:active { transform: scale(.985); }
+    #studio .st-danger {
+      flex: 0 0 auto; min-height: var(--h-card, 48px); padding: 0 16px;
+      border-radius: var(--r-card, 14px);
+      border: 1px solid var(--hair); background: transparent; color: var(--muted);
+      font-size: .72rem; font-weight: 800; letter-spacing: .05em; text-transform: uppercase;
+      cursor: pointer;
+    }
+    #studio .st-danger:hover { color: #ff9aa6; border-color: #7a3044; }
+    #studio .st-danger[hidden] { display: none; }
+
+    /* The panes without an action bar still need breathing room at the end. */
+    #studioMePane, #studioSectionsPane { padding: 6px 0 calc(20px + var(--safe-bot)); }
+
+    /* Library: editable stories carry an Edit control beside the card. The
+       card is itself a button, so the control is a sibling, never nested. */
+    #library .story-wrap { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 6px; align-items: stretch; }
+    #library .story-wrap > .story-card { margin: 0; }
+    #library .story-edit {
+      width: 44px; min-height: 0; padding: 0;
+      display: inline-flex; align-items: center; justify-content: center;
+      border-radius: 14px; border: 1px solid var(--hair);
+      background: var(--panel); color: var(--muted); cursor: pointer;
+    }
+    #library .story-edit:hover { color: var(--ink); border-color: color-mix(in srgb, var(--neon) 55%, var(--hair)); }
+
+    @media (min-width: 720px) {
+      #studio { align-items: center; padding: 28px; }
+      #studio .sheet { max-width: 560px; max-height: 88vh; border-radius: 22px; border: 1px solid var(--hair); }
+      #studio .st-actions { padding-bottom: 14px; }
+      #studio .studio-head .lib-grip { display: none; }
+    }
+    @media (prefers-reduced-motion: reduce) {
+      #studio .st-switch-track, #studio .st-switch-track::after { transition: none; }
+      #studio .st-save:active { transform: none; }
+    }
   </style>
 </head>
 <body>
@@ -4520,72 +4681,131 @@
   </div>
   <div id="studio">
     <div class="sheet" role="dialog" aria-modal="true" aria-labelledby="studioTitle">
-      <h2 id="studioTitle">New character</h2>
-      <p class="hint" id="studioHint">Private to this login. Gemini plays her from the voice you write.</p>
-      <div id="studioCharPane">
-        <label for="scName">Name</label>
-        <input id="scName" maxlength="40" autocomplete="off" />
-        <label for="scBlurb">Blurb</label>
-        <input id="scBlurb" maxlength="80" placeholder="One line" />
-        <label for="scVoice">Voice / prompt</label>
-        <textarea id="scVoice" placeholder="You play NAME. How she talks. What she will and will not do."></textarea>
-        <label for="scPace">Pacing</label>
-        <select id="scPace"></select>
-        <label for="scSize">Default scale</label>
-        <select id="scSize">
-          <option value="giant">She's enormous / you're tiny</option>
-          <option value="same">Same size</option>
-        </select>
-        <label>Palette</label>
-        <div class="pal-grid">
-          <label class="pal-swatch"><input id="scAccent" type="color" value="#7cff9a" /><span>Accent</span></label>
-          <label class="pal-swatch"><input id="scBg" type="color" value="#100812" /><span>Background</span></label>
-          <label class="pal-swatch"><input id="scSecond" type="color" value="#5ce1ff" /><span>Highlight</span></label>
-          <label class="pal-swatch"><input id="scPanel" type="color" value="#3a2044" /><span>Panels</span></label>
-        </div>
-        <div class="row" style="margin-top:6px">
-          <button type="button" id="scPalReset">Reset palette</button>
-          <button type="button" id="scPalPreview">Preview</button>
-        </div>
-        <div class="row">
-          <button type="button" id="scDraft">Draft voice</button>
-          <button type="button" id="scSaveChar" class="ask-yes">Save character</button>
-        </div>
-        <label>Stills — assign a photo to a shot</label>
-        <div class="still-map" id="scStillMap"></div>
+      <div class="studio-head">
+        <span class="lib-grip" aria-hidden="true"></span>
+        <h2 id="studioTitle">New character</h2>
+        <button type="button" id="studioClose" class="studio-x" aria-label="Close">
+          <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg>
+        </button>
+        <p class="hint" id="studioHint">Private to this login. Gemini plays her from the voice you write.</p>
       </div>
+
+      <div id="studioCharPane">
+        <section class="st-group">
+          <h3>Who she is</h3>
+          <label for="scName">Name</label>
+          <input id="scName" maxlength="40" autocomplete="off" placeholder="Rhea" />
+          <label for="scBlurb">Blurb</label>
+          <input id="scBlurb" maxlength="80" placeholder="Marine biologist, back from six months at sea" />
+          <p class="field-note">Shown on her card. The model also reads it when writing your turns, so say who she is.</p>
+        </section>
+
+        <section class="st-group">
+          <h3>How she plays</h3>
+          <div class="st-labelrow">
+            <label for="scVoice">Voice</label>
+            <button type="button" id="scDraft" class="st-mini">Draft from blurb</button>
+          </div>
+          <textarea id="scVoice" class="st-tall" placeholder="You play NAME. Adult. How she talks, what she wants, what gets under her skin, what she won't do."></textarea>
+          <p class="field-note">Her personality and speech. Leave the scene, scale and pacing to the fields below and to each story.</p>
+          <div class="st-pair">
+            <div>
+              <label for="scPace">Pacing</label>
+              <select id="scPace"></select>
+            </div>
+            <div>
+              <label for="scSize">Default scale</label>
+              <select id="scSize">
+                <option value="giant">She's enormous / you're tiny</option>
+                <option value="same">Same size</option>
+              </select>
+            </div>
+          </div>
+        </section>
+
+        <section class="st-group">
+          <h3>Look</h3>
+          <div class="pal-grid">
+            <label class="pal-swatch"><input id="scAccent" type="color" value="#7cff9a" /><span>Accent</span></label>
+            <label class="pal-swatch"><input id="scBg" type="color" value="#100812" /><span>Background</span></label>
+            <label class="pal-swatch"><input id="scSecond" type="color" value="#5ce1ff" /><span>Highlight</span></label>
+            <label class="pal-swatch"><input id="scPanel" type="color" value="#3a2044" /><span>Panels</span></label>
+          </div>
+          <div class="st-inline">
+            <button type="button" id="scPalPreview">Preview</button>
+            <button type="button" id="scPalReset">Reset palette</button>
+          </div>
+          <label>Stills</label>
+          <p class="field-note">Assign a photo to each shot. Shots without one fall back to her card.</p>
+          <div class="still-map" id="scStillMap"></div>
+        </section>
+
+        <div class="st-actions">
+          <button type="button" id="scDelete" class="st-danger" hidden>Delete</button>
+          <button type="button" id="scSaveChar" class="st-save">Save character</button>
+        </div>
+      </div>
+
       <div id="studioNightPane" hidden>
-        <label for="snTitle">Night title</label>
-        <input id="snTitle" maxlength="60" />
-        <label for="snBlurb">Blurb</label>
-        <input id="snBlurb" maxlength="120" />
-        <label for="snPlace">Where you are</label>
-        <input id="snPlace" placeholder="on her palm / across the booth / inside" />
-        <label for="snLoc">Location</label>
-        <input id="snLoc" placeholder="her apartment, late" />
-        <label for="snSize">Scale</label>
-        <select id="snSize">
-          <option value="">Use the character's default</option>
-          <option value="giant">She's enormous / you're tiny</option>
-          <option value="same">Same size</option>
-        </select>
-        <label for="snHook">Scenario lock for the model</label>
-        <textarea id="snHook" placeholder="SCENARIO: she does not know / she swallowed by accident / ..."></textarea>
-        <label for="snOpenM">Opening moment</label>
-        <textarea id="snOpenM"></textarea>
-        <label for="snOpenL">Opening line</label>
-        <input id="snOpenL" />
-        <label for="snShot">Starting shot</label>
-        <select id="snShot"></select>
-        <label>Night tags</label>
-        <div id="snTags" class="tag-tabs studio-tag-picker" role="group" aria-label="Night tags"></div>
-        <p class="field-note">Awareness, intent, and tone each use one tag. Sleeping can be combined with them.</p>
-        <label class="row" style="display:flex;align-items:center;gap:8px;text-transform:none;letter-spacing:0">
-          <input id="snGut" type="checkbox" style="width:auto" /> Starts inside
-        </label>
-        <div class="row">
-          <button type="button" id="snSave">Save night</button>
-          <button type="button" id="snDelete" hidden>Delete</button>
+        <section class="st-group">
+          <h3>The story</h3>
+          <label for="snTitle">Title</label>
+          <input id="snTitle" maxlength="60" placeholder="Late shift" />
+          <label for="snBlurb">Blurb</label>
+          <input id="snBlurb" maxlength="120" placeholder="One line for the Stories list" />
+          <label class="st-switch">
+            <input id="snGut" type="checkbox" />
+            <span class="st-switch-track" aria-hidden="true"></span>
+            <span class="st-switch-text"><b>Starts inside</b><small>The story opens with you already swallowed, and files under Inside.</small></span>
+          </label>
+        </section>
+
+        <section class="st-group">
+          <h3>The setting</h3>
+          <div class="st-pair">
+            <div>
+              <label for="snPlace">Where you are</label>
+              <input id="snPlace" placeholder="on her desk" />
+            </div>
+            <div>
+              <label for="snLoc">Location</label>
+              <input id="snLoc" placeholder="her apartment, late" />
+            </div>
+          </div>
+          <label for="snSize">Scale</label>
+          <select id="snSize">
+            <option value="">Use her default</option>
+            <option value="giant">She's enormous / you're tiny</option>
+            <option value="same">Same size</option>
+          </select>
+        </section>
+
+        <section class="st-group">
+          <h3>How she plays it</h3>
+          <div id="snTags" class="tag-tabs studio-tag-picker" role="group" aria-label="Story tags"></div>
+          <p class="field-note">Awareness, intent and tone each take one tag. Sleeping combines with any of them.</p>
+        </section>
+
+        <section class="st-group">
+          <h3>For the model</h3>
+          <label for="snHook">Scenario lock</label>
+          <textarea id="snHook" class="st-tall" placeholder="What's true tonight. Where she is, what she knows, what she's doing when it starts."></textarea>
+          <p class="field-note">Read on every turn. Keep it to facts about this scene; her personality lives on her profile.</p>
+        </section>
+
+        <section class="st-group">
+          <h3>Opening</h3>
+          <label for="snOpenM">First moment</label>
+          <textarea id="snOpenM" placeholder="What the player sees when the story starts."></textarea>
+          <label for="snOpenL">Her first line</label>
+          <input id="snOpenL" placeholder="Optional" />
+          <label for="snShot">Starting shot</label>
+          <select id="snShot"></select>
+        </section>
+
+        <div class="st-actions">
+          <button type="button" id="snDelete" class="st-danger" hidden>Delete</button>
+          <button type="button" id="snSave" class="st-save">Save story</button>
         </div>
       </div>
       <div id="studioSectionsPane" hidden>
@@ -4624,9 +4844,6 @@
         <div class="row">
           <button type="button" id="mpClear">Clear slot</button>
         </div>
-      </div>
-      <div class="row">
-        <button type="button" id="studioClose">Close</button>
       </div>
     </div>
   </div>
@@ -8852,7 +9069,24 @@ conversation, it is a conversation.`;
 
       b.setAttribute("aria-label", "Start " + (s.title || "night") + (s.gut ? ", inside" : ", outside") + (plays ? ", " + plays + " saved chats" : ""));
       b.addEventListener("click", () => newChat(s.id, pack.id));
-      return b;
+      // Stories made in the Studio can be edited from here. Built-ins cannot:
+      // saving over one would mint a copy rather than change it.
+      const own = s.custom && studioPack.scenarios && studioPack.scenarios[s.id];
+      if (!own) return b;
+      const wrap = document.createElement("div");
+      wrap.className = "story-wrap";
+      const ed = document.createElement("button");
+      ed.type = "button";
+      ed.className = "story-edit";
+      ed.setAttribute("aria-label", "Edit " + (s.title || "story"));
+      ed.innerHTML = '<svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 20h4L19 9l-4-4L4 16v4z"/><path d="M13.5 6.5l4 4"/></svg>';
+      ed.addEventListener("click", (e) => {
+        e.stopPropagation();
+        libFace = pack.id;
+        openStudio("night", s.id);
+      });
+      wrap.append(b, ed);
+      return wrap;
     }
 
     // ----- Chats list rows -----
@@ -11757,7 +11991,7 @@ Never copy SPEECH: or ACTION: into your reply. Reply only with MOMENT, SAY, SHOT
       const nightPane = document.getElementById("studioNightPane");
       const mePane = document.getElementById("studioMePane");
       const secPane = document.getElementById("studioSectionsPane");
-      const titles = { night: "New night", me: "Who you are", sections: "Sections" };
+      const titles = { night: "New story", me: "Who you are", sections: "Sections" };
       document.getElementById("studioTitle").textContent = titles[studioMode]
         || (studioEditId ? "Edit character" : "New character");
       const hint = document.getElementById("studioHint");
@@ -11772,6 +12006,17 @@ Never copy SPEECH: or ACTION: into your reply. Reply only with MOMENT, SAY, SHOT
       nightPane.hidden = studioMode !== "night";
       if (mePane) mePane.hidden = studioMode !== "me";
       if (secPane) secPane.hidden = studioMode !== "sections";
+      if (hint && studioMode === "night") {
+        hint.textContent = "A scene for one character: where it starts, what's true, and how she opens.";
+      }
+      // Delete is only offered for a character this account made and is editing.
+      const scDel = document.getElementById("scDelete");
+      if (scDel) {
+        const own = studioPack.characters && studioPack.characters[studioEditId];
+        scDel.hidden = !(studioMode === "char" && studioEditId && own && own.custom);
+      }
+      const sheetEl = sheet && sheet.querySelector(".sheet");
+      if (sheetEl) sheetEl.scrollTop = 0;
       if (studioMode === "sections") {
         const nf = document.getElementById("secNew");
         if (nf) nf.value = "";
@@ -11815,7 +12060,7 @@ Never copy SPEECH: or ACTION: into your reply. Reply only with MOMENT, SAY, SHOT
         document.getElementById("snGut").checked = !!(n && n.gut);
         document.getElementById("snSize").value = (n && n.sizeMode) || "";
         if (n && n.shot) sel.value = n.shot;
-        document.getElementById("studioTitle").textContent = n ? "Edit night" : "New night";
+        document.getElementById("studioTitle").textContent = n ? "Edit story" : "New story";
         const del = document.getElementById("snDelete");
         if (del) del.hidden = !(n && n.custom);
       }
@@ -11917,7 +12162,7 @@ Never copy SPEECH: or ACTION: into your reply. Reply only with MOMENT, SAY, SHOT
         try { applyPlace(); paintMeter(); } catch {}
       }
       closeStudio();
-      pushToast(editing ? "Night updated." : "Night saved.", "ok");
+      pushToast(editing ? "Story updated." : "Story saved.", "ok");
     }
     async function draftStudioVoice() {
       const name = document.getElementById("scName").value.trim() || "her";
@@ -12249,17 +12494,74 @@ Never copy SPEECH: or ACTION: into your reply. Reply only with MOMENT, SAY, SHOT
       libFace = characterOf(game.characterId).id;
       openStudio("night", game.scenarioId);
     });
+    // Deleting a character takes her stories and saved chats with her. Chats
+    // are removed rather than orphaned: characterOf() falls back to the first
+    // visible face, so an orphaned chat would reopen as somebody else.
+    async function deleteStudioChar() {
+      const id = studioEditId;
+      const c = id && studioPack.characters && studioPack.characters[id];
+      if (!c || !c.custom) return;
+      const name = c.name || "this character";
+      const nights = Object.values(studioPack.scenarios || {}).filter((n) => n && n.characterId === id);
+      const lib = readLib();
+      const chats = Object.values(lib.chats || {}).filter((ch) =>
+        ch && (ch.characterId || (ch.game && ch.game.characterId)) === id);
+      const bits = [];
+      if (nights.length) bits.push(nights.length + (nights.length === 1 ? " story" : " stories"));
+      if (chats.length) bits.push(chats.length + (chats.length === 1 ? " saved chat" : " saved chats"));
+      const copy = "Delete " + name + "?"
+        + (bits.length ? " Her " + bits.join(" and ") + " will be deleted too." : "")
+        + " This can't be undone.";
+      const ok = await askConfirm(copy, "Delete");
+      if (!ok) return;
+
+      const wasActive = game && game.characterId === id;
+      nights.forEach((n) => { delete studioPack.scenarios[n.id]; });
+      delete studioPack.characters[id];
+      if (studioPack.faceSection) delete studioPack.faceSection[id];
+      if (studioPack.pace && studioPack.pace.byFace) delete studioPack.pace.byFace[id];
+
+      chats.forEach((ch) => {
+        delete lib.chats[ch.id];
+        try { cloudDelete(ch.id); } catch {}
+      });
+      if (lib.activeId && !lib.chats[lib.activeId]) lib.activeId = null;
+      writeLib(lib);
+
+      try {
+        const r = readResumeScene();
+        if (r && r.game && r.game.characterId === id) clearResumeScene();
+      } catch {}
+      try { if (localStorage.getItem("speckLastFace") === id) localStorage.removeItem("speckLastFace"); } catch {}
+      if (libFace === id) libFace = null;
+      if (wasActive) {
+        activeChatId = null;
+        stopDigestMeter({ clear: true });
+      }
+
+      applyStudioPack();
+      await pushStudio();
+      closeStudio();
+      renderLibrary();
+      paintHomeFaces();
+      if (wasActive || deckIsEmpty()) showHome();
+      pushToast("Deleted " + name + ".", "ok");
+    }
+    const scDelete = document.getElementById("scDelete");
+    if (scDelete) scDelete.addEventListener("click", deleteStudioChar);
+
     const snDelete = document.getElementById("snDelete");
     if (snDelete) snDelete.addEventListener("click", async () => {
       if (!studioEditId || !studioPack.scenarios[studioEditId]) return;
-      const ok = await askConfirm("Delete this night? Saved chats that used it stay put.", "Delete");
+      const title = studioPack.scenarios[studioEditId].title || "this story";
+      const ok = await askConfirm("Delete \u201c" + title + "\u201d? Saved chats from it stay in Saved chats, but can't be continued.", "Delete");
       if (!ok) return;
       delete studioPack.scenarios[studioEditId];
       applyStudioPack();
       await pushStudio();
       renderLibrary();
       closeStudio();
-      pushToast("Night deleted.", "ok");
+      pushToast("Story deleted.", "ok");
     });
 
     // Skip the 2-minute gut settle grace period
